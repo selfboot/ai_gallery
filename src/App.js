@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import projects from './config/projects';
+import GomokuGame from './games/gomoku';
 
 const ProjectCard = ({ title, description, image, link }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -74,10 +75,7 @@ const App = () => {
                 <ProjectGrid category={selectedCategory} />
               </>
             } />
-            {/* 这里可以添加其他路由，比如具体的游戏页面 */}
-            <Route path="/games/:gameName" element={
-              <div>Game Component Placeholder</div>
-            } />
+            <Route path="/games/gomoku" element={<GomokuGame />} />
           </Routes>
         </main>
       </div>
