@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react-router-dom';
 import projects from './config/projects';
 import GomokuGame from './games/gomoku';
 import TetrisGame from './games/tetris';
@@ -42,46 +42,62 @@ const CATEGORIES = [
 ];
 
 const App = () => {
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0].id);
-
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
-        <nav className="bg-white shadow-md">
-          <div className="container mx-auto px-6 py-3">
-            <ul className="flex space-x-4">
-              {CATEGORIES.map(category => (
-                <li key={category.id}>
-                  <button
-                    className={`px-4 py-2 rounded ${
-                      selectedCategory === category.id
-                        ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 hover:bg-gray-200'
-                    }`}
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    {category.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-
-        <main className="container mx-auto mt-6">
-          <Routes>
-            <Route path="/" element={
-              <>
-                <h2 className="text-2xl font-bold mb-4 px-6">{CATEGORIES.find(cat => cat.id === selectedCategory).name}</h2>
-                <ProjectGrid category={selectedCategory} />
-              </>
-            } />
-            <Route path="/games/gomoku" element={<GomokuGame />} />
-            <Route path="/games/tetris" element={<TetrisGame />} />
-          </Routes>
-        </main>
-      </div>
+      <AppComponent />
     </Router>
+  );
+};
+
+const AppComponent = () => {
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0].id);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Listening for changes in the query string.
+    const query = new URLSearchParams(location.search);
+    const category = query.get('category');
+    if (category) {
+      setSelectedCategory(category);
+    }
+  }, [location]);
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <nav className="bg-white shadow-md">
+        <div className="container mx-auto px-6 py-3">
+          <ul className="flex space-x-4">
+            {CATEGORIES.map(category => (
+              <li key={category.id}>
+                <Link to={`/?category=${category.id}`}
+                      className={`px-4 py-2 rounded ${
+                        selectedCategory === category.id
+                          ? 'bg-blue-500 text-white'
+                          : 'text-gray-600 hover:bg-gray-200'
+                      }`}
+                      onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+
+      <main className="container mx-auto mt-6">
+        <Routes>
+          <Route path="/" element={
+            <>
+              <h2 className="text-2xl font-bold mb-4 px-6">{CATEGORIES.find(cat => cat.id === selectedCategory).name}</h2>
+              <ProjectGrid category={selectedCategory} />
+            </>
+          } />
+          <Route path="/games/gomoku" element={<GomokuGame />} />
+          <Route path="/games/tetris" element={<TetrisGame />} />
+        </Routes>
+      </main>
+    </div>
   );
 };
 
