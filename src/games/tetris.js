@@ -103,6 +103,21 @@ const TetrisGame = () => {
     return false;
   }, [currentPiece, isValidMove]);
 
+  const clearLines = useCallback(() => {
+    setBoard(prev => {
+      const newBoard = prev.filter(row => !row.every(cell => cell !== 0));
+      const linesCleared = ROWS - newBoard.length; // 在新的状态计算被清除的行数
+      while (newBoard.length < ROWS) {
+        newBoard.unshift(Array(COLS).fill(0));
+      }
+  
+      if (linesCleared > 0) {
+        setScore(prevScore => prevScore + linesCleared * 10); // 在这里更新得分
+      }
+      return newBoard;
+    });
+  }, []);
+
   const mergePiece = useCallback(() => {
     if (!currentPiece) return;
     setBoard(prev => {
@@ -116,22 +131,8 @@ const TetrisGame = () => {
       });
       return newBoard;
     });
-  }, [currentPiece]);
-
-  const clearLines = useCallback(() => {
-    let linesCleared = 0;
-    setBoard(prev => {
-      const newBoard = prev.filter(row => !row.every(cell => cell !== 0));
-      linesCleared = ROWS - newBoard.length;
-      while (newBoard.length < ROWS) {
-        newBoard.unshift(Array(COLS).fill(0));
-      }
-      return newBoard;
-    });
-    if (linesCleared > 0) {
-      setScore(prev => prev + linesCleared * 100);
-    }
-  }, []);
+    clearLines(); // 确保在块合并后调用 clearLines 函数
+  }, [currentPiece, clearLines]);
 
   const checkGameOver = useCallback(() => {
     return board[0].some(cell => cell !== 0);
@@ -141,7 +142,6 @@ const TetrisGame = () => {
     if (!gameActive) return;
     if (!movePiece(0, 1)) {
       mergePiece();
-      clearLines();
       if (checkGameOver()) {
         setGameActive(false);
         setGameOver(true);
@@ -149,8 +149,8 @@ const TetrisGame = () => {
         setCurrentPiece(createPiece());
       }
     }
-  }, [gameActive, movePiece, mergePiece, clearLines, checkGameOver, createPiece]);
-
+  }, [gameActive, movePiece, mergePiece, checkGameOver, createPiece]);
+  
   const drawGame = useCallback(() => {
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
