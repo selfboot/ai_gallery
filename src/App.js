@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import projects from './config/projects';
 import GomokuGame from './games/gomoku';
+import TetrisGame from './games/tetris';
 
 const ProjectCard = ({ title, description, image, link }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -76,6 +77,7 @@ const App = () => {
               </>
             } />
             <Route path="/games/gomoku" element={<GomokuGame />} />
+            <Route path="/games/tetris" element={<TetrisGame />} />
           </Routes>
         </main>
       </div>

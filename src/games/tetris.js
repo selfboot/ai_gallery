@@ -1,0 +1,243 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+const ROWS = 20;
+const COLS = 10;
+const BLOCK_SIZE = 30;
+
+const SHAPES = [
+  [[1, 1, 1, 1]],
+  [[1, 1], [1, 1]],
+  [[1, 1, 1], [0, 1, 0]],
+  [[1, 1, 1], [1, 0, 0]],
+  [[1, 1, 1], [0, 0, 1]],
+  [[1, 1, 0], [0, 1, 1]],
+  [[0, 1, 1], [1, 1, 0]]
+];
+
+const COLORS = [
+    '#06b6d4',  // 对应 bg-cyan-400
+    '#fde047',  // 对应 bg-yellow-400
+    '#d946ef',  // 对应 bg-fuchsia-400
+    '#f43f5e',  // 对应 bg-red-400
+    '#10b981',  // 对应 bg-green-400
+    '#3b82f6',  // 对应 bg-blue-400
+    '#fb923c'   // 对应 bg-orange-400
+  ];
+
+const TetrisGame = () => {
+  const [board, setBoard] = useState(Array(ROWS).fill().map(() => Array(COLS).fill(0)));
+  const [currentPiece, setCurrentPiece] = useState(null);
+  const [score, setScore] = useState(0);
+  const [gameActive, setGameActive] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const canvasRef = useRef(null);
+
+  const createPiece = useCallback(() => {
+    const shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    const colorIndex = Math.floor(Math.random() * COLORS.length);
+    return {
+      shape: SHAPES[shapeIndex],
+      color: COLORS[colorIndex],
+      x: Math.floor(COLS / 2) - Math.floor(SHAPES[shapeIndex][0].length / 2),
+      y: 0
+    };
+  }, []);
+
+  const drawBlock = useCallback((ctx, x, y, color) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    ctx.strokeStyle = '#000';
+    ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+  }, []);
+
+  const drawBoard = useCallback((ctx) => {
+    board.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          drawBlock(ctx, x, y, value);
+        }
+      });
+    });
+  }, [board, drawBlock]);
+
+  const drawPiece = useCallback((ctx) => {
+    if (!currentPiece) return;
+    currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          drawBlock(ctx, currentPiece.x + x, currentPiece.y + y, currentPiece.color);
+        }
+      });
+    });
+  }, [currentPiece, drawBlock]);
+
+  const isValidMove = useCallback((piece, x, y) => {
+    return piece.shape.every((row, dy) => {
+      return row.every((value, dx) => {
+        let newX = x + dx;
+        let newY = y + dy;
+        return (
+          value === 0 ||
+          (newX >= 0 && newX < COLS && newY < ROWS && (newY < 0 || board[newY][newX] === 0))
+        );
+      });
+    });
+  }, [board]);
+
+  const rotatePiece = useCallback(() => {
+    if (!currentPiece) return;
+    let rotated = currentPiece.shape[0].map((_, i) =>
+      currentPiece.shape.map(row => row[i]).reverse()
+    );
+    if (isValidMove({...currentPiece, shape: rotated}, currentPiece.x, currentPiece.y)) {
+      setCurrentPiece(prev => ({...prev, shape: rotated}));
+    }
+  }, [currentPiece, isValidMove]);
+
+  const movePiece = useCallback((dx, dy) => {
+    if (!currentPiece) return false;
+    if (isValidMove(currentPiece, currentPiece.x + dx, currentPiece.y + dy)) {
+      setCurrentPiece(prev => ({...prev, x: prev.x + dx, y: prev.y + dy}));
+      return true;
+    }
+    return false;
+  }, [currentPiece, isValidMove]);
+
+  const mergePiece = useCallback(() => {
+    if (!currentPiece) return;
+    setBoard(prev => {
+      const newBoard = [...prev];
+      currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) {
+            newBoard[currentPiece.y + y][currentPiece.x + x] = currentPiece.color;
+          }
+        });
+      });
+      return newBoard;
+    });
+  }, [currentPiece]);
+
+  const clearLines = useCallback(() => {
+    let linesCleared = 0;
+    setBoard(prev => {
+      const newBoard = prev.filter(row => !row.every(cell => cell !== 0));
+      linesCleared = ROWS - newBoard.length;
+      while (newBoard.length < ROWS) {
+        newBoard.unshift(Array(COLS).fill(0));
+      }
+      return newBoard;
+    });
+    if (linesCleared > 0) {
+      setScore(prev => prev + linesCleared * 100);
+    }
+  }, []);
+
+  const checkGameOver = useCallback(() => {
+    return board[0].some(cell => cell !== 0);
+  }, [board]);
+
+  const updateGame = useCallback(() => {
+    if (!gameActive) return;
+    if (!movePiece(0, 1)) {
+      mergePiece();
+      clearLines();
+      if (checkGameOver()) {
+        setGameActive(false);
+        setGameOver(true);
+      } else {
+        setCurrentPiece(createPiece());
+      }
+    }
+  }, [gameActive, movePiece, mergePiece, clearLines, checkGameOver, createPiece]);
+
+  const drawGame = useCallback(() => {
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    drawBoard(ctx);
+    drawPiece(ctx);
+  }, [drawBoard, drawPiece]);
+
+  const startGame = useCallback(() => {
+    setBoard(Array(ROWS).fill().map(() => Array(COLS).fill(0)));
+    setScore(0);
+    setCurrentPiece(createPiece());
+    setGameActive(true);
+    setGameOver(false);
+  }, [createPiece]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!gameActive) return;
+      event.preventDefault();
+      switch (event.keyCode) {
+        case 37: // left arrow
+          movePiece(-1, 0);
+          break;
+        case 39: // right arrow
+          movePiece(1, 0);
+          break;
+        case 40: // down arrow
+          movePiece(0, 1);
+          break;
+        case 38: // up arrow
+          rotatePiece();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [gameActive, movePiece, rotatePiece]);
+
+  useEffect(() => {
+    if (gameActive) {
+      const gameInterval = setInterval(updateGame, 500);
+      return () => clearInterval(gameInterval);
+    }
+  }, [gameActive, updateGame]);
+
+  useEffect(() => {
+    drawGame();
+  }, [board, currentPiece, drawGame]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          width={COLS * BLOCK_SIZE}
+          height={ROWS * BLOCK_SIZE}
+          className="border-2 border-gray-800"
+        />
+        {!gameActive && !gameOver && (
+          <button
+            onClick={startGame}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            开始游戏
+          </button>
+        )}
+        {gameOver && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-70 text-white p-4 text-center">
+            <p>游戏结束！</p>
+            <p>你的得分是：{score}</p>
+            <button
+              onClick={startGame}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              重新开始
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="mt-4 text-xl font-bold">得分: {score}</div>
+    </div>
+  );
+};
+
+export default TetrisGame;
