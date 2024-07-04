@@ -64,26 +64,31 @@ const AppComponent = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-6 py-3">
-          <ul className="flex space-x-4">
-            {CATEGORIES.map(category => (
-              <li key={category.id}>
-                <Link to={`/?category=${category.id}`}
-                      className={`px-4 py-2 rounded ${
-                        selectedCategory === category.id
-                          ? 'bg-blue-500 text-white'
-                          : 'text-gray-600 hover:bg-gray-200'
-                      }`}
-                      onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
+    <nav className="bg-white shadow-md">
+      <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+        <ul className="flex space-x-2 sm:space-x-4">
+          {CATEGORIES.map(category => (
+            <li key={category.id}>
+              <Link to={`/?category=${category.id}`}
+                    className={`px-2 sm:px-4 py-1 sm:py-2 rounded ${
+                      selectedCategory === category.id
+                        ? 'bg-blue-500 text-white'
+                        : 'text-gray-600 hover:bg-gray-200'
+                    }`}
+                    onClick={() => setSelectedCategory(category.id)}
+              >
+                {category.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <a href="https://github.com/selfboot/ai_gallery" target="_blank" rel="noopener noreferrer"
+        className="flex items-center text-gray-600 hover:text-gray-800">
+        <i className="fab fa-github fa-lg"></i>
+        <span className="ml-2">Star</span>
+        </a>
+      </div>
+    </nav>
 
       <main className="container mx-auto mt-6">
         <Routes>
