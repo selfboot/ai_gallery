@@ -22,7 +22,7 @@ const projects = {
       id: 'bfs_path',
       title: '广度优先寻路算法可视化',
       description: '可视化展示广度优先寻路算法的工作过程',
-      image: '',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240705_ai_gallery_bfs_path.png',
       link: '/algorithms/bfs_path'
     },
     // 这里可以添加算法相关的项目

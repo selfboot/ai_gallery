@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Flag, X } from "lucide-react";
 
 const GRID_MODES = [
-  { id: "obstacle", name: "设置障碍物", color: "bg-gray-500 hover:bg-gray-700" },
+  {
+    id: "obstacle",
+    name: "设置障碍物",
+    color: "bg-gray-500 hover:bg-gray-700",
+  },
   { id: "start", name: "设置起点", color: "bg-blue-500 hover:bg-blue-700" },
   { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-red-700" },
 ];
@@ -127,7 +131,7 @@ const BFSPathFind = () => {
       }));
     }
   };
-  
+
   const renderCell = (x, y) => {
     const isStart = start && start.x === x && start.y === y;
     const isEnd = end && end.x === x && end.y === y;
@@ -192,7 +196,7 @@ const BFSPathFind = () => {
               type="number"
               min="5"
               value={gridSize.width}
-              onChange={(e) => handleSizeChange('width', e.target.value)}
+              onChange={(e) => handleSizeChange("width", e.target.value)}
               className="w-full ml-4 p-2 border border-gray-300 rounded"
             />
           </div>
@@ -202,9 +206,9 @@ const BFSPathFind = () => {
             </label>
             <input
               type="number"
-              min="5"  
+              min="5"
               value={gridSize.height}
-              onChange={(e) => handleSizeChange('height', e.target.value)}
+              onChange={(e) => handleSizeChange("height", e.target.value)}
               className="w-full ml-4 p-2 border border-gray-300 rounded"
             />
           </div>
@@ -247,19 +251,23 @@ const BFSPathFind = () => {
             查找路径
           </button>
         </div>
+        {/* 折叠/展开按钮, 现在位于设置面板内 */}
+        <button
+          onClick={() => setIsPanelOpen(false)}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-lg"
+        >
+          ▶
+        </button>
       </div>
 
-      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-        {isPanelOpen ? (
-          <button onClick={() => setIsPanelOpen(false)} className="text-lg">
-            ▶
-          </button>
-        ) : (
-          <button onClick={() => setIsPanelOpen(true)} className="text-lg">
-            ◀
-          </button>
-        )}
-      </div>
+      {!isPanelOpen && (
+        <button
+          onClick={() => setIsPanelOpen(true)}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-lg"
+        >
+          ◀
+        </button>
+      )}
     </div>
   );
 };
