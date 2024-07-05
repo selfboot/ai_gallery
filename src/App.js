@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react
 import projects from './config/projects';
 import GomokuGame from './games/gomoku';
 import TetrisGame from './games/tetris';
+import BFSPathFind from './algorithms/bfs_path';
 
 const ProjectCard = ({ title, description, image, link }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -100,6 +101,8 @@ const AppComponent = () => {
           } />
           <Route path="/games/gomoku" element={<GomokuGame />} />
           <Route path="/games/tetris" element={<TetrisGame />} />
+
+          <Route path="/algorithms/bfs_path" element={<BFSPathFind />} />
         </Routes>
       </main>
     </div>

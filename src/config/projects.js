@@ -18,6 +18,13 @@ const projects = {
     // 可以继续添加更多游戏...
   ],
   algorithms: [
+    {
+      id: 'bfs_path',
+      title: '广度优先寻路算法可视化',
+      description: '可视化展示广度优先寻路算法的工作过程',
+      image: '',
+      link: '/algorithms/bfs_path'
+    },
     // 这里可以添加算法相关的项目
   ],
   others: [
