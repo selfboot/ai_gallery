@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Flag, X } from "lucide-react";
 
 const GRID_MODES = [
-  { id: "obstacle", name: "设置障碍物", color: "bg-gray-500 hover:bg-red-600" },
-  { id: "start", name: "设置起点", color: "bg-blue-500 hover:bg-blue-600" },
-  { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-gray-400" },
+  { id: "obstacle", name: "设置障碍物", color: "bg-gray-500 hover:bg-gray-700" },
+  { id: "start", name: "设置起点", color: "bg-blue-500 hover:bg-blue-700" },
+  { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-red-700" },
 ];
 
 const BFSPathFind = () => {
@@ -111,6 +111,23 @@ const BFSPathFind = () => {
     setIsSearching(false);
   };
 
+  const handleSizeChange = (key, value) => {
+    const newSize = parseInt(value, 10);
+    if (newSize >= 5) {
+      setGridSize((prev) => ({
+        ...prev,
+        [key]: newSize,
+      }));
+    }
+    // 如果输入无效或删除了数字，强制回退到最小值5
+    else {
+      setGridSize((prev) => ({
+        ...prev,
+        [key]: 5,
+      }));
+    }
+  };
+  
   const renderCell = (x, y) => {
     const isStart = start && start.x === x && start.y === y;
     const isEnd = end && end.x === x && end.y === y;
@@ -133,7 +150,7 @@ const BFSPathFind = () => {
     } else if (isPath) {
       cellClass += " bg-green-300";
     } else if (isVisited) {
-      cellClass += " bg-gray-200";
+      cellClass += " bg-gray-300";
     }
 
     return (
@@ -173,13 +190,9 @@ const BFSPathFind = () => {
             </label>
             <input
               type="number"
+              min="5"
               value={gridSize.width}
-              onChange={(e) =>
-                setGridSize((prev) => ({
-                  ...prev,
-                  width: parseInt(e.target.value),
-                }))
-              }
+              onChange={(e) => handleSizeChange('width', e.target.value)}
               className="w-full ml-4 p-2 border border-gray-300 rounded"
             />
           </div>
@@ -189,13 +202,9 @@ const BFSPathFind = () => {
             </label>
             <input
               type="number"
+              min="5"  
               value={gridSize.height}
-              onChange={(e) =>
-                setGridSize((prev) => ({
-                  ...prev,
-                  height: parseInt(e.target.value),
-                }))
-              }
+              onChange={(e) => handleSizeChange('height', e.target.value)}
               className="w-full ml-4 p-2 border border-gray-300 rounded"
             />
           </div>
