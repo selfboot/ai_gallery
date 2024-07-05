@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Flag, X } from "lucide-react";
 
 const GRID_MODES = [
-  { id: "obstacle", name: "设置障碍物", color: "bg-red-500 hover:bg-red-600" },
+  { id: "obstacle", name: "设置障碍物", color: "bg-gray-500 hover:bg-red-600" },
   { id: "start", name: "设置起点", color: "bg-blue-500 hover:bg-blue-600" },
-  { id: "end", name: "设置终点", color: "bg-gray-300 hover:bg-gray-400" },
+  { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-gray-400" },
 ];
 
 const BFSPathFind = () => {
@@ -17,6 +17,7 @@ const BFSPathFind = () => {
   const [mode, setMode] = useState(GRID_MODES[0]);
   const [searchSpeed, setSearchSpeed] = useState(5);
   const [isSearching, setIsSearching] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(true); // 控制面板展开和收起
 
   const initializeGrid = useCallback(() => {
     const newGrid = Array(gridSize.height)
@@ -147,64 +148,108 @@ const BFSPathFind = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-4 max-w-3xl mx-auto">
-      <div className="w-full mb-4 space-y-4">
-        <div className="flex justify-between items-center">
-          <label className="text-lg flex-shrink-0 whitespace-nowrap">网格宽度：</label>
-          <input
-            type="number"
-            value={gridSize.width}
-            onChange={(e) => setGridSize(prev => ({ ...prev, width: parseInt(e.target.value) }))}
-            className="w-full ml-4 p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div className="flex justify-between items-center">
-          <label className="text-lg flex-shrink-0 whitespace-nowrap">网格高度：</label>
-          <input
-            type="number"
-            value={gridSize.height}
-            onChange={(e) => setGridSize(prev => ({ ...prev, height: parseInt(e.target.value) }))}
-            className="w-full ml-4 p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div className="flex items-center">
-          <span className="text-lg mr-4 text-lg flex-shrink-0 whitespace-nowrap">搜索速度：</span>
-          <input
-            type="range"
-            min="1"
-            max="20"
-            value={searchSpeed}
-            onChange={(e) => setSearchSpeed(Number(e.target.value))}
-            className="w-full"
-          />
+    <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[400px]">
+      <div className="flex-grow flex justify-center overflow-x-auto">
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${gridSize.width}, minmax(40px, 1fr))`,
+          }}
+        >
+          {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
         </div>
       </div>
-      <div className="flex justify-between w-full mb-4">
-        {GRID_MODES.map((gridMode) => (
+
+      <div
+        className={`absolute right-0 top-0 p-4 bg-gray-200 shadow-lg min-w-[100px] min-h-[400px] ${
+          isPanelOpen ? "" : "hidden"
+        }`}
+        style={{ maxHeight: "calc(100vh - 8px)", overflowY: "auto" }}
+      >
+        <div className="w-full mb-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <label className="text-lg flex-shrink-0 whitespace-nowrap">
+              网格宽度：
+            </label>
+            <input
+              type="number"
+              value={gridSize.width}
+              onChange={(e) =>
+                setGridSize((prev) => ({
+                  ...prev,
+                  width: parseInt(e.target.value),
+                }))
+              }
+              className="w-full ml-4 p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <label className="text-lg flex-shrink-0 whitespace-nowrap">
+              网格高度：
+            </label>
+            <input
+              type="number"
+              value={gridSize.height}
+              onChange={(e) =>
+                setGridSize((prev) => ({
+                  ...prev,
+                  height: parseInt(e.target.value),
+                }))
+              }
+              className="w-full ml-4 p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div className="flex items-center">
+            <span className="text-lg mr-4 text-lg flex-shrink-0 whitespace-nowrap">
+              搜索速度：
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="20"
+              value={searchSpeed}
+              onChange={(e) => setSearchSpeed(Number(e.target.value))}
+              className="w-full"
+            />
+          </div>
+        </div>
+        <div className="space-y-4 mb4">
+          {GRID_MODES.map((gridMode) => (
+            <div key={gridMode.id} className="w-full">
+              <button
+                key={gridMode.id}
+                onClick={() => setMode(gridMode)}
+                className={`px-4 py-2 text-white rounded ${gridMode.color} ${
+                  mode.id === gridMode.id
+                    ? "ring-2 ring-offset-2 ring-blue-500"
+                    : ""
+                }`}
+                disabled={isSearching}
+              >
+                {gridMode.name}
+              </button>
+            </div>
+          ))}
           <button
-            key={gridMode.id}
-            onClick={() => setMode(gridMode)}
-            className={`px-4 py-2 text-white rounded ${gridMode.color} ${mode.id === gridMode.id ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+            onClick={findPath}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             disabled={isSearching}
           >
-            {gridMode.name}
+            查找路径
           </button>
-        ))}
-        <button
-          onClick={findPath}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          disabled={isSearching}
-        >
-          查找路径
-        </button>
+        </div>
       </div>
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: `repeat(${gridSize.width}, minmax(0, 1fr))`,
-        }}
-      >
-        {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
+
+      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+        {isPanelOpen ? (
+          <button onClick={() => setIsPanelOpen(false)} className="text-lg">
+            ▶
+          </button>
+        ) : (
+          <button onClick={() => setIsPanelOpen(true)} className="text-lg">
+            ◀
+          </button>
+        )}
       </div>
     </div>
   );
