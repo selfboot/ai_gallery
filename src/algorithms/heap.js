@@ -121,7 +121,7 @@ const HeapVisualization = () => {
   const AnimatedNode = React.memo(({ node }) => {
     const style = useSpring({
       to: { x: node.x, y: node.y, opacity: 1 },
-      from: { x: node.x, y: node.y - 20, opacity: 0 },
+      from: { x: node.x, y: node.y, opacity: 0 },
       config: { tension: 250, friction: 20 },
     });
 
