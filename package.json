@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@headlessui/react": "^2.1.1",
+    "@react-spring/web": "^9.7.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

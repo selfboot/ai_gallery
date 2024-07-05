@@ -25,6 +25,13 @@ const projects = {
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240705_ai_gallery_bfs_path.png',
       link: '/algorithms/bfs_path'
     },
+    {
+      id: 'heap',
+      title: '堆操作算法可视化(开发中)',
+      description: '可视化展示堆操作，包括插入、删除、堆化等操作。动态显示每次操作的具体步骤，帮助理解堆操作的原理。',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240705_ai_gallery_bfs_path.png',
+      link: '/algorithms/heap'
+    },
     // 这里可以添加算法相关的项目
   ],
   others: [
