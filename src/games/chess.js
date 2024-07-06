@@ -36,6 +36,18 @@ const ChineseChessBoard = () => {
         return board;
     }
 
+    function checkGameStatus() {
+        if (isCheckmate(board, currentPlayer)) {
+            setGameStatus('checkmate');
+        } else if (isCheck(board, currentPlayer)) {
+            setGameStatus('check');
+        } else if (isStalemate(board, currentPlayer)) {
+            setGameStatus('stalemate');
+        } else {
+            setGameStatus('playing');
+        }
+    }
+    
     function handleClick(row, col) {
         if (gameStatus !== 'playing' && gameStatus !== 'check') return;
 
@@ -312,18 +324,6 @@ const ChineseChessBoard = () => {
         return true;
     }
 
-    function checkGameStatus() {
-        if (isCheckmate(board, currentPlayer)) {
-            setGameStatus('checkmate');
-        } else if (isCheck(board, currentPlayer)) {
-            setGameStatus('check');
-        } else if (isStalemate(board, currentPlayer)) {
-            setGameStatus('stalemate');
-        } else {
-            setGameStatus('playing');
-        }
-    }
-
     function undoMove() {
         if (moveHistory.length === 0) return;
 
@@ -358,26 +358,37 @@ const ChineseChessBoard = () => {
                 {gameStatus === 'checkmate' && `Checkmate! ${currentPlayer === 'red' ? 'Black' : 'Red'} wins!`}
                 {gameStatus === 'stalemate' && `Stalemate! The game is a draw.`}
             </div>
-            <div className="grid grid-cols-9 gap-0 border-2 border-black mb-4">
-                {board.map((row, rowIndex) =>
-                    row.map((piece, colIndex) => (
-                        <div
-                            key={`${rowIndex}-${colIndex}`}
-                            className={`w-16 h-16 border border-black flex justify-center items-center
-                    ${(rowIndex + colIndex) % 2 === 0 ? 'bg-yellow-200' : 'bg-yellow-100'}
-                    ${selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex ? 'bg-blue-300' : ''}
-                  `}
-                            onClick={() => handleClick(rowIndex, colIndex)}
-                        >
-                            {piece && (
-                                <div className={`w-14 h-14 rounded-full flex justify-center items-center text-2xl font-bold
-                      ${piece.color === 'red' ? 'bg-red-500 text-white' : 'bg-black text-white'}`}>
-                                    {piece.type}
-                                </div>
-                            )}
-                        </div>
-                    ))
-                )}
+            <div className="flex flex-col border-2 border-black mb-4">
+                {[...Array(11)].map((_, rowIndex) => (
+                    <div key={rowIndex} className="flex">
+                        {rowIndex === 5 ? (
+                            <div className="w-full h-16 bg-yellow-100 flex items-center justify-center text-2xl font-bold">
+                                楚河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉界
+                            </div>
+                        ) : (
+                            [...Array(9)].map((_, colIndex) => {
+                                const piece = rowIndex < 5 ? board[rowIndex][colIndex] : board[rowIndex - 1][colIndex];
+                                return (
+                                    <div
+                                        key={`${rowIndex}-${colIndex}`}
+                                        className={`w-16 h-16 border border-black flex justify-center items-center
+                                            ${(rowIndex + colIndex) % 2 === 0 ? 'bg-yellow-200' : 'bg-yellow-100'}
+                                            ${selectedPiece && selectedPiece.row === (rowIndex < 5 ? rowIndex : rowIndex - 1) && selectedPiece.col === colIndex ? 'bg-blue-300' : ''}
+                                        `}
+                                        onClick={() => handleClick(rowIndex < 5 ? rowIndex : rowIndex - 1, colIndex)}
+                                    >
+                                        {piece && (
+                                            <div className={`w-14 h-14 rounded-full flex justify-center items-center text-2xl font-bold
+                                                ${piece.color === 'red' ? 'bg-red-500 text-white' : 'bg-black text-white'}`}>
+                                                {piece.type}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                ))}
             </div>
             <div className="flex space-x-4">
                 <button
