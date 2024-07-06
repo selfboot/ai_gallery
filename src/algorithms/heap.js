@@ -49,33 +49,33 @@ class MaxHeap {
   removeWithSteps() {
     if (this.heap.length === 0) return null;
     const steps = [];
-    const max = this.heap[0];
-    this.heap[0] = this.heap.pop();
-    steps.push([...this.heap]);
-
+    const max = this.heap[0]; // 保存最大值
+    this.heap[0] = this.heap.pop(); // 将最后一个元素移动到顶部
+    steps.push({ heap: [...this.heap], highlight: [0], newNode: 0 }); // 标记新的顶部节点
+  
     let i = 0;
     while (true) {
       const leftIndex = this.getLeftChildIndex(i);
       const rightIndex = this.getRightChildIndex(i);
       let largest = i;
-
+  
       if (leftIndex < this.heap.length && this.heap[leftIndex] > this.heap[largest]) {
         largest = leftIndex;
       }
       if (rightIndex < this.heap.length && this.heap[rightIndex] > this.heap[largest]) {
         largest = rightIndex;
       }
-
+  
       if (largest === i) break;
-
+  
       this.swap(i, largest);
-      steps.push([...this.heap]);
+      steps.push({ heap: [...this.heap], highlight: [i, largest], newNode: largest }); // 突出显示交换的节点
       i = largest;
     }
-
+  
     return { max, steps };
   }
-
+  
   depth() {
     return this.heap.length === 0 ? 0 : Math.floor(Math.log2(this.heap.length)) + 1;
   }
@@ -167,12 +167,13 @@ const HeapVisualization = () => {
 
   const handleRemove = useCallback(() => {
     if (!isAnimating && heap.size() > 0) {
-      const { steps } = heap.removeWithSteps();
-      setAnimationSteps(steps.map(step => MaxHeap.fromArray(step)));
+      const { max, steps } = heap.removeWithSteps();
+      setAnimationSteps(steps);
       setCurrentStep(0);
       setIsAnimating(true);
     }
   }, [heap, isAnimating]);
+
 
   useEffect(() => {
     if (isAnimating && currentStep < animationSteps.length) {
