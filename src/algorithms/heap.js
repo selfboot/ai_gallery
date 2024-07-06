@@ -145,16 +145,10 @@ const HeapVisualization = () => {
           className="border border-gray-300 rounded px-2 py-1 mr-2"
           placeholder="输入一个数字"
         />
-        <button
-          onClick={handleInsert}
-          className="bg-blue-500 text-white px-4 py-1 rounded mr-2"
-        >
+        <button onClick={handleInsert} className="bg-blue-500 text-white px-4 py-1 rounded mr-2">
           插入节点
         </button>
-        <button
-          onClick={handleRemove}
-          className="bg-red-500 text-white px-4 py-1 rounded"
-        >
+        <button onClick={handleRemove} className="bg-red-500 text-white px-4 py-1 rounded">
           删除最大值
         </button>
       </div>
@@ -165,9 +159,41 @@ const HeapVisualization = () => {
         preserveAspectRatio="xMidYMid meet"
         className="border border-gray-300"
       >
-        {treeData.map((node) => (
-          <AnimatedNode key={node.id} node={node} />
-        ))}
+        {treeData.map((node, index) => {
+          // 计算左右子节点的索引
+          const leftChildIdx = 2 * index + 1;
+          const rightChildIdx = 2 * index + 2;
+
+          // 安全地获取子节点
+          const leftChild = treeData.find(child => child && child.id === leftChildIdx);
+          const rightChild = treeData.find(child => child && child.id === rightChildIdx);
+
+          return (
+            <React.Fragment key={node.id}>
+              {/* 如果左子节点存在，则绘制从当前节点到左子节点的线 */}
+              {leftChild && (
+                <line
+                  x1={node.x}
+                  y1={node.y}
+                  x2={leftChild.x}
+                  y2={leftChild.y}
+                  stroke="black"
+                />
+              )}
+              {/* 如果右子节点存在，则绘制从当前节点到右子节点的线 */}
+              {rightChild && (
+                <line
+                  x1={node.x}
+                  y1={node.y}
+                  x2={rightChild.x}
+                  y2={rightChild.y}
+                  stroke="black"
+                />
+              )}
+              <AnimatedNode node={node} />
+            </React.Fragment>
+          );
+        })}
       </svg>
     </div>
   );
