@@ -10,6 +10,13 @@ const projects = {
     },
     {
       id: 2,
+      title: '中国象棋(开发中)',
+      description: '中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦!',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_tetris.png/webp',
+      link: '/games/chess'
+    },
+    {
+      id: 3,
       title: '俄罗斯方块',
       description: '经典的俄罗斯方块游戏，使用现代 Web 技术重新实现。挑战你的空间感知能力和快速思考！',
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_tetris.png/webp',
