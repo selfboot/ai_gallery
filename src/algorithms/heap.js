@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { animated, useSpring } from "@react-spring/web";
+import React, { useState, useEffect, useCallback } from "react";
+import { animated } from "@react-spring/web";
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
 const nodeHeight = 50; // 每个节点的高度
@@ -188,12 +188,6 @@ const HeapVisualization = () => {
   }, [isAnimating, currentStep, animationSteps]);
 
   const AnimatedNode = React.memo(({ node, isNew, isHighlighted }) => {
-    const style = useSpring({
-      to: { x: node.x, y: node.y, opacity: 1 },
-      from: { x: node.x, y: node.y, opacity: 0 },
-      config: { tension: 250, friction: 20 },
-    });
-
     const fill = isNew ? "#f87171" : isHighlighted ? "#fbbf24" : "#bbf";
 
     return (
