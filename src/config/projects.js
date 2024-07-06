@@ -20,16 +20,16 @@ const projects = {
   algorithms: [
     {
       id: 'bfs_path',
-      title: '广度优先寻路算法可视化',
-      description: '可视化展示广度优先寻路算法的工作过程',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240705_ai_gallery_bfs_path.png',
+      title: '广度优先寻路',
+      description: '可视化展示广度优先寻路算法，给定一个网络，可以设置障碍物，起点，终点，然后展示寻路过程',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_bfs_path.gif',
       link: '/algorithms/bfs_path'
     },
     {
       id: 'heap',
-      title: '堆操作算法可视化(开发中)',
-      description: '可视化展示堆操作，包括插入、删除、堆化等操作。动态显示每次操作的具体步骤，帮助理解堆操作的原理。',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240705_ai_gallery_bfs_path.png',
+      title: '堆算法',
+      description: '可视化展示堆操作，包括插入、删除等操作。动态显示每次操作的具体步骤，帮助理解堆操作的原理。',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_heapv2.gif',
       link: '/algorithms/heap'
     },
     // 这里可以添加算法相关的项目
