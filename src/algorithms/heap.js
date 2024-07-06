@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { animated, useSpring } from "@react-spring/web";
 
+const spaceBetweenNodes = 50; // 节点之间的固定间隔
+const nodeHeight = 50; // 每个节点的高度
 class MaxHeap {
   constructor() {
     this.heap = [];
@@ -152,13 +154,14 @@ const HeapVisualization = () => {
           删除最大值
         </button>
       </div>
+      <div style={{ overflowX: 'auto', width: '100%' }}>
       <svg
-        width={1200}
-        height={600}
-        viewBox="0 0 1200 600"
-        preserveAspectRatio="xMidYMid meet"
-        className="border border-gray-300"
-      >
+          width={Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} // 动态计算 SVG 宽度
+          height={Math.max(600, nodeHeight * (heap.depth() + 1))}
+          viewBox={`0 0 ${Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} ${Math.max(600, nodeHeight * (heap.depth() + 1))}`} // 动态设置 viewBox
+          preserveAspectRatio="xMidYMid meet"
+          className="border border-gray-300"
+        >
         {treeData.map((node, index) => {
           // 计算左右子节点的索引
           const leftChildIdx = 2 * index + 1;
@@ -195,6 +198,7 @@ const HeapVisualization = () => {
           );
         })}
       </svg>
+      </div>
     </div>
   );
 };
@@ -203,10 +207,7 @@ export default HeapVisualization;
 
 function calculatePositions(heap) {
   const depth = heap.depth();
-  const nodeWidth = 25; // 每个节点的宽度
-  const nodeHeight = 50; // 每个节点的高度
-  const spaceBetweenNodes = 40; // 节点之间的固定间隔
-  const baseWidth = 1200; // SVG总宽度
+  const baseWidth = Math.max(1200, spaceBetweenNodes * Math.pow(2, depth-1));// SVG总宽度
 
   // 假设堆是满的情况下的所有节点的位置
   const totalCnt = Math.pow(2, depth) - 1;
@@ -223,16 +224,12 @@ function calculatePositions(heap) {
     // console.log(level, levelNodeCount, levelNodeIndexes)
     // 如果是最底层，计算其起始X位置
     if (level === depth - 1) {
-      let startX =
-        (baseWidth -
-          (levelNodeCount * nodeWidth +
-            (levelNodeCount - 1) * spaceBetweenNodes)) /
-        2;
+      let startX = (baseWidth - ((levelNodeCount - 1) * spaceBetweenNodes)) / 2;
       levelNodeIndexes.forEach((idx, i) => {
         fullPositions[idx] = {
           id: idx,
           value: heap.heap[idx],
-          x: startX + i * (nodeWidth + spaceBetweenNodes),
+          x: startX + i * (spaceBetweenNodes),
           y: nodeHeight * (level + 1),
         };
       });
