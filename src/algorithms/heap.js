@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { animated, useSpring } from "@react-spring/web";
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
@@ -29,8 +29,55 @@ class MaxHeap {
     this.heapifyUp(this.heap.length - 1);
   }
 
+  insertWithSteps(key) {
+    const steps = [];
+    this.heap.push(key);
+    let i = this.heap.length - 1;
+    steps.push({ heap: [...this.heap], highlight: [i], newNode: i }); // Mark the new node
+
+    while (i > 0) {
+      const parentIndex = this.getParentIndex(i);
+      if (this.heap[parentIndex] >= this.heap[i]) break;
+      this.swap(i, parentIndex);
+      steps.push({ heap: [...this.heap], highlight: [i, parentIndex], newNode: parentIndex }); // Track the new node's position
+      i = parentIndex;
+    }
+
+    return steps;
+  }
+
+  removeWithSteps() {
+    if (this.heap.length === 0) return null;
+    const steps = [];
+    const max = this.heap[0];
+    this.heap[0] = this.heap.pop();
+    steps.push([...this.heap]);
+
+    let i = 0;
+    while (true) {
+      const leftIndex = this.getLeftChildIndex(i);
+      const rightIndex = this.getRightChildIndex(i);
+      let largest = i;
+
+      if (leftIndex < this.heap.length && this.heap[leftIndex] > this.heap[largest]) {
+        largest = leftIndex;
+      }
+      if (rightIndex < this.heap.length && this.heap[rightIndex] > this.heap[largest]) {
+        largest = rightIndex;
+      }
+
+      if (largest === i) break;
+
+      this.swap(i, largest);
+      steps.push([...this.heap]);
+      i = largest;
+    }
+
+    return { max, steps };
+  }
+
   depth() {
-    return Math.floor(Math.log2(this.heap.length)) + 1;
+    return this.heap.length === 0 ? 0 : Math.floor(Math.log2(this.heap.length)) + 1;
   }
 
   heapifyUp(i) {
@@ -78,12 +125,24 @@ class MaxHeap {
   size() {
     return this.heap.length;
   }
+
+  // 不会保留堆特征，用来存储中间状态的
+  static fromArray(array) {
+    const newHeap = new MaxHeap();
+    for (const item of array) {
+      newHeap.heap.push(item);
+    }
+    return newHeap;
+  }
+
 }
 
 const HeapVisualization = () => {
   const [heap, setHeap] = useState(new MaxHeap());
   const [inputValue, setInputValue] = useState("");
-  const [treeData, setTreeData] = useState([]);
+  const [animationSteps, setAnimationSteps] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const initialHeap = new MaxHeap();
@@ -93,49 +152,62 @@ const HeapVisualization = () => {
     setHeap(initialHeap);
   }, []);
 
-  useEffect(() => {
-    if (!heap.size()) return;
-
-    const positions = calculatePositions(heap);
-    setTreeData(positions.filter((pos) => pos.value !== 0));
-  }, [heap]); // 更新依赖于 heap
-
   const handleInputChange = (e) => setInputValue(e.target.value);
 
-  const handleInsert = () => {
+  const handleInsert = useCallback(() => {
     const value = parseInt(inputValue);
-    if (!isNaN(value)) {
-      const newHeap = new MaxHeap();
-      newHeap.heap = [...heap.heap];
-      newHeap.insert(value);
-      setHeap(newHeap);
+    if (!isNaN(value) && !isAnimating) {
+      const steps = heap.insertWithSteps(value);
+      setAnimationSteps(steps);
+      setCurrentStep(0);
+      setIsAnimating(true);
       setInputValue("");
     }
-  };
+  }, [inputValue, heap, isAnimating]);
 
-  const handleRemove = () => {
-    const newHeap = new MaxHeap();
-    newHeap.heap = [...heap.heap];
-    newHeap.remove();
-    setHeap(newHeap);
-  };
+  const handleRemove = useCallback(() => {
+    if (!isAnimating && heap.size() > 0) {
+      const { steps } = heap.removeWithSteps();
+      setAnimationSteps(steps.map(step => MaxHeap.fromArray(step)));
+      setCurrentStep(0);
+      setIsAnimating(true);
+    }
+  }, [heap, isAnimating]);
 
-  const AnimatedNode = React.memo(({ node }) => {
+  useEffect(() => {
+    if (isAnimating && currentStep < animationSteps.length) {
+      const timer = setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+        if (currentStep >= animationSteps.length - 1) {
+          setIsAnimating(false);
+        }
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating, currentStep, animationSteps]);
+
+  const AnimatedNode = React.memo(({ node, isNew, isHighlighted }) => {
     const style = useSpring({
       to: { x: node.x, y: node.y, opacity: 1 },
       from: { x: node.x, y: node.y, opacity: 0 },
       config: { tension: 250, friction: 20 },
     });
 
+    const fill = isNew ? "#f87171" : isHighlighted ? "#fbbf24" : "#bbf";
+
     return (
-      <animated.g style={{ translateX: style.x, translateY: style.y }}>
-        <circle cx="0" cy="0" r="15" fill="#bbf" stroke="#333" />
-        <text x="0" y="0" textAnchor="middle" dy=".3em" fontSize="12">
+      <animated.g style={{ transform: `translate(${node.x}px, ${node.y}px)` }}>
+        <animated.circle cx="0" cy="0" r="15" fill={fill} stroke="#333" />
+        <animated.text x="0" y="0" textAnchor="middle" dy=".3em" fontSize="12">
           {node.value}
-        </text>
+        </animated.text>
       </animated.g>
     );
   });
+
+  const currentHeapState = isAnimating ? animationSteps[currentStep] : { heap: heap.heap };
+  const positions = calculatePositions(MaxHeap.fromArray(currentHeapState.heap));
 
   return (
     <div className="p-4">
@@ -146,58 +218,69 @@ const HeapVisualization = () => {
           onChange={handleInputChange}
           className="border border-gray-300 rounded px-2 py-1 mr-2"
           placeholder="输入一个数字"
+          disabled={isAnimating}
         />
-        <button onClick={handleInsert} className="bg-blue-500 text-white px-4 py-1 rounded mr-2">
+        <button
+          onClick={handleInsert}
+          className="bg-blue-500 text-white px-4 py-1 rounded mr-2"
+          disabled={isAnimating}
+        >
           插入节点
         </button>
-        <button onClick={handleRemove} className="bg-red-500 text-white px-4 py-1 rounded">
+        <button
+          onClick={handleRemove}
+          className="bg-red-500 text-white px-4 py-1 rounded"
+          disabled={isAnimating}
+        >
           删除最大值
         </button>
       </div>
       <div style={{ overflowX: 'auto', width: '100%' }}>
-      <svg
-          width={Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} // 动态计算 SVG 宽度
+        <svg
+          width={Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))}
           height={Math.max(600, nodeHeight * (heap.depth() + 1))}
-          viewBox={`0 0 ${Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} ${Math.max(600, nodeHeight * (heap.depth() + 1))}`} // 动态设置 viewBox
+          viewBox={`0 0 ${Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} ${Math.max(600, nodeHeight * (heap.depth() + 1))}`}
           preserveAspectRatio="xMidYMid meet"
           className="border border-gray-300"
         >
-        {treeData.map((node, index) => {
-          // 计算左右子节点的索引
-          const leftChildIdx = 2 * index + 1;
-          const rightChildIdx = 2 * index + 2;
+          {
+            positions.map((node, index) => {
+              const leftChildIdx = 2 * index + 1;
+              const rightChildIdx = 2 * index + 2;
+              const leftChild = positions.find(child => child && child.id === leftChildIdx);
+              const rightChild = positions.find(child => child && child.id === rightChildIdx);
 
-          // 安全地获取子节点
-          const leftChild = treeData.find(child => child && child.id === leftChildIdx);
-          const rightChild = treeData.find(child => child && child.id === rightChildIdx);
-
-          return (
-            <React.Fragment key={node.id}>
-              {/* 如果左子节点存在，则绘制从当前节点到左子节点的线 */}
-              {leftChild && (
-                <line
-                  x1={node.x}
-                  y1={node.y}
-                  x2={leftChild.x}
-                  y2={leftChild.y}
-                  stroke="black"
-                />
-              )}
-              {/* 如果右子节点存在，则绘制从当前节点到右子节点的线 */}
-              {rightChild && (
-                <line
-                  x1={node.x}
-                  y1={node.y}
-                  x2={rightChild.x}
-                  y2={rightChild.y}
-                  stroke="black"
-                />
-              )}
-              <AnimatedNode node={node} />
-            </React.Fragment>
-          );
-        })}
-      </svg>
+              const isHighlighted = isAnimating && currentStep < animationSteps.length &&
+                animationSteps[currentStep].highlight &&
+                animationSteps[currentStep].highlight.includes(index);
+              const isNew = isAnimating &&
+                animationSteps[currentStep].newNode === index;
+              // console.log(currentStep, isHighlighted, isNew, treeData)
+              return (
+                <React.Fragment key={node.id}>
+                  {leftChild && (
+                    <line
+                      x1={node.x}
+                      y1={node.y}
+                      x2={leftChild.x}
+                      y2={leftChild.y}
+                      stroke="black"
+                    />
+                  )}
+                  {rightChild && (
+                    <line
+                      x1={node.x}
+                      y1={node.y}
+                      x2={rightChild.x}
+                      y2={rightChild.y}
+                      stroke="black"
+                    />
+                  )}
+                  <AnimatedNode node={node} isNew={isNew} isHighlighted={isHighlighted} />
+                </React.Fragment>
+              );
+            })}
+        </svg>
       </div>
     </div>
   );
@@ -207,7 +290,7 @@ export default HeapVisualization;
 
 function calculatePositions(heap) {
   const depth = heap.depth();
-  const baseWidth = Math.max(1200, spaceBetweenNodes * Math.pow(2, depth-1));// SVG总宽度
+  const baseWidth = Math.max(1200, spaceBetweenNodes * Math.pow(2, depth - 1));// SVG总宽度
 
   // 假设堆是满的情况下的所有节点的位置
   const totalCnt = Math.pow(2, depth) - 1;
