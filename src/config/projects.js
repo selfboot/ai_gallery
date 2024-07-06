@@ -32,6 +32,13 @@ const projects = {
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_heapv2.gif',
       link: '/algorithms/heap'
     },
+    {
+      id: 'bfs_path',
+      title: 'A* 寻路',
+      description: '可视化展示 A* 寻路算法，给定一个网络，可以设置障碍物，起点，终点，然后展示寻路过程',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_astar_path.gif',
+      link: '/algorithms/astar'
+    },
     // 这里可以添加算法相关的项目
   ],
   others: [

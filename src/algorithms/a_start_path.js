@@ -11,27 +11,37 @@ const GRID_MODES = [
   { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-red-700" },
 ];
 
-const BFSPathFind = () => {
+const AStarPathFind = () => {
   const [gridSize, setGridSize] = useState({ width: 10, height: 10 });
   const [grid, setGrid] = useState([]);
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [path, setPath] = useState([]);
-  const [visited, setVisited] = useState([]);
   const [mode, setMode] = useState(GRID_MODES[0]);
   const [searchSpeed, setSearchSpeed] = useState(5);
   const [isSearching, setIsSearching] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(true); // 控制面板展开和收起
+  const [openSet, setOpenSet] = useState([]);
+  const [closedSet, setClosedSet] = useState([]);
 
   const initializeGrid = useCallback(() => {
-    const newGrid = Array(gridSize.height)
-      .fill()
-      .map(() => Array(gridSize.width).fill(0));
+    const newGrid = Array(gridSize.height).fill().map((_, y) =>
+      Array(gridSize.width).fill().map((_, x) => ({
+        x,
+        y,
+        f: 0,
+        g: 0,
+        h: 0,
+        obstacle: false,
+        parent: null
+      }))
+    );
     setGrid(newGrid);
     setStart(null);
     setEnd(null);
     setPath([]);
-    setVisited([]);
+    setOpenSet([]);
+    setClosedSet([]);
   }, [gridSize]);
 
   useEffect(() => {
@@ -42,7 +52,7 @@ const BFSPathFind = () => {
     if (isSearching) return;
     const newGrid = [...grid];
     if (mode.id === "obstacle") {
-      newGrid[y][x] = newGrid[y][x] === 1 ? 0 : 1;
+      newGrid[y][x].obstacle = !newGrid[y][x].obstacle;
       setGrid(newGrid);
     } else if (mode.id === "start") {
       setStart({ x, y });
@@ -53,65 +63,84 @@ const BFSPathFind = () => {
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const findPath = async () => {
+  const heuristic = (a, b) => {
+    // Manhattan distance
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  };
+
+  const getNeighbors = (node) => {
+    const neighbors = [];
+    const { x, y } = node;
+    if (x > 0) neighbors.push(grid[y][x - 1]);
+    if (x < gridSize.width - 1) neighbors.push(grid[y][x + 1]);
+    if (y > 0) neighbors.push(grid[y - 1][x]);
+    if (y < gridSize.height - 1) neighbors.push(grid[y + 1][x]);
+    return neighbors.filter(n => !n.obstacle);
+  };
+
+  const reconstructPath = (node) => {
+    let current = node;
+    const path = [];
+    while (current.parent) {
+      path.unshift([current.x, current.y]);
+      current = current.parent;
+    }
+    path.unshift([start.x, start.y]);
+    return path;
+  };
+
+  const astar = async () => {
     if (!start || !end || isSearching) return;
     setIsSearching(true);
     setPath([]);
-    setVisited([]);
+    setOpenSet([]);
+    setClosedSet([]);
 
-    const queue = [[start.x, start.y]];
-    const visitedSet = new Set();
-    const parent = new Map();
+    const startNode = grid[start.y][start.x];
+    const endNode = grid[end.y][end.x];
+    startNode.g = 0;
+    startNode.h = heuristic(startNode, endNode);
+    startNode.f = startNode.h;
 
-    while (queue.length > 0) {
-      const [x, y] = queue.shift();
-      const key = `${x},${y}`;
+    let openSet = [startNode];
+    let closedSet = [];
 
-      if (x === end.x && y === end.y) {
-        const path = [];
-        let current = key;
-        while (current) {
-          const [cx, cy] = current.split(",").map(Number);
-          path.unshift([cx, cy]);
-          current = parent.get(current);
-        }
-        setPath(path);
+    while (openSet.length > 0) {
+      await sleep(1000 / searchSpeed);
+
+      let current = openSet.reduce((a, b) => a.f < b.f ? a : b);
+
+      if (current === endNode) {
+        const finalPath = reconstructPath(current);
+        setPath(finalPath);
         setIsSearching(false);
         return;
       }
 
-      if (visitedSet.has(key)) continue;
-      visitedSet.add(key);
-      setVisited((prev) => [...prev, [x, y]]);
+      openSet = openSet.filter(node => node !== current);
+      closedSet.push(current);
 
-      await sleep(1000 / searchSpeed);
+      for (let neighbor of getNeighbors(current)) {
+        if (closedSet.includes(neighbor)) continue;
 
-      const directions = [
-        [0, 1],
-        [1, 0],
-        [0, -1],
-        [-1, 0],
-      ];
-      for (const [dx, dy] of directions) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (
-          nx >= 0 &&
-          nx < gridSize.width &&
-          ny >= 0 &&
-          ny < gridSize.height &&
-          grid[ny][nx] !== 1
-        ) {
-          const nkey = `${nx},${ny}`;
-          if (!visitedSet.has(nkey)) {
-            queue.push([nx, ny]);
-            parent.set(nkey, key);
-          }
+        const tentativeG = current.g + 1;
+
+        if (!openSet.includes(neighbor)) {
+          openSet.push(neighbor);
+        } else if (tentativeG >= neighbor.g) {
+          continue;
         }
+
+        neighbor.parent = current;
+        neighbor.g = tentativeG;
+        neighbor.h = heuristic(neighbor, endNode);
+        neighbor.f = neighbor.g + neighbor.h;
       }
+
+      setOpenSet([...openSet]);
+      setClosedSet([...closedSet]);
     }
 
-    alert("未找到路径!");
     setIsSearching(false);
   };
 
@@ -132,12 +161,23 @@ const BFSPathFind = () => {
     }
   };
 
+  const handleReset = () => {
+    setPath([]);      // 清空已找到的路径
+    setOpenSet([]);   // 清空开放集
+    setClosedSet([]); // 清空关闭集
+    setIsSearching(false); // 停止搜索状态
+    initializeGrid(); // 重置网格到初始状态
+    setStart(null);   // 清除起点
+    setEnd(null);     // 清除终点
+  };
+
   const renderCell = (x, y) => {
     const isStart = start && start.x === x && start.y === y;
     const isEnd = end && end.x === x && end.y === y;
-    const isObstacle = grid[y][x] === 1;
-    const isVisited = visited.some(([vx, vy]) => vx === x && vy === y);
+    const isObstacle = grid[y][x].obstacle;
     const isPath = path.some(([px, py]) => px === x && py === y);
+    const isOpen = openSet.some(node => node.x === x && node.y === y);
+    const isClosed = closedSet.some(node => node.x === x && node.y === y);
 
     let content = null;
     let cellClass =
@@ -154,8 +194,10 @@ const BFSPathFind = () => {
       cellClass += " bg-gray-200";
     } else if (isPath) {
       cellClass += " bg-green-300";
-    } else if (isVisited) {
-      cellClass += " bg-gray-300";
+    } else if (isOpen) {
+      cellClass += " bg-yellow-100";
+    } else if (isClosed) {
+      cellClass += " bg-gray-200";
     }
 
     return (
@@ -170,7 +212,7 @@ const BFSPathFind = () => {
   };
 
   return (
-    <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[400px]">
+    <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[450px]">
       <div className="flex-grow flex justify-center overflow-x-auto">
         <div
           className="grid"
@@ -183,9 +225,8 @@ const BFSPathFind = () => {
       </div>
 
       <div
-        className={`absolute right-0 top-0 p-4 bg-gray-200 shadow-lg min-w-[100px] min-h-[400px] ${
-          isPanelOpen ? "" : "hidden"
-        }`}
+        className={`absolute right-0 top-0 p-4 bg-gray-200 shadow-lg min-w-[100px] min-h-[450px] ${isPanelOpen ? "" : "hidden"
+          }`}
         style={{ maxHeight: "calc(100vh - 8px)", overflowY: "auto" }}
       >
         <div className="w-full mb-4 space-y-4">
@@ -233,24 +274,36 @@ const BFSPathFind = () => {
               <button
                 key={gridMode.id}
                 onClick={() => setMode(gridMode)}
-                className={`px-4 py-2 text-white rounded ${gridMode.color} ${
-                  mode.id === gridMode.id
-                    ? "ring-2 ring-offset-2 ring-blue-500"
-                    : ""
-                }`}
+                className={`px-4 py-2 text-white rounded ${gridMode.color} ${mode.id === gridMode.id
+                  ? "ring-2 ring-offset-2 ring-blue-500"
+                  : ""
+                  }`}
                 disabled={isSearching}
               >
                 {gridMode.name}
               </button>
             </div>
           ))}
-          <button
-            onClick={findPath}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            disabled={isSearching}
-          >
-            查找路径
-          </button>
+          <div className="w-full space-y-4 mb4">
+            <div>
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                disabled={isSearching}
+              >
+                重置网格
+              </button>
+            </div>
+          </div>
+          <div>
+            <button
+              onClick={astar}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              disabled={isSearching}
+            >
+              查找路径
+            </button>
+          </div>
         </div>
         {/* 折叠/展开按钮, 现在位于设置面板内 */}
         <button
@@ -273,4 +326,4 @@ const BFSPathFind = () => {
   );
 };
 
-export default BFSPathFind;
+export default AStarPathFind;

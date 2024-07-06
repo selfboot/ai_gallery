@@ -5,6 +5,7 @@ import GomokuGame from './games/gomoku';
 import TetrisGame from './games/tetris';
 import BFSPathFind from './algorithms/bfs_path';
 import HeapVisualization from './algorithms/heap';
+import AStarPathFind from './algorithms/a_start_path';
 
 const ProjectCard = ({ title, description, image, link }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -118,6 +119,7 @@ const AppComponent = () => {
 
           <Route path="/algorithms/bfs_path" element={<BFSPathFind />} />
           <Route path="/algorithms/heap" element={<HeapVisualization />} />
+          <Route path="/algorithms/astar" element={<AStarPathFind />} />
         </Routes>
       </main>
     </div>
