@@ -29,7 +29,8 @@ const ProjectCard = ({ title, description, image, link }) => (
 
 const ProjectGrid = ({ category }) => {
   const projectList = projects[category] || [];
-  
+  // console.log(projectList);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6">
       {projectList.map(project => (
@@ -58,25 +59,16 @@ const AppComponent = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // 解析当前路径，并设置选中状态
-    const pathParts = location.pathname.split('/'); // e.g., ['', 'algorithms', 'bfs_path']
-    const currentCategory = pathParts[1]; // 'algorithms' 是分类 ID
-
-    // 确保当前路径中的分类是有效的，否则默认选中第一个
-    if (CATEGORIES.some(category => category.id === currentCategory)) {
-      setSelectedCategory(currentCategory);
-    } else {
-      setSelectedCategory(CATEGORIES[0].id);
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    // Listening for changes in the query string.
     const query = new URLSearchParams(location.search);
-    const category = query.get('category');
-    if (category) {
-      setSelectedCategory(category);
-    }
+    const categoryFromQuery = query.get('category');
+    const pathParts = location.pathname.split('/');
+    const categoryFromPath = pathParts[1];
+  
+    const finalCategory = CATEGORIES.some(category => category.id === categoryFromQuery)
+      ? categoryFromQuery
+      : (CATEGORIES.some(category => category.id === categoryFromPath) ? categoryFromPath : CATEGORIES[0].id);
+  
+    setSelectedCategory(finalCategory);
   }, [location]);
 
   return (
