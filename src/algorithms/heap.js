@@ -143,6 +143,7 @@ const HeapVisualization = () => {
   const [animationSteps, setAnimationSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [deletedNode, setDeletedNode] = useState(null);
 
   useEffect(() => {
     const initialHeap = new MaxHeap();
@@ -168,12 +169,12 @@ const HeapVisualization = () => {
   const handleRemove = useCallback(() => {
     if (!isAnimating && heap.size() > 0) {
       const { max, steps } = heap.removeWithSteps();
+      setDeletedNode(max);
       setAnimationSteps(steps);
       setCurrentStep(0);
       setIsAnimating(true);
     }
   }, [heap, isAnimating]);
-
 
   useEffect(() => {
     if (isAnimating && currentStep < animationSteps.length) {
@@ -181,6 +182,7 @@ const HeapVisualization = () => {
         setCurrentStep(currentStep + 1);
         if (currentStep >= animationSteps.length - 1) {
           setIsAnimating(false);
+          setDeletedNode(null);
         }
       }, 1000);
 
@@ -188,8 +190,8 @@ const HeapVisualization = () => {
     }
   }, [isAnimating, currentStep, animationSteps]);
 
-  const AnimatedNode = React.memo(({ node, isNew, isHighlighted }) => {
-    const fill = isNew ? "#f87171" : isHighlighted ? "#fbbf24" : "#bbf";
+  const AnimatedNode = React.memo(({ node, isNew, isHighlighted, isDeleted }) => {
+    const fill = isDeleted ? "#ef4444" : isNew ? "#f87171" : isHighlighted ? "#fbbf24" : "#bbf";
 
     return (
       <animated.g style={{ transform: `translate(${node.x}px, ${node.y}px)` }}>
@@ -275,6 +277,21 @@ const HeapVisualization = () => {
                 </React.Fragment>
               );
             })}
+          {deletedNode && (
+            <g>
+              <text
+                x={positions[0].x + spaceBetweenNodes*2}
+                y={nodeHeight/2}
+                textAnchor="middle"
+                fill="#333"
+                fontSize="14"
+              >删除节点</text>
+              <AnimatedNode
+                node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
+                isDeleted={true}
+              />
+            </g>
+          )}
         </svg>
       </div>
     </div>
