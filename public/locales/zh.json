@@ -44,5 +44,6 @@
     "grid_height": "网格高度",
     "search_speed": "搜索速度",
     "find_path": "查找路径",
-    "reset_grid": "重置网格"
+    "reset_grid": "重置网格",
+    "no_path_found": "找不到路径。"
 }

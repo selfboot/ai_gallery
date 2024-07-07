@@ -43,5 +43,6 @@
     "grid_height": "Grid Height",
     "search_speed": "Find Speed",
     "find_path": "Find Path",
-    "reset_grid": "Reset Grid"
+    "reset_grid": "Reset Grid",
+    "no_path_found": "No path found"
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Flag, X } from "lucide-react";
+import { Flag, X, Frown } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 const BFSPathFind = () => {
@@ -32,7 +32,7 @@ const BFSPathFind = () => {
   const [searchSpeed, setSearchSpeed] = useState(5);
   const [isSearching, setIsSearching] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(true); // 控制面板展开和收起
-  
+  const [showNoPathAlert, setShowNoPathAlert] = useState(false);  // 新增状态控制弹窗显示
 
   const initializeGrid = useCallback(() => {
     const newGrid = Array(gridSize.height)
@@ -122,7 +122,9 @@ const BFSPathFind = () => {
       }
     }
 
-    alert("未找到路径!");
+    setShowNoPathAlert(true);  // 显示弹窗
+    setTimeout(() => setShowNoPathAlert(false), 3000);  // 3秒后自动关闭弹窗
+
     setIsSearching(false);
   };
 
@@ -180,6 +182,18 @@ const BFSPathFind = () => {
     );
   };
 
+  const renderNoPathAlert = () => {
+    if (!showNoPathAlert) return null;
+    return (
+      <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
+      <div className="bg-white p-4 rounded-lg flex flex-col items-center z-20">
+        <Frown className="text-red-500 text-6xl"/>
+        <p className="text-xl mt-2">{t('no_path_found')}</p>
+      </div>
+    </div>
+    );
+  };
+
   return (
     <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[400px]">
       <div className="flex-grow flex justify-center overflow-x-auto">
@@ -190,7 +204,9 @@ const BFSPathFind = () => {
           }}
         >
           {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
+          {renderNoPathAlert()}
         </div>
+        
       </div>
 
       <div

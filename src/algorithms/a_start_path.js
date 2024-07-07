@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Flag, X } from "lucide-react";
+import { Flag, X, Frown } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 const AStarPathFind = () => {
@@ -33,6 +33,7 @@ const AStarPathFind = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(true); // 控制面板展开和收起
   const [openSet, setOpenSet] = useState([]);
   const [closedSet, setClosedSet] = useState([]);
+  const [showNoPathModal, setShowNoPathModal] = useState(false);
 
   const initializeGrid = useCallback(() => {
     const newGrid = Array(gridSize.height).fill().map((_, y) =>
@@ -150,7 +151,8 @@ const AStarPathFind = () => {
       setOpenSet([...openSet]);
       setClosedSet([...closedSet]);
     }
-
+    setShowNoPathModal(true);
+    setTimeout(() => setShowNoPathModal(false), 3000);
     setIsSearching(false);
   };
 
@@ -221,6 +223,18 @@ const AStarPathFind = () => {
     );
   };
 
+  const renderNoPathAlert = () => {
+    if (!showNoPathModal) return null;
+    return (
+      <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
+      <div className="bg-white p-4 rounded-lg flex flex-col items-center z-20">
+        <Frown className="text-red-500 text-6xl"/>
+        <p className="text-xl mt-2">{t('no_path_found')}</p>
+      </div>
+    </div>
+    );
+  };
+
   return (
     <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[450px]">
       <div className="flex-grow flex justify-center overflow-x-auto">
@@ -231,6 +245,7 @@ const AStarPathFind = () => {
           }}
         >
           {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
+          {renderNoPathAlert()}
         </div>
       </div>
 
