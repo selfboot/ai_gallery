@@ -5,6 +5,10 @@ class ChineseChess {
         this.board = this.initializeBoard();
     }
 
+    reset() {
+        this.board = this.initializeBoard();
+    }
+
     initializeBoard() {
         let board = Array(10).fill().map(() => Array(9).fill(null));
 
@@ -286,7 +290,7 @@ class ChineseChess {
 
 const ChineseChessBoard = () => {
     // const chess = new ChineseChess();
-    const chess = useMemo(() => new ChineseChess(), []);  // 确保 chess 实例只在组件首次渲染时创建
+    let chess = useMemo(() => new ChineseChess(), []);  // 确保 chess 实例只在组件首次渲染时创建
 
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState('red');
@@ -327,7 +331,7 @@ const ChineseChessBoard = () => {
     }
 
     function restartGame() {
-        chess.initializeBoard();
+        chess.reset();
         setSelectedPiece(null);
         setCurrentPlayer('red');
         setGameStatus('playing');
