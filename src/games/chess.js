@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 class ChineseChess {
     constructor() {
-        this.board = this.initializeBoard();
-    }
-
-    reset() {
-        this.board = this.initializeBoard();
+        this.resetGame();
     }
 
     initializeBoard() {
@@ -33,7 +29,70 @@ class ChineseChess {
         return board;
     }
 
+    resetGame() {
+        this.board = this.initializeBoard();
+        this.selectedPiece = null;
+        this.currentPlayer = 'red';
+        this.gameStatus = 'playing';
+        this.moveHistory = [];
+        this.moveCount = 0;
+    }
+
+    switchPlayer() {
+        this.currentPlayer = this.currentPlayer === 'red' ? 'black' : 'red';
+    }
+
+    makeMove(fromRow, fromCol, toRow, toCol) {
+        // console.log(fromRow, fromCol, toRow, toCol);
+        if (!this.isValidMove(fromRow, fromCol, toRow, toCol, true)) {
+            return false;
+        }
+        const moveDetails = {
+            from: { row: fromRow, col: fromCol },
+            to: { row: toRow, col: toCol },
+            piece: this.board[fromRow][fromCol],
+            captured: this.board[toRow][toCol]
+        };
+
+        this.doMovePiece(fromRow, fromCol, toRow, toCol);
+        this.moveHistory.push(moveDetails);
+        this.moveCount++;
+        this.selectedPiece = null;
+        this.switchPlayer();
+        this.checkGameStatus();
+        return true;
+    }
+
+    undoMove() {
+        if (this.moveHistory.length === 0) return;
+        const lastMove = this.moveHistory.pop();
+        this.board[lastMove.from.row][lastMove.from.col] = lastMove.piece;
+        this.board[lastMove.to.row][lastMove.to.col] = lastMove.captured;
+
+        this.switchPlayer();
+        this.moveCount--;
+        this.gameStatus = 'playing';
+        return true;
+    }
+
+    checkGameStatus() {
+        if (this.isCheckmate(this.currentPlayer)) {
+            this.gameStatus = 'checkmate';
+        } else if (this.isCheck(this.board, this.currentPlayer)) {
+            this.gameStatus = 'check';
+        } else if (this.isStalemate(this.currentPlayer)) {
+            this.gameStatus = 'stalemate';
+        } else {
+            this.gameStatus = 'playing';
+        }
+    }
+
     isValidMove(fromRow, fromCol, toRow, toCol, checkForCheck = false) {
+        if (!this.board[fromRow] || !this.board[toRow]) {
+            console.error("Invalid row index");
+            return false;
+        }
+
         const piece = this.board[fromRow][fromCol];
         if (!piece) return false;
 
@@ -76,7 +135,8 @@ class ChineseChess {
 
         if (isValid && checkForCheck) {
             // Check if the move puts or leaves the player in check
-            const newBoard = this.movePiece(fromRow, fromCol, toRow, toCol);
+            const newBoard = this.tryMovePiece(this.board, fromRow, fromCol, toRow, toCol);
+            
             if (this.isCheck(newBoard, piece.color)) {
                 isValid = false;
             }
@@ -114,13 +174,18 @@ class ChineseChess {
         return false;
     }
 
-    movePiece(fromRow, fromCol, toRow, toCol) {
-        const newBoard = this.board.map(row => [...row]);
+    tryMovePiece(board, fromRow, fromCol, toRow, toCol) {
+        const newBoard = board.map(row => [...row]);
         newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
         newBoard[fromRow][fromCol] = null;
         return newBoard;
     }
 
+    doMovePiece(fromRow, fromCol, toRow, toCol) {
+        const piece = this.board[fromRow][fromCol];
+        this.board[toRow][toCol] = piece;
+        this.board[fromRow][fromCol] = null;
+    }
 
     isValidChariotMove(fromRow, fromCol, toRow, toCol) {
         if (fromRow !== toRow && fromCol !== toCol) return false;
@@ -289,87 +354,45 @@ class ChineseChess {
 }
 
 const ChineseChessBoard = () => {
-    // const chess = new ChineseChess();
-    let chess = useMemo(() => new ChineseChess(), []);  // 确保 chess 实例只在组件首次渲染时创建
-
-    const [selectedPiece, setSelectedPiece] = useState(null);
-    const [currentPlayer, setCurrentPlayer] = useState('red');
-    const [gameStatus, setGameStatus] = useState('playing'); // 'playing', 'check', 'checkmate', 'stalemate'
-    const [moveHistory, setMoveHistory] = useState([]);
-    const [moveCount, setMoveCount] = useState(0);
+    const [chess] = useState(new ChineseChess());
+    const [refresh, setRefresh] = useState(false);  // 用于触发重渲染
 
     useEffect(() => {
-        function checkGameStatus() {
-            if (chess.isCheckmate(currentPlayer)) {
-                setGameStatus('checkmate');
-            } else if (chess.isCheck(chess.board, currentPlayer)) {
-                setGameStatus('check');
-            } else if (chess.isStalemate(currentPlayer)) {
-                setGameStatus('stalemate');
-            } else {
-                setGameStatus('playing');
-            }
-        }
-        checkGameStatus();
-    }, [currentPlayer, chess]);
-
+        setRefresh(r => !r); // 当棋局状态变化时触发重渲染
+    }, [chess.gameStatus, chess.currentPlayer]);
 
     function undoMove() {
-        if (moveHistory.length === 0) return;
-
-        const lastMove = moveHistory[moveHistory.length - 1];
-        const newBoard = chess.board.map(row => [...row]);
-
-        newBoard[lastMove.from.row][lastMove.from.col] = lastMove.piece;
-        newBoard[lastMove.to.row][lastMove.to.col] = lastMove.captured;
-
-        chess.board = newBoard;
-        setCurrentPlayer(currentPlayer === 'red' ? 'black' : 'red');
-        setMoveHistory(moveHistory.slice(0, -1));
-        setMoveCount(moveCount - 1);
-        setGameStatus('playing');
+        if (chess.undoMove()) {
+            setRefresh(!refresh);  // 触发组件重渲染以更新界面
+        }
     }
 
     function restartGame() {
-        chess.reset();
-        setSelectedPiece(null);
-        setCurrentPlayer('red');
-        setGameStatus('playing');
-        setMoveHistory([]);
-        setMoveCount(0);
+        chess.resetGame();
+        setRefresh(!refresh);
     }
 
-    function handleClick(row, col) {
-        if (gameStatus !== 'playing' && gameStatus !== 'check') return;
+    const handleClick = useCallback((row, col) => {
+        if (chess.gameStatus !== 'playing' && chess.gameStatus !== 'check') return;
 
-        if (selectedPiece) {
-            if (chess.isValidMove(selectedPiece.row, selectedPiece.col, row, col, true)) {
-                const newBoard = chess.movePiece(selectedPiece.row, selectedPiece.col, row, col);
-                chess.board = newBoard;
-                setSelectedPiece(null);
-                setCurrentPlayer(currentPlayer === 'red' ? 'black' : 'red');
-                setMoveHistory([...moveHistory, {
-                    from: { row: selectedPiece.row, col: selectedPiece.col },
-                    to: { row, col },
-                    piece: chess.board[selectedPiece.row][selectedPiece.col],
-                    captured: chess.board[row][col]
-                }]);
-                setMoveCount(moveCount + 1);
-            } else {
-                setSelectedPiece(null);
+        if (chess.selectedPiece) {
+            if (chess.makeMove(chess.selectedPiece.row, chess.selectedPiece.col, row, col)) {
+                setRefresh(r => !r);  // 成功移动后触发重渲染
             }
-        } else if (chess.board[row][col] && chess.board[row][col].color === currentPlayer) {
-            setSelectedPiece({ row, col });
+            chess.selectedPiece = null;  // 清除选中的棋子
+        } else if (chess.board[row][col] && chess.board[row][col].color === chess.currentPlayer) {
+            chess.selectedPiece = { row, col };  // 选择棋子
+            setRefresh(r => !r);
         }
-    }
+    }, [chess]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
             <div className="mb-4 text-2xl font-bold">
-                {gameStatus === 'playing' && `Current Player: ${currentPlayer}`}
-                {gameStatus === 'check' && `${currentPlayer} is in check!`}
-                {gameStatus === 'checkmate' && `Checkmate! ${currentPlayer === 'red' ? 'Black' : 'Red'} wins!`}
-                {gameStatus === 'stalemate' && `Stalemate! The game is a draw.`}
+                {chess.gameStatus === 'playing' && `Current Player: ${chess.currentPlayer}`}
+                {chess.gameStatus === 'check' && `${chess.currentPlayer} is in check!`}
+                {chess.gameStatus === 'checkmate' && `Checkmate! ${chess.currentPlayer === 'red' ? 'Black' : 'Red'} wins!`}
+                {chess.gameStatus === 'stalemate' && `Stalemate! The game is a draw.`}
             </div>
             <div className="flex flex-col border-2 border-black mb-4">
                 {[...Array(11)].map((_, rowIndex) => (
@@ -385,9 +408,9 @@ const ChineseChessBoard = () => {
                                     <div
                                         key={`${rowIndex}-${colIndex}`}
                                         className={`w-16 h-16 border border-black flex justify-center items-center
-                                            ${(rowIndex + colIndex) % 2 === 0 ? 'bg-yellow-200' : 'bg-yellow-100'}
-                                            ${selectedPiece && selectedPiece.row === (rowIndex < 5 ? rowIndex : rowIndex - 1) && selectedPiece.col === colIndex ? 'bg-blue-300' : ''}
-                                        `}
+                                             ${(rowIndex + colIndex) % 2 === 0 ? 'bg-yellow-200' : 'bg-yellow-100'}
+                                             ${chess.selectedPiece && chess.selectedPiece.row === (rowIndex < 5 ? rowIndex : rowIndex - 1) && chess.selectedPiece.col === colIndex ? 'bg-blue-300' : ''}
+                                         `}
                                         onClick={() => handleClick(rowIndex < 5 ? rowIndex : rowIndex - 1, colIndex)}
                                     >
                                         {piece && (
@@ -407,7 +430,7 @@ const ChineseChessBoard = () => {
                 <button
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                     onClick={undoMove}
-                    disabled={moveHistory.length === 0}
+                    disabled={chess.moveHistory.length === 0}
                 >
                     Undo Move
                 </button>
@@ -419,7 +442,7 @@ const ChineseChessBoard = () => {
                 </button>
             </div>
             <div className="mt-4">
-                Move count: {moveCount}
+                Move count: {chess.moveCount}
             </div>
         </div>
     );
