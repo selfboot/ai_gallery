@@ -64,6 +64,14 @@ const AppComponent = () => {
   const location = useLocation();
   const { t } = useTranslation();
 
+  const trackPageView = (url) => {
+    if (window.gtag) {
+      window.gtag('config', 'G-Y4WD2DT404', {
+        page_path: url,
+      });
+    }
+  }
+
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const categoryFromQuery = query.get('category');
@@ -76,6 +84,8 @@ const AppComponent = () => {
 
     setSelectedCategory(finalCategory);
     setShowHeader(CATEGORIES.some(category => category === categoryFromPath))
+
+    trackPageView(location.pathname);
   }, [location]);
 
   return (
