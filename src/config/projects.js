@@ -19,7 +19,7 @@ const projects = {
       id: 'tetris',
       title: 'tetris_title',
       description: 'tetris_description',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_tetris.png/webp',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_tetris_v2.png/webp',
       link: '/games/tetris'
     },
 
