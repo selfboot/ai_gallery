@@ -1,17 +1,27 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Flag, X } from "lucide-react";
-
-const GRID_MODES = [
-  {
-    id: "obstacle",
-    name: "设置障碍物",
-    color: "bg-gray-500 hover:bg-gray-700",
-  },
-  { id: "start", name: "设置起点", color: "bg-blue-500 hover:bg-blue-700" },
-  { id: "end", name: "设置终点", color: "bg-red-500 hover:bg-red-700" },
-];
+import { useTranslation } from 'react-i18next';
 
 const AStarPathFind = () => {
+  const { t } = useTranslation();
+  const GRID_MODES = [
+    {
+      id: "obstacle",
+      name: t('set_obstacles'), 
+      color: "bg-gray-500 hover:bg-gray-700",
+    },
+    { 
+      id: "start", 
+      name: t('set_start_point'), 
+      color: "bg-blue-500 hover:bg-blue-700" 
+    },
+    { 
+      id: "end", 
+      name: t('set_end_point'), 
+      color: "bg-red-500 hover:bg-red-700" 
+    },
+  ];
+
   const [gridSize, setGridSize] = useState({ width: 10, height: 10 });
   const [grid, setGrid] = useState([]);
   const [start, setStart] = useState(null);
@@ -232,7 +242,7 @@ const AStarPathFind = () => {
         <div className="w-full mb-4 space-y-4">
           <div className="flex justify-between items-center">
             <label className="text-lg flex-shrink-0 whitespace-nowrap">
-              网格宽度：
+              {t('grid_width')}&nbsp;
             </label>
             <input
               type="number"
@@ -244,7 +254,7 @@ const AStarPathFind = () => {
           </div>
           <div className="flex justify-between items-center">
             <label className="text-lg flex-shrink-0 whitespace-nowrap">
-              网格高度：
+              {t('grid_height')}
             </label>
             <input
               type="number"
@@ -256,7 +266,7 @@ const AStarPathFind = () => {
           </div>
           <div className="flex items-center">
             <span className="text-lg mr-4 text-lg flex-shrink-0 whitespace-nowrap">
-              搜索速度：
+              {t('search_speed')}
             </span>
             <input
               type="range"
@@ -291,7 +301,7 @@ const AStarPathFind = () => {
                 className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                 disabled={isSearching}
               >
-                重置网格
+                {t('reset_grid')}
               </button>
             </div>
           </div>
@@ -301,7 +311,7 @@ const AStarPathFind = () => {
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               disabled={isSearching}
             >
-              查找路径
+              {t('find_path')}
             </button>
           </div>
         </div>

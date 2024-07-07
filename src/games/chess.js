@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
+import { useTranslation } from 'react-i18next';
 class ChineseChess {
     constructor() {
         this.resetGame();
@@ -136,7 +136,7 @@ class ChineseChess {
         if (isValid && checkForCheck) {
             // Check if the move puts or leaves the player in check
             const newBoard = this.tryMovePiece(this.board, fromRow, fromCol, toRow, toCol);
-            
+
             if (this.isCheck(newBoard, piece.color)) {
                 isValid = false;
             }
@@ -356,6 +356,10 @@ class ChineseChess {
 const ChineseChessBoard = () => {
     const [chess] = useState(new ChineseChess());
     const [refresh, setRefresh] = useState(false);  // 用于触发重渲染
+    const { t } = useTranslation();
+    const translatePlayer = (player) => {
+        return t(player);  // 'red' 和 'black' 的翻译应该在翻译文件中定义
+    };
 
     useEffect(() => {
         setRefresh(r => !r); // 当棋局状态变化时触发重渲染
@@ -387,12 +391,12 @@ const ChineseChessBoard = () => {
     }, [chess]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="mb-4 text-2xl font-bold">
-                {chess.gameStatus === 'playing' && `Current Player: ${chess.currentPlayer}`}
-                {chess.gameStatus === 'check' && `${chess.currentPlayer} is in check!`}
-                {chess.gameStatus === 'checkmate' && `Checkmate! ${chess.currentPlayer === 'red' ? 'Black' : 'Red'} wins!`}
-                {chess.gameStatus === 'stalemate' && `Stalemate! The game is a draw.`}
+        <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4">
+            <div className="text-lg mb-4 font-bold">
+                {chess.gameStatus === 'playing' && t('current_player', { player: translatePlayer(chess.currentPlayer) })}
+                {chess.gameStatus === 'check' && t('player_in_check', { player: translatePlayer(chess.currentPlayer) })}
+                {chess.gameStatus === 'checkmate' && t('checkmate_announcement', { winner: translatePlayer(chess.currentPlayer === 'red' ? 'black' : 'red') })}
+                {chess.gameStatus === 'stalemate' && t('stalemate_announcement')}
             </div>
             <div className="flex flex-col border-2 border-black mb-4">
                 {[...Array(11)].map((_, rowIndex) => (
@@ -432,17 +436,17 @@ const ChineseChessBoard = () => {
                     onClick={undoMove}
                     disabled={chess.moveHistory.length === 0}
                 >
-                    Undo Move
+                    {t('undo_move')}
                 </button>
                 <button
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                     onClick={restartGame}
                 >
-                    Restart Game
+                    {t('restart_game')}
                 </button>
             </div>
             <div className="mt-4">
-                Move count: {chess.moveCount}
+                {t('move_steps', { steps: chess.moveCount })}
             </div>
         </div>
     );

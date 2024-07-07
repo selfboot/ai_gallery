@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { animated } from "@react-spring/web";
+import { useTranslation } from 'react-i18next';
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
 const nodeHeight = 50; // 每个节点的高度
@@ -144,6 +145,7 @@ const HeapVisualization = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [deletedNode, setDeletedNode] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const initialHeap = new MaxHeap();
@@ -214,7 +216,7 @@ const HeapVisualization = () => {
           value={inputValue}
           onChange={handleInputChange}
           className="border border-gray-300 rounded px-2 py-1 mr-2"
-          placeholder="输入一个数字"
+          placeholder={t('input_number')}
           disabled={isAnimating}
         />
         <button
@@ -222,14 +224,14 @@ const HeapVisualization = () => {
           className="bg-blue-500 text-white px-4 py-1 rounded mr-2"
           disabled={isAnimating}
         >
-          插入节点
+          {t('insert_node')}
         </button>
         <button
           onClick={handleRemove}
           className="bg-red-500 text-white px-4 py-1 rounded"
           disabled={isAnimating}
         >
-          删除最大值
+          {t('delete_root')}
         </button>
       </div>
       <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -285,7 +287,7 @@ const HeapVisualization = () => {
                 textAnchor="middle"
                 fill="#333"
                 fontSize="14"
-              >删除节点</text>
+              >{t('deleted_node')}</text>
               <AnimatedNode
                 node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
                 isDeleted={true}

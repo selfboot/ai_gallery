@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 
 const GomokuGame = () => {
-  const boardSize = 15;
+  const { t } = useTranslation();
+  const boardSize = 20;
   const [gameBoard, setGameBoard] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState('black');
-  const [status, setStatus] = useState('黑方回合');
+  const [status, setStatus] = useState('');
   const [gameOver, setGameOver] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const createBoard = useCallback(() => {
     const newBoard = Array(boardSize).fill().map(() => Array(boardSize).fill(''));
@@ -15,9 +20,9 @@ const GomokuGame = () => {
   const resetGame = useCallback(() => {
     createBoard();
     setCurrentPlayer('black');
-    setStatus('黑方回合');
+    setStatus(t('black_turn'));
     setGameOver(false);
-  }, [createBoard]);
+  }, [createBoard, t]);
 
   useEffect(() => {
     resetGame();
@@ -31,11 +36,13 @@ const GomokuGame = () => {
     setGameBoard(newBoard);
 
     if (checkWin(row, col)) {
-      setStatus(`${currentPlayer === 'black' ? '黑' : '白'}方获胜！`);
+      setStatus(currentPlayer === 'black' ? t('black_win') : t('white_win'));
       setGameOver(true);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
     } else {
       setCurrentPlayer(currentPlayer === 'black' ? 'white' : 'black');
-      setStatus(`${currentPlayer === 'black' ? '白' : '黑'}方回合`);
+      setStatus(currentPlayer === 'black' ? t('white_turn') : t('black_turn'));
     }
   };
 
@@ -70,9 +77,10 @@ const GomokuGame = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+
+    <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">五子棋游戏</h1>
+      <p className="text-lg mb-4 font-bold">{status}</p>
         <div className="inline-block bg-amber-200 p-2 border-2 border-amber-700">
           {gameBoard.map((row, rowIndex) => (
             <div key={rowIndex} className="flex">
@@ -90,14 +98,24 @@ const GomokuGame = () => {
             </div>
           ))}
         </div>
-        <p className="mt-4 text-lg">{status}</p>
-        <button
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={resetGame}
-        >
-          重新开始
-        </button>
+        <div>
+          <button
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onClick={resetGame}
+          >
+            {t('restart_game')}
+          </button>
+        </div>
+
       </div>
+      {showCelebration && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+            <FontAwesomeIcon icon={faTrophy} className="text-yellow-400 text-6xl" />
+            <p className="text-xl font-bold mt-2">{status}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

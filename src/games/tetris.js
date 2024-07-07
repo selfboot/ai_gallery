@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
+import { useTranslation } from 'react-i18next';
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 30;
@@ -15,14 +15,14 @@ const SHAPES = [
 ];
 
 const COLORS = [
-    '#06b6d4',  // 对应 bg-cyan-400
-    '#fde047',  // 对应 bg-yellow-400
-    '#d946ef',  // 对应 bg-fuchsia-400
-    '#f43f5e',  // 对应 bg-red-400
-    '#10b981',  // 对应 bg-green-400
-    '#3b82f6',  // 对应 bg-blue-400
-    '#fb923c'   // 对应 bg-orange-400
-  ];
+  '#06b6d4',  // bg-cyan-400
+  '#fde047',  // bg-yellow-400
+  '#d946ef',  // bg-fuchsia-400
+  '#f43f5e',  // bg-red-400
+  '#10b981',  // bg-green-400
+  '#3b82f6',  // bg-blue-400
+  '#fb923c'   // bg-orange-400
+];
 
 const TetrisGame = () => {
   const [board, setBoard] = useState(Array(ROWS).fill().map(() => Array(COLS).fill(0)));
@@ -31,6 +31,7 @@ const TetrisGame = () => {
   const [gameActive, setGameActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const canvasRef = useRef(null);
+  const { t } = useTranslation();
 
   const createPiece = useCallback(() => {
     const shapeIndex = Math.floor(Math.random() * SHAPES.length);
@@ -89,15 +90,15 @@ const TetrisGame = () => {
     let rotated = currentPiece.shape[0].map((_, i) =>
       currentPiece.shape.map(row => row[i]).reverse()
     );
-    if (isValidMove({...currentPiece, shape: rotated}, currentPiece.x, currentPiece.y)) {
-      setCurrentPiece(prev => ({...prev, shape: rotated}));
+    if (isValidMove({ ...currentPiece, shape: rotated }, currentPiece.x, currentPiece.y)) {
+      setCurrentPiece(prev => ({ ...prev, shape: rotated }));
     }
   }, [currentPiece, isValidMove]);
 
   const movePiece = useCallback((dx, dy) => {
     if (!currentPiece) return false;
     if (isValidMove(currentPiece, currentPiece.x + dx, currentPiece.y + dy)) {
-      setCurrentPiece(prev => ({...prev, x: prev.x + dx, y: prev.y + dy}));
+      setCurrentPiece(prev => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
       return true;
     }
     return false;
@@ -110,7 +111,7 @@ const TetrisGame = () => {
       while (newBoard.length < ROWS) {
         newBoard.unshift(Array(COLS).fill(0));
       }
-  
+
       if (linesCleared > 0) {
         setScore(prevScore => prevScore + linesCleared * 10); // 在这里更新得分
       }
@@ -150,7 +151,7 @@ const TetrisGame = () => {
       }
     }
   }, [gameActive, movePiece, mergePiece, checkGameOver, createPiece]);
-  
+
   const drawGame = useCallback(() => {
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -206,7 +207,8 @@ const TetrisGame = () => {
   }, [board, currentPiece, drawGame]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center min-h-screen bg-gray-100">
+      <div className="mb-4 text-xl font-bold">{t('gain_score', { score: score })}</div>
       <div className="relative">
         <canvas
           ref={canvasRef}
@@ -219,23 +221,23 @@ const TetrisGame = () => {
             onClick={startGame}
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            开始游戏
+            {t('start_game')}
           </button>
         )}
         {gameOver && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-70 text-white p-4 text-center">
-            <p>游戏结束！</p>
-            <p>你的得分是：{score}</p>
+            <p>{t('game_over')}</p>
+            <p>{t('gain_score', { score: score })}</p>
             <button
               onClick={startGame}
               className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              重新开始
+              {t('restart_game')}
             </button>
           </div>
         )}
       </div>
-      <div className="mt-4 text-xl font-bold">得分: {score}</div>
+
     </div>
   );
 };
