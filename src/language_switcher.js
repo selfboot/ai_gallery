@@ -6,6 +6,15 @@ const LanguageSwitcher = () => {
   const [language, setLanguage] = useState(i18n.language);
 
   useEffect(() => {
+    const detectedLng = i18n.language;
+    const supportedLng = ['zh', 'en']; // 实际支持的语言列表
+    if (detectedLng.includes('-')) {
+      const baseLng = detectedLng.split('-')[0];
+      if (supportedLng.includes(baseLng)) {
+        i18n.changeLanguage(baseLng);
+      }
+    }
+
     setLanguage(i18n.language);
   }, [i18n.language]);
 
@@ -16,7 +25,7 @@ const LanguageSwitcher = () => {
 
   const languageOptions = {
     en: "🇺🇸 English",
-    zh: "🇨🇳 中文"
+    zh: "🇨🇳 简体中文"
   };
 
   return (

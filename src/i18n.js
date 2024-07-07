@@ -9,6 +9,8 @@ i18n
   .use(HttpBackend)
   .init({
     fallbackLng: 'en', // 默认语言
+    load: 'languageOnly', // 只加载语言代码，忽略区域代码
+    supportedLngs: ['en', 'zh'], // 定义支持的语言列表
     debug: true, // 开启调试模式，在控制台输出信息
 
     // 配置翻译文件加载路径
@@ -19,6 +21,12 @@ i18n
 
     interpolation: {
       escapeValue: false, // 因为React已经对XSS进行了防护
+    },
+
+    detection: {
+      order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+      lookupLocalStorage: 'i18nextLng',
+      caches: ['localStorage', 'cookie'],
     }
   });
 
