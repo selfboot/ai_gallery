@@ -24,6 +24,65 @@ const nodeTypes = {
     circle: CircleNode,
 };
 
+class Dijkstra {
+    constructor(matrix) {
+        this.nodes = matrix[0].slice(1);
+        this.distances = {};
+        this.matrix = matrix;
+        this.steps = [];
+
+        // 初始化距离矩阵
+        this.nodes.forEach((node, index) => {
+            this.distances[node] = {};
+
+            this.nodes.forEach((innerNode, innerIndex) => {
+                if (matrix[index + 1][innerIndex + 1] === 'inf') {
+                    this.distances[node][innerNode] = Infinity;
+                } else {
+                    this.distances[node][innerNode] = matrix[index + 1][innerIndex + 1];
+                }
+            });
+        });
+    }
+
+    findShortestPath(startNode) {
+        let distances = {};
+        let parents = {};
+        let visited = new Set();
+        let unvisited = new Set(this.nodes);
+
+        // 初始化距离和父节点
+        for (let node in this.distances) {
+            distances[node] = Infinity;
+            parents[node] = null;
+        }
+        distances[startNode] = 0;
+
+        while (unvisited.size > 0) {
+            // 从未访问过的节点中找到距离最小的节点
+            let currentNode = Array.from(unvisited).reduce((minNode, node) =>
+                distances[node] < distances[minNode] ? node : minNode, Array.from(unvisited)[0]);
+
+            unvisited.delete(currentNode);
+            visited.add(currentNode);
+
+            // 更新当前节点的所有邻接节点的距离
+            for (let neighbor in this.distances[currentNode]) {
+                if (visited.has(neighbor)) continue;
+                let newDistance = distances[currentNode] + this.distances[currentNode][neighbor];
+                if (newDistance < distances[neighbor]) {
+                    distances[neighbor] = newDistance;
+                    parents[neighbor] = currentNode;
+                }
+            }
+
+            this.steps.push({ currentNode, distances: { ...distances }, visited: new Set(visited) });
+        }
+
+        return { distances, parents, steps: this.steps };
+    }
+}
+
 const WeightModal = ({ isOpen, onClose, onSubmit, initialWeight = '' }) => {
     const [weight, setWeight] = useState(initialWeight);
     const { t } = useTranslation();
@@ -64,13 +123,58 @@ const WeightModal = ({ isOpen, onClose, onSubmit, initialWeight = '' }) => {
 };
 
 const GraphEditor = () => {
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [matrix, setMatrix] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalParams, setModalParams] = useState({ edge: null, params: null });
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const { t } = useTranslation();
     const flowRef = useRef(null);
+    const [startNode, setStartNode] = useState(null); 
+    const [result, setResult] = useState(null);
+
+    const handleInitializeGraph = () => {
+        const initialMatrix = [
+            [null, 1, 2, 3, 4, 5],
+            [1, 0, 17, 'inf', 'inf', 10],
+            [2, 17, 0, 1, 5, 'inf'],
+            [3, 'inf', 1, 0, 1, 'inf'],
+            [4, 'inf', 5, 1, 0, 2],
+            [5, 10, 'inf', 'inf', 2, 0],
+        ];
+        const flowBounds = flowRef.current.getBoundingClientRect();
+            const centerX = flowBounds.width;
+            const centerY = flowBounds.height / 4;
+        const positions = [[20, 20], [100, 20], [60, 60], [20, 100], [100, 100]]
+        const newNodes = initialMatrix[0].slice(1).map((label, index) => ({
+            id: String(label),
+            data: { label: String(label) },
+            position: {
+                x: positions[index][0] + centerX,
+                y: positions[index][1] + centerY,
+            },
+            type: 'circle'
+        }));
+
+        const newEdges = [];
+        initialMatrix.slice(1).forEach((row, i) => {
+            row.slice(1).forEach((weight, j) => {
+                // 确保每个边只被添加一次
+                if (j > i && weight !== 'inf') {
+                    newEdges.push({
+                        id: `e${initialMatrix[0][i+1]}-${initialMatrix[0][j+1]}`,
+                        source: String(initialMatrix[0][i+1]),
+                        target: String(initialMatrix[0][j+1]),
+                        label: weight.toString(),
+                        animated: true
+                    });
+                }
+            });
+        });
+    
+        setNodes(newNodes);
+        setEdges(newEdges);
+    };
 
     const updateMatrix = (nodes, edges) => {
         const size = nodes.length;
@@ -95,7 +199,20 @@ const GraphEditor = () => {
 
     useEffect(() => {
         updateMatrix(nodes, edges);
+        if (nodes.length > 0) {
+            setStartNode(nodes[0].data.label); // 设置默认起始节点
+        }
     }, [nodes, edges]);
+
+    // const handleStartNodeChange = (event) => {
+    //     setStartNode(parseInt(event.target.value));
+    // };
+
+    const handleCalculate = () => {
+        const graph = new Dijkstra(matrix);
+        const result = graph.findShortestPath(startNode);
+        setResult(result);
+    };
 
     const handleWeightSubmit = (weight) => {
         if (modalParams.edge) {
@@ -195,12 +312,38 @@ const GraphEditor = () => {
     return (
         <div className="flex h-screen">
             <div className="w-3/5 h-full relative">
-                <button
-                    onClick={addNode}
-                    className="absolute top-4 left-4 z-10 px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200"
+                <div className="absolute top-4 left-4 z-10 flex flex-col space-y-2">
+                    <button
+                        onClick={handleInitializeGraph}
+                        className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+                    >
+                        Initialize Graph
+                    </button>
+                    <button
+                onClick={addNode}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200"
+            >
+                {t('insert_node')}
+            </button>
+            <div>
+                {/* <select
+                    value={startNode}
+                    onChange={handleStartNodeChange}
+                    className="px-4 py-2 mr-2 rounded-md w-full"
                 >
-                    {t('insert_node')}
-                </button>
+                    {matrix[0].slice(1).map(node => (
+                        <option key={node} value={node}>{node}</option>
+                    ))}
+                </select> */}
+            </div>
+            <button
+                onClick={handleCalculate}
+                className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 focus:outline-none transition-colors duration-200"
+            >
+                Start Calculation
+            </button>
+
+            </div>
                 <ReactFlow
                     ref={flowRef}
                     nodes={nodes}
@@ -239,6 +382,12 @@ const GraphEditor = () => {
                         ))}
                     </tbody>
                 </table>
+                {result && (
+                    <div>
+                        <h3>Results</h3>
+                        <pre>{JSON.stringify(result.steps, null, 2)}</pre>
+                    </div>
+                )}
             </div>
             <WeightModal
                 isOpen={isModalOpen}
