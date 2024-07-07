@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
-const ChineseChessBoard = () => {
-    const [board, setBoard] = useState(initializeBoard());
-    const [selectedPiece, setSelectedPiece] = useState(null);
-    const [currentPlayer, setCurrentPlayer] = useState('red');
-    const [gameStatus, setGameStatus] = useState('playing'); // 'playing', 'check', 'checkmate', 'stalemate'
-    const [moveHistory, setMoveHistory] = useState([]);
-    const [moveCount, setMoveCount] = useState(0);
+class ChineseChess {
+    constructor() {
+        this.board = this.initializeBoard();
+    }
 
-    useEffect(() => {
-        checkGameStatus();
-    }, [board, currentPlayer]);
-
-    function initializeBoard() {
-        const board = Array(10).fill().map(() => Array(9).fill(null));
+    initializeBoard() {
+        let board = Array(10).fill().map(() => Array(9).fill(null));
 
         // Initialize black pieces
         board[0][0] = board[0][8] = { type: '车', color: 'black' };
@@ -36,85 +29,42 @@ const ChineseChessBoard = () => {
         return board;
     }
 
-    function checkGameStatus() {
-        if (isCheckmate(board, currentPlayer)) {
-            setGameStatus('checkmate');
-        } else if (isCheck(board, currentPlayer)) {
-            setGameStatus('check');
-        } else if (isStalemate(board, currentPlayer)) {
-            setGameStatus('stalemate');
-        } else {
-            setGameStatus('playing');
-        }
-    }
-    
-    function handleClick(row, col) {
-        if (gameStatus !== 'playing' && gameStatus !== 'check') return;
-
-        if (selectedPiece) {
-            if (isValidMove(selectedPiece.row, selectedPiece.col, row, col, true)) {
-                const newBoard = movePiece(selectedPiece.row, selectedPiece.col, row, col);
-                setBoard(newBoard);
-                setSelectedPiece(null);
-                setCurrentPlayer(currentPlayer === 'red' ? 'black' : 'red');
-                setMoveHistory([...moveHistory, {
-                    from: { row: selectedPiece.row, col: selectedPiece.col },
-                    to: { row, col },
-                    piece: board[selectedPiece.row][selectedPiece.col],
-                    captured: board[row][col]
-                }]);
-                setMoveCount(moveCount + 1);
-            } else {
-                setSelectedPiece(null);
-            }
-        } else if (board[row][col] && board[row][col].color === currentPlayer) {
-            setSelectedPiece({ row, col });
-        }
-    }
-
-    function movePiece(fromRow, fromCol, toRow, toCol) {
-        const newBoard = board.map(row => [...row]);
-        newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-        newBoard[fromRow][fromCol] = null;
-        return newBoard;
-    }
-
-    function isValidMove(fromRow, fromCol, toRow, toCol, checkForCheck = false) {
-        const piece = board[fromRow][fromCol];
+    isValidMove(fromRow, fromCol, toRow, toCol, checkForCheck = false) {
+        const piece = this.board[fromRow][fromCol];
         if (!piece) return false;
 
         // Can't capture your own pieces
-        if (board[toRow][toCol] && board[toRow][toCol].color === piece.color) return false;
+        if (this.board[toRow][toCol] && this.board[toRow][toCol].color === piece.color) return false;
 
         let isValid = false;
 
         switch (piece.type) {
             case '車':
             case '车':
-                isValid = isValidChariotMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidChariotMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '马':
             case '馬':
-                isValid = isValidHorseMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidHorseMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '象':
             case '相':
-                isValid = isValidElephantMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidElephantMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '士':
             case '仕':
-                isValid = isValidAdvisorMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidAdvisorMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '将':
             case '帥':
-                isValid = isValidGeneralMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidGeneralMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '炮':
-                isValid = isValidCannonMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidCannonMove(fromRow, fromCol, toRow, toCol);
                 break;
             case '卒':
             case '兵':
-                isValid = isValidPawnMove(fromRow, fromCol, toRow, toCol);
+                isValid = this.isValidPawnMove(fromRow, fromCol, toRow, toCol);
                 break;
             default:
                 isValid = false;
@@ -122,8 +72,8 @@ const ChineseChessBoard = () => {
 
         if (isValid && checkForCheck) {
             // Check if the move puts or leaves the player in check
-            const newBoard = movePiece(fromRow, fromCol, toRow, toCol);
-            if (isCheck(newBoard, piece.color)) {
+            const newBoard = this.movePiece(fromRow, fromCol, toRow, toCol);
+            if (this.isCheck(newBoard, piece.color)) {
                 isValid = false;
             }
         }
@@ -131,129 +81,7 @@ const ChineseChessBoard = () => {
         return isValid;
     }
 
-    function isValidChariotMove(fromRow, fromCol, toRow, toCol) {
-        if (fromRow !== toRow && fromCol !== toCol) return false;
-
-        const rowStep = fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
-        const colStep = fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
-
-        for (let i = 1; i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol)); i++) {
-            if (board[fromRow + i * rowStep][fromCol + i * colStep]) return false;
-        }
-
-        return true;
-    }
-
-    function isValidHorseMove(fromRow, fromCol, toRow, toCol) {
-        const rowDiff = Math.abs(toRow - fromRow);
-        const colDiff = Math.abs(toCol - fromCol);
-
-        if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
-            // Check if the horse is not blocked
-            if (rowDiff === 2) {
-                return !board[fromRow + (toRow - fromRow) / 2][fromCol];
-            } else {
-                return !board[fromRow][fromCol + (toCol - fromCol) / 2];
-            }
-        }
-
-        return false;
-    }
-
-    function isValidElephantMove(fromRow, fromCol, toRow, toCol) {
-        const rowDiff = Math.abs(toRow - fromRow);
-        const colDiff = Math.abs(toCol - fromCol);
-
-        if (rowDiff === 2 && colDiff === 2) {
-            // Check if the elephant is not blocked
-            const midRow = (fromRow + toRow) / 2;
-            const midCol = (fromCol + toCol) / 2;
-            if (!board[midRow][midCol]) {
-                // Check if the elephant stays on its side of the river
-                return (board[fromRow][fromCol].color === 'red' && toRow > 4) ||
-                    (board[fromRow][fromCol].color === 'black' && toRow < 5);
-            }
-        }
-
-        return false;
-    }
-
-    function isValidAdvisorMove(fromRow, fromCol, toRow, toCol) {
-        const rowDiff = Math.abs(toRow - fromRow);
-        const colDiff = Math.abs(toCol - fromCol);
-
-        if (rowDiff === 1 && colDiff === 1) {
-            // Check if the advisor stays in the palace
-            return isInPalace(toRow, toCol, board[fromRow][fromCol].color);
-        }
-
-        return false;
-    }
-
-    function isValidGeneralMove(fromRow, fromCol, toRow, toCol) {
-        const rowDiff = Math.abs(toRow - fromRow);
-        const colDiff = Math.abs(toCol - fromCol);
-
-        if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
-            // Check if the general stays in the palace
-            return isInPalace(toRow, toCol, board[fromRow][fromCol].color);
-        }
-
-        return false;
-    }
-
-    function isValidCannonMove(fromRow, fromCol, toRow, toCol) {
-        if (fromRow !== toRow && fromCol !== toCol) return false;
-
-        const rowStep = fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
-        const colStep = fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
-
-        let piecesBetween = 0;
-        for (let i = 1; i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol)); i++) {
-            if (board[fromRow + i * rowStep][fromCol + i * colStep]) piecesBetween++;
-        }
-
-        if (board[toRow][toCol]) {
-            // Capturing
-            return piecesBetween === 1;
-        } else {
-            // Moving
-            return piecesBetween === 0;
-        }
-    }
-
-    function isValidPawnMove(fromRow, fromCol, toRow, toCol) {
-        const rowDiff = toRow - fromRow;
-        const colDiff = Math.abs(toCol - fromCol);
-
-        if (board[fromRow][fromCol].color === 'red') {
-            if (fromRow > 4) {
-                // Haven't crossed the river
-                return rowDiff === -1 && colDiff === 0;
-            } else {
-                // Crossed the river
-                return (rowDiff === -1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-            }
-        } else {
-            if (fromRow < 5) {
-                // Haven't crossed the river
-                return rowDiff === 1 && colDiff === 0;
-            } else {
-                // Crossed the river
-                return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-            }
-        }
-    }
-
-    function isInPalace(row, col, color) {
-        if (color === 'red') {
-            return row >= 7 && row <= 9 && col >= 3 && col <= 5;
-        } else {
-            return row >= 0 && row <= 2 && col >= 3 && col <= 5;
-        }
-    }
-
-    function isCheck(board, player) {
+    isCheck(board, player) {
         const oppositeColor = player === 'red' ? 'black' : 'red';
         let generalPosition;
 
@@ -272,7 +100,7 @@ const ChineseChessBoard = () => {
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 9; j++) {
                 if (board[i][j] && board[i][j].color === oppositeColor) {
-                    if (isValidMove(i, j, generalPosition.row, generalPosition.col, false)) {
+                    if (this.isValidMove(i, j, generalPosition.row, generalPosition.col, false)) {
                         return true;
                     }
                 }
@@ -282,16 +110,147 @@ const ChineseChessBoard = () => {
         return false;
     }
 
-    function isCheckmate(board, player) {
-        if (!isCheck(board, player)) return false;
+    movePiece(fromRow, fromCol, toRow, toCol) {
+        const newBoard = this.board.map(row => [...row]);
+        newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+        newBoard[fromRow][fromCol] = null;
+        return newBoard;
+    }
+
+
+    isValidChariotMove(fromRow, fromCol, toRow, toCol) {
+        if (fromRow !== toRow && fromCol !== toCol) return false;
+
+        const rowStep = fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
+        const colStep = fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
+
+        for (let i = 1; i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol)); i++) {
+            if (this.board[fromRow + i * rowStep][fromCol + i * colStep]) return false;
+        }
+
+        return true;
+    }
+
+    isValidHorseMove(fromRow, fromCol, toRow, toCol) {
+        const rowDiff = Math.abs(toRow - fromRow);
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
+            // Check if the horse is not blocked
+            if (rowDiff === 2) {
+                return !this.board[fromRow + (toRow - fromRow) / 2][fromCol];
+            } else {
+                return !this.board[fromRow][fromCol + (toCol - fromCol) / 2];
+            }
+        }
+
+        return false;
+    }
+
+    isValidElephantMove(fromRow, fromCol, toRow, toCol) {
+        const rowDiff = Math.abs(toRow - fromRow);
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if (rowDiff === 2 && colDiff === 2) {
+            // Check if the elephant is not blocked
+            const midRow = (fromRow + toRow) / 2;
+            const midCol = (fromCol + toCol) / 2;
+            if (!this.board[midRow][midCol]) {
+                // Check if the elephant stays on its side of the river
+                return (this.board[fromRow][fromCol].color === 'red' && toRow > 4) ||
+                    (this.board[fromRow][fromCol].color === 'black' && toRow < 5);
+            }
+        }
+
+        return false;
+    }
+
+    isValidAdvisorMove(fromRow, fromCol, toRow, toCol) {
+        const rowDiff = Math.abs(toRow - fromRow);
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if (rowDiff === 1 && colDiff === 1) {
+            // Check if the advisor stays in the palace
+            return this.isInPalace(toRow, toCol, this.board[fromRow][fromCol].color);
+        }
+
+        return false;
+    }
+
+    isValidGeneralMove(fromRow, fromCol, toRow, toCol) {
+        const rowDiff = Math.abs(toRow - fromRow);
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+            // Check if the general stays in the palace
+            return this.isInPalace(toRow, toCol, this.board[fromRow][fromCol].color);
+        }
+
+        return false;
+    }
+
+    isValidCannonMove(fromRow, fromCol, toRow, toCol) {
+        if (fromRow !== toRow && fromCol !== toCol) return false;
+
+        const rowStep = fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
+        const colStep = fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
+
+        let piecesBetween = 0;
+        for (let i = 1; i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol)); i++) {
+            if (this.board[fromRow + i * rowStep][fromCol + i * colStep]) piecesBetween++;
+        }
+
+        if (this.board[toRow][toCol]) {
+            // Capturing
+            return piecesBetween === 1;
+        } else {
+            // Moving
+            return piecesBetween === 0;
+        }
+    }
+
+    isValidPawnMove(fromRow, fromCol, toRow, toCol) {
+        const rowDiff = toRow - fromRow;
+        const colDiff = Math.abs(toCol - fromCol);
+
+        if (this.board[fromRow][fromCol].color === 'red') {
+            if (fromRow > 4) {
+                // Haven't crossed the river
+                return rowDiff === -1 && colDiff === 0;
+            } else {
+                // Crossed the river
+                return (rowDiff === -1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+            }
+        } else {
+            if (fromRow < 5) {
+                // Haven't crossed the river
+                return rowDiff === 1 && colDiff === 0;
+            } else {
+                // Crossed the river
+                return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+            }
+        }
+    }
+
+    isInPalace(row, col, color) {
+        if (color === 'red') {
+            return row >= 7 && row <= 9 && col >= 3 && col <= 5;
+        } else {
+            return row >= 0 && row <= 2 && col >= 3 && col <= 5;
+        }
+    }
+
+
+    isCheckmate(player) {
+        if (!this.isCheck(this.board, player)) return false;
 
         // Try all possible moves for the player
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 9; j++) {
-                if (board[i][j] && board[i][j].color === player) {
+                if (this.board[i][j] && this.board[i][j].color === player) {
                     for (let k = 0; k < 10; k++) {
                         for (let l = 0; l < 9; l++) {
-                            if (isValidMove(i, j, k, l, true)) {
+                            if (this.isValidMove(i, j, k, l, true)) {
                                 return false;
                             }
                         }
@@ -303,16 +262,16 @@ const ChineseChessBoard = () => {
         return true;
     }
 
-    function isStalemate(board, player) {
-        if (isCheck(board, player)) return false;
+    isStalemate(player) {
+        if (this.isCheck(this.board, player)) return false;
 
         // Check if the player has any legal moves
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 9; j++) {
-                if (board[i][j] && board[i][j].color === player) {
+                if (this.board[i][j] && this.board[i][j].color === player) {
                     for (let k = 0; k < 10; k++) {
                         for (let l = 0; l < 9; l++) {
-                            if (isValidMove(i, j, k, l, true)) {
+                            if (this.isValidMove(i, j, k, l, true)) {
                                 return false;
                             }
                         }
@@ -323,17 +282,44 @@ const ChineseChessBoard = () => {
 
         return true;
     }
+}
+
+const ChineseChessBoard = () => {
+    // const chess = new ChineseChess();
+    const chess = useMemo(() => new ChineseChess(), []);  // 确保 chess 实例只在组件首次渲染时创建
+
+    const [selectedPiece, setSelectedPiece] = useState(null);
+    const [currentPlayer, setCurrentPlayer] = useState('red');
+    const [gameStatus, setGameStatus] = useState('playing'); // 'playing', 'check', 'checkmate', 'stalemate'
+    const [moveHistory, setMoveHistory] = useState([]);
+    const [moveCount, setMoveCount] = useState(0);
+
+    useEffect(() => {
+        function checkGameStatus() {
+            if (chess.isCheckmate(currentPlayer)) {
+                setGameStatus('checkmate');
+            } else if (chess.isCheck(chess.board, currentPlayer)) {
+                setGameStatus('check');
+            } else if (chess.isStalemate(currentPlayer)) {
+                setGameStatus('stalemate');
+            } else {
+                setGameStatus('playing');
+            }
+        }
+        checkGameStatus();
+    }, [currentPlayer, chess]);
+
 
     function undoMove() {
         if (moveHistory.length === 0) return;
 
         const lastMove = moveHistory[moveHistory.length - 1];
-        const newBoard = board.map(row => [...row]);
+        const newBoard = chess.board.map(row => [...row]);
 
         newBoard[lastMove.from.row][lastMove.from.col] = lastMove.piece;
         newBoard[lastMove.to.row][lastMove.to.col] = lastMove.captured;
 
-        setBoard(newBoard);
+        chess.board = newBoard;
         setCurrentPlayer(currentPlayer === 'red' ? 'black' : 'red');
         setMoveHistory(moveHistory.slice(0, -1));
         setMoveCount(moveCount - 1);
@@ -341,7 +327,7 @@ const ChineseChessBoard = () => {
     }
 
     function restartGame() {
-        setBoard(initializeBoard());
+        chess.initializeBoard();
         setSelectedPiece(null);
         setCurrentPlayer('red');
         setGameStatus('playing');
@@ -349,6 +335,29 @@ const ChineseChessBoard = () => {
         setMoveCount(0);
     }
 
+    function handleClick(row, col) {
+        if (gameStatus !== 'playing' && gameStatus !== 'check') return;
+
+        if (selectedPiece) {
+            if (chess.isValidMove(selectedPiece.row, selectedPiece.col, row, col, true)) {
+                const newBoard = chess.movePiece(selectedPiece.row, selectedPiece.col, row, col);
+                chess.board = newBoard;
+                setSelectedPiece(null);
+                setCurrentPlayer(currentPlayer === 'red' ? 'black' : 'red');
+                setMoveHistory([...moveHistory, {
+                    from: { row: selectedPiece.row, col: selectedPiece.col },
+                    to: { row, col },
+                    piece: chess.board[selectedPiece.row][selectedPiece.col],
+                    captured: chess.board[row][col]
+                }]);
+                setMoveCount(moveCount + 1);
+            } else {
+                setSelectedPiece(null);
+            }
+        } else if (chess.board[row][col] && chess.board[row][col].color === currentPlayer) {
+            setSelectedPiece({ row, col });
+        }
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -367,7 +376,7 @@ const ChineseChessBoard = () => {
                             </div>
                         ) : (
                             [...Array(9)].map((_, colIndex) => {
-                                const piece = rowIndex < 5 ? board[rowIndex][colIndex] : board[rowIndex - 1][colIndex];
+                                const piece = rowIndex < 5 ? chess.board[rowIndex][colIndex] : chess.board[rowIndex - 1][colIndex];
                                 return (
                                     <div
                                         key={`${rowIndex}-${colIndex}`}
