@@ -46,7 +46,13 @@ const projects = {
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_astar_path.gif',
       link: '/algorithms/astar'
     },
-
+    {
+      id: 'dijkstra',
+      title: 'dijkstra_title',
+      description: 'dijkstra_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_dijkstra.png/webp',
+      link: '/algorithms/dijkstra'
+    },
   ],
   others: [
 

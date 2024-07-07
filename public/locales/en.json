@@ -44,5 +44,10 @@
     "search_speed": "Find Speed",
     "find_path": "Find Path",
     "reset_grid": "Reset Grid",
-    "no_path_found": "No path found"
+    "no_path_found": "No path found",
+
+    "dijkstra_title": "Dijkstra Pathfinding(Developing)",
+    "dijkstra_description": "Visualization of the Dijkstra pathfinding algorithm. Set obstacles, start and end points in a network, and watch the pathfinding process.",
+    "submit": "Submit",
+    "weight": "Weight"
 }
