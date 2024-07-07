@@ -16,7 +16,7 @@ const LanguageSwitcher = () => {
     }
 
     setLanguage(i18n.language);
-  }, [i18n.language]);
+  }, [i18n]);
 
   const handleLanguageChange = (event) => {
     const selectedLang = event.target.value;
