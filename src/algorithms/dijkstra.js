@@ -289,7 +289,6 @@ const GraphEditor = () => {
 
     setMatrix(newMatrix);
   };
-
   useEffect(() => {
     updateMatrix(nodes, edges);
     if (nodes.length > 0) {
@@ -297,9 +296,9 @@ const GraphEditor = () => {
     }
   }, [nodes, edges]);
 
-  // const handleStartNodeChange = (event) => {
-  //     setStartNode(parseInt(event.target.value));
-  // };
+  const handleStartNodeChange = (event) => {
+      setStartNode(event.target.value);
+  };
 
   const handleCalculate = () => {
     const graph = new Dijkstra(matrix);
@@ -334,16 +333,19 @@ const GraphEditor = () => {
     <div className="flex w-full h-full overflow-auto">
       <div className="w-3/5 h-full relative">
         <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
-          <div>
-            {/* <select
-                    value={startNode}
-                    onChange={handleStartNodeChange}
-                    className="px-4 py-2 mr-2 rounded-md w-full"
-                >
-                    {matrix[0].slice(1).map(node => (
-                        <option key={node} value={node}>{node}</option>
-                    ))}
-                </select> */}
+          <div className="flex items-center">
+            <label htmlFor="startNodeSelect" className="mr-2 flex-none">
+              {t("select_start")}
+            </label>
+            <select value={startNode} onChange={handleStartNodeChange} className="px-4 py-2 mr-2 rounded-md w-full">
+              {matrix[0] &&
+                matrix[0].slice(1).map((node) => (
+                  <option key={node} value={node}>
+                    {" "}
+                    {node}{" "}
+                  </option>
+                ))}
+            </select>
           </div>
           <button
             onClick={handleCalculate}
@@ -370,12 +372,13 @@ const GraphEditor = () => {
         </div>
       </div>
       <div className="w-2/5 p-5 overflow-auto">
+        <h2 className="text-2xl pb-5">{t("weight_matrix")}</h2>
         <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
             <tr>
               {matrix[0] &&
                 matrix[0].map((id, index) => (
-                  <th key={index} scope="col" className="px-6 py-3">
+                  <th key={index} scope="col" className="px-3 py-3">
                     {id || ""}
                   </th>
                 ))}
@@ -386,9 +389,9 @@ const GraphEditor = () => {
               <tr key={i} className="bg-white border-b">
                 {row.map((cell, j) => {
                   // 检查当前单元格是否需要高亮
-                  const isHighlighted = highlight.cells.some(h => h.row === i + 1 && h.col === j);
+                  const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
                   return (
-                    <td key={j} className={`text-center px-6 py-4 ${isHighlighted ? 'bg-gray-100 text-red-500' : ''}`}>
+                    <td key={j} className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-red-500" : ""}`}>
                       {cell}
                     </td>
                   );
@@ -399,7 +402,7 @@ const GraphEditor = () => {
         </table>
         {result && (
           <div>
-            <h3>Results</h3>
+            <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
             <pre>{JSON.stringify(result.steps, null, 2)}</pre>
           </div>
         )}
