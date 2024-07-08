@@ -9,9 +9,10 @@ import BFSPathFind from './algorithms/bfs_path';
 import HeapVisualization from './algorithms/heap';
 import AStarPathFind from './algorithms/a_start_path';
 import ChinessChess from './games/chess';
-import LanguageSwitcher from './language_switcher.js';
+import LanguageSwitcher from './language_switcher';
 import Header from './header.js';
 import GraphCreator from './algorithms/dijkstra';
+import BarChartRace from './others/bar_chart_race';
 
 const ProjectCard = ({ title, description, image, link }) => {
   const { t } = useTranslation(); // 获取翻译函数
@@ -138,6 +139,9 @@ const AppComponent = () => {
           <Route path="/algorithms/heap" element={<HeapVisualization />} />
           <Route path="/algorithms/astar" element={<AStarPathFind />} />
           <Route path="/algorithms/dijkstra" element={<GraphCreator />} />
+
+          {/* others */}
+          <Route path="/others/bar_chart_race" element={<BarChartRace />} />
         </Routes>
       </main>
     </div>

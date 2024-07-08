@@ -50,5 +50,8 @@
     "dijkstra_title": "Dijkstra 寻路(开发中)",
     "dijkstra_description": "可视化展示 Dijkstra 寻路算法，给定一个网络，可以设置障碍物，起点，终点，然后展示寻路过程",
     "submit": "提交",
-    "weight": "权重"
+    "weight": "权重",
+    
+    "bar_chart_race_title": "动态条形图(开发中)",
+    "bar_chart_race_description": "动态条形图通常用来展示数据随时间变化的情况，通过本页面可以自定义数据和时间，生成动态条形图，并且支持大量的自定义设置。"
 }

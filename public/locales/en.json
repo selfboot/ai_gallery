@@ -49,5 +49,8 @@
     "dijkstra_title": "Dijkstra Pathfinding(Developing)",
     "dijkstra_description": "Visualization of the Dijkstra pathfinding algorithm. Set obstacles, start and end points in a network, and watch the pathfinding process.",
     "submit": "Submit",
-    "weight": "Weight"
+    "weight": "Weight",
+
+    "bar_chart_race_title": "BarChartRace(Developing)",
+    "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings."
 }

@@ -55,7 +55,13 @@ const projects = {
     },
   ],
   others: [
-
+    {
+      id: 'bar_chart_race',
+      title: 'bar_chart_race_title',
+      description: 'bar_chart_race_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240708_ai_gallery_bar_chart_race.gif',
+      link: '/others/bar_chart_race'
+    },
   ]
 };
 
