@@ -78,7 +78,7 @@ const GomokuGame = () => {
 
   return (
 
-    <div className="flex flex-col items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center bg-gray-100">
       <div className="text-center">
       <p className="text-lg mb-4 font-bold">{status}</p>
         <div className="inline-block bg-amber-200 p-2 border-2 border-amber-700">

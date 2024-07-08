@@ -207,7 +207,7 @@ const TetrisGame = () => {
   }, [board, currentPiece, drawGame]);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center bg-gray-100">
       <div className="mb-4 text-xl font-bold">{t('gain_score', { score: score })}</div>
       <div className="relative">
         <canvas

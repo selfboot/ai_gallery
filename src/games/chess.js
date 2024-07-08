@@ -391,7 +391,7 @@ const ChineseChessBoard = () => {
     }, [chess]);
 
     return (
-        <div className="flex flex-col items-center min-h-screen bg-gray-100 p-4">
+        <div className="flex flex-col items-center bg-gray-100 p-4">
             <div className="text-lg mb-4 font-bold">
                 {chess.gameStatus === 'playing' && t('current_player', { player: translatePlayer(chess.currentPlayer) })}
                 {chess.gameStatus === 'check' && t('player_in_check', { player: translatePlayer(chess.currentPlayer) })}
