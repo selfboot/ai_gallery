@@ -153,10 +153,11 @@ class Dijkstra {
       this.distances[node] = {};
 
       this.nodes.forEach((innerNode, innerIndex) => {
-        if (matrix[index + 1][innerIndex + 1] === "inf") {
+        let weight = matrix[index + 1][innerIndex + 1];
+        if (weight === "inf") {
           this.distances[node][innerNode] = Infinity;
         } else {
-          this.distances[node][innerNode] = matrix[index + 1][innerIndex + 1];
+          this.distances[node][innerNode] = parseFloat(weight);
         }
       });
     });
@@ -197,10 +198,11 @@ class Dijkstra {
         }
       }
 
+      // console.log({ currentNode, visited: new Set([...visited]) });
       this.steps.push({
         currentNode,
         distances: { ...distances },
-        visited: new Set(visited),
+        visited: [...visited],
       });
     }
 
@@ -303,6 +305,7 @@ const GraphEditor = () => {
   const handleCalculate = () => {
     const graph = new Dijkstra(matrix);
     const result = graph.findShortestPath(startNode);
+    // console.log(result);
     setResult(result);
   };
 
