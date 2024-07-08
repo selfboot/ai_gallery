@@ -53,6 +53,7 @@
     "matrix": "Weight Matrix",
     "select_start": "Select Start",
     "search_process": "Search Process",
+    "round": "Round",
     "bar_chart_race_title": "BarChartRace(Developing)",
     "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings."
 }

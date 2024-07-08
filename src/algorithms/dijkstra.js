@@ -1,17 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import ReactFlow, {
-  Background,
-  Controls,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  Handle,
-  Position,
-} from "reactflow";
+import ReactFlow, { Background, Controls, MiniMap, useNodesState, useEdgesState, Handle, Position } from "reactflow";
 import "reactflow/dist/style.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { t } from "i18next";
 
 const initialNodes = [
   {
@@ -78,8 +71,8 @@ const CustomNode = ({ data }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "8px",
-          height: "8px",
+          width: "1px",
+          height: "1px",
           opacity: 0, // Make it invisible
         }}
       />
@@ -91,8 +84,8 @@ const CustomNode = ({ data }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "8px",
-          height: "8px",
+          width: "1px",
+          height: "1px",
           opacity: 0, // Make it invisible
         }}
       />
@@ -104,32 +97,14 @@ const nodeTypes = {
   customNode: CustomNode,
 };
 
-const CustomEdge = ({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  label,
-  style = {},
-}) => {
+const CustomEdge = ({ id, sourceX, sourceY, targetX, targetY, label, style = {} }) => {
   const edgePath = `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
 
   return (
     <>
-      <path
-        id={id}
-        style={style}
-        className="react-flow__edge-path stroke-current text-gray-500"
-        d={edgePath}
-      />
+      <path id={id} style={style} className="react-flow__edge-path stroke-current text-gray-500" d={edgePath} />
       <text className="text-xs">
-        <textPath
-          href={`#${id}`}
-          className="text-gray-700"
-          startOffset="50%"
-          textAnchor="middle"
-        >
+        <textPath href={`#${id}`} className="text-gray-700" startOffset="50%" textAnchor="middle">
           {label}
         </textPath>
       </text>
@@ -179,8 +154,7 @@ class Dijkstra {
     while (unvisited.size > 0) {
       // 从未访问过的节点中找到距离最小的节点
       let currentNode = Array.from(unvisited).reduce(
-        (minNode, node) =>
-          distances[node] < distances[minNode] ? node : minNode,
+        (minNode, node) => (distances[node] < distances[minNode] ? node : minNode),
         Array.from(unvisited)[0]
       );
 
@@ -190,8 +164,7 @@ class Dijkstra {
       // 更新当前节点的所有邻接节点的距离
       for (let neighbor in this.distances[currentNode]) {
         if (visited.has(neighbor)) continue;
-        let newDistance =
-          distances[currentNode] + this.distances[currentNode][neighbor];
+        let newDistance = distances[currentNode] + this.distances[currentNode][neighbor];
         if (newDistance < distances[neighbor]) {
           distances[neighbor] = newDistance;
           parents[neighbor] = currentNode;
@@ -209,6 +182,40 @@ class Dijkstra {
     return { distances, parents, steps: this.steps };
   }
 }
+
+const StepsTable = ({ steps, nodes }) => {
+  return (
+    <table className="w-full text-sm text-left text-gray-500">
+      <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
+        <tr>
+          <th scope="col" className="px-3 py-3">
+            {t("round")}
+          </th>
+          {nodes.map((node) => (
+            <th key={node.id} scope="col" className="px-3 py-3">
+              {node.data.label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {steps.map((step, index) => (
+          <tr key={index} className="bg-white border-b">
+            <td className="text-center px-3 py-3">{index + 1}</td>
+            {nodes.map((node) => (
+              <td
+                key={node.id}
+                className={`text-center px-3 py-3 ${step.visited.some((v) => v === node.id) ? "text-red-500 bg-gray-100" : ""}`}
+              >
+                {step.distances[node.data.label] === Infinity ? "∞" : step.distances[node.data.label]}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 const WeightModal = ({ isOpen, onClose, onSubmit, initialWeight = "" }) => {
   const [weight, setWeight] = useState(initialWeight);
@@ -265,7 +272,7 @@ const GraphEditor = () => {
 
   const { t } = useTranslation();
   const flowRef = useRef(null);
-  const [startNode, setStartNode] = useState(null);
+  const [startNode, setStartNode] = useState("");
   const [result, setResult] = useState(null);
   const [highlight, setHighlight] = useState({ cells: [] });
 
@@ -299,7 +306,7 @@ const GraphEditor = () => {
   }, [nodes, edges]);
 
   const handleStartNodeChange = (event) => {
-      setStartNode(event.target.value);
+    setStartNode(event.target.value);
   };
 
   const handleCalculate = () => {
@@ -311,18 +318,23 @@ const GraphEditor = () => {
 
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
-      const sourceIndex = nodes.findIndex(n => n.id === modalParams.edge.source);
-      const targetIndex = nodes.findIndex(n => n.id === modalParams.edge.target);
+      const sourceIndex = nodes.findIndex((n) => n.id === modalParams.edge.source);
+      const targetIndex = nodes.findIndex((n) => n.id === modalParams.edge.target);
       // 设置两个单元格高亮
-      setHighlight({ cells: [{ row: sourceIndex + 1, col: targetIndex + 1 }, { row: targetIndex + 1, col: sourceIndex + 1 }] });
+      setHighlight({
+        cells: [
+          { row: sourceIndex + 1, col: targetIndex + 1 },
+          { row: targetIndex + 1, col: sourceIndex + 1 },
+        ],
+      });
 
       // 更新现有连线的权重
-      setEdges((eds) => eds.map((e) => e.id === modalParams.edge.id ? { ...e, label: weight } : e));
+      setEdges((eds) => eds.map((e) => (e.id === modalParams.edge.id ? { ...e, label: weight } : e)));
 
       setTimeout(() => {
         setHighlight({ cells: [] });
       }, 3000);
-    } 
+    }
     setIsModalOpen(false);
     setModalParams({ params: null, edge: null }); // 清理参数，防止重复使用
   };
@@ -406,7 +418,8 @@ const GraphEditor = () => {
         {result && (
           <div>
             <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
-            <pre>{JSON.stringify(result.steps, null, 2)}</pre>
+            <StepsTable steps={result.steps} nodes={nodes} />
+            {/* <pre>{JSON.stringify(result.steps, null, 2)}</pre> */}
           </div>
         )}
       </div>

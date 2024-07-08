@@ -54,6 +54,7 @@
     "weight_matrix": "权重矩阵",
     "select_start": "选择起点",
     "search_process": "搜索过程",
+    "round": "轮次",
     "bar_chart_race_title": "动态条形图(开发中)",
     "bar_chart_race_description": "动态条形图通常用来展示数据随时间变化的情况，通过本页面可以自定义数据和时间，生成动态条形图，并且支持大量的自定义设置。"
 }
