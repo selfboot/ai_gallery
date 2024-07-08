@@ -225,7 +225,7 @@ const WeightModal = ({ isOpen, onClose, onSubmit, initialWeight = "" }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg relative">
         <button
           onClick={onClose}
@@ -335,7 +335,7 @@ const GraphEditor = () => {
   return (
     <div className="flex w-full h-full overflow-auto">
       <div className="w-3/5 h-full relative">
-        <div className="absolute top-4 left-4 flex flex-col space-y-2">
+        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
           <div>
             {/* <select
                     value={startNode}
