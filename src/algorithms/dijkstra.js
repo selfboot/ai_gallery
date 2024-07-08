@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import ReactFlow, {
-  addEdge,
   Background,
   Controls,
   MiniMap,
@@ -266,6 +265,7 @@ const GraphEditor = () => {
   const flowRef = useRef(null);
   const [startNode, setStartNode] = useState(null);
   const [result, setResult] = useState(null);
+  const [highlight, setHighlight] = useState({ cells: [] });
 
   const updateMatrix = (nodes, edges) => {
     const size = nodes.length;
@@ -309,20 +309,18 @@ const GraphEditor = () => {
 
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
+      const sourceIndex = nodes.findIndex(n => n.id === modalParams.edge.source);
+      const targetIndex = nodes.findIndex(n => n.id === modalParams.edge.target);
+      // 设置两个单元格高亮
+      setHighlight({ cells: [{ row: sourceIndex + 1, col: targetIndex + 1 }, { row: targetIndex + 1, col: sourceIndex + 1 }] });
+
       // 更新现有连线的权重
-      setEdges((eds) =>
-        eds.map((e) =>
-          e.id === modalParams.edge.id
-            ? { ...e, label: weight, animated: true }
-            : e
-        )
-      );
-    } else if (modalParams.params) {
-      // 创建新的连线
-      setEdges((eds) =>
-        addEdge({ ...modalParams.params, label: weight, animated: true }, eds)
-      );
-    }
+      setEdges((eds) => eds.map((e) => e.id === modalParams.edge.id ? { ...e, label: weight } : e));
+
+      setTimeout(() => {
+        setHighlight({ cells: [] });
+      }, 3000);
+    } 
     setIsModalOpen(false);
     setModalParams({ params: null, edge: null }); // 清理参数，防止重复使用
   };
@@ -386,11 +384,15 @@ const GraphEditor = () => {
           <tbody>
             {matrix.slice(1).map((row, i) => (
               <tr key={i} className="bg-white border-b">
-                {row.map((cell, j) => (
-                  <td key={j} className="px-6 py-4">
-                    {cell}
-                  </td>
-                ))}
+                {row.map((cell, j) => {
+                  // 检查当前单元格是否需要高亮
+                  const isHighlighted = highlight.cells.some(h => h.row === i + 1 && h.col === j);
+                  return (
+                    <td key={j} className={`text-center px-6 py-4 ${isHighlighted ? 'bg-gray-100 text-red-500' : ''}`}>
+                      {cell}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
