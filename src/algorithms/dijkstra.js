@@ -184,25 +184,6 @@ class Dijkstra {
 }
 
 const StepsTable = ({ steps, nodes }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  // 在组件挂载后，每1秒更新步骤
-  useEffect(() => {
-    setCurrentStep(0);
-    const intervalId = setInterval(() => {
-      setCurrentStep((prevStep) => {
-        if (prevStep < steps.length - 1) {
-          return prevStep + 1;
-        } else {
-          clearInterval(intervalId); // 清除定时器
-          return prevStep; // 保持在最后一步
-        }
-      });
-    }, 1000); // 每1000毫秒（即1秒）更新一次
-
-    return () => clearInterval(intervalId); // 组件卸载时清除定时器
-  }, [steps]);
-
   return (
     <table className="w-full text-sm text-left text-gray-500">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
@@ -218,13 +199,13 @@ const StepsTable = ({ steps, nodes }) => {
         </tr>
       </thead>
       <tbody>
-        {steps.slice(0, currentStep + 1).map((step, index) => (
+        {steps.map((step, index) => (
           <tr key={index} className="bg-white border-b">
             <td className="text-center px-3 py-3">{index + 1}</td>
             {nodes.map((node) => (
               <td
                 key={node.id}
-                className={`text-center px-3 py-3 ${step.visited.some((v) => v === node.id) ? "text-red-500 bg-gray-100" : ""}`}
+                className={`text-center px-3 py-3 ${step.visited.some((v) => v === node.id) ? "text-green-500 bg-gray-100 font-bold" : ""}`}
               >
                 {step.distances[node.data.label] === Infinity ? "∞" : step.distances[node.data.label]}
               </td>
@@ -296,6 +277,54 @@ const GraphEditor = () => {
   const [highlight, setHighlight] = useState({ cells: [] });
   const [showSteps, setShowSteps] = useState(false);
 
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentEdges, setCurrentEdges] = useState(edges);
+
+  const updateEdgeStyles = (path, edges) => {
+    // 构建连线标识，形式为 "start-end"
+    const pathEdges = new Set();
+    for (let i = 1; i < path.length; i++) {
+      pathEdges.add(`${path[i-1]}-${path[i]}`);
+      pathEdges.add(`${path[i]}-${path[i-1]}`);
+    }
+  
+    // 更新边的样式
+    return edges.map(edge => {
+      if (pathEdges.has(`${edge.source}-${edge.target}`)) {
+        return { ...edge, style: { stroke: '#32CD32', strokeWidth: 3 } }; // 用绿色高亮路径上的边
+      }
+      return edge;
+    });
+  };
+
+  const calculatePath = (currentNode, parents) => {
+    let path = [];
+    let node = currentNode;
+    while (node !== null) {
+      path.push(node);
+      node = parents[node]; 
+    }
+    return path.reverse();  // reverse the path to get the correct order
+  };
+
+  useEffect(() => {
+    if (!result) return;
+
+    const intervalId = setInterval(() => {
+      if (currentStepIndex < result.steps.length - 1) {
+        setCurrentStepIndex(currentStepIndex + 1);
+        // calculate the path from the current node to the start node
+        const path = calculatePath(result.steps[currentStepIndex + 1].currentNode, result.parents);
+        const updatedEdges = updateEdgeStyles(path, edges);
+        setCurrentEdges(updatedEdges);
+      } else {
+        clearInterval(intervalId); // clear the interval when the last step is reached
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId); // clear the interval when the component is unmounted
+  }, [currentStepIndex, result, edges]);
+
   const updateMatrix = (nodes, edges) => {
     const size = nodes.length;
     const newMatrix = Array(size + 1)
@@ -327,13 +356,16 @@ const GraphEditor = () => {
 
   const handleStartNodeChange = (event) => {
     setResult(null);
+    setCurrentStepIndex(0);
     setShowSteps(false);
     setStartNode(event.target.value);
+    setCurrentEdges(edges);
   };
 
   const handleCalculate = () => {
     const graph = new Dijkstra(matrix);
-    setResult(null); 
+    setResult(null);
+    setCurrentStepIndex(0);
     setShowSteps(false);
 
     const result = graph.findShortestPath(startNode);
@@ -346,7 +378,7 @@ const GraphEditor = () => {
     if (modalParams.edge) {
       const sourceIndex = nodes.findIndex((n) => n.id === modalParams.edge.source);
       const targetIndex = nodes.findIndex((n) => n.id === modalParams.edge.target);
-      // 设置两个单元格高亮
+      // highlight the edge
       setHighlight({
         cells: [
           { row: sourceIndex + 1, col: targetIndex + 1 },
@@ -354,7 +386,7 @@ const GraphEditor = () => {
         ],
       });
 
-      // 更新现有连线的权重
+      // change the weight of the edge
       setEdges((eds) => eds.map((e) => (e.id === modalParams.edge.id ? { ...e, label: weight } : e)));
 
       setTimeout(() => {
@@ -362,8 +394,10 @@ const GraphEditor = () => {
       }, 3000);
     }
     setIsModalOpen(false);
-    setModalParams({ params: null, edge: null }); // 清理参数，防止重复使用
-    setResult(null); // 清除旧的 result
+    setModalParams({ params: null, edge: null }); // clear the params
+    setResult(null); // clear the result
+    setCurrentStepIndex(0);
+    setCurrentEdges(edges); // reset the edges
     setShowSteps(false);
   };
 
@@ -401,7 +435,7 @@ const GraphEditor = () => {
           <ReactFlow
             ref={flowRef}
             nodes={nodes}
-            edges={edges}
+            edges={currentEdges}
             onEdgeDoubleClick={onEdgeDoubleClick}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
@@ -434,7 +468,7 @@ const GraphEditor = () => {
                   // 检查当前单元格是否需要高亮
                   const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
                   return (
-                    <td key={j} className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-red-500" : ""}`}>
+                    <td key={j} className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""}`}>
                       {cell}
                     </td>
                   );
@@ -446,8 +480,7 @@ const GraphEditor = () => {
         {showSteps && result && (
           <div>
             <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
-            <StepsTable steps={result.steps} nodes={nodes} />
-            {/* <pre>{JSON.stringify(result.steps, null, 2)}</pre> */}
+            <StepsTable steps={result.steps.slice(0, currentStepIndex + 1)} nodes={nodes} />
           </div>
         )}
       </div>

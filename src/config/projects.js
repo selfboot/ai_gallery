@@ -50,7 +50,7 @@ const projects = {
       id: 'dijkstra',
       title: 'dijkstra_title',
       description: 'dijkstra_description',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240709_ai_gallery_dijkstra_v2.png/webp',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240709_ai_gallery_dijkstra.gif',
       link: '/algorithms/dijkstra'
     },
   ],
