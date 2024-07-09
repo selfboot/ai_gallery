@@ -1,6 +1,17 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import ReactFlow, { Background, Controls, MiniMap, useNodesState, useEdgesState, Handle, Position } from "reactflow";
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  Handle,
+  Position,
+  applyNodeChanges,
+  applyEdgeChanges,
+} from "reactflow";
+
 import "reactflow/dist/style.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -205,7 +216,9 @@ const StepsTable = ({ steps, nodes }) => {
             {nodes.map((node) => (
               <td
                 key={node.id}
-                className={`text-center px-3 py-3 ${step.visited.some((v) => v === node.id) ? "text-green-500 bg-gray-100 font-bold" : ""}`}
+                className={`text-center px-3 py-3 ${
+                  step.visited.some((v) => v === node.id) ? "text-green-500 bg-gray-100 font-bold" : ""
+                }`}
               >
                 {step.distances[node.data.label] === Infinity ? "∞" : step.distances[node.data.label]}
               </td>
@@ -272,7 +285,7 @@ const GraphEditor = () => {
   const initializeEdges = (edges) => {
     return edges.map((edge) => ({ ...edge, style: { ...defaultEdgeStyle } }));
   };
-  const [nodes] = useNodesState(initialNodes);
+  const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initializeEdges(initialEdges));
 
   const { t } = useTranslation();
@@ -288,14 +301,14 @@ const GraphEditor = () => {
     // 构建连线标识，形式为 "start-end"
     const pathEdges = new Set();
     for (let i = 1; i < path.length; i++) {
-      pathEdges.add(`${path[i-1]}-${path[i]}`);
-      pathEdges.add(`${path[i]}-${path[i-1]}`);
+      pathEdges.add(`${path[i - 1]}-${path[i]}`);
+      pathEdges.add(`${path[i]}-${path[i - 1]}`);
     }
-  
+
     // 更新边的样式
-    return edges.map(edge => {
+    return edges.map((edge) => {
       if (pathEdges.has(`${edge.source}-${edge.target}`)) {
-        return { ...edge, style: { stroke: '#32CD32', strokeWidth: 3 } }; // 用绿色高亮路径上的边
+        return { ...edge, style: { stroke: "#32CD32", strokeWidth: 3 } }; // 用绿色高亮路径上的边
       }
       return edge;
     });
@@ -306,9 +319,9 @@ const GraphEditor = () => {
     let node = currentNode;
     while (node !== null) {
       path.push(node);
-      node = parents[node]; 
+      node = parents[node];
     }
-    return path.reverse();  // reverse the path to get the correct order
+    return path.reverse(); // reverse the path to get the correct order
   };
 
   useEffect(() => {
@@ -353,10 +366,10 @@ const GraphEditor = () => {
   };
   useEffect(() => {
     updateMatrix(nodes, edges);
-    if (nodes.length > 0) {
+    if (startNode === "") {
       setStartNode(nodes[0].data.label); // set the first node as the default node
     }
-  }, [nodes, edges]);
+  }, [nodes, edges, startNode]);
 
   const handleStartNodeChange = (event) => {
     setResult(null);
@@ -381,7 +394,21 @@ const GraphEditor = () => {
   const resetEdgeStyles = (edges) => {
     return edges.map((edge) => ({ ...edge, style: defaultEdgeStyle })); // 重置样式
   };
-    
+
+  const onNodesChange = useCallback((changes) => {
+    setNodes((ns) => applyNodeChanges(changes, ns));
+    setResult(null);
+    setCurrentStepIndex(0);
+    setShowSteps(false);
+  }, [setNodes]);
+
+  const onEdgesChange = useCallback((changes) => {
+    setEdges((es) => applyEdgeChanges(changes, es));
+    setResult(null);
+    setCurrentStepIndex(0);
+    setShowSteps(false);
+  }, [setEdges]);
+
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
       const sourceIndex = nodes.findIndex((n) => n.id === modalParams.edge.source);
@@ -445,6 +472,8 @@ const GraphEditor = () => {
             nodes={nodes}
             edges={edges}
             onEdgeDoubleClick={onEdgeDoubleClick}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView
@@ -476,7 +505,10 @@ const GraphEditor = () => {
                   // 检查当前单元格是否需要高亮
                   const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
                   return (
-                    <td key={j} className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""}`}>
+                    <td
+                      key={j}
+                      className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""}`}
+                    >
                       {cell}
                     </td>
                   );
