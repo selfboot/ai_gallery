@@ -46,8 +46,8 @@
     "reset_grid": "Reset Grid",
     "no_path_found": "No path found",
 
-    "dijkstra_title": "Dijkstra Pathfinding",
-    "dijkstra_description": "Visualization of the Dijkstra pathfinding algorithm. Set obstacles, start and end points in a network, and watch the pathfinding process.",
+    "dijkstra_title": "Dijkstra Shortest",
+    "dijkstra_description": "Given a network, you can set the weights between different nodes, and after selecting the starting point, you can calculate the shortest path to other nodes.",
     "submit": "Submit",
     "weight": "Weight",
     "weight_matrix": "Weight Matrix",
