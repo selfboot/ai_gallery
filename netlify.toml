@@ -1,0 +1,11 @@
+[[plugins]]
+  package = "@netlify/plugin-sitemap"
+
+  [plugins.inputs]
+  buildDir = "build"
+  prettyURLs = true
+  trailingSlash = false
+  exclude = [
+    # Add paths you want to exclude here
+    # PS: "/admin/*"
+  ]
