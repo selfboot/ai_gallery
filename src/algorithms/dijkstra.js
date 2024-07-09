@@ -327,7 +327,7 @@ const GraphEditor = () => {
     }, 1000);
 
     return () => clearInterval(intervalId); // clear the interval when the component is unmounted
-  }, [currentStepIndex, result, edges]);
+  }, [currentStepIndex, result, edges, setEdges]);
 
   const updateMatrix = (nodes, edges) => {
     const size = nodes.length;
