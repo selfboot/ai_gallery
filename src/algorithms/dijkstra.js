@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ReactFlow, {
   Background,
@@ -280,7 +280,10 @@ const GraphEditor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalParams, setModalParams] = useState({ edge: null, params: null });
 
-  const defaultEdgeStyle = { stroke: "#999", strokeWidth: 2 };
+  const defaultEdgeStyle = useMemo(() => ({
+    stroke: "#999",
+    strokeWidth: 2
+  }), []);
 
   const initializeEdges = (edges) => {
     return edges.map((edge) => ({ ...edge, style: { ...defaultEdgeStyle } }));
@@ -391,23 +394,37 @@ const GraphEditor = () => {
     setShowSteps(true);
   };
 
-  const resetEdgeStyles = (edges) => {
-    return edges.map((edge) => ({ ...edge, style: defaultEdgeStyle })); // 重置样式
-  };
+  const resetEdgeStyles = useCallback((edges) => {
+    return edges.map(edge => ({ ...edge, style: defaultEdgeStyle }));
+  }, [defaultEdgeStyle]); 
 
-  const onNodesChange = useCallback((changes) => {
-    setNodes((ns) => applyNodeChanges(changes, ns));
-    setResult(null);
-    setCurrentStepIndex(0);
-    setShowSteps(false);
-  }, [setNodes]);
+  const onNodesChange = useCallback(
+    (changes) => {
+      setNodes((ns) => applyNodeChanges(changes, ns));
+      if (changes.some((change) => change.type === "remove")) {
+        setEdges(resetEdgeStyles(edges));
+        setResult(null);
+        setCurrentStepIndex(0);
+        setShowSteps(false);
+      }
+    },
+    [setNodes, edges, setEdges, resetEdgeStyles]
+  );
 
-  const onEdgesChange = useCallback((changes) => {
-    setEdges((es) => applyEdgeChanges(changes, es));
-    setResult(null);
-    setCurrentStepIndex(0);
-    setShowSteps(false);
-  }, [setEdges]);
+  const onEdgesChange = useCallback(
+    (changes) => {
+      if (changes.some((change) => change.type === "remove")) {
+        setEdges((es) => {
+          const updatedEdges = applyEdgeChanges(changes, es);
+          return resetEdgeStyles(updatedEdges);
+        });
+        setResult(null);
+        setCurrentStepIndex(0);
+        setShowSteps(false);
+      }
+    },
+    [resetEdgeStyles, setEdges]
+  );
 
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
