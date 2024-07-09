@@ -267,8 +267,13 @@ const GraphEditor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalParams, setModalParams] = useState({ edge: null, params: null });
 
+  const defaultEdgeStyle = { stroke: "#999", strokeWidth: 2 };
+
+  const initializeEdges = (edges) => {
+    return edges.map((edge) => ({ ...edge, style: { ...defaultEdgeStyle } }));
+  };
   const [nodes] = useNodesState(initialNodes);
-  const [edges, setEdges] = useEdgesState(initialEdges);
+  const [edges, setEdges] = useEdgesState(initializeEdges(initialEdges));
 
   const { t } = useTranslation();
   const flowRef = useRef(null);
@@ -278,7 +283,6 @@ const GraphEditor = () => {
   const [showSteps, setShowSteps] = useState(false);
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [currentEdges, setCurrentEdges] = useState(edges);
 
   const updateEdgeStyles = (path, edges) => {
     // 构建连线标识，形式为 "start-end"
@@ -316,7 +320,7 @@ const GraphEditor = () => {
         // calculate the path from the current node to the start node
         const path = calculatePath(result.steps[currentStepIndex + 1].currentNode, result.parents);
         const updatedEdges = updateEdgeStyles(path, edges);
-        setCurrentEdges(updatedEdges);
+        setEdges(updatedEdges);
       } else {
         clearInterval(intervalId); // clear the interval when the last step is reached
       }
@@ -359,7 +363,7 @@ const GraphEditor = () => {
     setCurrentStepIndex(0);
     setShowSteps(false);
     setStartNode(event.target.value);
-    setCurrentEdges(edges);
+    setEdges(resetEdgeStyles(edges));
   };
 
   const handleCalculate = () => {
@@ -367,13 +371,17 @@ const GraphEditor = () => {
     setResult(null);
     setCurrentStepIndex(0);
     setShowSteps(false);
-
+    setEdges(resetEdgeStyles(edges));
     const result = graph.findShortestPath(startNode);
     // console.log(result);
     setResult(result);
     setShowSteps(true);
   };
 
+  const resetEdgeStyles = (edges) => {
+    return edges.map((edge) => ({ ...edge, style: defaultEdgeStyle })); // 重置样式
+  };
+    
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
       const sourceIndex = nodes.findIndex((n) => n.id === modalParams.edge.source);
@@ -387,8 +395,9 @@ const GraphEditor = () => {
       });
 
       // change the weight of the edge
-      setEdges((eds) => eds.map((e) => (e.id === modalParams.edge.id ? { ...e, label: weight } : e)));
-
+      const newEdges = edges.map((e) => (e.id === modalParams.edge.id ? { ...e, label: weight } : e));
+      const resetEdges = resetEdgeStyles(newEdges);
+      setEdges(resetEdges);
       setTimeout(() => {
         setHighlight({ cells: [] });
       }, 3000);
@@ -397,7 +406,6 @@ const GraphEditor = () => {
     setModalParams({ params: null, edge: null }); // clear the params
     setResult(null); // clear the result
     setCurrentStepIndex(0);
-    setCurrentEdges(edges); // reset the edges
     setShowSteps(false);
   };
 
@@ -435,7 +443,7 @@ const GraphEditor = () => {
           <ReactFlow
             ref={flowRef}
             nodes={nodes}
-            edges={currentEdges}
+            edges={edges}
             onEdgeDoubleClick={onEdgeDoubleClick}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
