@@ -184,6 +184,25 @@ class Dijkstra {
 }
 
 const StepsTable = ({ steps, nodes }) => {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // 在组件挂载后，每1秒更新步骤
+  useEffect(() => {
+    setCurrentStep(0);
+    const intervalId = setInterval(() => {
+      setCurrentStep((prevStep) => {
+        if (prevStep < steps.length - 1) {
+          return prevStep + 1;
+        } else {
+          clearInterval(intervalId); // 清除定时器
+          return prevStep; // 保持在最后一步
+        }
+      });
+    }, 1000); // 每1000毫秒（即1秒）更新一次
+
+    return () => clearInterval(intervalId); // 组件卸载时清除定时器
+  }, [steps]);
+
   return (
     <table className="w-full text-sm text-left text-gray-500">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
@@ -199,7 +218,7 @@ const StepsTable = ({ steps, nodes }) => {
         </tr>
       </thead>
       <tbody>
-        {steps.map((step, index) => (
+        {steps.slice(0, currentStep + 1).map((step, index) => (
           <tr key={index} className="bg-white border-b">
             <td className="text-center px-3 py-3">{index + 1}</td>
             {nodes.map((node) => (
@@ -275,6 +294,7 @@ const GraphEditor = () => {
   const [startNode, setStartNode] = useState("");
   const [result, setResult] = useState(null);
   const [highlight, setHighlight] = useState({ cells: [] });
+  const [showSteps, setShowSteps] = useState(false);
 
   const updateMatrix = (nodes, edges) => {
     const size = nodes.length;
@@ -301,19 +321,25 @@ const GraphEditor = () => {
   useEffect(() => {
     updateMatrix(nodes, edges);
     if (nodes.length > 0) {
-      setStartNode(nodes[0].data.label); // 设置默认起始节点
+      setStartNode(nodes[0].data.label); // set the first node as the default node
     }
   }, [nodes, edges]);
 
   const handleStartNodeChange = (event) => {
+    setResult(null);
+    setShowSteps(false);
     setStartNode(event.target.value);
   };
 
   const handleCalculate = () => {
     const graph = new Dijkstra(matrix);
+    setResult(null); 
+    setShowSteps(false);
+
     const result = graph.findShortestPath(startNode);
     // console.log(result);
     setResult(result);
+    setShowSteps(true);
   };
 
   const handleWeightSubmit = (weight) => {
@@ -337,6 +363,8 @@ const GraphEditor = () => {
     }
     setIsModalOpen(false);
     setModalParams({ params: null, edge: null }); // 清理参数，防止重复使用
+    setResult(null); // 清除旧的 result
+    setShowSteps(false);
   };
 
   const onEdgeDoubleClick = (event, edge) => {
@@ -415,7 +443,7 @@ const GraphEditor = () => {
             ))}
           </tbody>
         </table>
-        {result && (
+        {showSteps && result && (
           <div>
             <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
             <StepsTable steps={result.steps} nodes={nodes} />
