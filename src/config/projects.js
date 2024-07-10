@@ -22,7 +22,13 @@ const projects = {
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_tetris_v2.png/webp',
       link: '/games/tetris'
     },
-
+    {
+      id: '2048',
+      title: '2048_title',
+      description: '2048_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240710_ai_gallery_game2048.gif',
+      link: '/games/2048'
+    },
   ],
   algorithms: [
     {

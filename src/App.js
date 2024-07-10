@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Link, Routes, useLocation } from 'react
 import projects from './config/projects';
 import GomokuGame from './games/gomoku';
 import TetrisGame from './games/tetris';
+import Game2048 from './games/2048';
 import BFSPathFind from './algorithms/bfs_path';
 import HeapVisualization from './algorithms/heap';
 import AStarPathFind from './algorithms/a_start_path';
@@ -133,6 +134,7 @@ const AppComponent = () => {
           <Route path="/games/gomoku" element={<GomokuGame />} />
           <Route path="/games/tetris" element={<TetrisGame />} />
           <Route path="/games/chess" element={<ChinessChess />} />
+          <Route path="/games/2048" element={<Game2048 />} />
 
           {/* algorithms */}
           <Route path="/algorithms/bfs_path" element={<BFSPathFind />} />

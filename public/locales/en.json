@@ -12,6 +12,7 @@
     "start_game": "Start Game",
     "restart_game": "Restart Game",
     "game_over": "Game Over!",
+    "congratulations": "Congratulations!",
     "go_back": "Go Back",
     "chess_title": "Chinese Chess",
     "chess_description": "Chinese Chess game with a minimalist board layout, complete rules, alternating turns between black and red players, checks, and endgame determination. Undo feature is also supported.",
@@ -55,5 +56,11 @@
     "search_process": "Search Process",
     "round": "Round",
     "bar_chart_race_title": "BarChartRace(Developing)",
-    "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings."
+    "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
+
+    "2048_title": "Game 2048",
+    "2048_description": "2048 game, by sliding the blocks, add up the blocks with the same number, and finally get the number 2048 to succeed. ",
+    "reset": "Reset",
+    "one_step_win": "One Step Win",
+    "one_step_fail": "One Step Fail"
 }
