@@ -1,5 +1,5 @@
 
-const projects = {
+const Projects = {
   games: [
     {
       id: 'gomoku',
@@ -71,4 +71,4 @@ const projects = {
   ]
 };
 
-export default projects;
+export default Projects;

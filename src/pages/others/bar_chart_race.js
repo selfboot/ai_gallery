@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
-import Papa from 'papaparse';
-
+import Papa from "papaparse";
+import Layout from "../../components/layout";
+import PageHeader from "../../components/header";
 
 const BarChartRace = () => {
   const chartRef = useRef(null);
@@ -13,7 +14,7 @@ const BarChartRace = () => {
 
   // 处理 JSON 数据
   const processDataFromJSON = (data) => {
-    const yearsData = Array.from(new Set(data.map(item => item[4])));
+    const yearsData = Array.from(new Set(data.map((item) => item[4])));
     return { data, years: yearsData };
   };
 
@@ -104,49 +105,52 @@ const BarChartRace = () => {
   }, [currentYearIndex, data, years, updateOption]);
 
   return (
-    <div>
-      <input type="file" onChange={handleFileUpload} />
-      <ReactECharts
-        ref={chartRef}
-        option={{
-          grid: { top: 10, bottom: 30, left: 150, right: 80 },
-          xAxis: {
-            max: "dataMax",
-            axisLabel: { formatter: (n) => Math.round(n).toString() },
-          },
-          yAxis: {
-            type: "category",
-            inverse: true,
-            max: 10,
-            animationDuration: 300,
-            animationDurationUpdate: 300,
-          },
-          series: [
-            {
-              type: "bar",
-              realtimeSort: true,
-              seriesLayoutBy: "column",
-              itemStyle: {
-                color: "#5470c6",
-              },
-              encode: { x: 0, y: 3 },
-              label: {
-                show: true,
-                precision: 1,
-                position: "right",
-                valueAnimation: true,
-                fontFamily: "monospace",
-              },
+    <Layout>
+      <PageHeader/>
+      <div>
+        <input type="file" onChange={handleFileUpload} />
+        <ReactECharts
+          ref={chartRef}
+          option={{
+            grid: { top: 10, bottom: 30, left: 150, right: 80 },
+            xAxis: {
+              max: "dataMax",
+              axisLabel: { formatter: (n) => Math.round(n).toString() },
             },
-          ],
-          animationDuration: 0,
-          animationDurationUpdate: updateFrequency,
-          animationEasing: "linear",
-          animationEasingUpdate: "linear",
-        }}
-        style={{ height: 400 }}
-      />
-    </div>
+            yAxis: {
+              type: "category",
+              inverse: true,
+              max: 10,
+              animationDuration: 300,
+              animationDurationUpdate: 300,
+            },
+            series: [
+              {
+                type: "bar",
+                realtimeSort: true,
+                seriesLayoutBy: "column",
+                itemStyle: {
+                  color: "#5470c6",
+                },
+                encode: { x: 0, y: 3 },
+                label: {
+                  show: true,
+                  precision: 1,
+                  position: "right",
+                  valueAnimation: true,
+                  fontFamily: "monospace",
+                },
+              },
+            ],
+            animationDuration: 0,
+            animationDurationUpdate: updateFrequency,
+            animationEasing: "linear",
+            animationEasingUpdate: "linear",
+          }}
+          style={{ height: 400 }}
+        />
+      </div>
+    </Layout>
   );
 };
 

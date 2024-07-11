@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { animated } from "@react-spring/web";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import Layout from "../../components/layout";
+import PageHeader from "../../components/header";
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
 const nodeHeight = 50; // 每个节点的高度
@@ -53,30 +55,30 @@ class MaxHeap {
     const max = this.heap[0]; // 保存最大值
     this.heap[0] = this.heap.pop(); // 将最后一个元素移动到顶部
     steps.push({ heap: [...this.heap], highlight: [0], newNode: 0 }); // 标记新的顶部节点
-  
+
     let i = 0;
     while (true) {
       const leftIndex = this.getLeftChildIndex(i);
       const rightIndex = this.getRightChildIndex(i);
       let largest = i;
-  
+
       if (leftIndex < this.heap.length && this.heap[leftIndex] > this.heap[largest]) {
         largest = leftIndex;
       }
       if (rightIndex < this.heap.length && this.heap[rightIndex] > this.heap[largest]) {
         largest = rightIndex;
       }
-  
+
       if (largest === i) break;
-  
+
       this.swap(i, largest);
       steps.push({ heap: [...this.heap], highlight: [i, largest], newNode: largest }); // 突出显示交换的节点
       i = largest;
     }
-  
+
     return { max, steps };
   }
-  
+
   depth() {
     return this.heap.length === 0 ? 0 : Math.floor(Math.log2(this.heap.length)) + 1;
   }
@@ -103,17 +105,11 @@ class MaxHeap {
     const leftIndex = this.getLeftChildIndex(i);
     const rightIndex = this.getRightChildIndex(i);
 
-    if (
-      leftIndex < this.heap.length &&
-      this.heap[leftIndex] > this.heap[largest]
-    ) {
+    if (leftIndex < this.heap.length && this.heap[leftIndex] > this.heap[largest]) {
       largest = leftIndex;
     }
 
-    if (
-      rightIndex < this.heap.length &&
-      this.heap[rightIndex] > this.heap[largest]
-    ) {
+    if (rightIndex < this.heap.length && this.heap[rightIndex] > this.heap[largest]) {
       largest = rightIndex;
     }
 
@@ -135,7 +131,6 @@ class MaxHeap {
     }
     return newHeap;
   }
-
 }
 
 const HeapVisualization = () => {
@@ -149,9 +144,7 @@ const HeapVisualization = () => {
 
   useEffect(() => {
     const initialHeap = new MaxHeap();
-    [50, 30, 20, 15, 10, 8, 16, 4, 5, 6, 100, 300].forEach((value) =>
-      initialHeap.insert(value)
-    );
+    [50, 30, 20, 15, 10, 8, 16, 4, 5, 6, 100, 300].forEach((value) => initialHeap.insert(value));
     setHeap(initialHeap);
   }, []);
 
@@ -209,94 +202,82 @@ const HeapVisualization = () => {
   const positions = calculatePositions(MaxHeap.fromArray(currentHeapState.heap));
 
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <input
-          type="number"
-          value={inputValue}
-          onChange={handleInputChange}
-          className="border border-gray-300 rounded px-2 py-1 mr-2"
-          placeholder={t('input_number')}
-          disabled={isAnimating}
-        />
-        <button
-          onClick={handleInsert}
-          className="bg-blue-500 text-white px-4 py-1 rounded mr-2"
-          disabled={isAnimating}
-        >
-          {t('insert_node')}
-        </button>
-        <button
-          onClick={handleRemove}
-          className="bg-red-500 text-white px-4 py-1 rounded"
-          disabled={isAnimating}
-        >
-          {t('delete_root')}
-        </button>
-      </div>
-      <div style={{ overflowX: 'auto', width: '100%' }}>
-        <svg
-          width={Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))}
-          height={Math.max(600, nodeHeight * (heap.depth() + 1))}
-          viewBox={`0 0 ${Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} ${Math.max(600, nodeHeight * (heap.depth() + 1))}`}
-          preserveAspectRatio="xMidYMid meet"
-          className="border border-gray-300"
-        >
-          {
-            positions.map((node, index) => {
+    <Layout>
+      <PageHeader />
+      <div className="p-4">
+        <div className="mb-4">
+          <input
+            type="number"
+            value={inputValue}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded px-2 py-1 mr-2"
+            placeholder={t("input_number")}
+            disabled={isAnimating}
+          />
+          <button
+            onClick={handleInsert}
+            className="bg-blue-500 text-white px-4 py-1 rounded mr-2"
+            disabled={isAnimating}
+          >
+            {t("insert_node")}
+          </button>
+          <button onClick={handleRemove} className="bg-red-500 text-white px-4 py-1 rounded" disabled={isAnimating}>
+            {t("delete_root")}
+          </button>
+        </div>
+        <div style={{ overflowX: "auto", width: "100%" }}>
+          <svg
+            width={Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))}
+            height={Math.max(600, nodeHeight * (heap.depth() + 1))}
+            viewBox={`0 0 ${Math.max(1200, spaceBetweenNodes * Math.pow(2, heap.depth() - 1))} ${Math.max(
+              600,
+              nodeHeight * (heap.depth() + 1)
+            )}`}
+            preserveAspectRatio="xMidYMid meet"
+            className="border border-gray-300"
+          >
+            {positions.map((node, index) => {
               const leftChildIdx = 2 * index + 1;
               const rightChildIdx = 2 * index + 2;
-              const leftChild = positions.find(child => child && child.id === leftChildIdx);
-              const rightChild = positions.find(child => child && child.id === rightChildIdx);
+              const leftChild = positions.find((child) => child && child.id === leftChildIdx);
+              const rightChild = positions.find((child) => child && child.id === rightChildIdx);
 
-              const isHighlighted = isAnimating && currentStep < animationSteps.length &&
+              const isHighlighted =
+                isAnimating &&
+                currentStep < animationSteps.length &&
                 animationSteps[currentStep].highlight &&
                 animationSteps[currentStep].highlight.includes(index);
-              const isNew = isAnimating &&
-                animationSteps[currentStep].newNode === index;
+              const isNew = isAnimating && animationSteps[currentStep].newNode === index;
               // console.log(currentStep, isHighlighted, isNew, treeData)
               return (
                 <React.Fragment key={node.id}>
-                  {leftChild && (
-                    <line
-                      x1={node.x}
-                      y1={node.y}
-                      x2={leftChild.x}
-                      y2={leftChild.y}
-                      stroke="black"
-                    />
-                  )}
-                  {rightChild && (
-                    <line
-                      x1={node.x}
-                      y1={node.y}
-                      x2={rightChild.x}
-                      y2={rightChild.y}
-                      stroke="black"
-                    />
-                  )}
+                  {leftChild && <line x1={node.x} y1={node.y} x2={leftChild.x} y2={leftChild.y} stroke="black" />}
+                  {rightChild && <line x1={node.x} y1={node.y} x2={rightChild.x} y2={rightChild.y} stroke="black" />}
                   <AnimatedNode node={node} isNew={isNew} isHighlighted={isHighlighted} />
                 </React.Fragment>
               );
             })}
-          {deletedNode && (
-            <g>
-              <text
-                x={positions[0].x + spaceBetweenNodes*2}
-                y={nodeHeight/2}
-                textAnchor="middle"
-                fill="#333"
-                fontSize="14"
-              >{t('deleted_node')}</text>
-              <AnimatedNode
-                node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
-                isDeleted={true}
-              />
-            </g>
-          )}
-        </svg>
+            {deletedNode && (
+              <g>
+                <text
+                  x={positions[0].x + spaceBetweenNodes * 2}
+                  y={nodeHeight / 2}
+                  textAnchor="middle"
+                  fill="#333"
+                  fontSize="14"
+                >
+                  {t("deleted_node")}
+                </text>
+                <AnimatedNode
+                  node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
+                  isDeleted={true}
+                />
+              </g>
+            )}
+          </svg>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
@@ -304,7 +285,7 @@ export default HeapVisualization;
 
 function calculatePositions(heap) {
   const depth = heap.depth();
-  const baseWidth = Math.max(1200, spaceBetweenNodes * Math.pow(2, depth - 1));// SVG总宽度
+  const baseWidth = Math.max(1200, spaceBetweenNodes * Math.pow(2, depth - 1)); // SVG总宽度
 
   // 假设堆是满的情况下的所有节点的位置
   const totalCnt = Math.pow(2, depth) - 1;
@@ -313,20 +294,17 @@ function calculatePositions(heap) {
   // 计算每层的节点位置，这些位置是基于满二叉树的假设
   for (let level = depth - 1; level >= 0; level--) {
     const levelNodeCount = Math.pow(2, level);
-    const levelNodeIndexes = Array.from(
-      { length: levelNodeCount },
-      (_, i) => Math.pow(2, level) - 1 + i
-    );
+    const levelNodeIndexes = Array.from({ length: levelNodeCount }, (_, i) => Math.pow(2, level) - 1 + i);
 
     // console.log(level, levelNodeCount, levelNodeIndexes)
     // 如果是最底层，计算其起始X位置
     if (level === depth - 1) {
-      let startX = (baseWidth - ((levelNodeCount - 1) * spaceBetweenNodes)) / 2;
+      let startX = (baseWidth - (levelNodeCount - 1) * spaceBetweenNodes) / 2;
       levelNodeIndexes.forEach((idx, i) => {
         fullPositions[idx] = {
           id: idx,
           value: heap.heap[idx],
-          x: startX + i * (spaceBetweenNodes),
+          x: startX + i * spaceBetweenNodes,
           y: nodeHeight * (level + 1),
         };
       });

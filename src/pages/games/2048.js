@@ -1,6 +1,9 @@
+import React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { Frown, Smile } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Layout from "../../components/layout";
+import PageHeader from "../../components/header";
 
 function Tile({ number }) {
   const tileColor = {
@@ -146,7 +149,7 @@ function useGameLogic() {
     }
     return result;
   }
-  
+
   const transpose = useCallback((matrix) => {
     return matrix[0].map((col, i) => matrix.map((row) => row[i]));
   }, []);
@@ -214,7 +217,7 @@ function useGameLogic() {
   return [tiles, setTiles, gameOver, setGameOver, gameWon, setGameWon];
 }
 
-function Game2048() {
+const Game2048 = () => {
   const { t } = useTranslation();
 
   const [tiles, setTiles, gameOver, setGameOver, gameWon, setGameWon] = useGameLogic();
@@ -247,7 +250,8 @@ function Game2048() {
   };
 
   return (
-    <>
+    <Layout>
+      <PageHeader />
       <Board tiles={tiles} />
       <div className="flex justify-center space-x-4 mt-8">
         <button onClick={resetGame} className="px-4 py-2 bg-blue-500 text-white rounded">
@@ -261,7 +265,7 @@ function Game2048() {
         </button>
       </div>
       <GameOverModal open={gameOver || gameWon} onClose={resetGame} isSuccess={gameWon} />
-    </>
+    </Layout>
   );
-}
+};
 export default Game2048;

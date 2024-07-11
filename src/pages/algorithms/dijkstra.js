@@ -16,6 +16,8 @@ import "reactflow/dist/style.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { t } from "i18next";
+import Layout from "../../components/layout";
+import PageHeader from "../../components/header";
 
 const initialNodes = [
   {
@@ -280,10 +282,13 @@ const GraphEditor = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalParams, setModalParams] = useState({ edge: null, params: null });
 
-  const defaultEdgeStyle = useMemo(() => ({
-    stroke: "#999",
-    strokeWidth: 2
-  }), []);
+  const defaultEdgeStyle = useMemo(
+    () => ({
+      stroke: "#999",
+      strokeWidth: 2,
+    }),
+    []
+  );
 
   const initializeEdges = (edges) => {
     return edges.map((edge) => ({ ...edge, style: { ...defaultEdgeStyle } }));
@@ -394,9 +399,12 @@ const GraphEditor = () => {
     setShowSteps(true);
   };
 
-  const resetEdgeStyles = useCallback((edges) => {
-    return edges.map(edge => ({ ...edge, style: defaultEdgeStyle }));
-  }, [defaultEdgeStyle]); 
+  const resetEdgeStyles = useCallback(
+    (edges) => {
+      return edges.map((edge) => ({ ...edge, style: defaultEdgeStyle }));
+    },
+    [defaultEdgeStyle]
+  );
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -459,98 +467,103 @@ const GraphEditor = () => {
   };
 
   return (
-    <div className="flex w-full h-full overflow-auto">
-      <div className="w-3/5 h-full relative">
-        <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
-          <div className="flex items-center">
-            <label htmlFor="startNodeSelect" className="mr-2 flex-none">
-              {t("select_start")}
-            </label>
-            <select value={startNode} onChange={handleStartNodeChange} className="px-4 py-2 mr-2 rounded-md w-full">
-              {matrix[0] &&
-                matrix[0].slice(1).map((node) => (
-                  <option key={node} value={node}>
-                    {" "}
-                    {node}{" "}
-                  </option>
-                ))}
-            </select>
+    <Layout>
+      <PageHeader />
+      <div className="flex w-full h-full overflow-auto">
+        <div className="w-3/5 h-full relative">
+          <div className="absolute top-4 left-4 flex flex-col space-y-2 z-10">
+            <div className="flex items-center">
+              <label htmlFor="startNodeSelect" className="mr-2 flex-none">
+                {t("select_start")}
+              </label>
+              <select value={startNode} onChange={handleStartNodeChange} className="px-4 py-2 mr-2 rounded-md w-full">
+                {matrix[0] &&
+                  matrix[0].slice(1).map((node) => (
+                    <option key={node} value={node}>
+                      {" "}
+                      {node}{" "}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <button
+              onClick={handleCalculate}
+              className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 focus:outline-none transition-colors duration-200"
+            >
+              {t("find_path")}
+            </button>
           </div>
-          <button
-            onClick={handleCalculate}
-            className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 focus:outline-none transition-colors duration-200"
-          >
-            {t("find_path")}
-          </button>
+          <div className="h-[calc(100vh-20rem)] w-full min-h-[50rem]">
+            <ReactFlow
+              ref={flowRef}
+              nodes={nodes}
+              edges={edges}
+              onEdgeDoubleClick={onEdgeDoubleClick}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              fitView
+              style={{ width: "100%", height: "100%" }}
+            >
+              <Controls />
+              <MiniMap />
+              <Background variant="dots" gap={12} size={1} />
+            </ReactFlow>
+          </div>
         </div>
-        <div className="h-[calc(100vh-20rem)] w-full min-h-[50rem]">
-          <ReactFlow
-            ref={flowRef}
-            nodes={nodes}
-            edges={edges}
-            onEdgeDoubleClick={onEdgeDoubleClick}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            fitView
-            style={{ width: "100%", height: "100%" }}
-          >
-            <Controls />
-            <MiniMap />
-            <Background variant="dots" gap={12} size={1} />
-          </ReactFlow>
-        </div>
-      </div>
-      <div className="w-2/5 p-5 overflow-auto">
-        <h2 className="text-2xl pb-5">{t("weight_matrix")}</h2>
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
-            <tr>
-              {matrix[0] &&
-                matrix[0].map((id, index) => (
-                  <th key={index} scope="col" className="px-3 py-3">
-                    {id || ""}
-                  </th>
-                ))}
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.slice(1).map((row, i) => (
-              <tr key={i} className="bg-white border-b">
-                {row.map((cell, j) => {
-                  // 检查当前单元格是否需要高亮
-                  const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
-                  return (
-                    <td
-                      key={j}
-                      className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""}`}
-                    >
-                      {cell}
-                    </td>
-                  );
-                })}
+        <div className="w-2/5 p-5 overflow-auto">
+          <h2 className="text-2xl pb-5">{t("weight_matrix")}</h2>
+          <table className="w-full text-sm text-left text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
+              <tr>
+                {matrix[0] &&
+                  matrix[0].map((id, index) => (
+                    <th key={index} scope="col" className="px-3 py-3">
+                      {id || ""}
+                    </th>
+                  ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {showSteps && result && (
-          <div>
-            <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
-            <StepsTable steps={result.steps.slice(0, currentStepIndex + 1)} nodes={nodes} />
-          </div>
-        )}
+            </thead>
+            <tbody>
+              {matrix.slice(1).map((row, i) => (
+                <tr key={i} className="bg-white border-b">
+                  {row.map((cell, j) => {
+                    // 检查当前单元格是否需要高亮
+                    const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
+                    return (
+                      <td
+                        key={j}
+                        className={`text-center px-3 py-3 ${
+                          isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""
+                        }`}
+                      >
+                        {cell}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {showSteps && result && (
+            <div>
+              <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
+              <StepsTable steps={result.steps.slice(0, currentStepIndex + 1)} nodes={nodes} />
+            </div>
+          )}
+        </div>
+        <WeightModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalParams({ params: null, edge: null }); // 关闭模态框时清理参数
+          }}
+          onSubmit={handleWeightSubmit}
+          initialWeight={modalParams.edge ? modalParams.edge.label : ""}
+        />
       </div>
-      <WeightModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setModalParams({ params: null, edge: null }); // 关闭模态框时清理参数
-        }}
-        onSubmit={handleWeightSubmit}
-        initialWeight={modalParams.edge ? modalParams.edge.label : ""}
-      />
-    </div>
+    </Layout>
   );
 };
 
