@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import Layout from "../../components/layout";
+import Layout from "../../components/layout.js";
 import PageHeader from "../../components/header";
 
 const ROWS = 20;
 const COLS = 10;
 
 const SHAPES = [
-  [[1, 1, 1, 1]],
   [[1, 1], [1, 1]],
   [[1, 1, 1], [0, 1, 0]],
   [[1, 1, 1], [1, 0, 0]],
@@ -202,16 +201,21 @@ const TetrisGame = () => {
       });
     }
 
-    // 计算对应的 Tailwind 宽度和高度类
-    const widthClass = `w-[${COLS * 7}]`;
-    const heightClass = `h-[${ROWS * 7}]`;
-
     return (
-      <div className={`grid grid-cols-${COLS} ${widthClass} ${heightClass}`}>
+      <div
+        style={{
+          gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
+          gap: "0px",
+          width: `${COLS * 28}px`,
+          height: `${ROWS * 28}px`,
+        }}
+        className="grid"
+      >
         {boardWithPiece.flat().map((cell, index) => (
           <div
             key={index}
-            className={`w-7 h-7 ${
+            style={{ width: "28px", height: "28px", position: "relative" }}
+            className={`${
               cell
                 ? `${cell} relative after:absolute after:inset-[1px] after:bg-current after:opacity-30`
                 : "bg-gray-100"
