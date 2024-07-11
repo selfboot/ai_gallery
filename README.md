@@ -1,4 +1,4 @@
-[English](#english) | [中文](#中文)
+[English](./README.md) | [中文](./README_zh.md)
 
 <a name="english"></a>
 

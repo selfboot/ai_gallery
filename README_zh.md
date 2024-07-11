@@ -1,5 +1,4 @@
-
-<a name="中文"></a>
+[English](./README.md) | [中文](./README_zh.md)
 
 我不会前端技术，不懂现代 web 开发，顶多只懂一点点 html 和 css，在 Claude3.5 和 GPT4 的助攻下，完成了一些有意思的小组件，我把它们集成在这个[展示站点](gallery.selfboot.cn)，欢迎来体验。
 
