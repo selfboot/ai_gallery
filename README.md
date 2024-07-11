@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+[English](#english) | [中文](#中文)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<a name="english"></a>
 
-## Available Scripts
+Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. I've integrated these components into this [showcase site](gallery.selfboot.cn). Feel free to explore and experience it yourself!
 
-In the project directory, you can run:
+I must say, AI has truly transformed the way we write code.
 
-### `npm start`
+# Project Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This project is built using React and Gatsby for static site generation (SSG) and is deployed on Netlify. It features automatic sitemap generation, Google Analytics integration, and i18n support for internationalization. Currently, the gallery includes several interesting components, and I plan to continually add more with AI assistance.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Algorithms: Explore interactive visualizations of classic algorithms such as BFS pathfinding, A* search, Dijkstra's algorithm, and heap operations.
 
-### `npm test`
+<div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_bfs_path.gif" alt="BFS Pathfinding" width="32%" height="200">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240709_ai_gallery_dijkstra_v3.gif" alt="Dijkstra's Shortest Path" width="32%" height="200">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_heapv2.gif" alt="Heap Data Structure" width="32%" height="200">
+</div>
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Games: Implementation of classic games like Gomoku (Five in a Row), Chinese Chess, Tetris, and 2048.
 
-### `npm run build`
+<div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_gomoku.png/webp" alt="Gomoku" width="32%" height="200">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_tetris_v2.png/webp" alt="Tetris" width="32%" height="200">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20240710_ai_gallery_game2048.gif" alt="2048" width="32%" height="200">
+</div>
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Other Components: Various interesting widgets, including dynamic charts for data visualization.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Local Development
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Everyone is welcome to contribute to improving these components. **Don't worry if you lack a frontend technical background – you can leverage AI to bring your ideas to life!** Here are the simple steps to run this project locally:
 
-### `npm run eject`
+1. Clone the repository:
+   ```
+   git clone git@github.com:selfboot/ai_gallery.git
+   ```
+2. Navigate to the project directory:
+   ```
+   cd ai_gallery
+   ```
+3. Install dependencies:
+   ```
+   yarn install
+   ```
+4. Start the development server:
+   ```
+   yarn develop
+   ```
+5. Open your browser and visit `http://localhost:8000` to view the project.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+If you encounter any issues along the way, try using AI to solve them!
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Reflections on Using AI
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+As a novice with no web development experience, I've learned a lot of practical frontend knowledge through AI-assisted development of this project. It's been incredibly fulfilling to finally create the visualizations I've always wanted to make.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **Learning Opportunity**: AI assistance helped me quickly understand aspects of React, JavaScript, and modern web development practices.
+2. **Problem Solving**: While AI played a crucial role in many aspects, there were still issues that **required human intervention** to resolve.
 
-## Learn More
+## The Impact of AI
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+GPT-4 and Claude 3.5 have proven to be fully capable virtual mentors and pair programming partners. Even without prior React development experience, they helped me quickly grasp React concepts, implement complex logic, create appealing UIs, and understand underlying principles. They are excellent programming assistants, rapidly introducing best practices, design patterns, and optimization techniques. They help solve various challenging problems, truly earning the title of best mentors.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Limitations of AI
 
-### Code Splitting
+AI still has some hallucinations and limitations in reasoning ability. Sometimes AI-generated code contains bugs or doesn't fully meet project requirements, and sometimes the explanations provided aren't clear enough. In these situations, you need to debug and solve problems on your own.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## AI-Human Collaboration
 
-### Analyzing the Bundle Size
+The most effective approach is to use AI as a collaborative tool, combining its vast knowledge with personal creativity and project-specific understanding to complete interesting work faster and better.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Comparing GPT-4 and Claude 3.5
 
-### Making a Progressive Web App
+These are personal opinions and for reference only. Both AI models played important roles in this project, each with its own strengths. I typically use Claude 3.5 for quick prototyping and GPT-4 for solving detailed issues.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **GPT-4**: Excels at providing detailed explanations and handling complex, multi-step tasks. For issues where I have a general understanding of the cause, GPT-4 often provides good code and explanations when given detailed prompts.
+- **Claude 3.5**: Performs exceptionally well in code generation and refactoring. Given a simple requirement description, it often quickly produces a good prototype. Its responses are usually more concise and directly applicable, making it great for rapid implementation and bug fixing.
