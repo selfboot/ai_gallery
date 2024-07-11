@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/header";
 
-function Tile({ number }) {
+function Tile({ number, isNew }) {
   const tileColor = {
     2: { bg: "bg-[#eee4da]", text: "text-black" }, // 浅棕色
     4: { bg: "bg-[#ede0c8]", text: "text-black" }, // 米色
@@ -26,10 +26,11 @@ function Tile({ number }) {
 
   const bgClass = tileColor[number] ? tileColor[number].bg : defaultBg;
   const textClass = tileColor[number] ? tileColor[number].text : defaultText;
+  const animationClass = isNew ? "animate-pop" : "";  // 使用 Tailwind 配置的动画
 
   return (
     <div
-      className={`tile ${bgClass} ${textClass} text-center p-4 rounded shadow-md w-24 h-24 flex items-center justify-center text-3xl font-bold`}
+      className={`tile ${bgClass} ${textClass} ${animationClass} text-center p-4 rounded shadow-md w-24 h-24 flex items-center justify-center text-3xl font-bold transition-all`}
     >
       {number > 0 ? number : ""}
     </div>
@@ -41,7 +42,9 @@ function Board({ tiles }) {
     <div className="flex items-center justify-center">
       <div className="grid grid-cols-4 gap-2 p-4 bg-[#bbada0] rounded-lg shadow-xl">
         {tiles.map((row, rowIndex) =>
-          row.map((number, colIndex) => <Tile key={`${rowIndex}-${colIndex}`} number={number} />)
+          row.map((tile, colIndex) => (
+            <Tile key={`${rowIndex}-${colIndex}`} number={tile.value} isNew={tile.isNew} />
+          ))
         )}
       </div>
     </div>
@@ -51,14 +54,14 @@ function Board({ tiles }) {
 const randomMatrix = () => {
   let newTiles = Array(4)
     .fill(null)
-    .map(() => Array(4).fill(0));
+    .map(() => Array(4).fill({ value: 0, isNew: false }));
 
   let count = 0;
   while (count < 2) {
     let rowIndex = Math.floor(Math.random() * 4);
     let colIndex = Math.floor(Math.random() * 4);
-    if (newTiles[rowIndex][colIndex] === 0) {
-      newTiles[rowIndex][colIndex] = 2;
+    if (newTiles[rowIndex][colIndex].value === 0) {
+      newTiles[rowIndex][colIndex] = { value: 2, isNew: true };
       count++;
     }
   }
@@ -92,60 +95,64 @@ function useGameLogic() {
 
   const checkForWin = useCallback((tiles) => {
     for (let row of tiles) {
-      if (row.some((value) => value === 2048)) {
+      if (row.some(tile => tile.value === 2048)) {
         return true;
       }
     }
     return false;
   }, []);
-
+  
   const canMove = useCallback((tiles) => {
     for (let r = 0; r < tiles.length; r++) {
       for (let c = 0; c < tiles[r].length; c++) {
-        if (tiles[r][c] === 0) return true;
-        if (c < tiles[r].length - 1 && tiles[r][c] === tiles[r][c + 1]) return true;
-        if (r < tiles.length - 1 && tiles[r][c] === tiles[r + 1][c]) return true;
+        const current = tiles[r][c];
+        if (current.value === 0) return true;
+        const nextRight = c < tiles[r].length - 1 ? tiles[r][c + 1].value : null;
+        const nextDown = r < tiles.length - 1 ? tiles[r + 1][c].value : null;
+        if (current.value === nextRight || current.value === nextDown) {
+          return true;
+        }
       }
     }
     return false;
   }, []);
-
+  
   const addRandomTile = useCallback((tiles) => {
     let empty = [];
     tiles.forEach((row, r) => {
       row.forEach((cell, c) => {
-        if (cell === 0) empty.push([r, c]);
+        if (cell.value === 0) empty.push({ r, c });
       });
     });
     if (empty.length === 0) return;
-    let [r, c] = empty[Math.floor(Math.random() * empty.length)];
-    tiles[r][c] = Math.random() < 0.9 ? 2 : 4;
+    const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+    tiles[r][c] = { value: Math.random() < 0.9 ? 2 : 4, isNew: true };
   }, []);
 
   function moveLeft(row) {
     // 2 2 0 2 -> 2 2 2
-    let filtered = row.filter((x) => x !== 0); // 去除所有0
+    let filtered = row.filter((x) => x.value !== 0); // 去除所有0
     let result = [];
 
     for (let i = 0; i < filtered.length; i++) {
-      if (i + 1 < filtered.length && filtered[i] === filtered[i + 1]) {
-        if (i + 2 < filtered.length && filtered[i] === filtered[i + 2]) {
+      if (i + 1 < filtered.length && filtered[i].value === filtered[i + 1].value) {
+        if (i + 2 < filtered.length && filtered[i].value === filtered[i + 2].value) {
           // 2 2 2 -> 4 2
-          result.push(filtered[i + 1] + filtered[i + 2]);
-          result.push(filtered[i]);
+          result.push({ value: filtered[i + 1].value + filtered[i + 2].value, isNew: true});
+          result.push({ value: filtered[i].value, isNew: false });
           i += 2;
         } else {
           // 2 2 -> 4
-          result.push(filtered[i] + filtered[i + 1]);
+          result.push({ value: filtered[i].value + filtered[i + 1].value, isNew: true});
           i++;
         }
       } else {
-        result.push(filtered[i]);
+        result.push({ value: filtered[i].value, isNew: false });
       }
     }
 
     while (result.length < row.length) {
-      result.push(0); // 2 4 8 ->  2 4 8 0
+      result.push({ value: 0, isNew: false }); // 2 4 8 ->  2 4 8 0
     }
     return result;
   }
@@ -201,6 +208,7 @@ function useGameLogic() {
       event.preventDefault();
       let newTiles = moveTiles(tiles, direction);
 
+      newTiles = newTiles.map(row => row.map(tile => ({ ...tile, isNew: tile.isNew })));
       if (checkForWin(newTiles)) {
         setTiles(newTiles);
         setGameWon(true);
@@ -229,10 +237,10 @@ const Game2048 = () => {
 
   const loadPresetWin = () => {
     setTiles([
-      [2, 4, 8, 256],
-      [4, 64, 16, 512],
-      [8, 0, 32, 1024],
-      [16, 0, 128, 1024],
+      [{ value: 2, isNew: false }, { value: 4, isNew: false }, { value: 8, isNew: false }, { value: 256, isNew: false }],
+      [{ value: 4, isNew: false }, { value: 64, isNew: false }, { value: 16, isNew: false }, { value: 512, isNew: false }],
+      [{ value: 8, isNew: false }, { value: 0, isNew: false }, { value: 32, isNew: false }, { value: 1024, isNew: false }],
+      [{ value: 16, isNew: false }, { value: 0, isNew: false }, { value: 128, isNew: false }, { value: 1024, isNew: false }],
     ]);
     setGameOver(false);
     setGameWon(false);
@@ -240,10 +248,10 @@ const Game2048 = () => {
 
   const loadPresetLose = () => {
     setTiles([
-      [2, 4, 16, 4],
-      [8, 16, 32, 16],
-      [16, 64, 16, 2],
-      [2, 16, 2, 32],
+      [{ value: 2, isNew: false }, { value: 4, isNew: false }, { value: 16, isNew: false }, { value: 4, isNew: false }],
+      [{ value: 8, isNew: false }, { value: 16, isNew: false }, { value: 32, isNew: false }, { value: 16, isNew: false }],
+      [{ value: 16, isNew: false }, { value: 64, isNew: false }, { value: 16, isNew: false }, { value: 2, isNew: false }],
+      [{ value: 2, isNew: false }, { value: 16, isNew: false }, { value: 28, isNew: false }, { value: 32, isNew: false }],
     ]);
     setGameOver(false);
     setGameWon(false);
