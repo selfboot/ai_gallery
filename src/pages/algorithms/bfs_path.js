@@ -3,6 +3,7 @@ import { Flag, X, Frown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/header";
+import SEO from "../../components/seo";
 
 const BFSPathFind = () => {
   const { t } = useTranslation();
@@ -187,6 +188,12 @@ const BFSPathFind = () => {
 
   return (
     <Layout>
+      <SEO
+        title="BFS Visualization"
+        description="Learn and understand the BFS pathfinding algorithm through interactive visualization. Explore how breadth-first search works and enhance your algorithm knowledge. Source code is available."
+        keywords="BFS algorithm, breadth-first search, pathfinding algorithm, algorithm visualization, learn BFS, algorithm education"
+        canonicalUrl="https://gallery.selfboot.cn/algorithms/bfs_path/"
+      />
       <PageHeader />
       <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[400px]">
         <div className="flex-grow flex justify-center overflow-x-auto">

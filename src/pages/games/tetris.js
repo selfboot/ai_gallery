@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "../../components/layout.js";
 import PageHeader from "../../components/header";
+import SEO from "../../components/seo";
 
 const ROWS = 20;
 const COLS = 10;
@@ -232,6 +233,12 @@ const TetrisGame = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Free Tetris online"
+        description="Experience the classic Tetris game online. Challenge your reflexes and strategic thinking. No download required. Start playing Tetris now and enjoy endless fun."
+        keywords="Tetris, play Tetris online, free Tetris game, classic Tetris, online puzzle games, Tetris strategy"
+        canonicalUrl="https://gallery.selfboot.cn/games/tetris/"
+      />
       <PageHeader/>
       <div className="flex flex-col items-center bg-gray-100 p-4">
         <div className="mb-4 text-xl font-bold">{t("gain_score", { score: score })}</div>

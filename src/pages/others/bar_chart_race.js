@@ -3,6 +3,7 @@ import ReactECharts from "echarts-for-react";
 import Papa from "papaparse";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/header";
+import SEO from "../../components/seo";
 
 const BarChartRace = () => {
   const chartRef = useRef(null);
@@ -106,6 +107,12 @@ const BarChartRace = () => {
 
   return (
     <Layout>
+      <SEO
+        title="BarChartRace Generate Tool"
+        description="Upload your CSV or Excel files and instantly generate visually stunning BarChartRace animations. Our tool makes data visualization easy and engaging, helping you to present your data in a dynamic and appealing way. Perfect for reports, presentations, and educational purposes."
+        keywords="BarChartRace, data visualization, upload CSV, upload Excel, interactive charts, dynamic data presentation, create BarChartRace, data visualization tool, generate charts, data analysis, animated charts, data presentation, CSV to BarChartRace, Excel to BarChartRace"
+        canonicalUrl="https://gallery.selfboot.cn/others/bar_chart_race/"
+      />
       <PageHeader/>
       <div>
         <input type="file" onChange={handleFileUpload} />

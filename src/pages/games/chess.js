@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/header";
+import SEO from "../../components/seo";
 class ChineseChess {
   constructor() {
     this.resetGame();
@@ -400,6 +401,12 @@ const ChineseChessBoard = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Free Chinese Chess Online"
+        description="Master the art of Xiangqi with our online Chinese Chess game. "
+        keywords="Chinese Chess, Xiangqi online, free Xiangqi game, play Chinese Chess, online Xiangqi"
+        canonicalUrl="https://gallery.selfboot.cn/games/chess/"
+      />
       <PageHeader />
       <div className="flex flex-col items-center bg-gray-100 p-4">
         <div className="text-lg mb-4 font-bold">

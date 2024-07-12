@@ -3,6 +3,7 @@ import { animated } from "@react-spring/web";
 import { useTranslation } from "react-i18next";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/header";
+import SEO from "../../components/seo";
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
 const nodeHeight = 50; // 每个节点的高度
@@ -203,6 +204,12 @@ const HeapVisualization = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Heap Visualization"
+        description="Learn and understand the heap algorithm through interactive visualization. Explore how heap sort works and enhance your algorithm knowledge. Source code is available."
+        keywords="heap algorithm, heap sort, algorithm visualization, learn heap sort, data structures, algorithm education"
+        canonicalUrl="https://gallery.selfboot.cn/algorithms/heap/"
+      />
       <PageHeader />
       <div className="p-4">
         <div className="mb-4">
