@@ -7,7 +7,6 @@
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@headlessui/react": "^2.1.1",
     "@react-spring/web": "^9.7.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@testing-library/jest-dom": "^5.17.0",
@@ -28,9 +27,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^14.1.2",
-    "react-router-dom": "^6.24.0",
-    "react-scripts": "^5.0.1",
     "reactflow": "^11.11.4",
+    "tailwindcss": "^3.4.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
