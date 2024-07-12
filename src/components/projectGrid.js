@@ -17,7 +17,7 @@ const ProjectCard = ({ title, description, image, link }) => {
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-2">{t(title)}</h3>
         <p className="text-gray-600 mb-4">{t(description)}</p>
-        <Link to={link} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+        <Link to={link} className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
           {t('try')}
         </Link>
       </div>

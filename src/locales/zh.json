@@ -65,5 +65,6 @@
     "2048_description": "2048 游戏，通过滑动方块，使相同数字的方块相加，最终得到 2048 数字即成功。",
     "reset": "重置",
     "one_step_win": "预设胜利",
-    "one_step_fail": "预设失败"
+    "one_step_fail": "预设失败",
+    "select_language": "选择语言"
 }

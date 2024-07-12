@@ -64,5 +64,7 @@
     "2048_description": "2048 game, by sliding the blocks, add up the blocks with the same number, and finally get the number 2048 to succeed. ",
     "reset": "Reset",
     "one_step_win": "One Step Win",
-    "one_step_fail": "One Step Fail"
+    "one_step_fail": "One Step Fail",
+
+    "select_language": "Select Language"
 }

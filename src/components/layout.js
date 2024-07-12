@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 import "../i18n.js";
 import { Link } from "gatsby";
-import LanguageSwitcher from "../language_switcher.js";
+import i18n from 'i18next';
+import LanguageSwitcher from "./language_switcher.js";
 import { useLocation } from "@reach/router";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -14,6 +15,12 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const currentCategory = location.pathname.split("/")[1];
 
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = i18n.language;
+    }
+  }, [i18n.language]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-md">
@@ -24,7 +31,7 @@ const Layout = ({ children }) => {
                 <Link
                   to={`/${category}/`}
                   className={`px-2 sm:px-4 py-1 sm:py-2 rounded ${
-                    currentCategory === category ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-200"
+                    currentCategory === category ? "bg-blue-700 text-white" : "text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {t(category)}

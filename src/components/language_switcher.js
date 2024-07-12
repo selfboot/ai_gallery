@@ -28,9 +28,11 @@ const LanguageSwitcher = () => {
     zh: "🇨🇳 简体中文"
   };
 
+  const { t } = useTranslation();
   return (
     <div>
       <select
+        aria-label={t("select_language")}
         value={language}
         onChange={handleLanguageChange}
         className="bg-white text-right text-gray-900 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
