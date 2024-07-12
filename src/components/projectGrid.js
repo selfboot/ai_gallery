@@ -12,6 +12,9 @@ const ProjectCard = ({ title, description, image, link }) => {
           src={image}
           alt={t(title)}
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          width="1200"
+          height="675"
         />
       </div>
       <div className="p-4">
