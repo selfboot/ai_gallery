@@ -12,7 +12,7 @@
     "white_turn": "白方回合",
     "white_win": "白方获胜",
     "start_game": "开始游戏",
-    "game_over": "游戏结束！",
+    "game_over": "游戏结束!",
     "congratulations": "恭喜，你成功了!",
     "restart_game": "重新开始",
     "go_back": "返回",
@@ -66,5 +66,8 @@
     "reset": "重置",
     "one_step_win": "预设胜利",
     "one_step_fail": "预设失败",
-    "select_language": "选择语言"
+    "select_language": "选择语言",
+
+    "snake_title": "贪吃蛇",
+    "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。"
 }

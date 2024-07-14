@@ -66,5 +66,8 @@
     "one_step_win": "One Step Win",
     "one_step_fail": "One Step Fail",
 
+    "snake_title": "Snake Game",
+    "snake_description": "Classic Snake game, control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.",
+    
     "select_language": "Select Language"
 }

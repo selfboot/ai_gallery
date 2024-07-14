@@ -19,7 +19,7 @@ const Projects = {
       id: 'tetris',
       title: 'tetris_title',
       description: 'tetris_description',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_tetris_v2.png/webp',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240714_ai_gallery_tetris.gif',
       link: '/games/tetris'
     },
     {
@@ -28,6 +28,13 @@ const Projects = {
       description: '2048_description',
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240710_ai_gallery_game2048.gif',
       link: '/games/2048'
+    },
+    {
+      id: 'snake',
+      title: 'snake_title',
+      description: 'snake_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240714_ai_gallery_snake.gif',
+      link: '/games/snake'
     },
   ],
   algorithms: [
