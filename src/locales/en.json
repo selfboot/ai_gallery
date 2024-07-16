@@ -78,5 +78,19 @@
     "sliding_window_fail": "Sliding Fail",
     "fixed_window_success": "Fixed Success",
     "fixed_window_fail": "Fixed Fail",
-    "select_language": "Select Language"
+
+    "tokenbucket_title": "Token Bucket",
+    "tokenbucket_description": "Token bucket is a rate limiting algorithm that can be used to control the rate of traffic. You can set the bucket capacity, token generation rate, and request rate, and then draw the curve of successful or failed requests.",
+    "token_bucket_chart": "Token Bucket Algorithm Visualization",
+    "select_language": "Select Language",
+    "success_request": "Success Request",
+    "fail_request": "Fail Request",
+    "remain_tokens": "Remain Tokens",
+    "bucket_capacity": "Bucket Capacity",
+    "token_rate": "Token Rate",
+    "request_rate": "Request Rate",
+    "start": "Start",
+    "pause": "Pause",
+    "time": "Time",
+    "count": "Count"
 }

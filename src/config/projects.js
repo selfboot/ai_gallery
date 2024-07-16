@@ -72,6 +72,13 @@ const Projects = {
       description: 'ratelimit_description',
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240716_ai_gallery_ratelimit.gif',
       link: '/algorithms/ratelimit'
+    },
+    {
+      id: 'tokenbucket',
+      title: 'tokenbucket_title',
+      description: 'tokenbucket_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240717_ai_gallery_tokenbucket.gif',
+      link: '/algorithms/tokenbucket'
     }
   ],
   others: [

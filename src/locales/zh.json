@@ -79,5 +79,19 @@
     "sliding_window_success": "滑动窗口成功",
     "sliding_window_fail": "滑动窗口失败",
     "fixed_window_success": "固定窗口成功",
-    "fixed_window_fail": "固定窗口失败"
+    "fixed_window_fail": "固定窗口失败",
+
+    "tokenbucket_title": "令牌桶",
+    "tokenbucket_description": "令牌桶是一种限流算法，可以用来控制发送或接收的流量速率。可以设置桶的容量，令牌产生速度，以及请求速度，然后会绘制请求成功或者失败的曲线。",
+    "token_bucket_chart": "令牌桶算法模拟",
+    "time": "时间",
+    "success_request": "成功请求数",
+    "fail_request": "失败请求数",
+    "remain_tokens": "剩余令牌数",
+    "bucket_capacity": "桶容量",
+    "token_rate": "每秒令牌产生数",
+    "request_rate": "每秒请求数",
+    "start": "开始",
+    "pause": "暂停",
+    "count": "计数"
 }
