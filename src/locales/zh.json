@@ -67,7 +67,17 @@
     "one_step_win": "预设胜利",
     "one_step_fail": "预设失败",
     "select_language": "选择语言",
-
     "snake_title": "贪吃蛇",
-    "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。"
+    "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。",
+
+    "ratelimit_title": "窗口限流",
+    "ratelimit_description": "限流是一种控制网络发送或接收的流量速率的策略，固定窗口限频和滑动窗口限频是最常见的限流算法，本页面展示了这两种算法的特点和对比。",
+    "rate_limit_compare": "滑动窗口 VS 固定窗口限流对比",
+    "rate_limit_qps": "1 秒请求数限制",
+    "rate_limit_random": "生成随机请求",
+    "total_request": "总请求数",
+    "sliding_window_success": "滑动窗口成功",
+    "sliding_window_fail": "滑动窗口失败",
+    "fixed_window_success": "固定窗口成功",
+    "fixed_window_fail": "固定窗口失败"
 }
