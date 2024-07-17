@@ -469,12 +469,6 @@ const GraphEditor = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Dijkstra's Visualization"
-        description="Learn and understand Dijkstra's shortest path algorithm through interactive visualization. Explore how Dijkstra's algorithm works and enhance your algorithm knowledge. Source code is available."
-        keywords="Dijkstra's algorithm, shortest path algorithm, pathfinding algorithm, algorithm visualization, learn Dijkstra's algorithm, algorithm education"
-        canonicalUrl="https://gallery.selfboot.cn/algorithms/dijkstra/"
-      />
       <PageHeader />
       <div className="flex w-full h-full overflow-auto">
         <div className="w-3/5 h-full relative">
@@ -575,3 +569,12 @@ const GraphEditor = () => {
 };
 
 export default GraphEditor;
+
+export const Head = () => (
+  <SEO
+    title="Dijkstra's Visualization"
+    description="Learn and understand Dijkstra's shortest path algorithm through interactive visualization. Explore how Dijkstra's algorithm works and enhance your algorithm knowledge. Source code is available."
+    keywords="Dijkstra's algorithm, shortest path algorithm, pathfinding algorithm, algorithm visualization, learn Dijkstra's algorithm, algorithm education"
+    canonicalUrl="https://gallery.selfboot.cn/algorithms/dijkstra/"
+  />
+);

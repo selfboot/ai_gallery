@@ -204,12 +204,6 @@ const HeapVisualization = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Heap Visualization"
-        description="Learn and understand the heap algorithm through interactive visualization. Explore how heap sort works and enhance your algorithm knowledge. Source code is available."
-        keywords="heap algorithm, heap sort, algorithm visualization, learn heap sort, data structures, algorithm education"
-        canonicalUrl="https://gallery.selfboot.cn/algorithms/heap/"
-      />
       <PageHeader />
       <div className="p-4">
         <div className="mb-4">
@@ -289,6 +283,15 @@ const HeapVisualization = () => {
 };
 
 export default HeapVisualization;
+
+export const Head = () => (
+  <SEO
+      title="Heap Visualization"
+      description="Learn and understand the heap algorithm through interactive visualization. Explore how heap sort works and enhance your algorithm knowledge. Source code is available."
+      keywords="heap algorithm, heap sort, algorithm visualization, learn heap sort, data structures, algorithm education"
+      canonicalUrl="https://gallery.selfboot.cn/algorithms/heap/"
+    />
+)
 
 function calculatePositions(heap) {
   const depth = heap.depth();

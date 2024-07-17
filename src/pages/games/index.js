@@ -9,12 +9,6 @@ const Games = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Free online Games"
-        description="Experience the classic game online. Challenge your reflexes and strategic thinking. No download required. And every game has source code available. You can play and learn how to build it."
-        keywords="Free online games, source code game, react games, gpt4 games"
-        canonicalUrl="https://gallery.selfboot.cn/games/"
-      />
       <h2 className="text-xl font-bold mb-4 px-6">{t("games")}</h2>
       <ProjectGrid category={"games"} />
     </Layout>
@@ -22,3 +16,12 @@ const Games = () => {
 };
 
 export default Games;
+
+export const Head = () => (
+  <SEO
+    title="Free online Games"
+    description="Experience the classic game online. Challenge your reflexes and strategic thinking. No download required. And every game has source code available. You can play and learn how to build it."
+    keywords="Free online games, source code game, react games, gpt4 games"
+    canonicalUrl="https://gallery.selfboot.cn/games/"
+  />
+);

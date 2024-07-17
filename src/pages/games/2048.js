@@ -260,12 +260,6 @@ const Game2048 = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Free 2048 Game Online"
-        description="Play the classic 2048 game online! Join the numbers and get to the 2048 tile to win. Start playing now and test your puzzle solving skills."
-        keywords="2048, classic 2048 game, number puzzle game, play 2048 online, claude3.5, react 2048 game"
-        canonicalUrl="https://gallery.selfboot.cn/games/2048/"
-      />
       <PageHeader />
       <Board tiles={tiles} />
       <div className="flex justify-center space-x-4 mt-8">
@@ -284,3 +278,12 @@ const Game2048 = () => {
   );
 };
 export default Game2048;
+
+export const Head = () => (
+  <SEO
+    title="Free 2048 Game Online"
+    description="Play the classic 2048 game online! Join the numbers and get to the 2048 tile to win. Start playing now and test your puzzle solving skills."
+    keywords="2048, classic 2048 game, number puzzle game, play 2048 online, claude3.5, react 2048 game"
+    canonicalUrl="https://gallery.selfboot.cn/games/2048/"
+  />
+);

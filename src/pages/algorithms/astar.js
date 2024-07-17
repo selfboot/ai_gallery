@@ -239,12 +239,6 @@ const AStarPathFind = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Astar Visualization"
-        description="Learn and understand the A* pathfinding algorithm through interactive visualization. Explore how A* works and enhance your algorithm knowledge. Source code is available."
-        keywords="A* algorithm, A-star algorithm, pathfinding algorithm, algorithm visualization, learn A* algorithm, algorithm education"
-        canonicalUrl="https://gallery.selfboot.cn/algorithms/astar/"
-      />
       <PageHeader />
       <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[450px]">
         <div className="flex-grow flex justify-center overflow-x-auto">
@@ -357,3 +351,12 @@ const AStarPathFind = () => {
 };
 
 export default AStarPathFind;
+
+export const Head = () => (
+  <SEO
+    title="Astar Visualization"
+    description="Learn and understand the A* pathfinding algorithm through interactive visualization. Explore how A* works and enhance your algorithm knowledge. Source code is available."
+    keywords="A* algorithm, A-star algorithm, pathfinding algorithm, algorithm visualization, learn A* algorithm, algorithm education"
+    canonicalUrl="https://gallery.selfboot.cn/algorithms/astar/"
+  />
+);

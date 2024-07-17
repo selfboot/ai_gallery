@@ -125,12 +125,6 @@ const RateLimiter = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Window Rate Limiter"
-        description="Explore interactive visualizations of fixed window and sliding window rate limiting techniques. Understand how these crucial API traffic management methods work in real-time. Perfect for developers and system architects looking to optimize their application's performance and security."
-        keywords="rate limiting, fixed window, sliding window, API traffic management, request throttling, rate limit visualization, web application security, traffic control, DDoS protection, API optimization, request limiting algorithms, rate limit implementation, network traffic management, API rate limits"
-        canonicalUrl="https://gallery.selfboot.cn/algorithms/ratelimit/"
-      />
       <PageHeader />
       <div className="w-full m-4 mx-auto p-4 border rounded-lg shadow-lg">
         <div className="mb-4 flex justify-between items-center">
@@ -178,3 +172,12 @@ const RateLimiter = () => {
 };
 
 export default RateLimiter;
+
+export const Head = () => (
+  <SEO
+    title="Window Rate Limiter"
+    description="Explore interactive visualizations of fixed window and sliding window rate limiting techniques. Understand how these crucial API traffic management methods work in real-time. Perfect for developers and system architects looking to optimize their application's performance and security."
+    keywords="rate limiting, fixed window, sliding window, API traffic management, request throttling, rate limit visualization, web application security, traffic control, DDoS protection, API optimization, request limiting algorithms, rate limit implementation, network traffic management, API rate limits"
+    canonicalUrl="https://gallery.selfboot.cn/algorithms/ratelimit/"
+  />
+);

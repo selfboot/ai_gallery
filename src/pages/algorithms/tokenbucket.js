@@ -119,12 +119,6 @@ const TokenBucketVisualization = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Token Bucket Limiter"
-        description="Explore an interactive visualization of the Token Bucket algorithm, a key technique for network traffic shaping and rate limiting. Learn how this algorithm manages data flow, prevents system overload, and ensures fair resource allocation in computer networks and APIs."
-        keywords="Token Bucket algorithm, rate limiting, algorithm visualization, interactive learning"
-        canonicalUrl="https://gallery.selfboot.cn/algorithms/tokenbucket/"
-      />
       <PageHeader />
       <div className="w-full m-4 mx-auto p-4 border rounded-lg shadow-lg">
         <div className="mb-4 flex space-x-4">
@@ -178,3 +172,12 @@ const TokenBucketVisualization = () => {
 };
 
 export default TokenBucketVisualization;
+
+export const Head = () => (
+  <SEO
+    title="Token Bucket Limiter"
+    description="Explore an interactive visualization of the Token Bucket algorithm, a key technique for network traffic shaping and rate limiting. Learn how this algorithm manages data flow, prevents system overload, and ensures fair resource allocation in computer networks and APIs."
+    keywords="Token Bucket algorithm, rate limiting, algorithm visualization, interactive learning"
+    canonicalUrl="https://gallery.selfboot.cn/algorithms/tokenbucket/"
+  />
+);

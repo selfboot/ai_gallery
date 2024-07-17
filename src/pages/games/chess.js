@@ -401,12 +401,6 @@ const ChineseChessBoard = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Free Chinese Chess Online"
-        description="Master the art of Xiangqi with our online Chinese Chess game. "
-        keywords="Chinese Chess, Xiangqi online, free Xiangqi game, play Chinese Chess, online Xiangqi"
-        canonicalUrl="https://gallery.selfboot.cn/games/chess/"
-      />
       <PageHeader />
       <div className="flex flex-col items-center bg-gray-100 p-4">
         <div className="text-lg mb-4 font-bold">
@@ -479,3 +473,12 @@ const ChineseChessBoard = () => {
 };
 
 export default ChineseChessBoard;
+
+export const Head = () => (
+  <SEO
+    title="Free Chinese Chess Online"
+    description="Master the art of Xiangqi with our online Chinese Chess game. "
+    keywords="Chinese Chess, Xiangqi online, free Xiangqi game, play Chinese Chess, online Xiangqi"
+    canonicalUrl="https://gallery.selfboot.cn/games/chess/"
+  />
+);

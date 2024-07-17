@@ -86,12 +86,6 @@ const GomokuGame = () => {
 
   return (
     <Layout>
-      <SEO
-        title="Free Gomoku Online"
-        description="Enjoy the classic Gomoku game online. Challenge friends and improve your strategy skills. No download needed. Start your Gomoku battle now!"
-        keywords="Gomoku, play Gomoku online, free Gomoku game, Gomoku strategy, Gomoku Claude write, online board games"
-        canonicalUrl="https://gallery.selfboot.cn/games/gomoku/"
-      />
       <PageHeader/>
         <div className="flex flex-col items-center bg-gray-100">
           <div className="text-center">
@@ -131,3 +125,12 @@ const GomokuGame = () => {
 };
 
 export default GomokuGame;
+
+export const Head = () => (
+  <SEO
+    title="Free Gomoku Online"
+    description="Enjoy the classic Gomoku game online. Challenge friends and improve your strategy skills. No download needed. Start your Gomoku battle now!"
+    keywords="Gomoku, play Gomoku online, free Gomoku game, Gomoku strategy, Gomoku Claude write, online board games"
+    canonicalUrl="https://gallery.selfboot.cn/games/gomoku/"
+  />
+);

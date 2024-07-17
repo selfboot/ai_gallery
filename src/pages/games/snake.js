@@ -143,12 +143,6 @@ const SnakeGame = () => {
 
     return (
         <Layout>
-            <SEO
-                title="Free Snake Online"
-                description="Enjoy the classic free snake game online. Control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.. No download needed."
-                keywords="Snake, Play snake online, Free snake game, Snake eat food, Snake Claude write, Online snake game"
-                canonicalUrl="https://gallery.selfboot.cn/games/snake/"
-            />
             <PageHeader />
             <div className="flex flex-col items-center justify-center">
                 <div className="relative bg-green-50 rounded-lg shadow-lg overflow-hidden">
@@ -185,3 +179,12 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
+
+export const Head = () => (
+  <SEO
+    title="Free Snake Online"
+    description="Enjoy the classic free snake game online. Control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.. No download needed."
+    keywords="Snake, Play snake online, Free snake game, Snake eat food, Snake Claude write, Online snake game"
+    canonicalUrl="https://gallery.selfboot.cn/games/snake/"
+  />
+);
