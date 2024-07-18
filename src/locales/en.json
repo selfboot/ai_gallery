@@ -92,5 +92,16 @@
     "start": "Start",
     "pause": "Pause",
     "time": "Time",
-    "count": "Count"
+    "count": "Count",
+
+    "trie_title": "Trie",
+    "trie_description": "Trie is a tree-like data structure that is used to store a dynamic set of strings. This page shows the process of insert, delete and search for strings in the trie.",
+    "insert": "Insert",
+    "delete": "Delete",
+    "search": "Search",
+    "random_initialize": "Random Initialize",
+    "enter_word": "Enter a word",
+    "words_in_trie": "Words in Trie",
+    "find_word_in_trie": "{{word}} is in trie",
+    "no_word_in_trie": "{{word}} is not in trie"
 }

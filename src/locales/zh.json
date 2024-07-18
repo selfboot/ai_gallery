@@ -93,5 +93,16 @@
     "request_rate": "每秒请求数",
     "start": "开始",
     "pause": "暂停",
-    "count": "计数"
+    "count": "计数",
+
+    "trie_title": "前缀树",
+    "trie_description": "前缀树是一种树形数据结构，用于存储关联数组，其中的键通常是字符串。本页面展示了前缀树的基本操作，包括插入、删除、搜索等。",
+    "insert": "插入",
+    "delete": "删除",
+    "search": "查找",
+    "random_initialize": "随机初始化",
+    "enter_word": "输入单词",
+    "words_in_trie": "前缀树中的单词",
+    "find_word_in_trie": "{{word}} 在前缀树",
+    "no_word_in_trie": "{{word}} 不在前缀树"
 }

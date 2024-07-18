@@ -79,6 +79,13 @@ const Projects = {
       description: 'tokenbucket_description',
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240717_ai_gallery_tokenbucket.gif',
       link: '/algorithms/tokenbucket'
+    },
+    {
+      id: 'trie',
+      title: 'trie_title',
+      description: 'trie_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240717_ai_gallery_tokenbucket.gif',
+      link: '/algorithms/trie/'
     }
   ],
   others: [
