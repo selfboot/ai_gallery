@@ -67,6 +67,13 @@ const Projects = {
       link: '/algorithms/dijkstra'
     },
     {
+      id: 'trie',
+      title: 'trie_title',
+      description: 'trie_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240718_ai_gallery_trie.gif',
+      link: '/algorithms/trie/'
+    },
+    {
       id: 'ratelimit',
       title: 'ratelimit_title',
       description: 'ratelimit_description',
@@ -79,13 +86,6 @@ const Projects = {
       description: 'tokenbucket_description',
       image: 'https://slefboot-1251736664.file.myqcloud.com/20240717_ai_gallery_tokenbucket.gif',
       link: '/algorithms/tokenbucket'
-    },
-    {
-      id: 'trie',
-      title: 'trie_title',
-      description: 'trie_description',
-      image: 'https://slefboot-1251736664.file.myqcloud.com/20240717_ai_gallery_tokenbucket.gif',
-      link: '/algorithms/trie/'
     }
   ],
   others: [

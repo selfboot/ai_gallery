@@ -382,8 +382,8 @@ export default TrieVisualization;
 export const Head = () => (
   <SEO
     title="Trie Visualization"
-    description=""
-    keywords=""
+    description="Interactive visualization of prefix tree operations. Explore trie data structure animations for insert, search and delete. Learn algorithmic concepts through step-by-step visual explanations."
+    keywords="prefix tree, trie, data structure, algorithm visualization, interactive animation, computer science education, coding tutorial"
     canonicalUrl="https://gallery.selfboot.cn/algorithms/trie/"
   />
 );
