@@ -8,6 +8,7 @@ class TrieNode {
   constructor() {
     this.children = {};
     this.isEndOfWord = false;
+    this.highlighted = false;
   }
 }
 
@@ -16,7 +17,8 @@ class Trie {
     this.root = new TrieNode();
   }
 
-  insert(word) {
+  // 添加新的同步插入方法
+  insertSync(word) {
     let node = this.root;
     for (let char of word) {
       if (!node.children[char]) {
@@ -27,11 +29,29 @@ class Trie {
     node.isEndOfWord = true;
   }
 
-  delete(word) {
-    const deleteHelper = (node, word, index) => {
+  async insert(word, onHighlight) {
+    let node = this.root;
+    for (let char of word) {
+      if (!node.children[char]) {
+        node.children[char] = new TrieNode();
+      }
+      node = node.children[char];
+      node.highlighted = true;
+      await onHighlight();
+    }
+    node.isEndOfWord = true;
+    await onHighlight();
+    this.clearHighlights();
+    await onHighlight();
+  }
+
+  async delete(word, onHighlight) {
+    const deleteHelper = async (node, word, index) => {
       if (index === word.length) {
         if (node.isEndOfWord) {
           node.isEndOfWord = false;
+          node.highlighted = true;
+          await onHighlight();
           return Object.keys(node.children).length === 0;
         }
         return false;
@@ -40,26 +60,51 @@ class Trie {
       const char = word[index];
       if (!node.children[char]) return false;
 
-      const shouldDeleteChild = deleteHelper(node.children[char], word, index + 1);
+      node.highlighted = true;
+      await onHighlight();
+
+      const shouldDeleteChild = await deleteHelper(node.children[char], word, index + 1);
 
       if (shouldDeleteChild) {
         delete node.children[char];
+        node.highlighted = true;
+        await onHighlight();
       }
       return Object.keys(node.children).length === 0 && !node.isEndOfWord;
     };
 
-    deleteHelper(this.root, word, 0);
+    await deleteHelper(this.root, word, 0);
+    this.clearHighlights();
+    await onHighlight();
   }
 
-  search(word) {
+  async search(word, onHighlight) {
     let node = this.root;
     for (let char of word) {
       if (!node.children[char]) {
+        this.clearHighlights();
+        await onHighlight();
         return false;
       }
       node = node.children[char];
+      node.highlighted = true;
+      await onHighlight();
     }
-    return node.isEndOfWord;
+    const result = node.isEndOfWord;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    this.clearHighlights();
+    await onHighlight();
+    return result;
+  }
+
+  clearHighlights() {
+    const clearNode = (node) => {
+      node.highlighted = false;
+      for (let child of Object.values(node.children)) {
+        clearNode(child);
+      }
+    };
+    clearNode(this.root);
   }
 }
 
@@ -98,6 +143,7 @@ const TrieVisualization = () => {
   const [words, setWords] = useState([]);
   const [searchResult, setSearchResult] = useState(null);
   const svgRef = useRef(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { t } = useTranslation();
 
   const updateWords = useCallback((newTrie) => {
@@ -114,55 +160,65 @@ const TrieVisualization = () => {
     setWords(wordList.sort());
   }, []);
 
-  const handleInsert = useCallback(() => {
-    if (word) {
-      setTrie((prevTrie) => {
+  const onHighlight = useCallback(() => {
+    return new Promise(resolve => {
+      setTrie(prevTrie => {
         const newTrie = new Trie();
         Object.assign(newTrie, prevTrie);
-        newTrie.insert(word);
-        updateWords(newTrie);
-        setSearchResult(null);
         return newTrie;
       });
+      setTimeout(resolve, 500);
+    });
+  }, []);
+  
+  const handleInsert = useCallback(async () => {
+    if (word && !isAnimating) {
+      setIsAnimating(true);
+      await trie.insert(word, onHighlight);
+      updateWords(trie);
+      setSearchResult(null);
       setWord("");
-    }
-  }, [word, updateWords]);
 
-  const handleDelete = useCallback(() => {
-    if (word) {
-      setTrie((prevTrie) => {
-        const newTrie = new Trie();
-        Object.assign(newTrie, prevTrie);
-        newTrie.delete(word);
-        updateWords(newTrie);
-        setSearchResult(null);
-        return newTrie;
-      });
+      setIsAnimating(false);
+    }
+  }, [word, updateWords, trie, isAnimating, onHighlight]);
+
+  const handleDelete = useCallback(async () => {
+    if (word && !isAnimating) {
+      setIsAnimating(true);
+      await trie.delete(word, onHighlight);  // 这里传递 onHighlight
+      updateWords(trie);
+      setSearchResult(null);
       setWord("");
+      setIsAnimating(false);
     }
-  }, [word, updateWords]);
+  }, [word, updateWords, trie, isAnimating, onHighlight]);
 
-  const handleSearch = useCallback(() => {
-    if (word) {
-      const result = trie.search(word);
+  const handleSearch = useCallback(async () => {
+    if (word && !isAnimating) {
+      setIsAnimating(true);
+      const result = await trie.search(word, onHighlight);  // 这里传递 onHighlight
       setSearchResult(result);
+      setIsAnimating(false);
     }
-  }, [word, trie]);
+  }, [word, trie, isAnimating, onHighlight]);
 
   const handleRandomInitialize = useCallback(() => {
-    const newTrie = new Trie();
-    const selectedWords = [];
-    while (selectedWords.length < 10) {
-      const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
-      if (!selectedWords.includes(randomWord)) {
-        selectedWords.push(randomWord);
-        newTrie.insert(randomWord);
+    if (!isAnimating) {
+      const newTrie = new Trie();
+      const selectedWords = [];
+      while (selectedWords.length < 10) {
+        const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
+        if (!selectedWords.includes(randomWord)) {
+          selectedWords.push(randomWord);
+          newTrie.insertSync(randomWord);  // 使用同步插入方法
+        }
       }
+      setTrie(newTrie);
+      updateWords(newTrie);
+      setSearchResult(null);
     }
-    setTrie(newTrie);
-    updateWords(newTrie);
-    setSearchResult(null);
-  }, [updateWords]);
+  }, [updateWords, isAnimating]);
 
   const calculateTreeDimensions = (node) => {
     const children = Object.values(node.children);
@@ -196,7 +252,13 @@ const TrieVisualization = () => {
     // Render current node
     elements.push(
       <g key={`node-${x}-${y}`}>
-        <circle cx={x} cy={y} r={NODE_RADIUS} fill="white" stroke="black" />
+        <circle
+          cx={x}
+          cy={y}
+          r={NODE_RADIUS}
+          fill={node.highlighted ? "red" : "white"}
+          stroke="black"
+        />
         <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="14">
           {char}
         </text>
@@ -236,7 +298,6 @@ const TrieVisualization = () => {
       setDimensions({ width: Math.max(800, width + 100), height: Math.max(600, height + 100) });
     }
   }, [trie]);
-
   return (
     <Layout>
       <PageHeader />
@@ -248,19 +309,33 @@ const TrieVisualization = () => {
             onChange={(e) => setWord(e.target.value.toLowerCase())}
             className="border p-2 rounded"
             placeholder={t("enter_word")}
+            disabled={isAnimating}
           />
-          <button onClick={handleInsert} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          <button
+            onClick={handleInsert}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+            disabled={isAnimating}
+          >
             {t("insert")}
           </button>
-          <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+          <button
+            onClick={handleDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+            disabled={isAnimating}
+          >
             {t("delete")}
           </button>
-          <button onClick={handleSearch} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+          <button
+            onClick={handleSearch}
+            className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 disabled:opacity-50"
+            disabled={isAnimating}
+          >
             {t("search")}
           </button>
           <button
             onClick={handleRandomInitialize}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            disabled={isAnimating}
           >
             {t("random_initialize")}
           </button>
@@ -301,7 +376,6 @@ const TrieVisualization = () => {
     </Layout>
   );
 };
-
 
 export default TrieVisualization;
 
