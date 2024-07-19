@@ -2,7 +2,7 @@
 
 <a name="english"></a>
 
-Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. I've integrated these components into this [showcase site](gallery.selfboot.cn). Feel free to explore and experience it yourself!
+Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. I've integrated these components into this [showcase site](https://gallery.selfboot.cn). Feel free to explore and experience it yourself!
 
 I must say, AI has truly transformed the way we write code.
 
