@@ -22,38 +22,42 @@ const Layout = ({ children }) => {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-          <ul className="flex space-x-2 sm:space-x-4">
-            {CATEGORIES.map((category) => (
-              <li key={t(category)}>
-                <Link
-                  to={`/${category}/`}
-                  className={`px-2 sm:px-4 py-1 sm:py-2 rounded ${
-                    currentCategory === category ? "bg-blue-700 text-white" : "text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {t(category)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center space-x-4">
-            <a
-              href="https://github.com/selfboot/ai_gallery"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center text-gray-600 hover:text-gray-800"
-            >
-              <FontAwesomeIcon icon={faGithub} size="lg" />
-              <span className="ml-2">Star</span>
-            </a>
-            <LanguageSwitcher />
+        <div className="container mx-auto px-4 sm:px-6 py-3">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <ul className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4 mb-2 sm:mb-0">
+              {CATEGORIES.map((category) => (
+                <li key={t(category)}>
+                  <Link
+                    to={`/${category}/`}
+                    className={`px-2 sm:px-4 py-1 sm:py-2 rounded ${
+                      currentCategory === category ? "bg-blue-700 text-white" : "text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {t(category)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center space-x-4">
+              <a
+                href="https://github.com/selfboot/ai_gallery"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-600 hover:text-gray-800"
+              >
+                <FontAwesomeIcon icon={faGithub} size="lg" />
+                <span className="ml-2">Star</span>
+              </a>
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </nav>
-      <main className="container mx-auto mt-6">{children}</main>
+      <main className="flex-grow container mx-auto mt-6 overflow-auto">
+        {children}
+      </main>
     </div>
   );
 };
