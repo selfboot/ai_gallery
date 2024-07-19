@@ -29,3 +29,4 @@ yarn-error.log*
 .DS_Store
 
 .lock-wscript
+page-metadata.json

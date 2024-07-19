@@ -15,6 +15,7 @@
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",
     "gatsby": "^5.13.6",
+    "gatsby-plugin-feed": "^5.13.1",
     "gatsby-plugin-google-gtag": "^5.13.1",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-postcss": "^6.13.1",
@@ -34,6 +35,8 @@
     "web-vitals": "^4.2.1"
   },
   "scripts": {
+    "predevelop": "node ./scripts/rss-generate.js",
+    "prebuild": "node ./scripts/rss-generate.js",
     "develop": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
