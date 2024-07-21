@@ -65,7 +65,11 @@ module.exports = {
                 description: page.description,
                 url: page.url,
                 guid: page.url,
-                custom_elements: [{ "content:encoded": `<p>${page.description}</p>` }],
+                custom_elements: [
+                  { "content:encoded": `<p>${page.description}</p>` },
+                  ...(page.publishedDate ? [{ "pubDate": page.publishedDate }] : []), 
+                  ...(page.updatedDate ? [{ "lastBuildDate": page.updatedDate }] : []),
+                ]
               }));
             },
             query: `

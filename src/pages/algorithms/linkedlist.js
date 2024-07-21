@@ -529,5 +529,7 @@ export const Head = () => (
     description="Interactive linked list visualization tool. Explore dynamic animations of linked list operations including insertion, deletion, and traversal. Ideal for students, developers, and algorithm enthusiasts to understand data structure concepts visually."
     keywords="linked list, data structure visualization, algorithm animation, interactive learning, computer science, coding tutorial, programming education"
     canonicalUrl="https://gallery.selfboot.cn/algorithms/linkedlist/"
+    publishedDate="2024-07-21T12:00:00+08:00" 
+    updatedDate="2024-07-21T12:00:00+08:00"
   />
 )
