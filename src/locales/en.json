@@ -103,5 +103,15 @@
     "enter_word": "Enter a word",
     "words_in_trie": "Words in Trie",
     "find_word_in_trie": "{{word}} is in trie",
-    "no_word_in_trie": "{{word}} is not in trie"
+    "no_word_in_trie": "{{word}} is not in trie",
+
+    "linkedlist_title": "Linked List",
+    "linkedlist_description": "Linked list is a linear data structure that consists of a sequence of elements, each element points to the next element in the sequence. This page shows the process of insert, delete and search for elements in the linked list.",
+    "node_not_found": "Node not found",
+    "node_found_index": "Node found at index {{index}}",
+    "enter_node_value": "Enter a node value",
+    "insert_after_pos": "Inert after node {{index}}",
+    "insert_at_end": "Insert at end",
+    "click_node_to_remove": "Click a node to remove",
+    "remove_node_at": "Remove node at index {{index}}"
 }

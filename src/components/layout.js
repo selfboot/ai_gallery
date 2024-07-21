@@ -55,7 +55,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </nav>
-      <main className="flex-grow container mx-auto mt-6 overflow-auto">
+      <main className="flex-grow container mx-auto mt-6">
         {children}
       </main>
     </div>

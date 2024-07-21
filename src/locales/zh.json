@@ -104,5 +104,15 @@
     "enter_word": "输入单词",
     "words_in_trie": "前缀树中的单词",
     "find_word_in_trie": "{{word}} 在前缀树",
-    "no_word_in_trie": "{{word}} 不在前缀树"
+    "no_word_in_trie": "{{word}} 不在前缀树",
+
+    "linkedlist_title": "单向链表",
+    "linkedlist_description": "单向链表由一系列节点组成，每个节点包含数据和指向下一个节点的指针。本页面展示了单向链表的基本操作，包括插入、删除、搜索等。",
+    "node_not_found": "节点未找到",
+    "node_found_index": "在下标 {{index}} 找到节点",
+    "enter_node_value": "输入节点值",
+    "insert_after_pos": "在下标 {{index}} 后面插",
+    "insert_at_end": "在链表尾部插",
+    "click_node_to_remove": "选中节点删除",
+    "remove_node_at": "删除下标 {{index}} 节点"
 }

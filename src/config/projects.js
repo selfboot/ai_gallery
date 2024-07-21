@@ -74,6 +74,13 @@ const Projects = {
       link: '/algorithms/trie/'
     },
     {
+      id: 'linkedlist',
+      title: 'linkedlist_title',
+      description: 'linkedlist_description',
+      image: 'https://slefboot-1251736664.file.myqcloud.com/20240721_ai_gallery_linkedlist.gif',
+      link: '/algorithms/linkedlist/'
+    },
+    {
       id: 'ratelimit',
       title: 'ratelimit_title',
       description: 'ratelimit_description',
