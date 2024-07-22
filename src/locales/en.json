@@ -113,5 +113,23 @@
     "insert_after_pos": "Inert after node {{index}}",
     "insert_at_end": "Insert at end",
     "click_node_to_remove": "Click a node to remove",
-    "remove_node_at": "Remove node at index {{index}}"
+    "remove_node_at": "Remove node at index {{index}}",
+
+    "stack_title": "Stack",
+    "stack_description": "Stack is a linear data structure that follows the Last In First Out (LIFO) principle. This page shows the process of push, pop and adjust the height of the stack.",
+    "nextElement": "Next Element",
+    "stackTop": "Top",
+    "stackBottom": "Bottom",
+    "push": "Push",
+    "pop": "Pop",
+    "stackHeight": "Stack Height",
+    "pushedElements": "Pushed Elements (in order of push)",
+    "poppedElements": "Popped Elements (in order of pop)",
+    "stackFull": "Stack is full, cannot push",
+    "stackEmpty": "Stack is empty, cannot pop",
+    "pushed": "Pushed: {{item}}",
+    "popped": "Popped: {{item}}",
+    "stackReset": "Stack has been reset",
+    "stackHeightAdjusted": "Stack height adjusted to {{height}}",
+    "invalidNewHeight": "New height is smaller than current stack size, cannot adjust"
 }

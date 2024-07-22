@@ -114,5 +114,23 @@
     "insert_after_pos": "在下标 {{index}} 后面插",
     "insert_at_end": "在链表尾部插",
     "click_node_to_remove": "选中节点删除",
-    "remove_node_at": "删除下标 {{index}} 节点"
+    "remove_node_at": "删除下标 {{index}} 节点",
+
+    "stack_title": "栈",
+    "stack_description": "栈是一种后进先出（LIFO）队列，本页面可视化展示了栈的基本操作，包括入栈、出栈、调整栈高度等。",
+    "nextElement": "下一个元素",
+    "stackTop": "栈顶",
+    "stackBottom": "栈底",
+    "push": "入栈",
+    "pop": "出栈",
+    "stackHeight": "栈高度",
+    "pushedElements": "入栈元素(按入栈顺序)",
+    "poppedElements": "出栈元素(按出栈顺序)",
+    "stackFull": "栈已满，无法入栈",
+    "stackEmpty": "栈为空，无法出栈",
+    "pushed": "入栈: {{item}}",
+    "popped": "出栈: {{item}}",
+    "stackReset": "栈已重置",
+    "stackHeightAdjusted": "栈高度已调整为 {{height}}",
+    "invalidNewHeight": "新高度小于当前栈大小，无法调整"
 }
