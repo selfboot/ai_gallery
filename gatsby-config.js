@@ -68,7 +68,6 @@ module.exports = {
                 custom_elements: [
                   { "content:encoded": `<p>${page.description}</p>` },
                   ...(page.publishedDate ? [{ "pubDate": page.publishedDate }] : []), 
-                  ...(page.updatedDate ? [{ "dc:date": page.updatedDate }] : []),
                 ]
               }));
             },
