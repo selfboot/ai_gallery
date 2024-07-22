@@ -82,7 +82,8 @@ module.exports = {
             `,
             output: "/rss.xml",
             title: "Selfboot AI Gallery",
-            link: "https://gallery.selfboot.cn/rss.xml"
+            site_url: "https://gallery.selfboot.cn",
+            feed_url: "https://gallery.selfboot.cn/rss.xml",
           },
         ],
       },
