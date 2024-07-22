@@ -68,7 +68,7 @@ module.exports = {
                 custom_elements: [
                   { "content:encoded": `<p>${page.description}</p>` },
                   ...(page.publishedDate ? [{ "pubDate": page.publishedDate }] : []), 
-                  ...(page.updatedDate ? [{ "lastBuildDate": page.updatedDate }] : []),
+                  ...(page.updatedDate ? [{ "dc:date": page.updatedDate }] : []),
                 ]
               }));
             },
@@ -83,6 +83,7 @@ module.exports = {
             `,
             output: "/rss.xml",
             title: "Selfboot AI Gallery",
+            link: "https://gallery.selfboot.cn/rss.xml"
           },
         ],
       },
