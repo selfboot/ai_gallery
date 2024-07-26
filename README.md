@@ -42,13 +42,13 @@ Everyone is welcome to contribute to improving these components. **Don't worry i
    ```
 3. Install dependencies:
    ```
-   yarn install
+   pnpm install
    ```
 4. Start the development server:
    ```
-   yarn develop
+   pnpm dev
    ```
-5. Open your browser and visit `http://localhost:8000` to view the project.
+5. Open your browser and visit `http://localhost:3000` to view the project.
 
 If you encounter any issues along the way, try using AI to solve them!
 
