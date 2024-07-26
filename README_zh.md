@@ -6,7 +6,7 @@
 
 # 项目介绍
 
-使用 React 和 Gatsby 进行静态站点生成（SSG），部署在 Netlify 上。功能上包括站点地图自动生成、Google Analytics 集成和 i18n 国际化支持。目前主要有下面一些有意思的小组件，我会用 AI 持续增加更多项目。
+使用 React 和 Nextjs 进行静态站点生成（SSG），部署在 Netlify 上。功能上包括站点地图自动生成、Google Analytics 集成和 i18n 国际化支持。目前主要有下面一些有意思的小组件，我会用 AI 持续增加更多项目。
 
 算法：探索经典算法的交互式可视化，如 BFS 寻路、A* 搜索、Dijkstra 算法和堆操作。
 

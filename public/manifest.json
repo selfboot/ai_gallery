@@ -1,0 +1,25 @@
+{
+  "short_name": "AI Gallery",
+  "name": "欢迎来到 AI Gallery，这里是展示 AI 创造力的殿堂。我们的网站汇集了由 AI 生成的各种前端小项目，包括经典的五子棋游戏、令人怀旧的俄罗斯方块以及各种复杂的算法可视化展示。通过这些项目，您将能够直观地感受到 AI 在游戏设计和算法实现中的强大能力。",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
