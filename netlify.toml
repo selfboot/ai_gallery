@@ -2,14 +2,8 @@
   command = "next build"
   publish = ".next"
 
-[build.environment]
-  NODE_VERSION = "20"
-
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[[plugins]]
-  package = "netlify-plugin-copy-files"
-  [plugins.inputs]
-    source = "public"
-    destination = ""
+[build.environment]
+  NODE_VERSION = "20"
