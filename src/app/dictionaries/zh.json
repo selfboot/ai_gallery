@@ -1,0 +1,266 @@
+{
+  "home": "首页",
+  "profile": "小盛律师",
+  "games": "游戏",
+  "algorithms": "算法",
+  "others": "其他",
+  "try": "玩一玩",
+  "gomoku_title": "五子棋",
+  "gomoku_description": "五子棋是一种双人对弈的纯策略型棋类游戏，这里支持完整的游戏规则。",
+  "black_turn": "黑方回合",
+  "black_win": "黑方获胜",
+  "white_turn": "白方回合",
+  "white_win": "白方获胜",
+  "start_game": "开始游戏",
+  "game_over": "游戏结束!",
+  "congratulations": "恭喜，你成功了!",
+  "restart_game": "重新开始",
+  "go_back": "返回",
+
+  "chess_title": "中国象棋",
+  "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
+  "current_player": "{{player}} 回合",
+  "player_in_check": "{{player}} 被将军",
+  "checkmate_announcement": "将死！{{winner}}获胜！",
+  "stalemate_announcement": "和棋！游戏平局",
+  "red": "红方",
+  "black": "黑方",
+  "move_steps": "共计 {{steps}} 步",
+  "undo_move": "悔棋",
+  "tetris_title": "俄罗斯方块",
+  "gain_score": "得分 {{score}}",
+  "tetris_description": "经典的俄罗斯方块游戏，包括方块的旋转，移动，加速等。挑战你的空间感知能力和快速思考！",
+  "bfs_path_title": "广度优先寻路",
+  "bfs_path_description": "可视化展示广度优先寻路算法，给定一个网络，可以设置障碍物，起点，终点，然后展示寻路过程",
+  "heap_title": "堆算法",
+  "heap_description": "可视化展示堆操作，包括插入、删除等操作。动态显示每次操作的具体步骤，帮助理解堆操作的原理。",
+  "insert_node": "插入节点",
+  "delete_root": "删除最大值",
+  "deleted_node": "被删节点",
+  "input_number": "输入一个数字",
+  "astar_title": "A* 寻路",
+  "astar_description": "可视化展示 A* 寻路算法，给定一个网络，可以设置障碍物，起点，终点，然后展示寻路过程",
+  "set_obstacles": "设置障碍物",
+  "set_start_point": "设置起点",
+  "set_end_point": "设置终点",
+  "grid_width": "网格宽度",
+  "grid_height": "网格高度",
+  "search_speed": "搜索速度",
+  "find_path": "查找路径",
+  "reset_grid": "重置网格",
+  "no_path_found": "找不到路径。",
+
+  "dijkstra_title": "Dijkstra 寻路",
+  "dijkstra_description": "可视化展示 Dijkstra 寻路算法，给定一个网络，可以设置不同节点之间的权重，选择起点后，就可以计算到其他节点的最短路径",
+  "submit": "提交",
+  "weight": "权重",
+  "weight_matrix": "权重矩阵",
+  "select_start": "选择起点",
+  "search_process": "搜索过程",
+  "round": "轮次",
+  "bar_chart_race_title": "动态条形图(开发中)",
+  "bar_chart_race_description": "动态条形图通常用来展示数据随时间变化的情况，通过本页面可以自定义数据和时间，生成动态条形图，并且支持大量的自定义设置。",
+
+  "2048_title": "2048 游戏",
+  "2048_description": "2048 游戏，通过滑动方块，使相同数字的方块相加，最终得到 2048 数字即成功。",
+  "reset": "重置",
+  "one_step_win": "预设胜利",
+  "one_step_fail": "预设失败",
+  "select_language": "选择语言",
+  "snake_title": "贪吃蛇",
+  "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。",
+
+  "ratelimit_title": "窗口限流",
+  "ratelimit_description": "限流是一种控制网络发送或接收的流量速率的策略，固定窗口限频和滑动窗口限频是最常见的限流算法，本页面展示了这两种算法的特点和对比。",
+  "rate_limit_compare": "滑动窗口 VS 固定窗口限流对比",
+  "rate_limit_qps": "1 秒请求数限制",
+  "rate_limit_random": "生成随机请求",
+  "total_request": "总请求数",
+  "sliding_window_success": "滑动窗口成功",
+  "sliding_window_fail": "滑动窗口失败",
+  "fixed_window_success": "固定窗口成功",
+  "fixed_window_fail": "固定窗口失败",
+
+  "tokenbucket_title": "令牌桶",
+  "tokenbucket_description": "令牌桶是一种限流算法，可以用来控制发送或接收的流量速率。可以设置桶的容量，令牌产生速度，以及请求速度，然后会绘制请求成功或者失败的曲线。",
+  "token_bucket_chart": "令牌桶算法模拟",
+  "time": "时间",
+  "success_request": "成功请求数",
+  "fail_request": "失败请求数",
+  "remain_tokens": "剩余令牌数",
+  "bucket_capacity": "桶容量",
+  "token_rate": "每秒令牌产生数",
+  "request_rate": "每秒请求数",
+  "start": "开始",
+  "pause": "暂停",
+  "count": "计数",
+
+  "trie_title": "前缀树",
+  "trie_description": "前缀树是一种树形数据结构，用于存储关联数组，其中的键通常是字符串。本页面展示了前缀树的基本操作，包括插入、删除、搜索等。",
+  "insert": "插入",
+  "delete": "删除",
+  "search": "查找",
+  "random_initialize": "随机初始化",
+  "enter_word": "输入单词",
+  "words_in_trie": "前缀树中的单词",
+  "find_word_in_trie": "{{word}} 在前缀树",
+  "no_word_in_trie": "{{word}} 不在前缀树",
+
+  "linkedlist_title": "单向链表",
+  "linkedlist_description": "单向链表由一系列节点组成，每个节点包含数据和指向下一个节点的指针。本页面展示了单向链表的基本操作，包括插入、删除、搜索等。",
+  "node_not_found": "节点未找到",
+  "node_found_index": "在下标 {{index}} 找到节点",
+  "enter_node_value": "输入节点值",
+  "insert_after_pos": "在下标 {{index}} 后面插",
+  "insert_at_end": "在链表尾部插",
+  "click_node_to_remove": "选中节点删除",
+  "remove_node_at": "删除下标 {{index}} 节点",
+
+  "stack_title": "栈",
+  "stack_description": "栈是一种后进先出（LIFO）队列，本页面可视化展示了栈的基本操作，包括入栈、出栈、调整栈高度等。",
+  "nextElement": "下一个元素",
+  "stackTop": "栈顶",
+  "stackBottom": "栈底",
+  "push": "入栈",
+  "pop": "出栈",
+  "stackHeight": "栈高度",
+  "pushedElements": "入栈元素(按入栈顺序)",
+  "poppedElements": "出栈元素(按出栈顺序)",
+  "stackFull": "栈已满，无法入栈",
+  "stackEmpty": "栈为空，无法出栈",
+  "pushed": "入栈: {{item}}",
+  "popped": "出栈: {{item}}",
+  "stackReset": "栈已重置",
+  "stackHeightAdjusted": "栈高度已调整为 {{height}}",
+  "invalidNewHeight": "新高度小于当前栈大小，无法调整",
+
+  "hashtable_title": "哈希表",
+  "hashtable_description": "哈希表是用于高效地存储键值对，本页面可视化展示了哈希表的基本操作，包括插入、删除、搜索等。可以选择不同 hash 函数以及 hash 表大小，提供丰富的数据展示。",
+  "hashTableVisualization": "哈希表可视化",
+  "bucketSize": "桶大小",
+  "hashFunction": "哈希函数",
+  "simpleHash": "简单哈希",
+  "addMode": "添加模式",
+  "random": "随机",
+  "sequential": "顺序",
+  "add": "添加",
+  "enterKeyToSearch": "输入要搜索的键",
+  "enterKeyToDelete": "输入要删除的键",
+  "key": "键",
+  "value": "值",
+  "totalItems": "总项目数",
+  "loadFactor": "负载因子",
+  "searchCompleted": "搜索完成，用时 {{steps}} 步。",
+  "keyFoundInBucket": "在桶 {{index}} 中找到键。",
+  "keyNotFound": "未找到键。最后检查的桶：{{index}}。",
+  "found": "找到：{{key}}:{{value}}",
+  "notFound": "未找到 {{key}}",
+  "inserted": "已在索引 {{index}} 处插入 {{key}}:{{value}}",
+  "deletedKey": "已删除键：{{key}}",
+  "keyNotFoundForDelete": "未找到要删除的键：{{key}}",
+  "bucket": "桶",
+  "items": "项",
+
+  "seo": {
+    "index": {
+      "title": "AI 写代码",
+      "description": "Claude3.5 辅助写代码，生成各种好玩的页面，包括各种游戏，算法可视化展示，以及有用的工具",
+      "keywords": "Claude3.5, AI 辅助写代码"
+    },
+    "algorithms": {
+      "title": "开源算法可视化",
+      "description": "通过 Claude3.5 和 GPT4 生成各种算法的可视化演示，包括字典树、链表、栈、速率限制、路径查找和哈希表。",
+      "keywords": "算法可视化,数据结构,在线可视化"
+    },
+    "games": {
+      "title": "开源 React 游戏",
+      "description": "通过 Claude3.5 和 GPT4 生成各种经典游戏，如五子棋、中国象棋、俄罗斯方块等。这些游戏使用 React 编写，开源且可在线游玩。",
+      "keywords": "五子棋,中国象棋,俄罗斯方块,贪吃蛇,2048,源代码游戏,React 游戏,GPT-4 游戏,Claude 3.5 游戏"
+    },
+    "others": {
+      "title": "其他",
+      "description": "通过 Claude3.5 和 GPT4 生成各种有用的工具。比如竞速图生成等",
+      "keywords": "竞速图生成"
+    },
+    "linkedlist": {
+      "title": "链表可视化",
+      "description": "交互式链表可视化展示。探索链表操作的动态动画,包括插入、删除和遍历。适合学生、开发者和算法爱好者直观理解数据结构概念。",
+      "keywords": "链表可视化,链表操作,链表动画"
+    },
+    "hashtable": {
+      "title": "哈希表可视化",
+      "description": "交互式哈希表可视化展示。了解哈希表的工作原理,可视化哈希表操作,以有趣的方式理解哈希表概念。",
+      "keywords": "哈希表可视化,哈希表操作,哈希表数据结构,可视化哈希表操作,哈希表插入,哈希表搜索,哈希表删除,实时哈希表可视化,哈希表教程,学习哈希表,数据结构可视化"
+    },
+    "astar": {
+      "title": "A* 算法可视化",
+      "description": "交互式 A* 寻路算法可视化展示。探索 A* 的工作原理，提升你的算法知识。源代码可用。",
+      "keywords": "A* 算法,A-star 算法,寻路算法,算法可视化,学习 A* 算法,算法教育"
+    },
+    "bfs_path": {
+      "title": "BFS 可视化",
+      "description": "交互式 BFS 寻路算法可视化展示。探索广度优先搜索的工作原理,提升你的算法知识。源代码可用。",
+      "keywords": "BFS 算法,广度优先搜索,寻路算法,算法可视化,学习 BFS,算法教育"
+    },
+    "stack": {
+      "title": "栈可视化",
+      "description": "交互式栈操作可视化工具，帮助你理解和可视化栈数据结构的基本操作。适合想要增进对栈操作(如压栈、出栈和查看栈顶元素)理解的学生、教育工作者和编程爱好者。",
+      "keywords": "栈可视化,栈数据结构,可视化栈操作,栈压入,栈弹出,栈顶元素,实时栈可视化,栈教程,学习栈,数据结构可视化"
+    },
+    "dijkstra": {
+      "title": "Dijkstra 算法可视化",
+      "description": "通过交互式可视化学习和理解 Dijkstra 最短路径算法。探索 Dijkstra 算法的工作原理,提升你的算法知识。源代码可用。",
+      "keywords": "Dijkstra 算法,最短路径算法,寻路算法,算法可视化,学习 Dijkstra 算法,算法教育"
+    },
+    "trie": {
+      "title": "字典树可视化",
+      "description": "前缀树操作的交互式可视化。探索字典树数据结构的插入、搜索和删除动画。通过逐步的视觉解释学习算法概念。",
+      "keywords": "前缀树,字典树,数据结构,算法可视化,交互式动画,计算机科学教育,编码教程"
+    },
+    "heap": {
+      "title": "堆可视化",
+      "description": "通过交互式可视化学习和理解堆算法。探索堆排序的工作原理,提升你的算法知识。源代码可用。",
+      "keywords": "堆算法,堆排序,算法可视化,学习堆排序,数据结构,算法教育"
+    },
+    "ratelimit": {
+      "title": "窗口限流器",
+      "description": "探索固定窗口和滑动窗口限流技术的交互式可视化。实时理解这些关键的 API 流量管理方法的工作原理。",
+      "keywords": "限流,固定窗口,滑动窗口,API 流量管理,请求节流,限流可视化"
+    },
+    "tokenbucket": {
+      "title": "令牌桶可视化",
+      "description": "探索令牌桶算法的交互式可视化,这是网络流量整形和限流的关键技术。了解该算法如何管理数据流,防止系统过载,并确保计算机网络和 API 中的公平资源分配。",
+      "keywords": "令牌桶算法,限流,算法可视化,交互式学习"
+    },
+    "game2048": {
+      "title": "开源2048游戏",
+      "description": "开源的 React 经典 2048 游戏！支持在线玩，合并数字,达到 2048 方块赢得胜利。",
+      "keywords": "2048,经典 2048 游戏,数字拼图游戏,在线玩 2048,Claude 3.5,React 2048 游戏"
+    },
+    "chess": {
+      "title": "开源中国象棋",
+      "description": "开源的 React 经典中国象棋游戏，支持完整的游戏规则，可以在线玩。",
+      "keywords": "中国象棋,在线象棋,免费象棋游戏,玩中国象棋,在线象棋"
+    },
+    "tetris": {
+      "title": "开源俄罗斯方块",
+      "description": "开源的 React 俄罗斯方块游戏在线版。无需下载，现在就开始玩俄罗斯方块,还可以改动代码",
+      "keywords": "俄罗斯方块,在线玩俄罗斯方块,免费俄罗斯方块游戏,经典俄罗斯方块,在线益智游戏,俄罗斯方块策略"
+    },
+    "gomoku": {
+      "title": "开源五子棋",
+      "description": "开源的 React 五子棋游戏在线版。无需下载，现在就开始你的五子棋对战！",
+      "keywords": "五子棋,在线玩五子棋,免费五子棋游戏,五子棋策略,Claude 编写的五子棋,在线棋盘游戏"
+    },
+    "snake": {
+      "title": "开源贪吃蛇",
+      "description": "开源的 React 经典免费贪吃蛇在线版。控制蛇吃食物,变得更长,避免撞到墙壁或蛇的身体。无需下载，源代码开放。",
+      "keywords": "贪吃蛇,在线玩贪吃蛇,免费贪吃蛇游戏,贪吃蛇吃食物,Claude 编写的贪吃蛇,在线贪吃蛇游戏"
+    },
+    "bar_chart_race": {
+      "title": "在线生成条形图竞赛",
+      "description": "条形图竞赛是一种展示数据随时间变化的动态条形图。本页面允许你自定义数据和时间,生成动态条形图,并支持大量自定义设置。",
+      "keywords": "条形图竞赛,数据可视化,数据可视化工具,CSV 转条形图竞赛,Excel 转条形图竞赛"
+    }
+  }
+}

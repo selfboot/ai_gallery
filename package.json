@@ -1,66 +1,38 @@
 {
-  "name": "algorithms_visual",
+  "name": "ai_gallery_next",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.2",
-    "@fortawesome/free-brands-svg-icons": "^6.5.2",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@react-spring/web": "^9.7.3",
-    "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "echarts": "^5.5.1",
-    "echarts-for-react": "^3.0.2",
-    "gatsby": "^5.13.6",
-    "gatsby-plugin-feed": "^5.13.1",
-    "gatsby-plugin-google-gtag": "^5.13.1",
-    "gatsby-plugin-image": "^3.13.1",
-    "gatsby-plugin-postcss": "^6.13.1",
-    "gatsby-plugin-sharp": "^5.13.1",
-    "gatsby-plugin-sitemap": "^6.13.1",
-    "gatsby-transformer-sharp": "^5.13.1",
-    "i18next": "^23.11.5",
-    "i18next-browser-languagedetector": "^8.0.0",
-    "i18next-http-backend": "^2.5.2",
-    "lucide-react": "^0.397.0",
-    "papaparse": "^5.4.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-i18next": "^14.1.2",
-    "reactflow": "^11.11.4",
-    "tailwindcss": "^3.4.4",
-    "web-vitals": "^4.2.1"
-  },
   "scripts": {
-    "predevelop": "node ./scripts/rss-generate.js",
-    "prebuild": "node ./scripts/rss-generate.js",
-    "develop": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "dev": "node scripts/generate-sitemap-rss.mjs && next dev",
+    "build": "node scripts/generate-sitemap-rss.mjs && next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@headlessui/react": "^2.1.2",
+    "@next/third-parties": "^14.2.5",
+    "@react-spring/web": "^9.7.4",
+    "cookies-next": "^4.2.1",
+    "echarts-for-react": "^3.0.2",
+    "globby": "^14.0.2",
+    "google": "link:@next/third-parties/google",
+    "lucide-react": "^0.416.0",
+    "next": "14.2.5",
+    "papaparse": "^5.4.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "reactflow": "^11.11.4",
+    "rss": "^1.2.2",
+    "web-vitals": "^4.2.2"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
   }
 }

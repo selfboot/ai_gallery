@@ -30,3 +30,4 @@ yarn-error.log*
 
 .lock-wscript
 page-metadata.json
+.next/
