@@ -17,8 +17,12 @@ async function PageHeader({ lang, pathname }) {
 
   const getCodeLink = () => {
     const pathSegments = pathname.split("/").filter(Boolean);
-    const filePath = pathSegments.join("/");
-    const baseUrl = "https://github.com/selfboot/ai_gallery/tree/main/src";
+    const languages = ['zh', 'en', 'es']; // 添加所有可能的语言代码
+    
+    const filePathSegments = pathSegments.filter(segment => !languages.includes(segment));
+    
+    const filePath = filePathSegments.join("/");
+    const baseUrl = "https://github.com/selfboot/ai_gallery/tree/main/src/app/%5Blang%5D";
     return `${baseUrl}/${filePath}/content.js`;
   };
 
