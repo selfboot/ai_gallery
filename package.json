@@ -6,7 +6,8 @@
     "dev": "node scripts/generate-sitemap-rss.mjs && next dev",
     "build": "node scripts/generate-sitemap-rss.mjs && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postbuild": "cp public/*.xml .next/"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
