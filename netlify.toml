@@ -1,5 +1,5 @@
 [build]
-  command = "next build"
+  command = "node scripts/generate-sitemap-rss.mjs && next build"
   publish = ".next"
 
 [[plugins]]
