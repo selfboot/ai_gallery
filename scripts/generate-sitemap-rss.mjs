@@ -119,18 +119,18 @@ async function generateSitemapAndRss() {
 `;
     fs.writeFileSync(`public/sitemap-${lang}.xml`, sitemap);
 
-    // 生成 RSS
+    const getRssFileName = (lang) => lang === 'zh' ? 'rss.xml' : `rss-${lang}.xml`;
     const feed = new RSS({
-      title: `Your Site Title (${lang.toUpperCase()})`,
-      description: "Your site description",
-      feed_url: `${DOMAIN}/${lang}/rss.xml`,
+      title: `${getNestedValue(dict, "seo.index.title")}`,
+      description: `${getNestedValue(dict, "seo.index.description")}`,
+      feed_url: `${DOMAIN}/${getRssFileName(lang)}`,
       site_url: `${DOMAIN}/${lang}`,
       language: lang,
     });
 
     rssItems.forEach((item) => feed.item(item));
-
-    fs.writeFileSync(`public/rss-${lang}.xml`, feed.xml({ indent: true }));
+    const rssFileName = getRssFileName(lang);
+    fs.writeFileSync(`public/${rssFileName}`, feed.xml({ indent: true }));
   }
 
   // 生成 sitemap 索引

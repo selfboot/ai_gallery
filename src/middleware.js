@@ -33,8 +33,6 @@ export function middleware(request) {
     response = NextResponse.redirect(
       new URL(`/${preferredLocale}/algorithms`, request.url)
     );
-  } else if (pathname === "/rss.xml") {
-    response = NextResponse.redirect(new URL(`/rss-zh.xml`, request.url));
   } else if (pathname.endsWith(".xml")) {
     response = NextResponse.next();
   } else {
