@@ -162,7 +162,6 @@
   "items": "项",
   "skiplist_title": "跳表",
   "skiplist_description": "跳表是一种随机化的数据结构，用于在有序链表中快速查找元素。本页面展示了跳表的基本操作，包括插入、删除、搜索等。",
-  "skip_list_visualization": "跳表可视化",
   "settings": "设置",
   "max_level": "最高层: {{level}}",
   "probability": "概率: 1/{{prob}}",

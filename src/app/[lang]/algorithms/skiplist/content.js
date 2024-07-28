@@ -143,9 +143,10 @@ const ConnectionLines = ({ nodes }) => {
   const nodeWidth = 48;
   const nodeHeight = 32;
   const horizontalGap = 16;
+  const totalWidth = nodes.length * (nodeWidth + horizontalGap);
 
   return (
-    <svg className="absolute top-0 left-0 w-full h-full" style={{ pointerEvents: 'none' }}>
+    <svg className="absolute top-0 left-0" width={totalWidth} height="100%" style={{ pointerEvents: 'none' }}>
       {nodes.map((node, nodeIndex) => {
         if (nodeIndex === nodes.length - 1) return null;
         const startX = nodeIndex * (nodeWidth + horizontalGap) + nodeWidth + 2;
@@ -239,14 +240,13 @@ const SkipListVisualization = () => {
   return (
     <div className="p-4 flex flex-col lg:flex-row">
       <div className="lg:w-4/5 lg:pr-4 order-2 lg:order-1 lg:pr-10">
-        <h2 className="text-xl font-bold mb-4">{t('skip_list_visualization')}</h2>
         {operation && (
           <div className="mb-4">
             {t('operation_result', { operation, result })}
           </div>
         )}
         <div className="relative overflow-x-auto">
-          <div className="w-max">
+          <div className="w-max relative">
             <ConnectionLines nodes={nodes} />
             <div className="flex items-end space-x-4 pb-4">
               {nodes.map((node, index) => (
@@ -262,6 +262,7 @@ const SkipListVisualization = () => {
           </div>
         </div>
       </div>
+
       <div className="lg:w-1/5 mt-4 lg:mt-0 order-1 lg:order-2">
         <h3 className="font-bold mb-2">{t('settings')}</h3>
         <div className="flex flex-col space-y-2">

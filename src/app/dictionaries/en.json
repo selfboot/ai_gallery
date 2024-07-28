@@ -153,7 +153,6 @@
   "items": "items",
   "skiplist_title": "Skip List",
   "skiplist_description": "Skip list is a data structure that allows fast search within an ordered sequence of elements. This page shows the process of insert, delete and search for elements in the skip list.",
-  "skip_list_visualization": "Skip List Visualization",
   "settings": "Settings",
   "max_level": "Max Level: {{level}}",
   "probability": "Probability: 1/{{prob}}",
