@@ -111,7 +111,7 @@ const Projects = {
       title: "skiplist_title",
       description: "skiplist_description",
       image:
-        "https://slefboot-1251736664.file.myqcloud.com/20240726_ai_gallery_trie.webp",
+        "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_skiplist.webp",
       link: "/algorithms/skiplist/",
     },
     {
