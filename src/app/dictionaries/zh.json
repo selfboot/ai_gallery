@@ -179,6 +179,34 @@
   "settings_updated": "跳表设置已更新",
   "random_init_success": "已随机初始化10个节点",
   "operation_result": "操作: {{operation}}, 结果: {{result}}",
+  "subtitles_title": "图片拼接字幕",
+  "subtitles_description": "轻松为图片添加精美字幕！够快速创建专业级的字幕效果，支持自定义字体、颜色、大小和高度，还可添加渐变背景和特殊效果。无需下载软件，本地浏览器处理，图片不上传服务器，免费又安全。",
+  "preview": "预览",
+  "downloadImage": "下载图片",
+  "replaceImage": "替换图片",
+  "uploadToStart": "上传图片开始制作",
+  "uploadImage": "上传图片",
+  "subtitleContent": "字幕内容",
+  "subtitlePlaceholder": "字幕 {{number}}",
+  "addSubtitle": "新增字幕",
+  "subtitleSettings": "字幕设置",
+  "subtitleHeight": "字幕高度: {{percent}}%",
+  "pixelHeight": " ({{pixels}}像素)",
+  "fontSize": "字体大小: {{percent}}% 字幕高度",
+  "pixelFontSize": " ({{pixels}}像素)",
+  "fontColor": "字体颜色",
+  "fontType": "字体类型",
+  "microsoftYahei": "微软雅黑",
+  "simsun": "宋体",
+  "simhei": "黑体",
+  "kaiti": "楷体",
+  "fangsong": "仿宋",
+  "textShadow": "文字阴影",
+  "textStroke": "文字描边",
+  "backgroundColor": "背景颜色",
+  "backgroundOpacity": "背景透明度: {{opacity}}",
+  "useGradientBackground": "使用渐变背景",
+  "gradientEndColor": "渐变结束颜色",
 
   "seo": {
     "index": {
@@ -285,6 +313,11 @@
       "title": "跳表可视化",
       "description": "跳表是一种随机化的数据结构，用于在有序链表中快速查找元素。本页面展示了跳表的基本操作，包括插入、删除、搜索等。",
       "keywords": "跳表,数据结构,算法可视化,跳表操作,跳表可视化"
+    },
+    "subtitles": {
+      "title": "在线图片拼接字幕工具",
+      "description": "轻松为图片添加精美字幕！在线图片字幕工具能够快速创建专业级的字幕效果。自定义字体、颜色、大小和位置，还可添加渐变背景和特殊效果。无需下载软件，本地浏览器处理，图片不上传服务器，免费又安全。",
+      "keywords": "图片字幕工具, 在线字幕拼接, 图片字幕拼接"
     }
   }
 }

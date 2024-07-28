@@ -140,6 +140,14 @@ const Projects = {
         "https://slefboot-1251736664.file.myqcloud.com/20240708_ai_gallery_bar_chart_race.gif",
       link: "/others/bar_chart_race/",
     },
+    {
+      id: "subtitles",
+      title: "subtitles_title",
+      description: "subtitles_description",
+      image:
+        "https://slefboot-1251736664.file.myqcloud.com/20240708_ai_gallery_bar_chart_race.gif",
+      link: "/others/subtitles/",
+    },
   ],
 };
 

@@ -171,6 +171,35 @@
   "random_init_success": "10 random nodes initialized",
   "operation_result": "Operation: {{operation}}, Result: {{result}}",
 
+  "subtitles_title": "Image Subtitle Stitching",
+  "subtitles_description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
+  "preview": "Preview",
+  "downloadImage": "Download Image",
+  "replaceImage": "Replace Image",
+  "uploadToStart": "Upload an image to start",
+  "uploadImage": "Upload Image",
+  "subtitleContent": "Subtitle Content",
+  "subtitlePlaceholder": "Subtitle {{number}}",
+  "addSubtitle": "Add Subtitle",
+  "subtitleSettings": "Subtitle Settings",
+  "subtitleHeight": "Subtitle Height: {{percent}}%",
+  "pixelHeight": " ({{pixels}} pixels)",
+  "fontSize": "Font Size: {{percent}}% of subtitle height",
+  "pixelFontSize": " ({{pixels}} pixels)",
+  "fontColor": "Font Color",
+  "fontType": "Font Type",
+  "microsoftYahei": "Microsoft YaHei",
+  "simsun": "SimSun",
+  "simhei": "SimHei",
+  "kaiti": "KaiTi",
+  "fangsong": "FangSong",
+  "textShadow": "Text Shadow",
+  "textStroke": "Text Stroke",
+  "backgroundColor": "Background Color",
+  "backgroundOpacity": "Background Opacity: {{opacity}}",
+  "useGradientBackground": "Use Gradient Background",
+  "gradientEndColor": "Gradient End Color",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -276,6 +305,11 @@
       "title": "Skip List Visualization",
       "description": "Interactive visualization of skip list operations. Explore skip list data structure animations for insert, search and delete. Learn algorithmic concepts through step-by-step visual explanations.",
       "keywords": "skip list, data structure, algorithm visualization, interactive animation, computer science education, coding tutorial"
+    },
+    "subtitles": {
+      "title": "Image Subtitle Stitching Generator",
+      "description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
+      "keywords": "Image subtitle tool, Online subtitle maker, video subtitle stitching generator"
     }
   }
 }
