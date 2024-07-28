@@ -145,7 +145,7 @@ const Projects = {
       title: "subtitles_title",
       description: "subtitles_description",
       image:
-        "https://slefboot-1251736664.file.myqcloud.com/20240708_ai_gallery_bar_chart_race.gif",
+        "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_subtitles.webp",
       link: "/others/subtitles/",
     },
   ],

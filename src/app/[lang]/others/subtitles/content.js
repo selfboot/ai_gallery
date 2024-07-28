@@ -2,25 +2,28 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import debounce from 'lodash.debounce';
 import { useI18n } from "@/app/i18n/client";
+import usePersistentState from '@/app/components/PersistentState';
 
 const ImageSubtitleTool = () => {
-  const [uploadedImage, setUploadedImage] = useState(null);
-  const [subtitles, setSubtitles] = useState([]);
+  const [uploadedImage, setUploadedImage] = usePersistentState('imageSubtitleTool_image', null);
+  const [subtitles, setSubtitles] = usePersistentState('imageSubtitleTool_subtitles', []);
+  const [subtitleHeightPercent, setSubtitleHeightPercent] = usePersistentState('imageSubtitleTool_subtitleHeight', 10);
+  const [fontSizePercent, setFontSizePercent] = usePersistentState('imageSubtitleTool_fontSize', 50);
+
+  const [fontColor, setFontColor] = usePersistentState('imageSubtitleTool_fontColor', '#FFFFFF');
+  const [fontFamily, setFontFamily] = usePersistentState('imageSubtitleTool_fontFamily', '"Microsoft YaHei", "微软雅黑", sans-serif');
+  const [textShadow, setTextShadow] = usePersistentState('imageSubtitleTool_textShadow', false);
+  const [textStroke, setTextStroke] = usePersistentState('imageSubtitleTool_textStroke', false);
+  const [backgroundColor, setBackgroundColor] = usePersistentState('imageSubtitleTool_bgColor', '#000000');
+  const [backgroundOpacity, setBackgroundOpacity] = usePersistentState('imageSubtitleTool_bgOpacity', 0.5);
+  const [useGradient, setUseGradient] = usePersistentState('imageSubtitleTool_useGradient', false);
+  const [gradientColor, setGradientColor] = usePersistentState('imageSubtitleTool_gradientColor', '#000000');
+  
   const [outputImage, setOutputImage] = useState(null);
-  const [subtitleHeightPercent, setSubtitleHeightPercent] = useState(10);
-  const [fontSizePercent, setFontSizePercent] = useState(50);
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
-  const [fontColor, setFontColor] = useState('#FFFFFF');
-  const [fontFamily, setFontFamily] = useState('Arial');
-  const [textShadow, setTextShadow] = useState(false);
-  const [textStroke, setTextStroke] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState('#000000');
-  const [backgroundOpacity, setBackgroundOpacity] = useState(0.5);
-  const [useGradient, setUseGradient] = useState(false);
-  const [gradientColor, setGradientColor] = useState('#000000');
   const { t } = useI18n();
 
   const handleImageUpload = (e) => {
