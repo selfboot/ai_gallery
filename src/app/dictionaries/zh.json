@@ -160,6 +160,26 @@
   "keyNotFoundForDelete": "未找到要删除的键：{{key}}",
   "bucket": "桶",
   "items": "项",
+  "skiplist_title": "跳表",
+  "skiplist_description": "跳表是一种随机化的数据结构，用于在有序链表中快速查找元素。本页面展示了跳表的基本操作，包括插入、删除、搜索等。",
+  "skip_list_visualization": "跳表可视化",
+  "settings": "设置",
+  "max_level": "最高层: {{level}}",
+  "probability": "概率: 1/{{prob}}",
+  "random_init": "随机初始化",
+  "enter_number": "输入数字",
+  "invalid_input": "请输入有效的数字",
+  "insert_operation": "插入 {{value}}",
+  "insert_success": "插入成功",
+  "insert_fail": "插入失败，值已存在",
+  "search_operation": "查找 {{value}}",
+  "search_found": "找到",
+  "search_not_found": "未找到",
+  "delete_operation": "删除 {{value}}",
+  "operation_success": "操作成功",
+  "settings_updated": "跳表设置已更新",
+  "random_init_success": "已随机初始化10个节点",
+  "operation_result": "操作: {{operation}}, 结果: {{result}}",
 
   "seo": {
     "index": {
@@ -261,6 +281,11 @@
       "title": "在线生成条形图竞赛",
       "description": "条形图竞赛是一种展示数据随时间变化的动态条形图。本页面允许你自定义数据和时间,生成动态条形图,并支持大量自定义设置。",
       "keywords": "条形图竞赛,数据可视化,数据可视化工具,CSV 转条形图竞赛,Excel 转条形图竞赛"
+    },
+    "skiplist": {
+      "title": "跳表可视化",
+      "description": "跳表是一种随机化的数据结构，用于在有序链表中快速查找元素。本页面展示了跳表的基本操作，包括插入、删除、搜索等。",
+      "keywords": "跳表,数据结构,算法可视化,跳表操作,跳表可视化"
     }
   }
 }

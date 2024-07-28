@@ -107,6 +107,14 @@ const Projects = {
       link: "/algorithms/trie/",
     },
     {
+      id: "skiplist",
+      title: "skiplist_title",
+      description: "skiplist_description",
+      image:
+        "https://slefboot-1251736664.file.myqcloud.com/20240726_ai_gallery_trie.webp",
+      link: "/algorithms/skiplist/",
+    },
+    {
       id: "ratelimit",
       title: "ratelimit_title",
       description: "ratelimit_description",

@@ -151,6 +151,27 @@
   "keyNotFoundForDelete": "Key not found: {{key}}",
   "bucket": "Bucket",
   "items": "items",
+  "skiplist_title": "Skip List",
+  "skiplist_description": "Skip list is a data structure that allows fast search within an ordered sequence of elements. This page shows the process of insert, delete and search for elements in the skip list.",
+  "skip_list_visualization": "Skip List Visualization",
+  "settings": "Settings",
+  "max_level": "Max Level: {{level}}",
+  "probability": "Probability: 1/{{prob}}",
+  "random_init": "Random Init",
+  "enter_number": "Enter a number",
+  "invalid_input": "Please enter a valid number",
+  "insert_operation": "Insert {{value}}",
+  "insert_success": "Insertion successful",
+  "insert_fail": "Insertion failed, value already exists",
+  "search_operation": "Search {{value}}",
+  "search_found": "Found",
+  "search_not_found": "Not found",
+  "delete_operation": "Delete {{value}}",
+  "operation_success": "Operation successful",
+  "settings_updated": "Skip list settings updated",
+  "random_init_success": "10 random nodes initialized",
+  "operation_result": "Operation: {{operation}}, Result: {{result}}",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -251,6 +272,11 @@
       "title": "BarChartRace Generate Online",
       "description": "BarChartRace is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
       "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace"
+    },
+    "skiplist": {
+      "title": "Skip List Visualization",
+      "description": "Interactive visualization of skip list operations. Explore skip list data structure animations for insert, search and delete. Learn algorithmic concepts through step-by-step visual explanations.",
+      "keywords": "skip list, data structure, algorithm visualization, interactive animation, computer science education, coding tutorial"
     }
   }
 }
