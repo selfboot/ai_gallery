@@ -10,8 +10,8 @@ export async function generateMetadata({ params: { lang } }) {
     description: dict.seo.skiplist.description,
     keywords: dict.seo.skiplist.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/skiplist/`,
-    publishedDate: "2024-07-28T06:00:00.000Z",
-    updatedDate: "2024-07-28T06:00:00.000Z",
+    publishedDate: "2024-07-28T07:30:00.000Z",
+    updatedDate: "2024-07-28T07:30:00.000Z",
   });
 }
 
