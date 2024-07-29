@@ -7,22 +7,22 @@ export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
 
   return PageMeta({
-    title: dict.seo.others.title,
-    description: dict.seo.others.description,
-    keywords: dict.seo.others.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/others/`,
+    title: dict.seo.tools.title,
+    description: dict.seo.tools.description,
+    keywords: dict.seo.tools.keywords,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/`,
     publishedDate: "2024-07-14T06:00:00.000Z",
     updatedDate: "2024-07-14T06:00:00.000Z",
   });
 }
 
-export default async function Others({ params: { lang } }) {
+export default async function Tools({ params: { lang } }) {
   const dict = await getDictionary(lang);
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4 px-6">{dict.others}</h2>
-      <ProjectGrid category="others" lang={lang} />
+      <h2 className="text-xl font-bold mb-4 px-6">{dict.tools}</h2>
+      <ProjectGrid category="tools" lang={lang} />
     </>
   );
 }

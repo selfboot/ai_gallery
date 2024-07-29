@@ -3,7 +3,7 @@
   "profile": "Profile",
   "games": "Games",
   "algorithms": "Algorithms",
-  "others": "Others",
+  "tools": "Tools",
   "try": "Try",
   "gomoku_title": "Gomoku",
   "gomoku_description": "Gomoku is a two-player pure strategy board game. This version supports the complete game rules.",
@@ -216,8 +216,8 @@
       "description": "Provides classic games such as Gomoku, Chinese Chess, Tetris, and more. Written in React, these games are open source and can be played online.",
       "keywords": "gomoku, chinese chess, tetris, snake, 2048, source code game, react games, gpt4 games, claude3.5 games"
     },
-    "others": {
-      "title": "Others",
+    "tools": {
+      "title": "Tools",
       "description": "This page provides various tools.",
       "keywords": "usefull web tools, online tools"
     },

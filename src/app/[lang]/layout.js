@@ -7,7 +7,7 @@ import { I18nProvider } from "@/app/i18n/client";
 import { headers } from 'next/headers';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { WebVitals } from '@/app/components/WebVitals';
-const CATEGORIES = ["games", "algorithms", "others"];
+const CATEGORIES = ["games", "algorithms", "tools"];
 
 export default async function Layout({ children, params: { lang } }) {
   const dict = await getDictionary(lang);

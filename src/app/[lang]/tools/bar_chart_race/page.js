@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.bar_chart_race.title,
     description: dict.seo.bar_chart_race.description,
     keywords: dict.seo.bar_chart_race.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/others/bar_chart_race/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/bar_chart_race/`,
     publishedDate: "2024-07-08T02:00:00.000Z",
     updatedDate: "2024-07-08T09:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function BarChartRacePage({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/others/bar_chart_race/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/tools/bar_chart_race/`} />
       <BarChartRace lang={lang} />
     </>
   );

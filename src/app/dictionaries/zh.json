@@ -3,7 +3,7 @@
   "profile": "小盛律师",
   "games": "游戏",
   "algorithms": "算法",
-  "others": "其他",
+  "tools": "工具",
   "try": "玩一玩",
   "gomoku_title": "五子棋",
   "gomoku_description": "五子棋是一种双人对弈的纯策略型棋类游戏，这里支持完整的游戏规则。",
@@ -224,7 +224,7 @@
       "description": "通过 Claude3.5 和 GPT4 生成各种经典游戏，如五子棋、中国象棋、俄罗斯方块等。这些游戏使用 React 编写，开源且可在线游玩。",
       "keywords": "五子棋,中国象棋,俄罗斯方块,贪吃蛇,2048,源代码游戏,React 游戏,GPT-4 游戏,Claude 3.5 游戏"
     },
-    "others": {
+    "tools": {
       "title": "其他",
       "description": "通过 Claude3.5 和 GPT4 生成各种有用的工具。比如竞速图生成等",
       "keywords": "竞速图生成"
