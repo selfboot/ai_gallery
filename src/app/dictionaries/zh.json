@@ -208,6 +208,20 @@
   "useGradientBackground": "使用渐变背景",
   "gradientEndColor": "渐变结束颜色",
 
+  "dpcoin_title": "动态规划之硬币找零",
+  "dpcoin_description": "动态规划硬币找零算法可视化，设置目标金额和可用的硬币面额，点击逐步计算按钮，观察如何一步步找到最优解。输出的状态转移过程列展示了算法如何从较小的问题构建出较大问题的解。",
+  "targetAmount": "目标金额",
+  "addCoinDenomination": "添加硬币面额",
+  "currentCoinDenominations": "当前硬币面额",
+  "stepByStep": "逐步计算",
+  "quickComplete": "快速完成",
+  "calculationResults": "结果 (当前金币: {{coins}})",
+  "amount": "金额",
+  "minCoins": "最少硬币数",
+  "optimalCombination": "最优组合",
+  "stateTransitionProcess": "状态转移过程",
+  "removeCoin": "移除硬币",
+
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -318,6 +332,11 @@
       "title": "在线图片拼接字幕工具",
       "description": "轻松为图片拼接多条精美字幕！自定义字体、颜色、大小和位置，还可添加渐变背景和特殊效果。无需下载软件，本地浏览器处理，图片不上传服务器，免费又安全。",
       "keywords": "图片字幕工具, 在线字幕拼接, 图片字幕拼接"
+    },
+    "dpcoin":{
+      "title": "动态规划硬币方案可视化",
+      "description": "探索动态规划算法的硬币找零问题。这个交互式可视化工具帮助你理解最优子结构和重叠子问题，是学习算法和计算机科学的理想资源。",
+      "keywords": "动态规划,硬币找零,算法可视化,最优化问题,算法学习"
     }
   }
 }

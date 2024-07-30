@@ -200,6 +200,20 @@
   "useGradientBackground": "Use Gradient Background",
   "gradientEndColor": "Gradient End Color",
 
+  "dpcoin_title": "Dynamic Programming (Coin Change)",
+  "dpcoin_description": "Visualization of the dynamic programming coin change algorithm. Set the target amount and the available coin denominations, click the step-by-step calculation button, and observe how the optimal solution is found step by step. The state transition process column of the output shows how the algorithm builds the solution of the larger problem from smaller problems.",
+  "targetAmount": "Target Amount",
+  "addCoinDenomination": "Add Coin Denomination",
+  "currentCoinDenominations": "Current Coin Denominations",
+  "stepByStep": "Step by Step",
+  "quickComplete": "Quick Complete",
+  "calculationResults": "Results (Current Coins: {{coins}})",
+  "amount": "Amount",
+  "minCoins": "Min Coins",
+  "optimalCombination": "Optimal Combination",
+  "stateTransitionProcess": "State Transition Process",
+  "removeCoin": "Remove Coin",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -310,6 +324,11 @@
       "title": "Image Subtitle Stitching Generator",
       "description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
       "keywords": "Image subtitle tool, Online subtitle maker, video subtitle stitching generator"
+    },
+    "dpcoin": {
+      "title": "Dynamic Programming Coin Change Visualization",
+      "description": "Explore the coin change problem using dynamic programming. This interactive visualization tool helps you understand optimal substructure and overlapping subproblems, ideal for learning algorithms and computer science.",
+      "keywords": "dynamic programming,coin change,algorithm visualization,optimization problem,algorithm learning"
     }
   }
 }
