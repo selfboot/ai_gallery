@@ -214,6 +214,33 @@
   "stateTransitionProcess": "State Transition Process",
   "removeCoin": "Remove Coin",
 
+  "hashring_title": "Consistent Hash Ring",
+  "hashring_description": "The hash ring visualization of consistent hashing allows you to clearly and intuitively understand the key value allocation of consistent hashing, and add key value migration for deleting nodes. It also supports setting up virtual nodes (shadow nodes) to understand the effect of distribution balance optimization.",
+  "position": "Position",
+  "keysOnNode": "Keys on this node: {{count}}",
+  "virtualNodes": "Virtual Nodes: {{count}}",
+  "first10Keys": "First 10 keys",
+  "removeNode": "Remove Node",
+  "hash": "Hash",
+  "assignedTo": "Assigned to",
+  "migratingTo": "Migrating to",
+  "node": "Node",
+  "totalKeys": "Total Keys",
+  "sampleKeys": "Sample Keys",
+  "actions": "Actions",
+  "remove": "Remove",
+  "numberOfNodes": "Number of Nodes",
+  "virtualNodesPerNode": "Virtual Nodes per Node (0 for none)",
+  "totalKeys_count": "Total Keys: {{count}}",
+  "samplingRate": "Sampling Rate: {{rate}}",
+  "initializeRing": "Initialize Ring",
+  "addNode": "Add Node",
+  "add100Keys": "Add 100 Keys",
+  "add1000Keys": "Add 1000 Keys",
+  "nodeAdded": "Added {{nodeName}}. {{migratedCount}} keys migrated.",
+  "cannotRemoveLastNode": "Cannot remove the last remaining node.",
+  "nodeRemoved": "Removed {{nodeName}}. {{migratedCount}} keys migrated.",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -329,6 +356,11 @@
       "title": "Dynamic Programming Coin Change Visualization",
       "description": "Explore the coin change problem using dynamic programming. This interactive visualization tool helps you understand optimal substructure and overlapping subproblems, ideal for learning algorithms and computer science.",
       "keywords": "dynamic programming,coin change,algorithm visualization,optimization problem,algorithm learning"
+    },
+    "hashring": {
+      "title": "Interactive Consistent HashRing Visualization",
+      "description": "Explore and understand consistent hashing with our interactive visualizer. Perfect for developers, students, and distributed systems enthusiasts. Simulate node addition, removal, and key distribution in real-time.",
+      "keywords": "consistent hashing, load balancing, algorithm visualization, hash rings, virtual nodes, hash visualization"
     }
   }
 }

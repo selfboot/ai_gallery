@@ -17,6 +17,7 @@
     "@next/third-parties": "^14.2.5",
     "@react-spring/web": "^9.7.4",
     "cookies-next": "^4.2.1",
+    "crypto": "^1.0.1",
     "echarts-for-react": "^3.0.2",
     "globby": "^14.0.2",
     "google": "link:@next/third-parties/google",

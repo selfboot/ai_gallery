@@ -222,6 +222,34 @@
   "stateTransitionProcess": "状态转移过程",
   "removeCoin": "移除硬币",
 
+  "hashring_title": "一致性哈希之哈希环",
+  "hashring_description": "一致性哈希之哈希环可视化，清晰直观理解一致性 hash 的键值分配，增加删除节点的键值迁移。还支持设置虚拟节点(影子节点)，理解分布均衡优化的效果。",
+  "position": "位置",
+  "keysOnNode": "该节点上的键数量：{{count}}",
+  "virtualNodes": "虚拟节点数：{{count}}",
+  "first10Keys": "前10个键",
+  "removeNode": "移除节点",
+  "hash": "哈希值",
+  "assignedTo": "分配给",
+  "migratingTo": "正在迁移到",
+  "node": "节点",
+  "totalKeys": "总键数",
+  "sampleKeys": "样本键",
+  "actions": "操作",
+  "remove": "移除",
+  "numberOfNodes": "节点数量",
+  "virtualNodesPerNode": "每个节点的虚拟节点数（0表示无）",
+  "totalKeys_count": "总键数：{{count}}",
+  "samplingRate": "采样率：{{rate}}",
+  "initializeRing": "初始化环",
+  "resetAll": "重置所有",
+  "addNode": "添加节点",
+  "add100Keys": "添加100个键",
+  "add1000Keys": "添加1000个键",
+  "nodeAdded": "已添加 {{nodeName}}。{{migratedCount}} 个键已迁移。",
+  "cannotRemoveLastNode": "无法移除最后一个剩余的节点。",
+  "nodeRemoved": "已移除 {{nodeName}}。{{migratedCount}} 个键已迁移。",
+
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -337,6 +365,11 @@
       "title": "动态规划硬币方案可视化",
       "description": "探索动态规划算法的硬币找零问题。这个交互式可视化工具帮助你理解最优子结构和重叠子问题，是学习算法和计算机科学的理想资源。",
       "keywords": "动态规划,硬币找零,算法可视化,最优化问题,算法学习"
+    },
+    "hashring":{
+      "title": "一致性哈希: HashRing 可视化",
+      "description": "友好的一致性 hash 环可视化演示，支持 hash 的各种操作，交互式演示方便理解节点添加、移除和键分配迁移过程。",
+      "keywords": "算法可视化,一致性 hash,hash 环, 虚拟节点,hash可视化" 
     }
   }
 }

@@ -73,11 +73,11 @@ const Projects = {
       link: "/algorithms/dpcoin/",
     },
     {
-      id: "astar",
-      title: "astar_title",
-      description: "astar_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_astar_path.gif",
-      link: "/algorithms/astar/",
+      id: "hashring",
+      title: "hashring_title",
+      description: "hashring_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240801_ai_gallery_hashring.webp",
+      link: "/algorithms/hashring/",
     },
     {
       id: "dijkstra",
@@ -85,6 +85,13 @@ const Projects = {
       description: "dijkstra_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20240709_ai_gallery_dijkstra_v3.gif",
       link: "/algorithms/dijkstra/",
+    },
+    {
+      id: "astar",
+      title: "astar_title",
+      description: "astar_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_astar_path.gif",
+      link: "/algorithms/astar/",
     },
     {
       id: "bfs_path",
