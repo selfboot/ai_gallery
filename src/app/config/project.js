@@ -115,6 +115,13 @@ const Projects = {
       link: "/algorithms/skiplist/",
     },
     {
+      id: "bloomfilter",
+      title: "bloomfilter_title",
+      description: "bloomfilter_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240805_ai_gallery_bloomfilter.webp",
+      link: "/algorithms/bloomfilter/",
+    },
+    {
       id: "ratelimit",
       title: "ratelimit_title",
       description: "ratelimit_description",

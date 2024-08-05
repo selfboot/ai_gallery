@@ -250,6 +250,21 @@
   "cannotRemoveLastNode": "无法移除最后一个剩余的节点。",
   "nodeRemoved": "已移除 {{nodeName}}。{{migratedCount}} 个键已迁移。",
 
+  "bloomfilter_title": "布隆过滤器",
+  "bloomfilter_description": "布隆过滤器是一种空间高效的数据结构，用于快速检查一个元素是否在集合中。本页面可视化展示布隆过滤器的基本操作，包括插入、搜索等。",
+  "predictedKeyCount": "预测key的个数 (n)",
+  "hashFunctionCount": "哈希函数个数 (k)",
+  "enterKey": "输入键",
+  "check": "检查",
+  "add10RandomKeys": "添加10个随机键",
+  "add100RandomKeys": "添加100个随机键",
+  "bitArraySize": "位数组大小 (m): {{m}}",
+  "bitsPerKey": "每个key占用位数: {{k}}",
+  "currentKeyCount": "当前键数量: {{count}}",
+  "keysAtPosition": "位置 {{index}} 的键:",
+  "mayExist": "可能在集合中",
+  "definitelyNotExist": "一定不在集合中",
+
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -370,6 +385,11 @@
       "title": "一致性哈希: HashRing 可视化",
       "description": "友好的一致性 hash 环可视化演示，支持 hash 的各种操作，交互式演示方便理解节点添加、移除和键分配迁移过程。",
       "keywords": "算法可视化,一致性 hash,hash 环, 虚拟节点,hash可视化" 
+    },
+    "bloomfilter": {
+      "title": "布隆过滤器可视化",
+      "description": "动态友好的布隆过滤器演示页面，直观展示布隆过滤器的插入和搜索操作，帮助理解布隆过滤器的工作原理。以 LevelDB 的布隆过滤器为参考，增加了可视化，开放源码。",
+      "keywords": "布隆过滤器,算法可视化,布隆过滤器操作,布隆过滤器可视化"
     }
   }
 }
