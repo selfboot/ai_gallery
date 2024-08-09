@@ -15,7 +15,7 @@ export async function generateMetadata({ params: { lang } }) {
   });
 }
 
-export default function HeapPage({ params: { lang } }) {
+export default function JumpHashPage({ params: { lang } }) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/jumphash/`} />
