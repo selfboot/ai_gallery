@@ -256,6 +256,14 @@
   "mayExist": "may exist in the set",
   "definitelyNotExist": "definitely does not exist in the set",
 
+  "jumphash_title": "JumpHash",
+  "jumphash_description": "Jumphash is a consistent hashing algorithm that provides a balance between the number of keys assigned to each node and the number of nodes. This page allows you to visualize the process of adding keys to the jump hash and checking for key existence.",
+  "hashVisualization": "JumpHash Visualization",
+  "jumpHash": "JumpHash",
+  "murmurhash": "MurmurHash",
+  "numberOfBuckets": "Number of Buckets",
+  "add10Keys": "Add 10 Keys",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -381,6 +389,11 @@
       "title": "Bloom Filter Visualization",
       "description": "Explore the Bloom filter algorithm through interactive visualization. Learn how Bloom filters work and understand their applications in real-time. Source code is available.",
       "keywords": "Bloom filter, algorithm visualization, bloom filter operation, bloom filter visualization"
+    },
+    "jumphash": {
+      "title": "JumpHash Visualization",
+      "description": "Explore the JumpHash algorithm through interactive visualization. Learn how JumpHash works and understand its applications in real-time. Source code is available.",
+      "keywords": "JumpHash, algorithm visualization, Consistent hash, JumpHash visualization"
     }
   }
 }

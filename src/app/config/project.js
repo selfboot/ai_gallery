@@ -80,6 +80,13 @@ const Projects = {
       link: "/algorithms/hashring/",
     },
     {
+      id: "jumphash",
+      title: "jumphash_title",
+      description: "jumphash_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240809_ai_gallery_jumphash.webp",
+      link: "/algorithms/jumphash/",
+    },
+    {
       id: "dijkstra",
       title: "dijkstra_title",
       description: "dijkstra_description",
