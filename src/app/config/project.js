@@ -87,6 +87,13 @@ const Projects = {
       link: "/algorithms/jumphash/",
     },
     {
+      id: "hanoitower",
+      title: "hanoitower_title",
+      description: "hanoitower_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240812_ai_gallery_hanoitower.webp",
+      link: "/algorithms/hanoitower/",
+    },
+    {
       id: "dijkstra",
       title: "dijkstra_title",
       description: "dijkstra_description",

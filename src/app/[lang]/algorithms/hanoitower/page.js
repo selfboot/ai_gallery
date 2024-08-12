@@ -6,12 +6,12 @@ import PageHeader from "@/app/components/PageHeader";
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return PageMeta({
-    title: dict.seo.hashtable.title,
-    description: dict.seo.hashtable.description,
-    keywords: dict.seo.hashtable.keywords,
+    title: dict.seo.hanoitower.title,
+    description: dict.seo.hanoitower.description,
+    keywords: dict.seo.hanoitower.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/hanoitower/`,
-    publishedDate: "2024-07-27T05:30:00.000Z",
-    updatedDate: "2024-07-27T05:00:00.000Z",
+    publishedDate: "2024-08-12T04:00:00.000Z",
+    updatedDate: "2024-08-12T04:00:00.000Z",
   });
 }
 

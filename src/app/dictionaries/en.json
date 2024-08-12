@@ -264,6 +264,22 @@
   "numberOfBuckets": "Number of Buckets",
   "add10Keys": "Add 10 Keys",
 
+  "hanoitower_title": "Hanoi Tower",
+  "hanoitower_description": "Experience the classic Tower of Hanoi puzzle in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle.",
+  "numberOfDisks": "Number of Disks",
+  "speed": "Speed (ms)",
+  "mode": "Mode",
+  "manual": "Manual",
+  "auto": "Auto",
+  "continue": "Continue",
+  "getHint": "Get Hint",
+  "movesCount": "Total: {{total}} / Minimum: {{minimum}}",
+  "hintMessage": "Hint: Move from tower {{from}} to tower {{to}}",
+  "noHintAvailable": "No hint available. You may have completed the game!",
+  "moveSuccess": "Move successful!",
+  "moveFailure": "Move failed. Larger disk cannot be placed on smaller disk.",
+  "gameCompleted": "Congratulations! You have completed the Tower of Hanoi!",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -394,6 +410,11 @@
       "title": "JumpHash Visualization",
       "description": "Explore the JumpHash algorithm through interactive visualization. Learn how JumpHash works and understand its applications in real-time. Source code is available.",
       "keywords": "JumpHash, algorithm visualization, Consistent hash, JumpHash visualization"
+    },
+    "hanoitower": {
+      "title": "Hanoi Tower",
+      "description": "Experience the classic Tower of Hanoi puzzle in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle. ",
+      "keywords": "Tower of Hanoi, Hanoi Tower, Tower of Hanoi online, Tower of Hanoi puzzle"
     }
   }
 }

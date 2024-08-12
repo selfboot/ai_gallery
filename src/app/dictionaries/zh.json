@@ -273,6 +273,22 @@
   "numberOfBuckets": "桶的数量",
   "add10Keys": "添加10个键",
 
+  "hanoitower_title": "汉诺塔可视化",
+  "hanoitower_description": "可视化展示汉诺塔的解法。可以设置圆盘数量和移动速度，选择自动模式或者手动模式，获取提示，来理解如何通过递归算法解决汉诺塔问题。",
+  "numberOfDisks": "圆盘数量",
+  "speed": "速度（毫秒）",
+  "mode": "模式",
+  "manual": "手动",
+  "auto": "自动",
+  "continue": "继续",
+  "getHint": "获取提示",
+  "movesCount": "总步数：{{total}} / 最少步数：{{minimum}}",
+  "hintMessage": "提示：从塔 {{from}} 移动到塔 {{to}}",
+  "noHintAvailable": "没有可用的提示。您可能已经完成了游戏！",
+  "moveSuccess": "移动成功！",
+  "moveFailure": "移动失败。大圆盘不能放在小圆盘上。",
+  "gameCompleted": "恭喜！您已经完成了汉诺塔问题！",
+
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -401,8 +417,13 @@
     },
     "jumphash": {
       "title": "一致性哈希: JumpHash 可视化",
-      "description": "",
-      "keywords": ""
+      "description": "动态友好的一致性 jumphash 算法演示，支持增加 bucket，增加 key，然后观察 key 的迁移。还支持切换不同 hash，观察区别。",
+      "keywords": "一致性 hash, jumphash可视化, 负载均衡, hash 算法可视化"
+    },
+    "hanoitower": {
+      "title": "汉诺塔游戏",
+      "description": "经典的汉诺塔问题，从任意初始状态开始，用递归算法找到后续步骤。可以调整圆盘数量，选择手动或自动模式，获取提示，切换模式，源码开放。",
+      "keywords": "汉诺塔,汉诺塔解法,汉诺塔可视化,汉诺塔算法"
     }
   }
 }
