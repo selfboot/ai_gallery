@@ -24,8 +24,12 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="lg:hidden mb-8">
+        <TableOfContents content={post.contentHtml} />
+      </div>
+
       <div className="flex flex-col lg:flex-row lg:space-x-8">
-        <div className="lg:w-3/4 max-w-2xl mx-auto">
+        <div className="lg:w-3/5 max-w-3xl mx-auto">
           <article>
             <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
@@ -34,8 +38,8 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
             <GiscusComments lang={langMap[lang] || "en"} />
           </div>
         </div>
-        <aside className="lg:w-1/4 mt-8 lg:mt-0">
-          <div className="lg:sticky lg:top-8">
+        <aside className="hidden lg:block lg:w-1/5">
+          <div className="sticky top-8">
             <TableOfContents content={post.contentHtml} />
           </div>
         </aside>

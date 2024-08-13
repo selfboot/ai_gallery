@@ -6,6 +6,7 @@
   "tools": "Tools",
   "blog": "Blog",
   "try": "Try",
+  "tableofcontents": "Table of Contents",
   "gomoku_title": "Gomoku",
   "gomoku_description": "Gomoku is a two-player pure strategy board game. This version supports the complete game rules.",
   "black_turn": "Black's Turn",

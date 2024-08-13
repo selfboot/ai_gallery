@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useI18n } from "@/app/i18n/client";
 
 export function extractHeadings(content) {
   const parser = new DOMParser();
@@ -9,11 +10,16 @@ export function extractHeadings(content) {
   return headings.map((heading) => ({
     level: parseInt(heading.tagName.charAt(1)),
     text: heading.textContent,
-    slug: heading.id || heading.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
+    slug:
+      heading.id ||
+      heading.textContent
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]+/g, ""),
   }));
 }
 
-export default function TableOfContents({ content }) {
+export default function TableOfContents({ content, lang }) {
   const [headings, setHeadings] = useState([]);
   const [activeId, setActiveId] = useState("");
 
@@ -47,13 +53,14 @@ export default function TableOfContents({ content }) {
     e.preventDefault();
     const element = document.getElementById(slug);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
+  const { t } = useI18n();
   return (
     <nav className="toc">
-      <h2 className="text-lg font-semibold mb-4">目录</h2>
+      <h2 className="text-lg font-semibold mb-4">{t("tableofcontents")}</h2>
       <ul className="space-y-2">
         {headings.map(({ level, text, slug }) => (
           <li key={slug} className={`toc-item ${level === 1 ? "pl-0" : level === 2 ? "pl-2" : "pl-4"}`}>
