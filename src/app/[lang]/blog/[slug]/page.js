@@ -1,16 +1,14 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
-import { BlogPost } from "@/app/components/BlogPost";
 import { markdownToHtml } from "@/app/components/BlogMarkdown";
-// import { GiscusComments } from "@/app/components/GiscusComments";
+import TableOfContents from "@/app/components/TableOfContents";
 
 import dynamic from "next/dynamic";
 
 const GiscusComments = dynamic(() => import("@/app/components/GiscusComments"), {
   ssr: false,
 });
-
 
 const langMap = {
   zh: "zh-CN",
@@ -25,12 +23,24 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
   }
 
   return (
-    <article className="max-w-2xl mx-auto mt-8">
-      <BlogPost post={post} />
-      <div className="mt-8">
-        <GiscusComments lang={langMap[lang] || "en"} />
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex flex-col lg:flex-row lg:space-x-8">
+        <div className="lg:w-3/4 max-w-2xl mx-auto">
+          <article>
+            <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+            <div className="markdown-body" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+          </article>
+          <div className="mt-8">
+            <GiscusComments lang={langMap[lang] || "en"} />
+          </div>
+        </div>
+        <aside className="lg:w-1/4 mt-8 lg:mt-0">
+          <div className="lg:sticky lg:top-8">
+            <TableOfContents content={post.contentHtml} />
+          </div>
+        </aside>
       </div>
-    </article>
+    </div>
   );
 }
 
