@@ -5,20 +5,22 @@ import { BlogIndex } from "@/app/components/BlogIndex";
 
 async function getPostMetadata(lang) {
   const postsDirectory = path.join(process.cwd(), "src", "posts");
-  console.log("Getting post metadata from:", postsDirectory);
   const postSlugs = await fs.readdir(postsDirectory);
-  console.log("Post slugs found:", postSlugs);
 
   const postsMetadata = await Promise.all(
     postSlugs.map(async (slug) => {
       const fullPath = path.join(postsDirectory, slug, `${lang}.md`);
-      console.log("Reading metadata from:", fullPath);
       try {
         const fileContents = await fs.readFile(fullPath, "utf8");
-        const { data } = matter(fileContents);
-        return { ...data, slug };
+        const { data, content } = matter(fileContents);
+
+        // 从内容中提取第一张图片
+        const imageMatch = content.match(/!\[.*?\]\((.*?)\)/);
+        const coverImage = imageMatch ? imageMatch[1] : null;
+
+        return { ...data, slug, coverImage };
       } catch (error) {
-        console.error(`Error reading file ${fullPath}:`, error);
+        console.error(`读取文件 ${fullPath} 时出错:`, error);
         return null;
       }
     })

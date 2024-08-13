@@ -4,6 +4,7 @@
   "games": "Games",
   "algorithms": "Algorithms",
   "tools": "Tools",
+  "blog": "Blog",
   "try": "Try",
   "gomoku_title": "Gomoku",
   "gomoku_description": "Gomoku is a two-player pure strategy board game. This version supports the complete game rules.",

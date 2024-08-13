@@ -21,7 +21,7 @@ export default async function Algorithms({ params: { lang } }) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4 px-6">{dict.algorithms}</h2>
+      <h2 className="text-xl font-bold mb-4">{dict.algorithms}</h2>
       <ProjectGrid category="algorithms" lang={lang} />
     </div>
   );

@@ -1,21 +1,33 @@
-import React from "react";
+// src/app/components/BlogIndex.jsx
 import Link from "next/link";
+import Image from "next/image";
+import { getDictionary } from "@/app/dictionaries";
 
-export function BlogIndex({ posts, lang }) {
+export async function BlogIndex({ posts, lang }) {
+  const dict = await getDictionary(lang);
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <h1 className="text-3xl font-bold mb-8">Blog</h1>
-      <ul className="space-y-4">
+    <>
+      <h2 className="text-xl font-bold mb-4">{dict.blog}</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {posts.map((post) => (
-          <li key={post.slug} className="border-b pb-4">
-            <Link href={`/${lang}/blog/${post.slug}`} className="text-xl font-semibold hover:text-blue-600">
-              {post.title}
-            </Link>
-            <p className="text-gray-600 mt-1">{post.date}</p>
-            {post.excerpt && <p className="mt-2">{post.excerpt}</p>}
-          </li>
+          <Link href={`/${lang}/blog/${post.slug}`} key={post.slug} className="block">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="h-48 bg-gray-200 relative">
+                {post.coverImage ? (
+                  <Image src={post.coverImage} alt={post.title} layout="fill" objectFit="cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-500">无图片</div>
+                )}
+              </div>
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                <p className="text-gray-600 text-sm mb-2">{post.date}</p>
+                <p className="text-gray-700 line-clamp-3">{post.description}</p>
+              </div>
+            </div>
+          </Link>
         ))}
-      </ul>
-    </div>
+      </div>
+    </>
   );
 }

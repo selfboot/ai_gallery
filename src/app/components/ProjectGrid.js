@@ -32,9 +32,8 @@ const ProjectCard = async ({ title, description, image, link, lang }) => {
 
 const ProjectGrid = async ({ category, lang }) => {
   const projectList = Projects[category] || [];
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {projectList.map((project) => (
         <ProjectCard key={project.id} {...project} lang={lang} />
       ))}

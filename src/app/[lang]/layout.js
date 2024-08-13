@@ -4,10 +4,10 @@ import Navigation from "@/app/components/Navigation";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
-import { headers } from 'next/headers';
-import { GoogleAnalytics } from '@next/third-parties/google'
-import { WebVitals } from '@/app/components/WebVitals';
-const CATEGORIES = ["games", "algorithms", "tools"];
+import { headers } from "next/headers";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { WebVitals } from "@/app/components/WebVitals";
+const CATEGORIES = ["games", "algorithms", "tools", "blog"];
 
 export default async function Layout({ children, params: { lang } }) {
   const dict = await getDictionary(lang);
@@ -27,14 +27,14 @@ export default async function Layout({ children, params: { lang } }) {
       <body>
         <div className="flex flex-col min-h-screen">
           <nav className="bg-white shadow-md">
-            <div className="container mx-auto px-4 sm:px-6 py-3">
+            <div className="container mx-auto px-2 sm:px-4 py-3">
               <div className="flex flex-col sm:flex-row justify-between items-center">
-                <Navigation categories={CATEGORIES} lang={lang} pathname={pathname}/>
+                <Navigation categories={CATEGORIES} lang={lang} pathname={pathname} />
               </div>
             </div>
           </nav>
           <I18nProvider initialDictionary={dict}>
-            <main className="flex-grow container mx-auto mt-6">{children}</main>
+            <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4">{children}</main>
           </I18nProvider>
         </div>
       </body>

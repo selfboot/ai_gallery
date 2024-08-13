@@ -10,7 +10,7 @@ export default async function Navigation({ categories, lang, pathname }) {
 
   return (
     <>
-      <ul className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4 mb-2 sm:mb-0">
+      <ul className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4 mb-2 sm:mb-0 -ml-2 sm:-ml-4">
         {categories.map((category) => (
           <li key={category}>
             <ClientActiveLink
@@ -19,9 +19,7 @@ export default async function Navigation({ categories, lang, pathname }) {
               inactiveClassName="px-2 sm:px-4 py-1 sm:py-2 rounded text-gray-600 hover:bg-gray-200"
               category={category}
             >
-              <span className="px-2 sm:px-4 py-1 sm:py-2 rounded">
-                {dict[category]}
-              </span>
+              <span>{dict[category]}</span>
             </ClientActiveLink>
           </li>
         ))}

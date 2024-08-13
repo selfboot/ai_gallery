@@ -4,6 +4,7 @@
   "games": "游戏",
   "algorithms": "算法",
   "tools": "工具",
+  "blog": "博客",
   "try": "玩一玩",
   "gomoku_title": "五子棋",
   "gomoku_description": "五子棋是一种双人对弈的纯策略型棋类游戏，这里支持完整的游戏规则。",

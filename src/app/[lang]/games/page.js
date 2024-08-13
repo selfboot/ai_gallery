@@ -21,7 +21,7 @@ export default async function Games({ params: { lang } }) {
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4 px-6">{dict.games}</h2>
+      <h2 className="text-xl font-bold mb-4">{dict.games}</h2>
       <ProjectGrid category="games" lang={lang} />
     </>
   );
