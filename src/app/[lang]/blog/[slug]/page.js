@@ -3,6 +3,19 @@ import path from "path";
 import matter from "gray-matter";
 import { BlogPost } from "@/app/components/BlogPost";
 import { markdownToHtml } from "@/app/components/BlogMarkdown";
+// import { GiscusComments } from "@/app/components/GiscusComments";
+
+import dynamic from "next/dynamic";
+
+const GiscusComments = dynamic(() => import("@/app/components/GiscusComments"), {
+  ssr: false,
+});
+
+
+const langMap = {
+  zh: "zh-CN",
+  en: "en",
+};
 
 export default async function BlogPostPage({ params: { lang, slug } }) {
   const post = await getPostContent(slug, lang);
@@ -11,7 +24,14 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
     return <div>Post not found</div>;
   }
 
-  return <BlogPost post={post} />;
+  return (
+    <article className="max-w-2xl mx-auto mt-8">
+      <BlogPost post={post} />
+      <div className="mt-8">
+        <GiscusComments lang={langMap[lang] || "en"} />
+      </div>
+    </article>
+  );
 }
 
 export async function generateStaticParams() {
