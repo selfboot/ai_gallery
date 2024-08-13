@@ -1,7 +1,7 @@
-import Link from "next/link";
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
+import { BlogIndex } from "@/app/components/BlogIndex";
 
 async function getPostMetadata(lang) {
   const postsDirectory = path.join(process.cwd(), "src", "posts");
@@ -27,22 +27,7 @@ async function getPostMetadata(lang) {
   return postsMetadata.filter(Boolean).sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
-export default async function BlogIndex({ params: { lang } }) {
-  console.log(`Rendering blog index: lang=${lang}`);
+export default async function BlogIndexPage({ params: { lang } }) {
   const posts = await getPostMetadata(lang);
-  console.log("Posts found:", posts.length);
-
-  return (
-    <div>
-      <h1>Blog</h1>
-      <ul>
-        {posts.map((post) => (
-          <li key={post.slug}>
-            <Link href={`/${lang}/blog/${post.slug}`}>{post.title}</Link>
-            <p>{post.date}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  return <BlogIndex posts={posts} lang={lang} />;
 }

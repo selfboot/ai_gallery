@@ -25,7 +25,7 @@ export default async function Layout({ children, params: { lang } }) {
         />
       </head>
       <body>
-        <div className="flex flex-col min-h-screen bg-gray-100">
+        <div className="flex flex-col min-h-screen">
           <nav className="bg-white shadow-md">
             <div className="container mx-auto px-4 sm:px-6 py-3">
               <div className="flex flex-col sm:flex-row justify-between items-center">
