@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import RSS from "rss";
+import matter from "gray-matter";
 
 const DOMAIN = "https://gallery.selfboot.cn";
 const LANGUAGES = ["en", "zh"];
@@ -29,6 +30,7 @@ async function generateSitemapAndRss() {
     const pages = await globby([
       `src/app/[lang]/**/page.js`,
       `!src/app/[lang]/api`,
+      `!src/app/[lang]/blog/[slug]`,
     ]);
 
     console.log(`Found pages for ${lang}:`, pages);
@@ -106,6 +108,34 @@ async function generateSitemapAndRss() {
       } catch (error) {
         console.error(`Error processing page ${page}:`, error);
       }
+    }
+
+    const blogPosts = await globby([`src/posts/*/${lang}.md`]);
+
+    for (const post of blogPosts) {
+      const content = fs.readFileSync(post, "utf8");
+      const { data, content: postContent } = matter(content);
+      
+      const slug = path.basename(path.dirname(post));
+      const url = `${DOMAIN}/${lang}/blog/${slug}`;
+
+      // 添加到 sitemap
+      sitemapItems.push(`
+  <url>
+    <loc>${url}</loc>
+    <lastmod>${data.date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`);
+
+      // 添加到 RSS
+      rssItems.push({
+        title: data.title,
+        description: data.description || "",
+        url: url,
+        date: data.date,
+        content: postContent
+      });
     }
 
     console.log(`Sitemap items: ${sitemapItems.length}`);

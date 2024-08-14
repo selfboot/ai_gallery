@@ -124,8 +124,36 @@ ID 生成的规则通常如下：
 
 ![博客 SEO 分数评测](https://slefboot-1251736664.file.myqcloud.com/20240814_ai_gallery_blog_seo_score.png)
 
+为了提高 Google 的收录速度，还要接着完善下 sitemap。其实我的演示站点本来就支持 rss 和 sitemap，这里只需要新增对博客部分的支持。sitemap 和 rss 的生成部分在一起，全部在 rss 部分说吧。
+
 ## RSS 
 
+之前的演示部分，用 nextjs 的 approuter 实现，为了支持 rss 和 sitemap，用了一些硬编码不够优雅的做法。在每个演示页面的 page.js 中定义了 meta 信息，然后用 js 脚本正则匹配解析生成 rss 和 sitemap。
+
+```js
+try {
+    const content = fs.readFileSync(page, "utf8");
+    const titleMatch = content.match(/title:\s*([^,\n]+)/);
+    const descriptionMatch = content.match(/description:\s*([^,\n]+)/);
+    const canonicalUrlMatch = content.match(/canonicalUrl:\s*(`[^`]+`)/);
+    const publishedDateMatch = content.match(/publishedDate:\s*"([^"]+)"/);
+    const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
+```
+
+这里暂时没想到更好的方法来处理，也就先这样了。不过到 blog 这里，就可以用更优雅的方式来实现了。因为我们是直接在 markdown 文件的 frontmatter 中定义 meta 信息，所以可以在 blog 页面中引入这个信息。整体改动比较小，直接在 `scripts/generate-sitemap-rss.mjs` 中增加 blog 部分的处理即可。
+
+```js
+const blogPosts = await globby([`src/posts/*/${lang}.md`]);
+
+for (const post of blogPosts) {
+    const content = fs.readFileSync(post, "utf8");
+    const { data, content: postContent } = matter(content);
+    
+    const slug = path.basename(path.dirname(post));
+    const url = `${DOMAIN}/${lang}/blog/${slug}`;
+```
+
+这样生成的 [sitemap]([https://gal](https://gallery.selfboot.cn/sitemap.xml)) 和 [rss](https://gallery.selfboot.cn/rss.xml) 就会包含 blog 部分的内容了。这里 rss 有两个版本，默认的 rss.xml 是中文版本，可以用 [rss-en.xml](https://gallery.selfboot.cn/rss-en.xml) 来访问英文版本。
 
 ## 笨笨的 Claude
 
@@ -180,4 +208,3 @@ ID 生成的规则通常如下：
 > @import 'github-markdown-css/github-markdown-light.css';
 
 终于可以啦～ 嗯，没有基础前端知识，被这个小 Claude 坑的有点惨。
-
