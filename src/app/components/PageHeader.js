@@ -37,7 +37,7 @@ async function PageHeader({ lang, pathname }) {
   const backLink = getBackLink();
 
   return (
-    <div className="flex items-center p-4">
+    <div className="flex items-center p-4 pl-0">
       <h1 className="text-xl">{title}</h1>
       {codeLink && (
         <Link
