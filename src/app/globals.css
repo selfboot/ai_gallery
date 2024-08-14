@@ -3,3 +3,34 @@
 @tailwind utilities;
 @import 'github-markdown-css/github-markdown-light.css';
 @import 'highlight.js/styles/github.css';
+
+@layer base {
+    :where(.markdown-body) {
+
+        /* 重置 Tailwind Preflight 样式 */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-size: revert;
+            font-weight: revert;
+            margin: revert;
+        }
+
+        ol,
+        ul {
+            list-style: revert;
+            margin: revert;
+            padding: revert;
+        }
+
+        a {
+            color: revert;
+            text-decoration: revert;
+        }
+
+        /* 添加其他需要重置的元素样式 */
+    }
+}
