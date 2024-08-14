@@ -4,7 +4,6 @@ import matter from "gray-matter";
 import { markdownToHtml } from "@/app/components/BlogMarkdown";
 import TableOfContents from "@/app/components/TableOfContents";
 import dynamic from "next/dynamic";
-import { Metadata } from 'next';
 
 const GiscusComments = dynamic(() => import("@/app/components/GiscusComments"), {
   ssr: false,
@@ -27,9 +26,8 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
       <div className="lg:hidden mb-8">
         <TableOfContents content={post.contentHtml} />
       </div>
-
       <div className="flex flex-col lg:flex-row lg:space-x-8">
-        <div className="lg:w-3/5 max-w-3xl mx-auto">
+        <div className="w-full lg:w-3/5 max-w-full lg:max-w-3xl mx-auto">
           <article>
             <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />

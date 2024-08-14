@@ -30,22 +30,17 @@ export function middleware(request) {
   // 处理根路径
   if (pathname === "/") {
     const preferredLocale = getPreferredLocale(request);
-    response = NextResponse.redirect(
-      new URL(`/${preferredLocale}/algorithms`, request.url)
-    );
+    response = NextResponse.redirect(new URL(`/${preferredLocale}/algorithms`, request.url));
   } else if (pathname.endsWith(".xml")) {
     response = NextResponse.next();
   } else {
     // 处理缺少语言前缀的路径
     const pathnameIsMissingLocale = LOCALES.every(
-      (locale) =>
-        !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+      (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
     );
     if (pathnameIsMissingLocale) {
       const preferredLocale = getPreferredLocale(request);
-      response = NextResponse.redirect(
-        new URL(`/${preferredLocale}${pathname}/`, request.url)
-      );
+      response = NextResponse.redirect(new URL(`/${preferredLocale}${pathname}/`, request.url));
     } else {
       response = NextResponse.next();
     }
@@ -59,6 +54,7 @@ export function middleware(request) {
     response.headers.set("x-pathname", pathname);
   }
 
+  response.headers.set("X-Robots-Tag", "index,follow");
   return response;
 }
 
