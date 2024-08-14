@@ -1,7 +1,9 @@
 ---
-title: Markdown Demo Post 
+title: Markdown Style Demo
 date: '2024-08-13'
 tags: ['demo']
+keywords: ['custom blog', 'markdown style example']
+description: This blog supports markdown style, here is the supported style display. You can use markdown syntax such as title, emphasis, list, link, image, quote, code, table, horizontal rule, etc.
 ---
 
 This is a demo post written in markdown. You can use markdown syntax to write and format your posts.

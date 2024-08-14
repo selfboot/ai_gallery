@@ -1,7 +1,9 @@
 ---
-title: Markdown 演示文章
-date: '2024-08-13'
-tags: ['demo']
+title: Markdown 样式示例
+date: '2024-08-12'
+tags: ['示例']
+keywords: ['自定义博客', '样式示例']
+description: 本站博客支持 markdown 样式，这里是支持的样式展示。可以使用标题，强调，列表，链接，图片，引用，代码，表格，水平线等 markdown 语法。
 ---
 
 这是一篇用 Markdown 编写的演示文章。你可以使用 Markdown 语法来编写和格式化你的文章。

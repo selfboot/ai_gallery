@@ -2,10 +2,13 @@
 title: 支持博客功能
 date: '2024-08-13'
 tags: ['claude']
-description: 为站点引入博客功能
+keywords: ['Claude3.5 辅助前端', '自定义博客', '完整博客功能']
+description: 为站点引入博客功能。站点本身基于 nextjs 实现，本来想用 nextra 作为文档博客主题，但是不支持 nextjs 的 approuter。于是在 Claude 帮忙下，最终实现了一个简单的 markdown 博客系统，支持 Github 主题，多语言切换、支持评论和目录，支持 RSS 以及 SEO 友好。在 Claude 的帮助下，随时可以添加想要的功能，完全自主。
 ---
 
 终于为站点引入了博客功能。可以在 `src/posts` 目录下创建 Markdown 文章，同时支持多语言，支持评论和目录以及其他功能。也体验了一把前端造轮子的乐趣，虽然有些地方还不够完善，但是已经可以满足基本需求了。
+
+![站点引入博客功能](https://slefboot-1251736664.file.myqcloud.com/20240814_ai_gallery_blog_cover_2.webp)
 
 ## 用开源博客？
 
@@ -113,9 +116,16 @@ ID 生成的规则通常如下：
 
 引入后目录部分就可以正常跳转和滚动了。接着又手工调了一些比例问题和 css 细节问题，最终实现了目录功能。
 
+## SEO
+
+到现在为止整个页面能看了，不过为了让搜索引擎能更好的收录，还需要做一些 SEO 优化。目前主要是 meta 标签的设置，包括 title、description、keywords 等。这里比较简单，直接在每个文章的 frontmatter 中添加这些字段，然后在页面中引入即可。Claude 很快就给出了代码，稍微改下就可以了。
+
+其实日常写文章过程中，也会经常让 Claude 帮我写一下 description，免得自己写还需要耗时间。搞好后，用 lightouse 测试了下，SEO 分数还不错。
+
+![博客 SEO 分数评测](https://slefboot-1251736664.file.myqcloud.com/20240814_ai_gallery_blog_seo_score.png)
+
 ## RSS 
 
-## SEO
 
 ## 笨笨的 Claude
 
