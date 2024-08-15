@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.game2048.title,
     description: dict.seo.game2048.description,
     keywords: dict.seo.game2048.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/2048/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/2048`,
     publishedDate: "2024-07-15T02:00:00.000Z",
     updatedDate: "2024-07-15T09:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function Game2048Page({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/games/2048/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/games/2048`} />
       <Game2048 lang={lang} />
     </>
   );

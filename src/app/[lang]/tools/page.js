@@ -10,7 +10,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.tools.title,
     description: dict.seo.tools.description,
     keywords: dict.seo.tools.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools`,
     publishedDate: "2024-07-14T06:00:00.000Z",
     updatedDate: "2024-07-14T06:00:00.000Z",
   });

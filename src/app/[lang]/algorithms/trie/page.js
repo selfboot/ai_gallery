@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.trie.title,
     description: dict.seo.trie.description,
     keywords: dict.seo.trie.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/trie/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/trie`,
     publishedDate: "2024-07-22T02:00:00.000Z",
     updatedDate: "2024-07-22T02:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function TriePage({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/algorithms/trie/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/algorithms/trie`} />
       <TrieVisualization lang={lang} />
     </>
   );

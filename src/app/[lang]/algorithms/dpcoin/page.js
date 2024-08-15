@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.dpcoin.title,
     description: dict.seo.dpcoin.description,
     keywords: dict.seo.dpcoin.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/dpcoin/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/dpcoin`,
     publishedDate: "2024-07-30T12:40:00.000Z",
     updatedDate: "2024-07-30T12:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function DPCoinPage({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/algorithms/dpcoin/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/algorithms/dpcoin`} />
       <DPCoin lang={lang} />
     </>
   );

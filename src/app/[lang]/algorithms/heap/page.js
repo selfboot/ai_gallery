@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.heap.title,
     description: dict.seo.heap.description,
     keywords: dict.seo.heap.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/heap/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/heap`,
     publishedDate: "2024-07-04T02:00:00.000Z",
     updatedDate: "2024-07-04T02:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function HeapPage({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/algorithms/heap/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/algorithms/heap`} />
       <HeapVisualization lang={lang} />
     </>
   );

@@ -9,7 +9,7 @@ export async function generateMetadata({ params: { lang } }) {
     title: dict.seo.tetris.title,
     description: dict.seo.tetris.description,
     keywords: dict.seo.tetris.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/tetris/`,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/tetris`,
     publishedDate: "2024-07-01T02:00:00.000Z",
     updatedDate: "2024-07-01T09:00:00.000Z",
   });
@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { lang } }) {
 export default function TetrisPage({ params: { lang } }) {
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/games/tetris/`} />
+      <PageHeader lang={lang} pathname={`/${lang}/games/tetris`} />
       <TetrisGame lang={lang} />
     </>
   );
