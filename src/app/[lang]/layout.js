@@ -4,15 +4,19 @@ import Navigation from "@/app/components/Navigation";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
-import { headers } from "next/headers";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { WebVitals } from "@/app/components/WebVitals";
+
+const SUPPORTED_LANGUAGES = ['en', 'zh'];
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
 
-export default async function Layout({ children, params: { lang } }) {
+export function generateStaticParams() {
+  return SUPPORTED_LANGUAGES.map(lang => ({ lang }));
+}
+
+export default async function Layout({ children, params: { lang, slug = [] } }) {
   const dict = await getDictionary(lang);
-  const headersList = headers();
-  const pathname = headersList.get("x-pathname") || `/${lang}`;
+  const pathname = `/${lang}/${slug.join('/')}`;
 
   return (
     <html lang={lang}>

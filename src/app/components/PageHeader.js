@@ -17,7 +17,7 @@ async function PageHeader({ lang, pathname }) {
 
   const getCodeLink = () => {
     const pathSegments = pathname.split("/").filter(Boolean);
-    const languages = ['zh', 'en', 'es']; // 添加所有可能的语言代码
+    const languages = ['zh', 'en']; // 添加所有可能的语言代码
     
     const filePathSegments = pathSegments.filter(segment => !languages.includes(segment));
     
