@@ -50,6 +50,11 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
         data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
         strategy="afterInteractive"
       />
+      <Script
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
+        strategy="afterInteractive"
+      />
     </html>
   );
 }
