@@ -6,6 +6,7 @@ import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { WebVitals } from "@/app/components/WebVitals";
+import Script from 'next/script';
 
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
@@ -44,6 +45,11 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
       </body>
       <GoogleAnalytics gaId="G-Y4WD2DT404" />
       <WebVitals />
+      <Script
+        src="https://cloud.umami.is/script.js"
+        data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
+        strategy="afterInteractive"
+      />
     </html>
   );
 }
