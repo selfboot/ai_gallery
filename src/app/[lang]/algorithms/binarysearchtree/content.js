@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Combobox } from '@headlessui/react';
 
 class TreeNode {
@@ -131,14 +131,32 @@ const BinarySearchTreeVisualization = () => {
   const [tree, setTree] = useState(new BinarySearchTree());
   const [inputValue, setInputValue] = useState('');
   const [message, setMessage] = useState('');
+  const [nodeCount, setNodeCount] = useState(10);
+  const [initMethod, setInitMethod] = useState('random');
+  const svgRef = useRef(null);
 
   useEffect(() => {
-    // Initialize the tree with some data
-    const initialData = [50, 30, 70, 20, 40, 60, 80, 125, 145, 144, 156, 245];
+    initializeTree();
+  }, [nodeCount, initMethod]);
+
+  const initializeTree = () => {
     const newTree = new BinarySearchTree();
-    initialData.forEach(key => newTree.insert(key));
+    const keys = [];
+
+    if (initMethod === 'random') {
+      for (let i = 0; i < nodeCount; i++) {
+        keys.push(Math.floor(Math.random() * 1000));
+      }
+    } else {
+      for (let i = 0; i < nodeCount; i++) {
+        keys.push(i);
+      }
+    }
+
+    keys.forEach(key => newTree.insert(key));
     setTree(newTree);
-  }, []);
+    setMessage(`Initialized tree with ${nodeCount} nodes using ${initMethod} method`);
+  };
 
   const handleInsert = useCallback(() => {
     if (inputValue) {
@@ -223,42 +241,89 @@ const BinarySearchTreeVisualization = () => {
   const svgWidth = treeDimensions.maxX - treeDimensions.minX + 100;
   const svgHeight = treeDimensions.maxY + 100;
 
+  useEffect(() => {
+    if (svgRef.current) {
+      svgRef.current.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+    }
+  }, [svgWidth, svgHeight]);
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Binary Search Tree Visualization</h1>
-      <div className="flex mb-4">
-        <Combobox value={inputValue} onChange={setInputValue}>
-          <Combobox.Input
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(event) => setInputValue(event.target.value)}
-            placeholder="Enter a number"
-          />
-        </Combobox>
-        <button
-          onClick={handleInsert}
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Insert
-        </button>
-        <button
-          onClick={handleDelete}
-          className="ml-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-        >
-          Delete
-        </button>
-        <button
-          onClick={handleSearch}
-          className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          Search
-        </button>
+      <div className="flex flex-col lg:flex-row">
+        <div className="lg:w-3/4 mb-4 lg:mb-0 lg:pr-4">
+          <div className="border rounded overflow-auto" style={{ maxHeight: '80vh' }}>
+            <svg 
+              ref={svgRef}
+              width={svgWidth} 
+              height={svgHeight} 
+              className="min-w-full"
+            >
+              <g transform={`translate(${-treeDimensions.minX + 50}, 50)`}>
+                {renderTree(tree.root)}
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div className="lg:w-1/4">
+          <div className="mb-4">
+            <label className="block mb-2">Node Count (1-50):</label>
+            <input
+              type="number"
+              min="1"
+              max="50"
+              value={nodeCount}
+              onChange={(e) => setNodeCount(Math.min(50, Math.max(1, parseInt(e.target.value) || 1)))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2">Initialization Method:</label>
+            <select
+              value={initMethod}
+              onChange={(e) => setInitMethod(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="random">Random</option>
+              <option value="sequential">Sequential</option>
+            </select>
+          </div>
+          <button
+            onClick={initializeTree}
+            className="w-full mb-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Initialize Tree
+          </button>
+          <div className="mb-4">
+            <Combobox value={inputValue} onChange={setInputValue}>
+              <Combobox.Input
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(event) => setInputValue(event.target.value)}
+                placeholder="Enter a number"
+              />
+            </Combobox>
+          </div>
+          <button
+            onClick={handleInsert}
+            className="w-full mb-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Insert
+          </button>
+          <button
+            onClick={handleDelete}
+            className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+          <button
+            onClick={handleSearch}
+            className="w-full mb-4 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Search
+          </button>
+          <div className="mb-4">{message}</div>
+        </div>
       </div>
-      <div className="mb-4">{message}</div>
-      <svg width={svgWidth} height={svgHeight} className="border rounded">
-        <g transform={`translate(${-treeDimensions.minX + 50}, 50)`}>
-          {renderTree(tree.root)}
-        </g>
-      </svg>
     </div>
   );
 };
