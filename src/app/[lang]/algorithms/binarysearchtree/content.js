@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Combobox } from '@headlessui/react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Combobox } from "@headlessui/react";
 
 class TreeNode {
   constructor(key) {
@@ -16,23 +16,23 @@ class TreeNode {
 class BinarySearchTree {
   constructor() {
     this.root = null;
-    this.insertionPath = [];
+    this.operationPath = [];
   }
 
   insert(key) {
-    this.insertionPath = [];
+    this.operationPath = [];
     this.root = this._insertRec(this.root, key);
     this._updateLayout();
-    return this.insertionPath;
+    return { path: this.operationPath, newNode: this.operationPath[this.operationPath.length - 1] };
   }
 
   _insertRec(root, key, path = []) {
     if (root === null) {
       const newNode = new TreeNode(key);
-      this.insertionPath = [...path, newNode];
+      this.operationPath = [...path, newNode];
       return newNode;
     }
-    this.insertionPath.push(root);
+    this.operationPath.push(root);
     if (key < root.key) {
       root.left = this._insertRec(root.left, key, [...path, root]);
     } else if (key > root.key) {
@@ -42,12 +42,15 @@ class BinarySearchTree {
   }
 
   delete(key) {
+    this.operationPath = [];
     this.root = this._deleteRec(this.root, key);
     this._updateLayout();
+    return this.operationPath;
   }
 
   _deleteRec(root, key) {
     if (root === null) return root;
+    this.operationPath.push(root);
     if (key < root.key) {
       root.left = this._deleteRec(root.left, key);
     } else if (key > root.key) {
@@ -71,11 +74,17 @@ class BinarySearchTree {
   }
 
   search(key) {
-    return this._searchRec(this.root, key);
+    this.operationPath = [];
+    const result = this._searchRec(this.root, key);
+    return { path: this.operationPath, found: result !== null };
   }
 
   _searchRec(root, key) {
-    if (root === null || root.key === key) return root;
+    if (root === null || root.key === key) {
+      if (root) this.operationPath.push(root);
+      return root;
+    }
+    this.operationPath.push(root);
     if (root.key > key) return this._searchRec(root.left, key);
     return this._searchRec(root.right, key);
   }
@@ -114,26 +123,17 @@ class BinarySearchTree {
     const treeWidth = getNodeCount(this.root) * (nodeSize + horizontalSpacing);
     assignCoordinates(this.root, 0, 0, treeWidth);
   }
-
-  resetHighlights() {
-    const resetNode = (node) => {
-      if (node) {
-        node.highlighted = false;
-        resetNode(node.left);
-        resetNode(node.right);
-      }
-    };
-    resetNode(this.root);
-  }
 }
 
 const BinarySearchTreeVisualization = () => {
   const [tree, setTree] = useState(new BinarySearchTree());
-  const [inputValue, setInputValue] = useState('');
-  const [message, setMessage] = useState('');
+  const [inputValue, setInputValue] = useState("");
+  const [message, setMessage] = useState("");
   const [nodeCount, setNodeCount] = useState(10);
-  const [initMethod, setInitMethod] = useState('random');
+  const [initMethod, setInitMethod] = useState("random");
+  const [highlightedNodes, setHighlightedNodes] = useState([]);
   const svgRef = useRef(null);
+  const [specialNode, setSpecialNode] = useState(null);
 
   useEffect(() => {
     initializeTree();
@@ -143,7 +143,7 @@ const BinarySearchTreeVisualization = () => {
     const newTree = new BinarySearchTree();
     const keys = [];
 
-    if (initMethod === 'random') {
+    if (initMethod === "random") {
       for (let i = 0; i < nodeCount; i++) {
         keys.push(Math.floor(Math.random() * 1000));
       }
@@ -153,78 +153,143 @@ const BinarySearchTreeVisualization = () => {
       }
     }
 
-    keys.forEach(key => newTree.insert(key));
+    keys.forEach((key) => newTree.insert(key));
     setTree(newTree);
     setMessage(`Initialized tree with ${nodeCount} nodes using ${initMethod} method`);
   };
 
-  const handleInsert = useCallback(() => {
-    if (inputValue) {
+  const animateOperation = useCallback(
+    async (operation, key) => {
       const newTree = new BinarySearchTree();
       newTree.root = JSON.parse(JSON.stringify(tree.root));
-      newTree.insert(parseInt(inputValue));
+
+      let path;
+      let result;
+
+      if (operation === "insert") {
+        const insertResult = newTree.insert(parseInt(key));
+        path = insertResult.path;
+        result = insertResult.newNode;
+      } else if (operation === "delete") {
+        path = newTree.delete(parseInt(key));
+      } else {
+        // search
+        const searchResult = newTree.search(parseInt(key));
+        path = searchResult.path;
+        result = searchResult.found;
+      }
+
+      // 高亮路径
+      for (let i = 0; i < path.length; i++) {
+        setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      // 处理特殊节点（插入的新节点或搜索结果）
+      if (operation === "insert" || operation === "search") {
+        const lastNode = path[path.length - 1];
+        if (lastNode) {
+          let color;
+          if (operation === "insert") {
+            color = "yellow";
+          } else {
+            // search
+            color = result ? "green" : "red";
+          }
+          setSpecialNode({
+            key: lastNode.key,
+            color: color,
+          });
+          setHighlightedNodes(path.map((node) => node.key)); // 确保路径保持高亮
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      }
+
+      // 取消所有高亮
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setHighlightedNodes([]);
+      setSpecialNode(null);
+
       setTree(newTree);
+    },
+    [tree]
+  );
+
+  const handleInsert = useCallback(() => {
+    if (inputValue) {
+      animateOperation("insert", inputValue);
       setMessage(`Inserted ${inputValue}`);
-      setInputValue('');
+      setInputValue("");
     }
   }, [inputValue, tree]);
 
   const handleDelete = useCallback(() => {
     if (inputValue) {
-      const newTree = new BinarySearchTree();
-      newTree.root = JSON.parse(JSON.stringify(tree.root));
-      newTree.delete(parseInt(inputValue));
-      setTree(newTree);
+      animateOperation("delete", inputValue);
       setMessage(`Deleted ${inputValue}`);
-      setInputValue('');
+      setInputValue("");
     }
   }, [inputValue, tree]);
 
   const handleSearch = useCallback(() => {
     if (inputValue) {
-      const result = tree.search(parseInt(inputValue));
-      setMessage(result ? `Found ${inputValue}` : `${inputValue} not found`);
-      setInputValue('');
+      animateOperation("search", inputValue);
+      const searchResult = tree.search(parseInt(inputValue));
+      setMessage(searchResult.found ? `Found ${inputValue}` : `${inputValue} not found`);
+      setInputValue("");
     }
   }, [inputValue, tree]);
 
-  const renderTree = useCallback((node) => {
-    if (!node) return null;
-    const nodeSize = 40;
+  const renderTree = useCallback(
+    (node) => {
+      if (!node) return null;
+      const nodeSize = 40;
+      const isHighlighted = highlightedNodes.includes(node.key);
+      const isSpecial = specialNode && specialNode.key === node.key;
 
-    return (
-      <g key={node.key}>
-        <circle cx={node.x} cy={node.y} r={nodeSize / 2} fill="#4299e1" />
-        <text x={node.x} y={node.y} textAnchor="middle" dy=".3em" fill="white">
-          {node.key}
-        </text>
-        {node.left && (
-          <>
-            <line
-              x1={node.x}
-              y1={node.y + nodeSize / 2}
-              x2={node.left.x}
-              y2={node.left.y - nodeSize / 2}
-              stroke="#4299e1"
-            />
-            {renderTree(node.left)}
-          </>
-        )}
-        {node.right && (
-          <>
-            <line
-              x1={node.x}
-              y1={node.y + nodeSize / 2}
-              x2={node.right.x}
-              y2={node.right.y - nodeSize / 2}
-              stroke="#4299e1"
-            />
-            {renderTree(node.right)}
-          </>
-        )}
-      </g>
-    );
-  }, []);
+      let fillColor = "#4299e1"; // 默认蓝色
+      if (isSpecial) {
+        fillColor = specialNode.color;
+        console.log("Special Node", node.key, fillColor);
+      } else if (isHighlighted) {
+        fillColor = "#f6e05e"; // 高亮黄色
+      }
+
+      return (
+        <g key={node.key}>
+          <circle cx={node.x} cy={node.y} r={nodeSize / 2} fill={fillColor} />
+          <text x={node.x} y={node.y} textAnchor="middle" dy=".3em" fill="white">
+            {node.key}
+          </text>
+          {node.left && (
+            <>
+              <line
+                x1={node.x}
+                y1={node.y + nodeSize / 2}
+                x2={node.left.x}
+                y2={node.left.y - nodeSize / 2}
+                stroke="#4299e1"
+              />
+              {renderTree(node.left)}
+            </>
+          )}
+          {node.right && (
+            <>
+              <line
+                x1={node.x}
+                y1={node.y + nodeSize / 2}
+                x2={node.right.x}
+                y2={node.right.y - nodeSize / 2}
+                stroke="#4299e1"
+              />
+              {renderTree(node.right)}
+            </>
+          )}
+        </g>
+      );
+    },
+    [highlightedNodes, specialNode]
+  );
 
   const getTreeDimensions = useCallback((node) => {
     if (!node) return { minX: 0, maxX: 0, maxY: 0 };
@@ -233,7 +298,7 @@ const BinarySearchTreeVisualization = () => {
     return {
       minX: Math.min(node.x, leftDim.minX, rightDim.minX),
       maxX: Math.max(node.x, leftDim.maxX, rightDim.maxX),
-      maxY: Math.max(node.y, leftDim.maxY, rightDim.maxY)
+      maxY: Math.max(node.y, leftDim.maxY, rightDim.maxY),
     };
   }, []);
 
@@ -243,7 +308,7 @@ const BinarySearchTreeVisualization = () => {
 
   useEffect(() => {
     if (svgRef.current) {
-      svgRef.current.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+      svgRef.current.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
     }
   }, [svgWidth, svgHeight]);
 
@@ -252,16 +317,9 @@ const BinarySearchTreeVisualization = () => {
       <h1 className="text-2xl font-bold mb-4">Binary Search Tree Visualization</h1>
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-3/4 mb-4 lg:mb-0 lg:pr-4">
-          <div className="border rounded overflow-auto" style={{ maxHeight: '80vh' }}>
-            <svg 
-              ref={svgRef}
-              width={svgWidth} 
-              height={svgHeight} 
-              className="min-w-full"
-            >
-              <g transform={`translate(${-treeDimensions.minX + 50}, 50)`}>
-                {renderTree(tree.root)}
-              </g>
+          <div className="border rounded overflow-auto" style={{ maxHeight: "80vh" }}>
+            <svg ref={svgRef} width={svgWidth} height={svgHeight} className="min-w-full">
+              <g transform={`translate(${-treeDimensions.minX + 50}, 50)`}>{renderTree(tree.root)}</g>
             </svg>
           </div>
         </div>

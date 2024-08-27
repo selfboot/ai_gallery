@@ -45,14 +45,18 @@ Claude3.5 承认这个是一个严重的 bug，还真是敢于认错呢，哈哈
 
 Claude 照常拍马屁，然后就按照这个思路来实现，效果并不好，因为这里二叉搜索树每层可能比较稀疏，导致中间层节点之间的间隔太大。和最开始的版本有同样的问题，甚至更严重些，如下图：
 
-![二叉搜索树可视化布局优化](https://slefboot-1251736664.file.myqcloud.com/20240826_ai_gallery_bst_heap.png)
+![二叉搜索树可视化布局间距过大](https://slefboot-1251736664.file.myqcloud.com/20240826_ai_gallery_bst_heap.png)
 
-这里中间经过几轮尝试，最后思路慢慢清晰，我们想要树布局尽量紧凑，同时不能有节点的交叉和重叠，那么只需要满足：
+那么直接提示它，让它每层间距不要太大，布局紧凑些，然后同一层的节点不要有重叠就好。得到了下面的结果：
+
+![二叉搜索树可视化-错误的版本](https://slefboot-1251736664.file.myqcloud.com/20240827_ai_gallery_bst_error.png)
+
+这里是紧凑了，不过节点分布都有问题，左右子树节点位置都不对。中间经过几轮尝试，自己的思路也慢慢清晰，我们想要树布局尽量紧凑，同时不能有节点的交叉和重叠，那么只需要满足：
 
 1. 每个节点的所有子节点都必须在所有**左兄弟节点**的右侧。
 2. 每个节点的所有子节点都必须在所有**右兄弟节点**的左侧。
 
-也就是说在同一层中，所有小的节点肯定要在大的节点左边，不能有重叠交叉。**想好算法之后**，简单提示了下，Claude3.5 很快就给出了实现思路，整体改动如下：
+也就是说在同一层中，所有小的节点肯定要在大的节点左边，不能有重叠交叉。**想好算法之后**，把上面算法简单描述了下，Claude3.5 很快就给出了实现思路，整体改动如下：
 
 1. 新的布局算法：_updateLayout 方法现在使用一种新的算法来分配节点坐标。
 2. 节点计数：引入了 getNodeCount 函数来计算每个子树的节点数量，这有助于更准确地分配空间。
@@ -65,12 +69,34 @@ Claude 照常拍马屁，然后就按照这个思路来实现，效果并不好�
 
 ![二叉搜索树可视化布局优化](https://slefboot-1251736664.file.myqcloud.com/20240826_ai_gallery_bst_layout.png)
 
-## 优化布局
+## 优化界面
 
+二叉搜索树的布局问题解决了，接着优化下界面部分。目前比较简单，只能输入数字，然后插入，删除和查找节点。但是一个个节点插入的话也比较麻烦，可以支持一种更方便的初始化节点方法。考虑到二叉搜索树在顺序插入和随机插入下的性能差异，这里可以支持两种初始化方式。同时为了让整个页面布局和其他可视化工具保持基本一致，这里也调整了下设置部分的布局。
+
+由于之前的聊天上下文已经够长了，为了**避免更快消耗 Claude3.5 的额度**：
+
+> Your limit gets used up faster with longer conversations, notably with large attachments. For example, if you upload a copy of The Great Gatsby, you may only be able to send 15 messages in that conversation within 5 hours, as each time you send a message, Claude “re-reads” the entire conversation, including any large attachments.
+> Ref: https://support.anthropic.com/en/articles/8324991-about-claude-pro-usage
+
+接着在 Claude 新开了一个对话，直接把之前的完整代码复制过去，然后提示如下：
+
+> 这里是二叉搜索树的可视化实现。帮我优化下：
+> 1. 分两个区域。大屏幕下分左右，左边是展示区域，占3/4，右边是设置区域，占1/4，每个按钮一行。小屏幕下分上下，上面是设置，下面是展示；
+> 2. 支持设置初始的节点数量，最大可以50个。然后支持选择初始化方法，有随机初始化和顺序初始化。
+
+于是 Claude 重构了界面部分，增加了初始化按钮。不过开始的版本 SVG 树部分不支持滚动，节点可能会超出屏幕，又重新提示一遍，加上了滚动条。最后效果如下，这里是按照顺序初始化 15 个节点：
+
+![二叉搜索树可视化界面效果](https://slefboot-1251736664.file.myqcloud.com/20240827_ai_gallery_bst_improve.png)
 
 ## 添加动画
 
 
 
 ## 收尾工作
+
+### 国际化支持
+
+### 尝试优化
+
+### 测试
 
