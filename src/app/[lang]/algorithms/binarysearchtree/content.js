@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { Combobox } from "@headlessui/react";
+import { useI18n } from "@/app/i18n/client";
 
 class TreeNode {
   constructor(key) {
@@ -42,26 +43,65 @@ class BinarySearchTree {
   }
 
   delete(key) {
-    this.operationPath = [];
-    this.root = this._deleteRec(this.root, key);
-    this._updateLayout();
-    return this.operationPath;
-  }
+    let path = [];
+    let current = this.root;
+    let parent = null;
+    let deleted = false;
 
-  _deleteRec(root, key) {
-    if (root === null) return root;
-    this.operationPath.push(root);
-    if (key < root.key) {
-      root.left = this._deleteRec(root.left, key);
-    } else if (key > root.key) {
-      root.right = this._deleteRec(root.right, key);
-    } else {
-      if (root.left === null) return root.right;
-      else if (root.right === null) return root.left;
-      root.key = this._minValue(root.right);
-      root.right = this._deleteRec(root.right, root.key);
+    while (current !== null) {
+      path.push(current);
+      if (key === current.key) {
+        if (current.left === null && current.right === null) {
+          if (parent === null) {
+            this.root = null;
+          } else if (parent.left === current) {
+            parent.left = null;
+          } else {
+            parent.right = null;
+          }
+        } else if (current.left === null) {
+          if (parent === null) {
+            this.root = current.right;
+          } else if (parent.left === current) {
+            parent.left = current.right;
+          } else {
+            parent.right = current.right;
+          }
+        } else if (current.right === null) {
+          if (parent === null) {
+            this.root = current.left;
+          } else if (parent.left === current) {
+            parent.left = current.left;
+          } else {
+            parent.right = current.left;
+          }
+        } else {
+          let successor = current.right;
+          let successorParent = current;
+          while (successor.left !== null) {
+            successorParent = successor;
+            successor = successor.left;
+          }
+          current.key = successor.key;
+          if (successorParent.left === successor) {
+            successorParent.left = successor.right;
+          } else {
+            successorParent.right = successor.right;
+          }
+        }
+        deleted = true;
+        break;
+      } else if (key < current.key) {
+        parent = current;
+        current = current.left;
+      } else {
+        parent = current;
+        current = current.right;
+      }
     }
-    return root;
+
+    this._updateLayout();
+    return { path, deleted };
   }
 
   _minValue(root) {
@@ -126,6 +166,7 @@ class BinarySearchTree {
 }
 
 const BinarySearchTreeVisualization = () => {
+  const { t } = useI18n();
   const [tree, setTree] = useState(new BinarySearchTree());
   const [inputValue, setInputValue] = useState("");
   const [message, setMessage] = useState("");
@@ -135,11 +176,7 @@ const BinarySearchTreeVisualization = () => {
   const svgRef = useRef(null);
   const [specialNode, setSpecialNode] = useState(null);
 
-  useEffect(() => {
-    initializeTree();
-  }, [nodeCount, initMethod]);
-
-  const initializeTree = () => {
+  const initializeTree = useCallback(() => {
     const newTree = new BinarySearchTree();
     const keys = [];
 
@@ -155,8 +192,8 @@ const BinarySearchTreeVisualization = () => {
 
     keys.forEach((key) => newTree.insert(key));
     setTree(newTree);
-    setMessage(`Initialized tree with ${nodeCount} nodes using ${initMethod} method`);
-  };
+    setMessage(t('initializedTree', { count: nodeCount, method: t(initMethod) }));
+  }, [nodeCount, initMethod, t]);
 
   const animateOperation = useCallback(
     async (operation, key) => {
@@ -171,7 +208,9 @@ const BinarySearchTreeVisualization = () => {
         path = insertResult.path;
         result = insertResult.newNode;
       } else if (operation === "delete") {
-        path = newTree.delete(parseInt(key));
+        const deleteResult = newTree.delete(parseInt(key));
+        path = deleteResult.path;
+        result = deleteResult.deleted;
       } else {
         // search
         const searchResult = newTree.search(parseInt(key));
@@ -185,13 +224,15 @@ const BinarySearchTreeVisualization = () => {
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
-      // 处理特殊节点（插入的新节点或搜索结果）
-      if (operation === "insert" || operation === "search") {
+      // 处理特殊节点（插入的新节点、删除结果或搜索结果）
+      if (operation === "insert" || operation === "search" || operation === "delete") {
         const lastNode = path[path.length - 1];
         if (lastNode) {
           let color;
           if (operation === "insert") {
             color = "yellow";
+          } else if (operation === "delete") {
+            color = result ? "red" : "gray";
           } else {
             // search
             color = result ? "green" : "red";
@@ -211,6 +252,9 @@ const BinarySearchTreeVisualization = () => {
       setSpecialNode(null);
 
       setTree(newTree);
+
+      // 返回操作结果
+      return result;
     },
     [tree]
   );
@@ -218,27 +262,27 @@ const BinarySearchTreeVisualization = () => {
   const handleInsert = useCallback(() => {
     if (inputValue) {
       animateOperation("insert", inputValue);
-      setMessage(`Inserted ${inputValue}`);
+      setMessage(t('inserted', { value: inputValue }));
       setInputValue("");
     }
-  }, [inputValue, tree]);
+  }, [inputValue, tree, t]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     if (inputValue) {
-      animateOperation("delete", inputValue);
-      setMessage(`Deleted ${inputValue}`);
+      const deleted = await animateOperation("delete", inputValue);
+      setMessage(deleted ? t('deleted_value', { value: inputValue }) : t('notFound_value', { value: inputValue }));
       setInputValue("");
     }
-  }, [inputValue, tree]);
+  }, [inputValue, animateOperation, t]);
 
   const handleSearch = useCallback(() => {
     if (inputValue) {
       animateOperation("search", inputValue);
       const searchResult = tree.search(parseInt(inputValue));
-      setMessage(searchResult.found ? `Found ${inputValue}` : `${inputValue} not found`);
+      setMessage(searchResult.found ? t('found', { value: inputValue }) : t('notFound', { value: inputValue }));
       setInputValue("");
     }
-  }, [inputValue, tree]);
+  }, [inputValue, tree, t]);
 
   const renderTree = useCallback(
     (node) => {
@@ -247,13 +291,8 @@ const BinarySearchTreeVisualization = () => {
       const isHighlighted = highlightedNodes.includes(node.key);
       const isSpecial = specialNode && specialNode.key === node.key;
 
-      let fillColor = "#4299e1"; // 默认蓝色
-      if (isSpecial) {
-        fillColor = specialNode.color;
-        console.log("Special Node", node.key, fillColor);
-      } else if (isHighlighted) {
-        fillColor = "#f6e05e"; // 高亮黄色
-      }
+      let fillColor = isSpecial ? specialNode.color : 
+                      isHighlighted ? "#f6e05e" : "#4299e1";
 
       return (
         <g key={node.key}>
@@ -262,34 +301,28 @@ const BinarySearchTreeVisualization = () => {
             {node.key}
           </text>
           {node.left && (
-            <>
-              <line
-                x1={node.x}
-                y1={node.y + nodeSize / 2}
-                x2={node.left.x}
-                y2={node.left.y - nodeSize / 2}
-                stroke="#4299e1"
-              />
-              {renderTree(node.left)}
-            </>
+            <Line start={node} end={node.left} nodeSize={nodeSize} />
           )}
           {node.right && (
-            <>
-              <line
-                x1={node.x}
-                y1={node.y + nodeSize / 2}
-                x2={node.right.x}
-                y2={node.right.y - nodeSize / 2}
-                stroke="#4299e1"
-              />
-              {renderTree(node.right)}
-            </>
+            <Line start={node} end={node.right} nodeSize={nodeSize} />
           )}
+          {node.left && renderTree(node.left)}
+          {node.right && renderTree(node.right)}
         </g>
       );
     },
     [highlightedNodes, specialNode]
   );
+
+  const Line = memo(({ start, end, nodeSize }) => (
+    <line
+      x1={start.x}
+      y1={start.y + nodeSize / 2}
+      x2={end.x}
+      y2={end.y - nodeSize / 2}
+      stroke="#4299e1"
+    />
+  ));
 
   const getTreeDimensions = useCallback((node) => {
     if (!node) return { minX: 0, maxX: 0, maxY: 0 };
@@ -302,7 +335,7 @@ const BinarySearchTreeVisualization = () => {
     };
   }, []);
 
-  const treeDimensions = getTreeDimensions(tree.root);
+  const treeDimensions = useMemo(() => getTreeDimensions(tree.root), [tree.root, getTreeDimensions]);
   const svgWidth = treeDimensions.maxX - treeDimensions.minX + 100;
   const svgHeight = treeDimensions.maxY + 100;
 
@@ -313,8 +346,7 @@ const BinarySearchTreeVisualization = () => {
   }, [svgWidth, svgHeight]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Binary Search Tree Visualization</h1>
+    <>
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-3/4 mb-4 lg:mb-0 lg:pr-4">
           <div className="border rounded overflow-auto" style={{ maxHeight: "80vh" }}>
@@ -325,7 +357,7 @@ const BinarySearchTreeVisualization = () => {
         </div>
         <div className="lg:w-1/4">
           <div className="mb-4">
-            <label className="block mb-2">Node Count (1-50):</label>
+            <label className="block mb-2">{t('nodeCount')}:</label>
             <input
               type="number"
               min="1"
@@ -336,28 +368,28 @@ const BinarySearchTreeVisualization = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-2">Initialization Method:</label>
+            <label className="block mb-2">{t('initMethod')}:</label>
             <select
               value={initMethod}
               onChange={(e) => setInitMethod(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="random">Random</option>
-              <option value="sequential">Sequential</option>
+              <option value="random">{t('random')}</option>
+              <option value="sequential">{t('sequential')}</option>
             </select>
           </div>
           <button
             onClick={initializeTree}
             className="w-full mb-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Initialize Tree
+            {t('initializeTree')}
           </button>
           <div className="mb-4">
             <Combobox value={inputValue} onChange={setInputValue}>
               <Combobox.Input
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(event) => setInputValue(event.target.value)}
-                placeholder="Enter a number"
+                placeholder={t('enterNumber')}
               />
             </Combobox>
           </div>
@@ -365,24 +397,24 @@ const BinarySearchTreeVisualization = () => {
             onClick={handleInsert}
             className="w-full mb-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            Insert
+            {t('insert')}
           </button>
           <button
             onClick={handleDelete}
             className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            Delete
+            {t('delete')}
           </button>
           <button
             onClick={handleSearch}
             className="w-full mb-4 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
-            Search
+            {t('search')}
           </button>
           <div className="mb-4">{message}</div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

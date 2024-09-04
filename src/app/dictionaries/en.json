@@ -282,6 +282,18 @@
   "moveFailure": "Move failed. Larger disk cannot be placed on smaller disk.",
   "gameCompleted": "Congratulations! You have completed the Tower of Hanoi!",
 
+  "binarysearchtree_title": "Binary Search Tree Visualization",
+  "binarysearchtree_description": "Visualize the binary search tree algorithm. You can set the number of nodes and randomization method, insert, search, and delete nodes to understand how binary search trees work.",
+  "nodeCount": "Node Count (1-50)",
+  "initMethod": "Initialization Method",
+  "initializeTree": "Initialize Tree",
+  "enterNumber": "Enter a number",
+  "initializedTree": "Initialized tree with {{count}} nodes using {{method}} method",
+  "inserted_value": "Inserted {{value}}",
+  "deleted_value": "Deleted {{value}}",
+  "found_value": "Found {{value}}",
+  "notFound_value": "{{value}} not found",
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -417,6 +429,11 @@
       "title": "Hanoi Tower",
       "description": "Experience the classic Tower of Hanoi puzzle in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle. ",
       "keywords": "Tower of Hanoi, Hanoi Tower, Tower of Hanoi online, Tower of Hanoi puzzle"
+    },
+    "binarysearchtree": {
+      "title": "Binary Search Tree Visualization",
+      "description": "Explore the Binary Search Tree algorithm through interactive visualization. Learn how Binary Search Tree works and understand its applications in real-time. Source code is available.",
+      "keywords": "Binary Search Tree, algorithm visualization, binary search tree operation, binary search tree visualization"
     }
   }
 }
