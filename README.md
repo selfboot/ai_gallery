@@ -1,5 +1,7 @@
 [English](./README.md) | [中文](./README_zh.md)
 
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/selfboot/dcc5fab81ad00c91c8cf90399ac6dba8/raw/coverage.json)
+
 <a name="english"></a>
 
 Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. I've integrated these components into this [showcase site](https://gallery.selfboot.cn). Feel free to explore and experience it yourself!

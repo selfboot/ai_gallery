@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from "
 import { Combobox } from "@headlessui/react";
 import { useI18n } from "@/app/i18n/client";
 
-class TreeNode {
+export class TreeNode {
   constructor(key) {
     this.key = key;
     this.left = null;
@@ -14,7 +14,7 @@ class TreeNode {
   }
 }
 
-class BinarySearchTree {
+export class BinarySearchTree {
   constructor() {
     this.root = null;
     this.operationPath = [];
@@ -357,8 +357,9 @@ const BinarySearchTreeVisualization = () => {
         </div>
         <div className="lg:w-1/4">
           <div className="mb-4">
-            <label className="block mb-2">{t('nodeCount')}:</label>
+            <label htmlFor="nodeCount" className="block mb-2">{t('nodeCount')}:</label>
             <input
+              id="nodeCount"
               type="number"
               min="1"
               max="50"
