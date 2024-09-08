@@ -262,7 +262,7 @@ const BinarySearchTreeVisualization = () => {
   const handleInsert = useCallback(() => {
     if (inputValue) {
       animateOperation("insert", inputValue);
-      setMessage(t('inserted', { value: inputValue }));
+      setMessage(t('inserted_value', { value: inputValue }));
       setInputValue("");
     }
   }, [inputValue, tree, t]);
@@ -279,7 +279,7 @@ const BinarySearchTreeVisualization = () => {
     if (inputValue) {
       animateOperation("search", inputValue);
       const searchResult = tree.search(parseInt(inputValue));
-      setMessage(searchResult.found ? t('found', { value: inputValue }) : t('notFound', { value: inputValue }));
+      setMessage(searchResult.found ? t('found_value', { value: inputValue }) : t('notFound_value', { value: inputValue }));
       setInputValue("");
     }
   }, [inputValue, tree, t]);

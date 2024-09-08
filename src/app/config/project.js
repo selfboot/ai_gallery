@@ -129,6 +129,13 @@ const Projects = {
       link: "/algorithms/skiplist/",
     },
     {
+      id: "binarysearchtree",
+      title: "binarysearchtree_title",
+      description: "binarysearchtree_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240908_ai_gallery_binarysearchtree.webp",
+      link: "/algorithms/binarysearchtree/",
+    },
+    {
       id: "bloomfilter",
       title: "bloomfilter_title",
       description: "bloomfilter_description",
