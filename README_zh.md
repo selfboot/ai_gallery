@@ -2,6 +2,12 @@
 
 ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/selfboot/dcc5fab81ad00c91c8cf90399ac6dba8/raw/coverage.json)
 
+<p align="center">
+ <a href="https://codecov.io/gh/selfboot/ai_gallery" >
+ <img src="https://codecov.io/gh/selfboot/ai_gallery/branch/master/graph/badge.svg" alt="Test coverage"/>
+ </a>
+</p>
+
 我不会前端技术，不懂现代 web 开发，顶多只懂一点点 html 和 css，在 Claude3.5 和 GPT4 的助攻下，完成了一些有意思的小组件，我把它们集成在这个[展示站点](https://gallery.selfboot.cn)，欢迎来体验。
 
 不得不说，AI 真的改变写代码的方式。

@@ -1,6 +1,10 @@
 [English](./README.md) | [中文](./README_zh.md)
 
-![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/selfboot/dcc5fab81ad00c91c8cf90399ac6dba8/raw/coverage.json)
+<p align="center">
+ <a href="https://codecov.io/gh/selfboot/ai_gallery" >
+ <img src="https://codecov.io/gh/selfboot/ai_gallery/branch/master/graph/badge.svg" alt="Test coverage"/>
+ </a>
+</p>
 
 <a name="english"></a>
 
