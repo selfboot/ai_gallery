@@ -2,7 +2,7 @@
 
 <p align="center">
  <a href="https://codecov.io/gh/selfboot/ai_gallery" >
- <img src="https://codecov.io/gh/selfboot/ai_gallery/branch/master/graph/badge.svg" alt="Test coverage"/>
+ <img src="https://codecov.io/gh/selfboot/ai_gallery/graph/badge.svg?token=1R6P7MK27D" alt="Test coverage"/>
  </a>
 </p>
 
