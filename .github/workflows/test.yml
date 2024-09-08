@@ -25,15 +25,7 @@ jobs:
       run: pnpm install --frozen-lockfile
     - name: Run tests
       run: pnpm test -- --coverage
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-    - name: Update README
-      run: |
-        sed -i 's/!\[Coverage\].*/![Coverage](https:\/\/codecov.io\/gh\/selfboot\/ai_gallery\/branch\/main\/graph\/badge.svg)/' README.md
-    - name: Commit changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add README.md
-        git commit -m "Update coverage badge" || echo "No changes to commit"
-        git push
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
