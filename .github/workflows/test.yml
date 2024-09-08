@@ -27,22 +27,9 @@ jobs:
       run: pnpm test -- --coverage
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
-    - name: Generate coverage badge
-      run: |
-        COVERAGE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json')).total.lines.pct)")
-        echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
-    - name: Create coverage badge
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: dcc5fab81ad00c91c8cf90399ac6dba8
-        filename: coverage.json
-        label: coverage
-        message: ${{ env.COVERAGE }}%
-        color: green
     - name: Update README
       run: |
-        sed -i 's/!\[Coverage\].*/![Coverage](https:\/\/img.shields.io\/endpoint?url=https:\/\/gist.githubusercontent.com\/selfboot\/dcc5fab81ad00c91c8cf90399ac6dba8\/raw\/coverage.json)/' README.md
+        sed -i 's/!\[Coverage\].*/![Coverage](https:\/\/codecov.io\/gh\/selfboot\/ai_gallery\/branch\/main\/graph\/badge.svg)/' README.md
     - name: Commit changes
       run: |
         git config --local user.email "action@github.com"
