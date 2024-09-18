@@ -12,6 +12,7 @@
 # production
 /build
 public/*.xml
+!public/BingSiteAuth.xml
 
 # misc
 .DS_Store

@@ -30,10 +30,10 @@
     "highlight.js": "^11.10.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.416.0",
-    "next": "14.2.5",
+    "next": "14.2.12",
     "papaparse": "^5.4.1",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "reactflow": "^11.11.4",
     "rehype-highlight": "^7.0.0",
     "rehype-slug": "^6.0.0",
@@ -48,11 +48,11 @@
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@types/jest": "^29.5.12",
-    "eslint": "^8",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6"
   }
 }
