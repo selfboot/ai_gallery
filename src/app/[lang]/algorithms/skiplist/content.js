@@ -9,7 +9,7 @@ class SkipListNode {
   }
 }
 
-class SkipList {
+export class SkipList {
   constructor(maxHeight = 12, branchingFactor = 4) {
     this.maxHeight = maxHeight;
     this.branchingFactor = branchingFactor;
@@ -34,7 +34,7 @@ class SkipList {
         this.nil.forward.pop();
       }
     } else if (newMaxHeight > this.maxHeight) {
-      // 如果新的最大高度大于当前高度，扩展 header 和 nil 的 forward 数组
+      // 如果新的最大高度于当前高度，扩展 header 和 nil 的 forward 数组
       for (let i = this.maxHeight; i < newMaxHeight; i++) {
         this.header.forward.push(this.nil);
         this.nil.forward.push(null);
@@ -274,12 +274,18 @@ const SkipListVisualization = () => {
     currentSkipList.setBranchingFactor(branchingFactor);
     // 清空现有节点
     currentSkipList.clear();
-    for (let i = 0; i < 10; i++) {
+
+    const uniqueNumbers = new Set();
+    while (uniqueNumbers.size < 10) {
       const randomValue = Math.floor(Math.random() * 100) + 1;
-      currentSkipList.insert(randomValue);
+      uniqueNumbers.add(randomValue);
     }
+
+    uniqueNumbers.forEach(value => {
+      currentSkipList.insert(value);
+    });
+
     setNodes(currentSkipList.getNodes());
-    setResult(t('random_init_success'));
   };
 
   return (
@@ -310,25 +316,34 @@ const SkipListVisualization = () => {
 
       <div className="lg:w-1/5 mt-4 lg:mt-0 order-1 lg:order-2">
         <h3 className="font-bold mb-2">{t('settings')}</h3>
-        <div className="flex flex-col space-y-2">
-          <select
-            value={maxHeight}
-            onChange={(e) => setMaxHeight(parseInt(e.target.value))}
-            className="border rounded px-2 py-1"
-          >
-            {[4, 8, 12, 16, 20].map(h => (
-              <option key={h} value={h}>{t('max_level', { level: h })}</option>
-            ))}
-          </select>
-          <select
-            value={branchingFactor}
-            onChange={(e) => setBranchingFactor(parseInt(e.target.value))}
-            className="border rounded px-2 py-1"
-          >
-            {[1, 2, 3, 4, 5, 6].map(b => (
-              <option key={b} value={b}>{t('probability', { prob: b })}</option>
-            ))}
-          </select>
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center">
+            <label htmlFor="maxHeight" className="w-24">{t('max_level')}:</label>
+            <select
+              id="maxHeight"
+              value={maxHeight}
+              onChange={(e) => setMaxHeight(parseInt(e.target.value))}
+              className="border rounded px-2 py-1 ml-2 flex-grow"
+            >
+              {[4, 8, 12, 16, 20].map(h => (
+                <option key={h} value={h}>{h}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center">
+            <label htmlFor="branchingFactor" className="w-24">{t('probability')}:</label>
+            <select
+              id="branchingFactor"
+              value={branchingFactor}
+              onChange={(e) => setBranchingFactor(parseInt(e.target.value))}
+              className="border rounded px-2 py-1 ml-2 flex-grow"
+            >
+              {[1, 2, 3, 4, 5, 6].map(b => (
+                <option key={b} value={b}>1/{b}</option>
+              ))}
+            </select>
+          </div>
           <button onClick={handleRandomInit} className="bg-yellow-500 text-white px-2 py-1 rounded">{t('random_init')}</button>
           <div className="mt-4">
             <input
