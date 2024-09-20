@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useI18n } from "@/app/i18n/client";
 
 class SkipListNode {
@@ -19,6 +19,28 @@ class SkipList {
       this.header.forward[i] = this.nil;
     }
     this.level = 0;
+  }
+
+  // 新增设置方法
+  setBranchingFactor(newBranchingFactor) {
+    this.branchingFactor = newBranchingFactor;
+  }
+
+  setMaxHeight(newMaxHeight) {
+    if (newMaxHeight < this.maxHeight) {
+      // 如果新的最大高度小于当前高度，可能需要调整现有节点的层数
+      for (let i = newMaxHeight; i < this.maxHeight; i++) {
+        this.header.forward.pop();
+        this.nil.forward.pop();
+      }
+    } else if (newMaxHeight > this.maxHeight) {
+      // 如果新的最大高度大于当前高度，扩展 header 和 nil 的 forward 数组
+      for (let i = this.maxHeight; i < newMaxHeight; i++) {
+        this.header.forward.push(this.nil);
+        this.nil.forward.push(null);
+      }
+    }
+    this.maxHeight = newMaxHeight;
   }
 
   randomLevel() {
@@ -113,6 +135,15 @@ class SkipList {
     nodes.push({ value: 'NIL', levels: this.maxHeight });
     return nodes;
   }
+
+  clear() {
+    this.header = new SkipListNode(-Infinity, this.maxHeight);
+    this.nil = new SkipListNode(Infinity, this.maxHeight);
+    for (let i = 0; i < this.maxHeight; i++) {
+      this.header.forward[i] = this.nil;
+    }
+    this.level = 0;
+  }
 }
 
 
@@ -176,18 +207,34 @@ const ConnectionLines = ({ nodes }) => {
 
 const SkipListVisualization = () => {
   const { t } = useI18n();
-  const [skipList, setSkipList] = useState(() => new SkipList());
+  const [maxHeight, setMaxHeight] = useState(12);
+  const [branchingFactor, setBranchingFactor] = useState(4);
   const [nodes, setNodes] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [operation, setOperation] = useState('');
   const [result, setResult] = useState('');
-  const [maxHeight, setMaxHeight] = useState(12);
-  const [branchingFactor, setBranchingFactor] = useState(4);
-  const isInputValid = inputValue.trim() !== '' && !isNaN(parseInt(inputValue));
+  const isInputValid = inputValue.trim() !== '' && !isNaN(parseInt(inputValue)); 
+  // 使用 useRef 来保持 SkipList 实例
+  const skipListRef = useRef(new SkipList(maxHeight, branchingFactor));
 
   useEffect(() => {
-    setNodes(skipList.getNodes());
-  }, [skipList]);
+    // 初始化节点
+    setNodes(skipListRef.current.getNodes());
+  }, []);
+
+  // 监听 maxHeight 和 branchingFactor 的变化，更新现有 SkipList 实例
+  useEffect(() => {
+    const currentSkipList = skipListRef.current;
+    
+    // 更新 branchingFactor
+    currentSkipList.setBranchingFactor(branchingFactor);
+    
+    // 更新 maxHeight
+    currentSkipList.setMaxHeight(maxHeight);
+    
+    setNodes(currentSkipList.getNodes());
+    setResult(t('settings_updated'));
+  }, [maxHeight, branchingFactor, t]);
 
   const handleOperation = (op) => {
     const value = parseInt(inputValue);
@@ -196,19 +243,21 @@ const SkipListVisualization = () => {
       return;
     }
 
+    const currentSkipList = skipListRef.current;
+
     switch (op) {
       case 'insert':
-        const inserted = skipList.insert(value);
+        const inserted = currentSkipList.insert(value);
         setOperation(t('insert_operation', { value }));
         setResult(inserted ? t('insert_success') : t('insert_fail'));
         break;
       case 'search':
-        const found = skipList.search(value);
+        const found = currentSkipList.search(value);
         setOperation(t('search_operation', { value }));
         setResult(found ? t('search_found') : t('search_not_found'));
         return;
       case 'delete':
-        skipList.delete(value);
+        currentSkipList.delete(value);
         setOperation(t('delete_operation', { value }));
         setResult(t('operation_success'));
         break;
@@ -216,29 +265,25 @@ const SkipListVisualization = () => {
         return;
     }
 
-    setNodes(skipList.getNodes());
-  };
-
-  const handleSettingsChange = () => {
-    const newSkipList = new SkipList(maxHeight, branchingFactor);
-    setSkipList(newSkipList);
-    setNodes(newSkipList.getNodes());
-    setResult(t('settings_updated'));
+    setNodes(currentSkipList.getNodes());
   };
 
   const handleRandomInit = () => {
-    const newSkipList = new SkipList(maxHeight, branchingFactor);
+    const currentSkipList = skipListRef.current;
+    currentSkipList.setMaxHeight(maxHeight);
+    currentSkipList.setBranchingFactor(branchingFactor);
+    // 清空现有节点
+    currentSkipList.clear();
     for (let i = 0; i < 10; i++) {
       const randomValue = Math.floor(Math.random() * 100) + 1;
-      newSkipList.insert(randomValue);
+      currentSkipList.insert(randomValue);
     }
-    setSkipList(newSkipList);
-    setNodes(newSkipList.getNodes());
+    setNodes(currentSkipList.getNodes());
     setResult(t('random_init_success'));
   };
 
   return (
-    <div className="p-4 flex flex-col lg:flex-row">
+    <div className="flex flex-col lg:flex-row">
       <div className="lg:w-4/5 lg:pr-4 order-2 lg:order-1 lg:pr-10">
         {operation && (
           <div className="mb-4">
@@ -284,7 +329,6 @@ const SkipListVisualization = () => {
               <option key={b} value={b}>{t('probability', { prob: b })}</option>
             ))}
           </select>
-          <button onClick={handleSettingsChange} className="bg-purple-500 text-white px-2 py-1 rounded">{t('reset')}</button>
           <button onClick={handleRandomInit} className="bg-yellow-500 text-white px-2 py-1 rounded">{t('random_init')}</button>
           <div className="mt-4">
             <input
