@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-
+import RotationDemo from './RotationDemo';
 class AVLNode {
   constructor(value) {
     this.value = value;
@@ -396,6 +396,7 @@ const AVLTreeVisualization = () => {
   return (
     <div className="container mx-auto flex flex-col md:flex-row">
       <div ref={containerRef} className="w-full md:w-3/4 mb-4 md:mb-0 md:pr-4 overflow-x-auto">
+      <RotationDemo />
         <svg 
           ref={svgRef}
           width={treeLayout.width} 
