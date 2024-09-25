@@ -312,7 +312,7 @@ const TrieVisualization = () => {
     }
   }, [trie, calculateTreeDimensions]);
   return (
-    <div className="p-4 max-w-full mx-auto">
+    <div className="pt-4 max-w-full mx-auto">
       <div className="flex mb-4 space-x-2">
         <input
           type="text"

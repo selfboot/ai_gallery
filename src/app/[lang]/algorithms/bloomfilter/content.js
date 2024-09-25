@@ -218,7 +218,7 @@ const BloomFilterDemo = () => {
   }, [filterBits, searchResult, keyPositions]);
 
   return (
-    <div className="p-4 max-w-full mx-auto">
+    <div className="pt-4 max-w-full mx-auto">
       <div className="flex flex-col lg:flex-row">
         <div className="lg:w-3/4 lg:pr-4">
           {searchResult && (
