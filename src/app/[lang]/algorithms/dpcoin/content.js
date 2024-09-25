@@ -172,7 +172,7 @@ const DPCoin = () => {
   }, []);
 
   return (
-    <div className="p-4 md:flex flex-row-reverse">
+    <div className="pt-4 md:flex flex-row-reverse">
       {/* Settings Panel */}
       <div className="md:w-1/5 md:pl-4 mb-4 md:mb-0">
         <h2 className="text-2xl font-bold mb-4">{t("settings")}</h2>

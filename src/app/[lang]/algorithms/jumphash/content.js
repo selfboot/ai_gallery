@@ -290,7 +290,7 @@ const JumpHashVisualization = () => {
 
   return (
     <div className="flex flex-col lg:flex-row">
-      <div className="lg:w-3/4 p-4 overflow-auto">
+      <div className="lg:w-3/4 pt-4 overflow-auto">
         <h2 className="text-2xl font-bold mb-4">{t('hashVisualization')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {buckets.map((bucket, i) => (

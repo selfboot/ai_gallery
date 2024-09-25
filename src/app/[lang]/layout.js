@@ -39,7 +39,7 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
             </div>
           </nav>
           <I18nProvider initialDictionary={dict}>
-            <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4">{children}</main>
+            <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
           </I18nProvider>
         </div>
       </body>

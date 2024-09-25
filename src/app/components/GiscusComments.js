@@ -3,7 +3,7 @@
 import React from "react";
 import Giscus from "@giscus/react";
 
-export default function GiscusComments({ lang }) {
+function GiscusComments({ lang }) {
   return (
     <Giscus
       repo="selfboot/ai_gallery"
@@ -17,5 +17,18 @@ export default function GiscusComments({ lang }) {
       theme="light"
       lang={lang}
     />
+  );
+}
+
+const langMap = {
+  zh: "zh-CN",
+  en: "en",
+};
+
+export default function CommonComments({ lang }) {
+  return (
+    <div className="mt-8">
+      <GiscusComments lang={langMap[lang] || "en"} />
+    </div>
   );
 }

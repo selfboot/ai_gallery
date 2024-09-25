@@ -3,16 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 import { markdownToHtml } from "@/app/components/BlogMarkdown";
 import TableOfContents from "@/app/components/TableOfContents";
-import dynamic from "next/dynamic";
-
-const GiscusComments = dynamic(() => import("@/app/components/GiscusComments"), {
-  ssr: false,
-});
-
-const langMap = {
-  zh: "zh-CN",
-  en: "en",
-};
+import CommonComments from "@/app/components/GiscusComments";
 
 export default async function BlogPostPage({ params: { lang, slug } }) {
   const post = await getPostContent(slug, lang);
@@ -32,9 +23,7 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
             <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
           </article>
-          <div className="mt-8">
-            <GiscusComments lang={langMap[lang] || "en"} />
-          </div>
+          <CommonComments lang={lang} />
         </div>
         <aside className="hidden lg:block lg:w-1/5">
           <div className="sticky top-8">

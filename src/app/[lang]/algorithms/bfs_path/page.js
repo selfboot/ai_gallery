@@ -2,6 +2,7 @@ import { getDictionary } from "@/app/dictionaries";
 import BFSPathFind from "./content";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
+import CommonComments from "@/app/components/GiscusComments";
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
@@ -20,6 +21,7 @@ export default function BFSPathPage({ params: { lang } }) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/bfs_path`} />
       <BFSPathFind lang={lang} />
+      <CommonComments lang={lang} />
     </>
   );
 }

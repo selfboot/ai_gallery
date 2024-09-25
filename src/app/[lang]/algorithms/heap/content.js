@@ -204,7 +204,7 @@ const HeapVisualization = () => {
   const positions = calculatePositions(MaxHeap.fromArray(currentHeapState.heap));
 
   return (
-      <div className="p-4">
+      <div className="pt-4">
         <div className="mb-4">
           <input
             type="number"

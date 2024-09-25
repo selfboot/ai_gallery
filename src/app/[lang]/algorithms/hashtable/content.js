@@ -374,7 +374,7 @@ const HashTable = () => {
   };
 
   return (
-    <div className="p-4 max-w-full mx-auto">
+    <div className="pt-4 max-w-full mx-auto">
       <div className="flex flex-col lg:flex-row">
         {/* Hash Table Visualization (大屏幕左侧，小屏幕下方) */}
         <div className="w-full lg:w-4/5 order-2 lg:order-1 lg:pr-10">
