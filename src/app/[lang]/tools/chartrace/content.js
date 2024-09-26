@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import Modal from '@/app/components/Modal';
 import GIF from 'gif.js';
@@ -19,6 +19,35 @@ const BarChartRace = () => {
   const animationRef = useRef(null);
   const [isGeneratingGif, setIsGeneratingGif] = useState(false);
   const [gifProgress, setGifProgress] = useState(0);
+  const [chartTitle, setChartTitle] = useState('');
+  const [colorMap, setColorMap] = useState({});
+
+  // 生成随机颜色的函数
+  const generateRandomColor = (index, total) => {
+    const hue = (index / total) * 360; // 均匀分布的色相
+    const saturation = 70 + Math.random() * 10; // 70-80% 的饱和度
+    const lightness = 50 + Math.random() * 10; // 50-60% 的亮度
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  };
+
+  // 使用 useMemo 来缓存颜色映射
+  const memoizedColorMap = useMemo(() => {
+    if (data.length === 0 || !columns.type) return {};
+
+    const typeIndex = headers.indexOf(columns.type);
+    const types = [...new Set(data.map(row => row[typeIndex]))];
+    const newColorMap = {};
+
+    types.forEach((type, index) => {
+      newColorMap[type] = generateRandomColor(index, types.length);
+    });
+
+    return newColorMap;
+  }, [data, headers, columns.type]);
+
+  useEffect(() => {
+    setColorMap(memoizedColorMap);
+  }, [memoizedColorMap]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -71,8 +100,13 @@ const BarChartRace = () => {
     const types = [...new Set(data.map(row => row[typeIndex]))];
 
     const option = {
+      title: {
+        text: chartTitle,
+        left: 'center',
+        top: 10
+      },
       grid: {
-        top: 10,
+        top: 60,  // 增加顶部边距以容纳标题
         bottom: 30,
         left: 150,
         right: 80
@@ -110,6 +144,11 @@ const BarChartRace = () => {
           position: 'right',
           valueAnimation: true,
           fontFamily: 'monospace'
+        },
+        itemStyle: {
+          color: function(params) {
+            return colorMap[params.data[typeIndex]] || '#5470c6';
+          }
         }
       }],
       animationDuration: 0,
@@ -199,8 +238,8 @@ const BarChartRace = () => {
 
     // 创建离屏 Canvas 和 ECharts 实例
     const canvas = document.createElement('canvas');
-    canvas.width = 800;
-    canvas.height = 600;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     // 填充白色背景
@@ -385,6 +424,18 @@ const BarChartRace = () => {
             ))}
           </select>
         </div>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">图表标题(可选):</label>
+          <input 
+            type="text"
+            className="w-full border border-gray-300 rounded-md p-2"
+            value={chartTitle}
+            onChange={(e) => setChartTitle(e.target.value)}
+            placeholder="输入图表标题"
+          />
+        </div>
+
         <div>
           <button 
             onClick={generateChart} 
