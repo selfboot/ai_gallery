@@ -1,0 +1,427 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import ReactECharts from "echarts-for-react";
+import Modal from '@/app/components/Modal';
+import GIF from 'gif.js';
+import * as echarts from 'echarts';
+
+const BarChartRace = () => {
+  const [data, setData] = useState([]);
+  const [headers, setHeaders] = useState([]);
+  const [columns, setColumns] = useState({ time: '', type: '', value: '' });
+  const [previewData, setPreviewData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [chartOption, setChartOption] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const chartRef = useRef(null);
+  const animationRef = useRef(null);
+  const [isGeneratingGif, setIsGeneratingGif] = useState(false);
+  const [gifProgress, setGifProgress] = useState(0);
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploadedFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = JSON.parse(e.target.result);
+        if (Array.isArray(content) && content.length > 1) {
+          const headers = content[0];
+          const dataRows = content.slice(1);
+          setHeaders(headers);
+          setData(dataRows);
+          setPreviewData(dataRows.slice(0, 5)); // 设置前5条数据用于预览
+        } else {
+          throw new Error('JSON 格式不正确或数据不足');
+        }
+      } catch (error) {
+        setModalMessage('JSON 解析错误：' + error.message);
+        setIsModalOpen(true);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleColumnChange = (columnType, value) => {
+    setColumns(prev => ({ ...prev, [columnType]: value }));
+  };
+
+  const generateChart = () => {
+    if (!columns.time || !columns.type || !columns.value) {
+      setModalMessage("请选择所有必要的列");
+      setIsModalOpen(true);
+      return;
+    }
+
+    // 清除之前的动画
+    if (animationRef.current) {
+      clearInterval(animationRef.current);
+    }
+
+    const timeIndex = headers.indexOf(columns.time);
+    const typeIndex = headers.indexOf(columns.type);
+    const valueIndex = headers.indexOf(columns.value);
+
+    const years = [...new Set(data.map(row => row[timeIndex]))].sort();
+    const types = [...new Set(data.map(row => row[typeIndex]))];
+
+    const option = {
+      grid: {
+        top: 10,
+        bottom: 30,
+        left: 150,
+        right: 80
+      },
+      xAxis: {
+        max: 'dataMax',
+        axisLabel: {
+          formatter: function (n) {
+            return Math.round(n) + '';
+          }
+        }
+      },
+      yAxis: {
+        type: 'category',
+        inverse: true,
+        max: 10,
+        axisLabel: {
+          show: true,
+          fontSize: 14
+        },
+        animationDuration: 300,
+        animationDurationUpdate: 300
+      },
+      series: [{
+        realtimeSort: true,
+        seriesLayoutBy: 'column',
+        type: 'bar',
+        encode: {
+          x: valueIndex,
+          y: typeIndex
+        },
+        label: {
+          show: true,
+          precision: 1,
+          position: 'right',
+          valueAnimation: true,
+          fontFamily: 'monospace'
+        }
+      }],
+      animationDuration: 0,
+      animationDurationUpdate: 2000,
+      animationEasing: 'linear',
+      animationEasingUpdate: 'linear',
+      graphic: {
+        elements: [{
+          type: 'text',
+          right: 160,
+          bottom: 60,
+          style: {
+            text: years[0],
+            font: 'bolder 80px monospace',
+            fill: 'rgba(100, 100, 100, 0.25)'
+          },
+          z: 100
+        }]
+      }
+    };
+
+    // 设置初始数据
+    const initialData = data.filter(row => row[timeIndex] === years[0]);
+    option.series[0].data = initialData;
+
+    // 重置图表
+    if (chartRef.current) {
+      const chart = chartRef.current.getEchartsInstance();
+      chart.clear();
+      chart.setOption(option, true);
+    }
+
+    setChartOption(option);
+
+    // 启动新的动画
+    let currentYearIndex = 0;
+    animationRef.current = setInterval(() => {
+      currentYearIndex++;
+      if (currentYearIndex >= years.length) {
+        clearInterval(animationRef.current);
+        return;
+      }
+
+      const currentYear = years[currentYearIndex];
+      const currentData = data.filter(row => row[timeIndex] === currentYear);
+      
+      option.series[0].data = currentData;
+      option.graphic.elements[0].style.text = currentYear;
+      
+      if (chartRef.current) {
+        chartRef.current.getEchartsInstance().setOption(option);
+      }
+    }, 500);
+  };
+
+  const exportGif = () => {
+    console.log("开始导出 GIF");
+    setIsGeneratingGif(true);
+    setGifProgress(0);
+
+    const canvasWidth = 1600;
+    const canvasHeight = 1200;
+
+    const gif = new GIF({
+      workers: 4,
+      quality: 10,
+      width: canvasWidth,
+      height: canvasHeight,
+      workerScript: '/gif.worker.js'
+    });
+
+    console.log("GIF 对象创建完成");
+
+    const years = [...new Set(data.map(row => row[headers.indexOf(columns.time)]))].sort();
+    const timeIndex = headers.indexOf(columns.time);
+    const valueIndex = headers.indexOf(columns.value);
+
+    console.log(`总年份数: ${years.length}`);
+
+    // 预处理数据
+    console.log("开始预处理数据");
+    const yearData = years.map(year => {
+      const currentData = data.filter(row => row[timeIndex] === year);
+      return currentData.sort((a, b) => b[valueIndex] - a[valueIndex]).slice(0, 10);
+    });
+    console.log("数据预处理完成");
+
+    // 创建离屏 Canvas 和 ECharts 实例
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    // 填充白色背景
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const offscreenChart = echarts.init(canvas, null, { 
+      renderer: 'canvas',
+      width: canvasWidth,
+      height: canvasHeight
+    });
+
+    // 深拷贝 chartOption 并禁用动画
+    const offscreenOption = JSON.parse(JSON.stringify(chartOption));
+    offscreenOption.animation = false; // 禁用动画
+    offscreenOption.animationDuration = 0;
+    offscreenOption.animationEasing = 'linear';
+    offscreenOption.backgroundColor = '#ffffff'; // 确保背景颜色为白色
+
+    console.log("开始生成帧");
+
+    const addFramesToGif = (index) => {
+      if (index >= yearData.length) {
+        console.log("所有帧生成完毕，开始渲染 GIF");
+        gif.render();
+        return;
+      }
+
+      const currentData = yearData[index];
+      const currentYear = years[index];
+      
+      offscreenOption.series[0].data = currentData;
+      offscreenOption.graphic.elements[0].style.text = currentYear;
+      
+      offscreenChart.setOption(offscreenOption, true);
+      
+      // 使用离屏 Canvas 添加帧
+      gif.addFrame(canvas, { delay: 500, copy: true });
+      console.log(`已生成并添加第 ${index + 1} 帧`);
+
+      // 处理下一帧
+      setTimeout(() => addFramesToGif(index + 1), 0);
+    };
+
+    // 开始添加帧
+    addFramesToGif(0);
+
+    gif.on('start', () => console.log("GIF 渲染开始"));
+    gif.on('progress', progress => {
+      console.log(`GIF 渲染进度: ${(progress * 100).toFixed(2)}%`);
+      setGifProgress(progress);
+    });
+    gif.on('finished', blob => {
+      console.log("GIF 渲染完成，准备下载");
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      const baseName = uploadedFile ? uploadedFile.name.replace(/\.[^/.]+$/, "") : 'bar-chart-race';
+      link.download = `${baseName}.gif`;
+      
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setIsGeneratingGif(false);
+      offscreenChart.dispose(); // 清理离屏图表实例
+      console.log("GIF 导出完成");
+    });
+    gif.on('abort', () => console.log("GIF 渲染被中止"));
+    gif.on('error', error => {
+      console.error("GIF 渲染错误:", error);
+      setIsGeneratingGif(false);
+    });
+  };
+
+  // 组件卸载时清除动画
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        clearInterval(animationRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
+      <div className="w-full lg:w-3/4 space-y-4">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <label htmlFor="file-upload" className="cursor-pointer">
+            <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          {uploadedFile ? (
+            <p className="mt-1 text-sm text-gray-600">已上传文件：{uploadedFile.name}</p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-600">点击上传文件</p>
+          )}
+            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json" />
+          </label>
+        </div>
+
+        {chartOption && (
+          <div>
+            <h2 className="font-bold mb-4">竞速图</h2>
+            <ReactECharts
+              ref={chartRef}
+              option={chartOption}
+              style={{ height: '500px', width: '100%' }}
+              notMerge={true}
+              lazyUpdate={false}
+            />
+          </div>
+        )}
+
+        {previewData.length > 0 && (
+          <div className="mt-4 overflow-x-auto">
+            <h2 className="mt-4 mb-4 font-bold" >数据预览</h2>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {headers.map((header, index) => (
+                    <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {previewData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {headers.map((header, cellIndex) => (
+                      <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {row[cellIndex]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+      </div>
+
+      <div className="w-full lg:w-1/4 space-y-4">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Time:</label>
+          <select 
+            className="w-full border border-gray-300 rounded-md p-2"
+            onChange={(e) => handleColumnChange('time', e.target.value)}
+            value={columns.time}
+          >
+            <option value="">请选择</option>
+            {headers.map((header, index) => (
+              <option key={index} value={header}>{header}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Type:</label>
+          <select 
+            className="w-full border border-gray-300 rounded-md p-2"
+            onChange={(e) => handleColumnChange('type', e.target.value)}
+            value={columns.type}
+          >
+            <option value="">请选择</option>
+            {headers.map((header, index) => (
+              <option key={index} value={header}>{header}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Value:</label>
+          <select 
+            className="w-full border border-gray-300 rounded-md p-2"
+            onChange={(e) => handleColumnChange('value', e.target.value)}
+            value={columns.value}
+          >
+            <option value="">请选择</option>
+            {headers.map((header, index) => (
+              <option key={index} value={header}>{header}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <button 
+            onClick={generateChart} 
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+            disabled={!headers.length}
+          >
+            生成图表
+          </button>
+        </div>
+        
+        <div>
+          <button 
+            onClick={exportGif} 
+            disabled={isGeneratingGif || !chartOption}
+            className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 disabled:bg-gray-400"
+          >
+            {isGeneratingGif ? '正在生成 GIF...' : '导出 GIF'}
+          </button>
+        </div>
+        
+        {isGeneratingGif && (
+          <div className="mt-4">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full" 
+                style={{width: `${gifProgress * 100}%`}}
+              ></div>
+            </div>
+            <p className="text-center mt-2">{`${(gifProgress * 100).toFixed(0)}%`}</p>
+          </div>
+        )}
+      </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <p>{modalMessage}</p>
+      </Modal>
+    </div>
+  );
+};
+
+export default BarChartRace;
