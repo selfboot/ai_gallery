@@ -159,11 +159,11 @@ const Projects = {
   ],
   tools: [
     {
-      id: "bar_chart_race",
-      title: "bar_chart_race_title",
-      description: "bar_chart_race_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240708_ai_gallery_bar_chart_race.gif",
-      link: "/tools/bar_chart_race/",
+      id: "chartrace",
+      title: "chartrace_title",
+      description: "chartrace_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240928_ai_gallery_chartrace_cover.webp",
+      link: "/tools/chartrace/",
     },
     {
       id: "subtitles",

@@ -294,6 +294,23 @@
   "found_value": "Found {{value}}",
   "notFound_value": "{{value}} not found",
 
+  "chartrace_title": "Chart Race",  
+  "chartrace_description": "Chart Race is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
+  "jsonParseError": "JSON parsing error",
+  "selectAllColumns": "Please select all necessary columns",
+  "uploadedFile": "Uploaded file",
+  "clickToUpload": "Click to upload file",
+  "raceChart": "Race Chart",
+  "dataPreview": "Data Preview",
+  "type": "Type",
+  "pleaseSelect": "Please select",
+  "chartTitle": "Chart Title (optional)",
+  "enterChartTitle": "Enter chart title",
+  "generateChart": "Generate Chart",
+  "exportGif": "Export GIF",
+  "generatingGif": "Generating GIF...",
+  "hint": "Hint",
+  
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -390,7 +407,7 @@
       "description": "Enjoy the classic free snake game online. Control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.. No download needed.",
       "keywords": "Snake, Play snake online, Free snake game, Snake eat food, Snake Claude write, Online snake game"
     },
-    "bar_chart_race": {
+    "chartrace": {
       "title": "BarChartRace Generate Online",
       "description": "BarChartRace is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
       "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace"
