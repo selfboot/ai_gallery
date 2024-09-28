@@ -303,6 +303,23 @@
   "found_value": "找到 {{value}}",
   "notFound_value": "未找到 {{value}}",
 
+  "chartrace_title": "竞速条形图",
+  "chartrace_description": "上传数据，自定义时间、类型和数据列，然后就能生成漂亮的动态竞速条形图，还可以导出为 GIF。",
+  "jsonParseError": "JSON 解析错误",
+  "selectAllColumns": "请选择所有必要的列",
+  "uploadedFile": "已上传文件",
+  "clickToUpload": "点击上传文件",
+  "raceChart": "竞速图",
+  "dataPreview": "数据预览",
+  "type": "类型",
+  "pleaseSelect": "请选择",
+  "chartTitle": "图表标题（可选）",
+  "enterChartTitle": "输入图表标题",
+  "generateChart": "生成图表",
+  "exportGif": "导出 GIF",
+  "generatingGif": "正在生成 GIF...",
+  "hint": "提示",
+  
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -399,7 +416,7 @@
       "description": "开源的 React 经典免费贪吃蛇在线版。控制蛇吃食物,变得更长,避免撞到墙壁或蛇的身体。无需下载，源代码开放。",
       "keywords": "贪吃蛇,在线玩贪吃蛇,免费贪吃蛇游戏,贪吃蛇吃食物,Claude 编写的贪吃蛇,在线贪吃蛇游戏"
     },
-    "bar_chart_race": {
+    "chartrace": {
       "title": "在线生成条形图竞赛",
       "description": "条形图竞赛是一种展示数据随时间变化的动态条形图。本页面允许你自定义数据和时间,生成动态条形图,并支持大量自定义设置。",
       "keywords": "条形图竞赛,数据可视化,数据可视化工具,CSV 转条形图竞赛,Excel 转条形图竞赛"

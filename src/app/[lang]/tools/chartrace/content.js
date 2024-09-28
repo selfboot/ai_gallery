@@ -5,8 +5,10 @@ import ReactECharts from "echarts-for-react";
 import Modal from '@/app/components/Modal';
 import GIF from 'gif.js';
 import * as echarts from 'echarts';
+import { useI18n } from "@/app/i18n/client";
 
-const BarChartRace = () => {
+const ChartRace = () => {
+  const { t } = useI18n();
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [columns, setColumns] = useState({ time: '', type: '', value: '' });
@@ -66,10 +68,10 @@ const BarChartRace = () => {
           setData(dataRows);
           setPreviewData(dataRows.slice(0, 5)); // 设置前5条数据用于预览
         } else {
-          throw new Error('JSON 格式不正确或数据不足');
+          throw new Error(t('jsonParseError') );
         }
       } catch (error) {
-        setModalMessage('JSON 解析错误：' + error.message);
+        setModalMessage(t('jsonParseError') + error.message);
         setIsModalOpen(true);
       }
     };
@@ -82,7 +84,7 @@ const BarChartRace = () => {
 
   const generateChart = () => {
     if (!columns.time || !columns.type || !columns.value) {
-      setModalMessage("请选择所有必要的列");
+      setModalMessage(t('selectAllColumns'));
       setIsModalOpen(true);
       return;
     }
@@ -205,7 +207,7 @@ const BarChartRace = () => {
   };
 
   const exportGif = () => {
-    console.log("开始导出 GIF");
+    // console.log("开始导出 GIF");
     setIsGeneratingGif(true);
     setGifProgress(0);
 
@@ -220,21 +222,17 @@ const BarChartRace = () => {
       workerScript: '/gif.worker.js'
     });
 
-    console.log("GIF 对象创建完成");
-
     const years = [...new Set(data.map(row => row[headers.indexOf(columns.time)]))].sort();
     const timeIndex = headers.indexOf(columns.time);
+    const typeIndex = headers.indexOf(columns.type);
     const valueIndex = headers.indexOf(columns.value);
 
-    console.log(`总年份数: ${years.length}`);
+    // console.log(`总年份数: ${years.length}`);
 
-    // 预处理数据
-    console.log("开始预处理数据");
     const yearData = years.map(year => {
       const currentData = data.filter(row => row[timeIndex] === year);
       return currentData.sort((a, b) => b[valueIndex] - a[valueIndex]).slice(0, 10);
     });
-    console.log("数据预处理完成");
 
     // 创建离屏 Canvas 和 ECharts 实例
     const canvas = document.createElement('canvas');
@@ -258,12 +256,16 @@ const BarChartRace = () => {
     offscreenOption.animationDuration = 0;
     offscreenOption.animationEasing = 'linear';
     offscreenOption.backgroundColor = '#ffffff'; // 确保背景颜色为白色
-
-    console.log("开始生成帧");
+    offscreenOption.series[0].itemStyle = {
+      color: function(params) {
+        return colorMap[params.data[typeIndex]] || '#5470c6';
+      }
+    };
+    // console.log("开始生成帧");
 
     const addFramesToGif = (index) => {
       if (index >= yearData.length) {
-        console.log("所有帧生成完毕，开始渲染 GIF");
+        // console.log("所有帧生成完毕，开始渲染 GIF");
         gif.render();
         return;
       }
@@ -278,7 +280,7 @@ const BarChartRace = () => {
       
       // 使用离屏 Canvas 添加帧
       gif.addFrame(canvas, { delay: 500, copy: true });
-      console.log(`已生成并添加第 ${index + 1} 帧`);
+      // console.log(`已生成并添加第 ${index + 1} 帧`);
 
       // 处理下一帧
       setTimeout(() => addFramesToGif(index + 1), 0);
@@ -287,13 +289,13 @@ const BarChartRace = () => {
     // 开始添加帧
     addFramesToGif(0);
 
-    gif.on('start', () => console.log("GIF 渲染开始"));
+    // gif.on('start', () => console.log("GIF 渲染开始"));
     gif.on('progress', progress => {
-      console.log(`GIF 渲染进度: ${(progress * 100).toFixed(2)}%`);
+      // console.log(`GIF 渲染进度: ${(progress * 100).toFixed(2)}%`);
       setGifProgress(progress);
     });
     gif.on('finished', blob => {
-      console.log("GIF 渲染完成，准备下载");
+      // console.log("GIF 渲染完成，准备下载");
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       
@@ -306,11 +308,11 @@ const BarChartRace = () => {
       document.body.removeChild(link);
       setIsGeneratingGif(false);
       offscreenChart.dispose(); // 清理离屏图表实例
-      console.log("GIF 导出完成");
+      // console.log("GIF 导出完成");
     });
-    gif.on('abort', () => console.log("GIF 渲染被中止"));
+    // gif.on('abort', () => console.log("GIF 渲染被中止"));
     gif.on('error', error => {
-      console.error("GIF 渲染错误:", error);
+      // console.error("GIF 渲染错误:", error);
       setIsGeneratingGif(false);
     });
   };
@@ -333,9 +335,9 @@ const BarChartRace = () => {
               <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           {uploadedFile ? (
-            <p className="mt-1 text-sm text-gray-600">已上传文件：{uploadedFile.name}</p>
+            <p className="mt-1 text-sm text-gray-600">{t('uploadedFile')}: {uploadedFile.name}</p>
           ) : (
-            <p className="mt-1 text-sm text-gray-600">点击上传文件</p>
+            <p className="mt-1 text-sm text-gray-600">{t('clickToUpload')}</p>
           )}
             <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json" />
           </label>
@@ -343,7 +345,7 @@ const BarChartRace = () => {
 
         {chartOption && (
           <div>
-            <h2 className="font-bold mb-4">竞速图</h2>
+            <h2 className="font-bold mb-4">{t('raceChart')}</h2>
             <ReactECharts
               ref={chartRef}
               option={chartOption}
@@ -356,7 +358,7 @@ const BarChartRace = () => {
 
         {previewData.length > 0 && (
           <div className="mt-4 overflow-x-auto">
-            <h2 className="mt-4 mb-4 font-bold" >数据预览</h2>
+            <h2 className="mt-4 mb-4 font-bold" >{t('dataPreview')}</h2>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -386,39 +388,39 @@ const BarChartRace = () => {
 
       <div className="w-full lg:w-1/4 space-y-4">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Time:</label>
+          <label className="block text-sm font-medium text-gray-700">{t('time')}:</label>
           <select 
             className="w-full border border-gray-300 rounded-md p-2"
             onChange={(e) => handleColumnChange('time', e.target.value)}
             value={columns.time}
           >
-            <option value="">请选择</option>
+            <option value="">{t('pleaseSelect')}</option>
             {headers.map((header, index) => (
               <option key={index} value={header}>{header}</option>
             ))}
           </select>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Type:</label>
+          <label className="block text-sm font-medium text-gray-700">{t('type')}:</label>
           <select 
             className="w-full border border-gray-300 rounded-md p-2"
             onChange={(e) => handleColumnChange('type', e.target.value)}
             value={columns.type}
           >
-            <option value="">请选择</option>
+            <option value="">{t('pleaseSelect')}</option>
             {headers.map((header, index) => (
               <option key={index} value={header}>{header}</option>
             ))}
           </select>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Value:</label>
+          <label className="block text-sm font-medium text-gray-700">{t('value')}:</label>
           <select 
             className="w-full border border-gray-300 rounded-md p-2"
             onChange={(e) => handleColumnChange('value', e.target.value)}
             value={columns.value}
           >
-            <option value="">请选择</option>
+            <option value="">{t('pleaseSelect')}</option>
             {headers.map((header, index) => (
               <option key={index} value={header}>{header}</option>
             ))}
@@ -426,13 +428,13 @@ const BarChartRace = () => {
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">图表标题(可选):</label>
+          <label className="block text-sm font-medium text-gray-700">{t('chartTitle')}:</label>
           <input 
             type="text"
             className="w-full border border-gray-300 rounded-md p-2"
             value={chartTitle}
             onChange={(e) => setChartTitle(e.target.value)}
-            placeholder="输入图表标题"
+            placeholder={t('enterChartTitle')}
           />
         </div>
 
@@ -442,7 +444,7 @@ const BarChartRace = () => {
             className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
             disabled={!headers.length}
           >
-            生成图表
+            {t('generateChart')}
           </button>
         </div>
         
@@ -452,7 +454,7 @@ const BarChartRace = () => {
             disabled={isGeneratingGif || !chartOption}
             className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 disabled:bg-gray-400"
           >
-            {isGeneratingGif ? '正在生成 GIF...' : '导出 GIF'}
+            {isGeneratingGif ? t('generatingGif') : t('exportGif')}
           </button>
         </div>
         
@@ -475,4 +477,4 @@ const BarChartRace = () => {
   );
 };
 
-export default BarChartRace;
+export default ChartRace;
