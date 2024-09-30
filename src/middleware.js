@@ -31,7 +31,7 @@ export function middleware(request) {
   if (pathname === "/") {
     const preferredLocale = getPreferredLocale(request);
     response = NextResponse.redirect(new URL(`/${preferredLocale}/algorithms`, request.url));
-  } else if (pathname.endsWith(".xml") || pathname.endsWith(".js")) {
+  } else if (pathname.endsWith(".xml") || pathname.endsWith(".js") || pathname.endsWith(".json")) {
     response = NextResponse.next();
   } else {
     // 处理缺少语言前缀的路径
