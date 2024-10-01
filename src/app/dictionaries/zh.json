@@ -319,7 +319,9 @@
   "exportGif": "导出 GIF",
   "generatingGif": "正在生成 GIF...",
   "hint": "提示",
-  
+  "dynamicChartsIndexTitle": "动态图表",
+  "dynamicChartsIndexDoc": "动态图表",
+
   "seo": {
     "index": {
       "title": "AI 写代码",
