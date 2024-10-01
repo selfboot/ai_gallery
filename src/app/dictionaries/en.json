@@ -310,6 +310,8 @@
   "exportGif": "Export GIF",
   "generatingGif": "Generating GIF...",
   "hint": "Hint",
+  "dynamicChartsIndexTitle": "Dynamic Charts",
+  "dynamicChartsIndexDoc": "Dynamic Charts",
   
   "seo": {
     "index": {
