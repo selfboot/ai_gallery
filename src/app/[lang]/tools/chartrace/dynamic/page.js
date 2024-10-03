@@ -18,12 +18,14 @@ export default function DynamicChartsIndex() {
 
   // Filter and search configs
   const filteredConfigs = useMemo(() => {
-    return dynamicChartConfigs.filter(config => 
-      (selectedSource === 'All' || config.dataSource === selectedSource) &&
-      (config.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       (config.description && config.description.toLowerCase().includes(searchTerm.toLowerCase())))
-    );
-  }, [searchTerm, selectedSource]);
+    return dynamicChartConfigs.filter(config => {
+      const title = t('chartrace')[config.id]?.title || '';
+      const intro = t('chartrace')[config.id]?.intro || '';
+      return (selectedSource === 'All' || config.dataSource === selectedSource) &&
+        (title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         (intro && intro.toLowerCase().includes(searchTerm.toLowerCase())));
+    });
+  }, [searchTerm, selectedSource, t]);
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredConfigs.length / itemsPerPage);
@@ -54,7 +56,7 @@ export default function DynamicChartsIndex() {
       <div className="mb-4 flex justify-left items-center gap-4">
         <input
           type="text"
-          placeholder="Search title or description"
+          placeholder="Search title or intro"
           className="p-2 border rounded"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -75,7 +77,7 @@ export default function DynamicChartsIndex() {
           <thead>
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Title</th>
-              <th className="py-3 px-6 text-left">Description</th>
+              <th className="py-3 px-6 text-left">Intro</th>
               <th className="py-3 px-6 text-left">Data Source</th>
             </tr>
           </thead>
@@ -84,11 +86,11 @@ export default function DynamicChartsIndex() {
               <tr key={config.id} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left whitespace-nowrap">
                   <Link href={`/tools/chartrace/dynamic/${config.id}`} className="font-medium text-blue-600 hover:text-blue-800">
-                    {config.title}
+                    {t('chartrace')[config.id]?.title}
                   </Link>
                 </td>
                 <td className="py-3 px-6 text-left">
-                  <p>{config.description || 'Explore this dynamic chart to uncover interesting data trends.'}</p>
+                  <p>{t('chartrace')[config.id]?.intro}</p>
                 </td>
                 <td className="py-3 px-6 text-left">
                   <p>{config.dataSource || 'Various sources'}</p>

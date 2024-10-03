@@ -322,6 +322,17 @@
   "dynamicChartsIndexTitle": "动态图表",
   "dynamicChartsIndexDoc": "动态图表",
 
+  "chartrace": {
+      "population-growth": {
+        "title": "世界人口增长趋势",
+        "intro": "世界人口增长的动态条形图。"
+      },
+      "income-growth": {
+        "title": "世界收入增长趋势",
+        "intro": "世界收入增长的动态条形图。"
+      }
+  },
+
   "seo": {
     "index": {
       "title": "AI 写代码",
@@ -421,7 +432,17 @@
     "chartrace": {
       "title": "在线生成条形图竞赛",
       "description": "条形图竞赛是一种展示数据随时间变化的动态条形图。本页面允许你自定义数据和时间,生成动态条形图,并支持大量自定义设置。",
-      "keywords": "条形图竞赛,数据可视化,数据可视化工具,CSV 转条形图竞赛,Excel 转条形图竞赛"
+      "keywords": "条形图竞赛,数据可视化,数据可视化工具,CSV 转条形图竞赛,Excel 转条形图竞赛",
+      "population-growth": {
+        "title": "世界人口增长趋势",
+        "description": "探索世界人口增长的动态条形图。",
+        "keywords": "世界人口增长,人口统计,数据可视化,条形图竞赛"
+      },
+      "income-growth": {
+        "title": "世界收入增长趋势",
+        "description": "探索世界收入增长的动态条形图。",
+        "keywords": "世界收入增长,收入统计,数据可视化,条形图竞赛"
+      }
     },
     "skiplist": {
       "title": "跳表可视化",

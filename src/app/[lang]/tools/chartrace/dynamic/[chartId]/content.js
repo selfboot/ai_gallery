@@ -2,8 +2,10 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactECharts from 'echarts-for-react';
+import { useI18n } from "@/app/i18n/client";
 
 const DynamicChart = ({ config, initialData }) => {
+  const { t } = useI18n();
   const [data, setData] = useState(initialData);
   const [chartOption, setChartOption] = useState(null);
   const [currentYearIndex, setCurrentYearIndex] = useState(0);
@@ -82,7 +84,7 @@ const DynamicChart = ({ config, initialData }) => {
 
     const option = {
       title: {
-        text: config.title,
+        text: t('chartrace')[config.id]?.title,
         left: 'center',
         top: 10
       },
@@ -223,7 +225,7 @@ const DynamicChart = ({ config, initialData }) => {
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 my-6">
-        {config.title}
+        {t('chartrace')[config.id]?.title}
       </h1>
       {chartOption && (
         <div className="w-full h-[500px]">
