@@ -3,6 +3,10 @@ import path from "path";
 import RSS from "rss";
 import matter from "gray-matter";
 
+// 修改导入语句
+import dynamicChartConfigsModule from '../src/app/[lang]/tools/chartrace/dynamicChartConfigs.js';
+const { dynamicChartConfigs } = dynamicChartConfigsModule;
+
 const DOMAIN = "https://gallery.selfboot.cn";
 const LANGUAGES = ["en", "zh"];
 
@@ -52,58 +56,57 @@ async function generateSitemapAndRss() {
 
       try {
         const content = fs.readFileSync(page, "utf8");
-        const titleMatch = content.match(/title:\s*([^,\n]+)/);
-        const descriptionMatch = content.match(/description:\s*([^,\n]+)/);
-        const canonicalUrlMatch = content.match(/canonicalUrl:\s*(`[^`]+`)/);
-        const publishedDateMatch = content.match(/publishedDate:\s*"([^"]+)"/);
-        const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
-      
-        if (titleMatch && descriptionMatch) {
-          const titleKey = titleMatch[1]
-            .trim()
-            .replace(/^dict\./, "")
-            .replace(/['"]/g, "");
-          const descriptionKey = descriptionMatch[1]
-            .trim()
-            .replace(/^dict\./, "")
-            .replace(/['"]/g, "");
-
-          if (titleKey && descriptionKey) {
+        
+        if (route.includes('[chartId]')) {
+          // Handle dynamic chart routes
+          for (const config of dynamicChartConfigs) {
+            const dynamicRoute = route.replace('[chartId]', config.id);
             const metadata = {
-              title: getNestedValue(dict, titleKey),
-              description: getNestedValue(dict, descriptionKey),
-              canonicalUrl: canonicalUrlMatch
-                ? eval(canonicalUrlMatch[1]).replace("${lang}", lang)
-                : `${DOMAIN}/${lang}${route}`,
-              publishedDate: publishedDateMatch ? publishedDateMatch[1] : null,
-              updatedDate: updatedDateMatch ? updatedDateMatch[1] : null,
+              title: dict.seo.chartrace[config.id]?.title || config.title,
+              description: dict.seo.chartrace[config.id]?.description || config.description,
+              canonicalUrl: `${DOMAIN}/${lang}${dynamicRoute}`,
+              publishedDate: config.publishedDate || "2024-10-01T02:00:00.000Z",
+              updatedDate: config.updatedDate || "2024-10-03T09:00:00.000Z",
             };
-
-            console.log("Metadata:", metadata);
-
-            const url = metadata.canonicalUrl;
-
-            // 添加到 sitemap
-            sitemapItems.push(`
-  <url>
-    <loc>${url}</loc>
-    <lastmod>${metadata.updatedDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>`);
-
-            // 添加到 RSS
-            rssItems.push({
-              title: metadata.title,
-              description: metadata.description,
-              url: url,
-              date: metadata.updatedDate,
-            });
-          } else {
-            console.error("Invalid metadata structure");
+            
+            addToSitemapAndRss(sitemapItems, rssItems, metadata);
           }
         } else {
-          console.error("No Meta function call found");
+          // Existing logic for static routes
+          const titleMatch = content.match(/title:\s*([^,\n]+)/);
+          const descriptionMatch = content.match(/description:\s*([^,\n]+)/);
+          const canonicalUrlMatch = content.match(/canonicalUrl:\s*(`[^`]+`)/);
+          const publishedDateMatch = content.match(/publishedDate:\s*"([^"]+)"/);
+          const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
+        
+          if (titleMatch && descriptionMatch) {
+            const titleKey = titleMatch[1]
+              .trim()
+              .replace(/^dict\./, "")
+              .replace(/['"]/g, "");
+            const descriptionKey = descriptionMatch[1]
+              .trim()
+              .replace(/^dict\./, "")
+              .replace(/['"]/g, "");
+
+            if (titleKey && descriptionKey) {
+              const metadata = {
+                title: getNestedValue(dict, titleKey),
+                description: getNestedValue(dict, descriptionKey),
+                canonicalUrl: canonicalUrlMatch
+                  ? eval(canonicalUrlMatch[1]).replace("${lang}", lang)
+                  : `${DOMAIN}/${lang}${route}`,
+                publishedDate: publishedDateMatch ? publishedDateMatch[1] : null,
+                updatedDate: updatedDateMatch ? updatedDateMatch[1] : null,
+              };
+
+              addToSitemapAndRss(sitemapItems, rssItems, metadata);
+            } else {
+              console.error("Invalid metadata structure");
+            }
+          } else {
+            console.error("No Meta function call found");
+          }
         }
       } catch (error) {
         console.error(`Error processing page ${page}:`, error);
@@ -175,6 +178,29 @@ async function generateSitemapAndRss() {
   ).join("")}
 </sitemapindex>`;
   fs.writeFileSync("public/sitemap.xml", sitemapIndex);
+}
+
+function addToSitemapAndRss(sitemapItems, rssItems, metadata) {
+  console.log("Metadata:", metadata);
+
+  const url = metadata.canonicalUrl;
+
+  // Add to sitemap
+  sitemapItems.push(`
+<url>
+  <loc>${url}</loc>
+  <lastmod>${metadata.updatedDate}</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.7</priority>
+</url>`);
+
+  // Add to RSS
+  rssItems.push({
+    title: metadata.title,
+    description: metadata.description,
+    url: url,
+    date: metadata.updatedDate,
+  });
 }
 
 generateSitemapAndRss();

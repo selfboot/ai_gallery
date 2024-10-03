@@ -1,4 +1,4 @@
-export const dynamicChartConfigs = [
+const dynamicChartConfigs = [
   {
     id: 'population-growth',
     dataFile: 'life-expectancy-table.json',
@@ -24,3 +24,5 @@ export const dynamicChartConfigs = [
     dataSource: "Echarts"
   },
 ];
+
+module.exports = { dynamicChartConfigs };
