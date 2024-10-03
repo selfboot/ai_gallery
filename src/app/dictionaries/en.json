@@ -312,7 +312,17 @@
   "hint": "Hint",
   "dynamicChartsIndexTitle": "Dynamic Charts",
   "dynamicChartsIndexDoc": "Dynamic Charts",
-  
+  "chartrace": {
+    "population-growth": {
+      "title": "World Population Growth",
+      "intro": "World Population Growth"
+    },
+    "income-growth": {
+      "title": "World Income Growth",
+      "intro": "World Income Growth"
+    }
+  },
+
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -412,7 +422,17 @@
     "chartrace": {
       "title": "BarChartRace Generate Online",
       "description": "BarChartRace is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
-      "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace"
+      "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace",
+      "population-growth": {
+        "title": "World Population Growth",
+        "description": "Explore the dynamic bar chart of world population growth.",
+        "keywords": "World Population Growth, Population Statistics, Data Visualization, BarChartRace"
+      },
+      "income-growth": {
+        "title": "World Income Growth",
+        "description": "Explore the dynamic bar chart of world income growth.",
+        "keywords": "World Income Growth, Income Statistics, Data Visualization, BarChartRace"
+      }
     },
     "skiplist": {
       "title": "Skip List Visualization",
