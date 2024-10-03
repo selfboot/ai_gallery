@@ -9,7 +9,7 @@ export const dynamicChartConfigs = [
     },
     publishedDate: "2024-10-01T02:00:00.000Z",
     updatedDate: "2024-10-03T09:00:00.000Z",
-    dataSource: "World Bank"
+    dataSource: "Echarts"
   },
   {
     id: 'income-growth',
@@ -21,7 +21,6 @@ export const dynamicChartConfigs = [
     },
     publishedDate: "2024-10-01T02:00:00.000Z",
     updatedDate: "2024-10-03T09:00:00.000Z",
-    dataSource: "World Bank"
+    dataSource: "Echarts"
   },
-  // 添加更多动态图配置...
 ];

@@ -310,16 +310,29 @@
   "exportGif": "Export GIF",
   "generatingGif": "Generating GIF...",
   "hint": "Hint",
-  "dynamicChartsIndexTitle": "Dynamic Charts",
-  "dynamicChartsIndexDoc": "Dynamic Charts",
+  "dynamicChartsIndexTitle": "Important Data Dynamic Charts",
+  "dynamicChartsIndexDoc": [
+    "Here is a collection of important data charts that change over time. Each chart shows the key data trends in different fields, allowing you to intuitively understand the historical changes and future trends of various indicators.\n\n",
+    "The charts cover multiple fields, including but not limited to:\n",
+    "- Population statistics: Show the population growth trends of countries around the world\n",
+    "- Economic indicators: Show the changes in GDP, inflation rate, etc.\n",
+    "- Technology development: Show the evolution of technology indicators such as internet users, smartphone penetration rate, etc.\n",
+    "- Social development: Show the trends of social progress indicators such as education level, medical care coverage, etc.\n\n",
+    "Each chart uses a dynamic bar chart race to make the data change process more intuitive and vivid. Some public data also provides download links for further analysis and research."
+  ],
+  "ChartsIndexSearchPlaceholder": "Search title or intro",
+  "ChartsIndexTableTitle": "Title",
+  "ChartsIndexTableIntro": "Intro",
+  "ChartsIndexTableDataSource": "Data Source",
+
   "chartrace": {
     "population-growth": {
-      "title": "World Population Growth",
-      "intro": "World Population Growth"
+      "title": "World Population Change (1800-2015)",
+      "intro": "The world population has shown a continuous growth trend since 1800, with population growth accelerating significantly towards the end of the 19th century and the beginning of the 20th century. The Industrial Revolution in the late 19th century and the economic development it brought improved living conditions in most countries globally, leading to accelerated population growth. From the mid-20th century, developing countries such as China and India experienced rapid population growth. In contrast, high-income countries saw a gradual slowdown in population growth rates after entering the 20th century."
     },
     "income-growth": {
-      "title": "World Income Growth",
-      "intro": "World Income Growth"
+      "title": "Global Income Change (1800-2015)",
+      "intro": "In 1800, the income in the United Kingdom was already several times higher than many countries, with the Industrial Revolution greatly widening the gap between high-income countries and others. Compared to industrialized nations, countries like India, China, and some African nations saw little change in income levels for most of the 19th century. The rapid development of emerging economies such as China and India in the late 20th and early 21st centuries has gradually brought these countries' income levels closer to those of high-income countries. Although global income has grown overall in the latter part of the 20th century, income disparities between high-income and low-income countries still persist. The change in global income has experienced a hugely unbalanced development, initially dominated by the income growth of developed countries driven by the Industrial Revolution, and later transformed by the rise of emerging economies, but significant global income disparities remain."
     }
   },
 
@@ -423,14 +436,19 @@
       "title": "BarChartRace Generate Online",
       "description": "BarChartRace is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
       "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace",
+      "dynamicCharts": {
+        "title": "Dynamic Charts of Key Data",
+        "description": "This collection features a series of important indicator data that change over time. Each chart showcases key data trends from different fields, allowing you to visually understand the historical changes and future directions of various indicators.",
+        "keywords": "dynamic bar charts,data visualization,historical indicator data changes"
+      },
       "population-growth": {
         "title": "World Population Growth",
-        "description": "Explore the dynamic bar chart of world population growth.",
+        "description": "Since 1800, the world population has undergone a phase of rapid growth, particularly the 'population explosion' phenomenon in the mid-20th century, which quickly brought the global population close to today's scale of several billion. The rapid growth in Asia has significantly increased its share in the global population distribution.",
         "keywords": "World Population Growth, Population Statistics, Data Visualization, BarChartRace"
       },
       "income-growth": {
         "title": "World Income Growth",
-        "description": "Explore the dynamic bar chart of world income growth.",
+        "description": "The change in global income has experienced a hugely unbalanced development. Initially, income growth was dominated by developed countries driven by the Industrial Revolution. Later, the rise of emerging economies brought about a transformation in the income landscape, but significant global income disparities still persist. There are notable differences in income growth rates across different regions.",
         "keywords": "World Income Growth, Income Statistics, Data Visualization, BarChartRace"
       }
     },
