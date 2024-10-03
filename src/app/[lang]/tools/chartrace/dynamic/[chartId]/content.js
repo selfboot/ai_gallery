@@ -3,9 +3,14 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactECharts from 'echarts-for-react';
 import { useI18n } from "@/app/i18n/client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faDownload } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import { useParams } from 'next/navigation';
 
 const DynamicChart = ({ config, initialData }) => {
   const { t } = useI18n();
+  const { lang } = useParams();
   const [data, setData] = useState(initialData);
   const [chartOption, setChartOption] = useState(null);
   const [currentYearIndex, setCurrentYearIndex] = useState(0);
@@ -224,9 +229,25 @@ const DynamicChart = ({ config, initialData }) => {
 
   return (
     <div className="container mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 my-6">
-        {t('chartrace')[config.id]?.title}
-      </h1>
+      <div className="flex items-center p-4 pl-0">
+        <h1 className="text-3xl font-bold text-gray-800 my-6 mr-4">
+          {t('chartrace')[config.id]?.title}
+        </h1>
+        <Link
+          href={`/${lang}/tools/chartrace/dynamic`}
+          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center mr-4"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+        </Link>
+        <a
+          href={`/racechart/${config.dataFile}`}
+          download
+          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
+        >
+          <FontAwesomeIcon icon={faDownload} />
+        </a>
+      </div>
+      
       {chartOption && (
         <div className="w-full h-[500px]">
           <ReactECharts
