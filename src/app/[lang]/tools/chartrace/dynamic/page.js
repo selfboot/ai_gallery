@@ -3,9 +3,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { dynamicChartConfigs } from '../dynamicChartConfigs';
 import { useI18n } from "@/app/i18n/client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useParams } from 'next/navigation';
 
 export default function DynamicChartsIndex() {
   const { t } = useI18n();
+  const { lang } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSource, setSelectedSource] = useState('All');
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -50,7 +54,15 @@ export default function DynamicChartsIndex() {
 
   return (
     <div className="container mx-auto py-4">
-      <h1 className="text-4xl font-bold mb-6">{t('dynamicChartsIndexTitle')}</h1>
+      <div className="flex items-center mb-6">
+        <h1 className="text-4xl font-bold mr-4">{t('dynamicChartsIndexTitle')}</h1>
+        <Link
+          href={`/${lang}/tools/chartrace`}
+          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="text-2xl" />
+        </Link>
+      </div>
       <p className="text-xl mb-8 text-gray-600">{t('dynamicChartsIndexDoc')}</p>
       
       <div className="mb-4 flex justify-left items-center gap-4">
