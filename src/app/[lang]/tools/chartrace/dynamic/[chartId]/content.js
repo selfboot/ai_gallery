@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactECharts from 'echarts-for-react';
 import { useI18n } from "@/app/i18n/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faDownload, faWrench } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useParams } from 'next/navigation';
 
@@ -239,13 +239,19 @@ const DynamicChart = ({ config, initialData }) => {
         >
           <FontAwesomeIcon icon={faArrowLeft} />
         </Link>
-        <a
+        <Link
           href={`/racechart/${config.dataFile}`}
           download
-          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
+          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center mr-4"
         >
           <FontAwesomeIcon icon={faDownload} />
-        </a>
+        </Link>
+        <Link 
+          href={`/${lang}/tools/chartrace/`} 
+          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
+        >
+          <FontAwesomeIcon icon={faWrench}/>
+        </Link>
       </div>
       
       {chartOption && (

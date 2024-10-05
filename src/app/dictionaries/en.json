@@ -310,6 +310,10 @@
   "exportGif": "Export GIF",
   "generatingGif": "Generating GIF...",
   "hint": "Hint",
+  "moreChartRace": "Here are a batch of generated dynamic bar charts covering various interesting data. ",
+  "clickHere": "Click to view",
+  "personalGenerate": "Customize Generate",
+
   "dynamicChartsIndexTitle": "Important Data Dynamic Charts",
   "dynamicChartsIndexDoc": [
     "Here is a collection of important data charts that change over time. Each chart shows the key data trends in different fields, allowing you to intuitively understand the historical changes and future trends of various indicators.\n\n",
@@ -318,7 +322,8 @@
     "- Economic indicators: Show the changes in GDP, inflation rate, etc.\n",
     "- Technology development: Show the evolution of technology indicators such as internet users, smartphone penetration rate, etc.\n",
     "- Social development: Show the trends of social progress indicators such as education level, medical care coverage, etc.\n\n",
-    "Each chart uses a dynamic bar chart race to make the data change process more intuitive and vivid. Some public data also provides download links for further analysis and research."
+    "Each chart uses a dynamic bar chart race to make the data change process more intuitive and vivid. Some public data also provides download links for further analysis and research.\n\n",
+    "You can also use your own private data to generate customized dynamic charts."
   ],
   "ChartsIndexSearchPlaceholder": "Search title or intro",
   "ChartsIndexTableTitle": "Title",
