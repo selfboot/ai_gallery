@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from 'next/navigation';
 import CommonComments from "@/app/components/GiscusComments";
+import { faWrench } from "@fortawesome/free-solid-svg-icons";
 
 export default function DynamicChartsIndex() {
   const { t } = useI18n();
@@ -64,7 +65,16 @@ export default function DynamicChartsIndex() {
           <FontAwesomeIcon icon={faArrowLeft} className="text-2xl" />
         </Link>
       </div>
-      <p className="text-l mb-8 text-gray-600 whitespace-pre-line">{t('dynamicChartsIndexDoc')}</p>
+      <p className="text-l mb-8 text-gray-600 whitespace-pre-line">
+        {t('dynamicChartsIndexDoc')}
+        <Link 
+          href={`/${lang}/tools/chartrace/`} 
+          className="text-blue-500 hover:text-blue-700 cursor-pointer inline-flex items-center"
+        >
+          <FontAwesomeIcon icon={faWrench} className="m-2" />
+          {t('personalGenerate')}
+        </Link>
+      </p>
       
       <div className="mb-4 flex justify-left items-center gap-4">
         <input

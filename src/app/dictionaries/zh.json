@@ -320,6 +320,7 @@
   "generatingGif": "正在生成 GIF...",
   "hint": "提示",
   "dynamicChartsIndexTitle": "重要数据动态图表",
+  "personalGenerate": "定制图表",
   "dynamicChartsIndexDoc": [
     "这里汇集了一系列随时间变化的重要指标数据，每个图表都展示了不同领域的关键数据趋势，让您能够直观地了解各种指标的历史变化和未来走向。\n\n",
     "图表涵盖了多个领域，包括但不限于：\n",
@@ -327,12 +328,15 @@
     "- 经济指标：呈现GDP、通货膨胀率等经济数据的变化\n",
     "- 科技发展：显示互联网用户数量、智能手机普及率等技术指标的演变\n",
     "- 社会发展：展示教育水平、医疗保健覆盖率等社会进步指标\n\n",
-    "每个图表都采用了动态条形图的形式，让数据的变化过程更加直观和生动。部分公开数据还提供了下载链接，方便您进行进一步的分析和研究。"
+    "每个图表都采用了动态条形图的形式，让数据的变化过程更加直观和生动。部分公开数据还提供了下载链接，方便您进行进一步的分析和研究。\n\n",
+    "也可以用自己的私有数据，生成定制化的动态图表。"
   ],
   "ChartsIndexTableTitle": "标题",
   "ChartsIndexTableIntro": "介绍",
   "ChartsIndexTableDataSource": "数据源",
   "ChartsIndexSearchPlaceholder": "搜索标题或介绍",
+  "moreChartRace": "这里有一批生成好的动态条形图，涵盖各种有趣的数据。",
+  "clickHere": "点击查看",
 
   "chartrace": {
       "population-growth": {

@@ -6,9 +6,13 @@ import Modal from '@/app/components/Modal';
 import GIF from 'gif.js';
 import * as echarts from 'echarts';
 import { useI18n } from "@/app/i18n/client";
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 const ChartRace = () => {
   const { t } = useI18n();
+  const params = useParams();
+  const lang = params.lang;
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [columns, setColumns] = useState({ time: '', type: '', value: '' });
@@ -329,6 +333,11 @@ const ChartRace = () => {
   return (
     <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
       <div className="w-full lg:w-3/4 space-y-4">
+        <p>{t('moreChartRace')}{' '}
+          <Link href={`/${lang}/tools/chartrace/dynamic`} className="text-blue-500 hover:underline">
+            {t('clickHere')}
+          </Link>
+        </p>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
           <label htmlFor="file-upload" className="cursor-pointer">
             <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
