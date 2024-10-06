@@ -64,22 +64,39 @@ const ChartRace = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const content = JSON.parse(e.target.result);
-        if (Array.isArray(content) && content.length > 1) {
-          const headers = content[0];
-          const dataRows = content.slice(1);
+        let content = e.target.result;
+        let parsedData;
+
+        if (file.name.endsWith('.json')) {
+          parsedData = JSON.parse(content);
+        } else if (file.name.endsWith('.csv')) {
+          parsedData = parseCSV(content);
+        } else {
+          throw new Error(t('unsupportedFileFormat'));
+        }
+
+        if (Array.isArray(parsedData) && parsedData.length > 1) {
+          const headers = parsedData[0];
+          const dataRows = parsedData.slice(1);
           setHeaders(headers);
           setData(dataRows);
-          setPreviewData(dataRows.slice(0, 5)); // 设置前5条数据用于预览
+          setPreviewData(dataRows.slice(0, 5)); // Set first 5 rows for preview
         } else {
-          throw new Error(t('jsonParseError') );
+          throw new Error(t('invalidDataFormat'));
         }
       } catch (error) {
-        setModalMessage(t('jsonParseError') + error.message);
+        setModalMessage(t('parseError') + error.message);
         setIsModalOpen(true);
       }
     };
     reader.readAsText(file);
+  };
+
+  const parseCSV = (csvContent) => {
+    const lines = csvContent.split('\n');
+    return lines.map(line => 
+      line.split(',').map(value => value.trim())
+    ).filter(row => row.length > 1 || row[0] !== '');
   };
 
   const handleColumnChange = (columnType, value) => {
@@ -332,7 +349,8 @@ const ChartRace = () => {
 
   return (
     <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
-      <div className="w-full lg:w-3/4 space-y-4">
+      <div className="w-full lg:w-3/4 space-y-6">
+        <p>{t('uploadFileDoc')}</p>
         <p>{t('moreChartRace')}{' '}
           <Link href={`/${lang}/tools/chartrace/dynamic`} className="text-blue-500 hover:underline">
             {t('clickHere')}
@@ -348,7 +366,7 @@ const ChartRace = () => {
           ) : (
             <p className="mt-1 text-sm text-gray-600">{t('clickToUpload')}</p>
           )}
-            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json" />
+            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json,.csv" />
           </label>
         </div>
 
