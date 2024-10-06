@@ -321,7 +321,7 @@
   "hint": "提示",
   "dynamicChartsIndexTitle": "重要数据动态图表",
   "personalGenerate": "定制图表",
-  "uploadFileDoc": "本工具支持上传 JSON 和 CSV 文件，请确保数据格式正确。本工具在浏览器本地处理文件，不会上传文件到服务器。",
+  "uploadFileDoc": "本工具支持上传 JSON, CSV, XLSX, XLS 文件，请确保数据格式正确。本工具在浏览器本地处理文件，不会上传文件到服务器。",
   "dynamicChartsIndexDoc": [
     "这里汇集了一系列随时间变化的重要指标数据，每个图表都展示了不同领域的关键数据趋势，让您能够直观地了解各种指标的历史变化和未来走向。\n\n",
     "图表涵盖了多个领域，包括但不限于：\n",
