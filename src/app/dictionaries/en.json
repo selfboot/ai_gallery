@@ -313,7 +313,7 @@
   "moreChartRace": "Here are a batch of generated dynamic bar charts covering various interesting data. ",
   "clickHere": "Click to view",
   "personalGenerate": "Customize Generate",
-
+  "uploadFileDoc": "Supports uploading JSON and CSV files. Ensure the data format is correct. This tool processes files locally in the browser and does not upload files to the server.",
   "dynamicChartsIndexTitle": "Important Data Dynamic Charts",
   "dynamicChartsIndexDoc": [
     "Here is a collection of important data charts that change over time. Each chart shows the key data trends in different fields, allowing you to intuitively understand the historical changes and future trends of various indicators.\n\n",
