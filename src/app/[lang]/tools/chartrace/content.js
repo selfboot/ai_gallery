@@ -8,6 +8,7 @@ import * as echarts from 'echarts';
 import { useI18n } from "@/app/i18n/client";
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import * as XLSX from 'xlsx';
 
 const ChartRace = () => {
   const { t } = useI18n();
@@ -71,6 +72,8 @@ const ChartRace = () => {
           parsedData = JSON.parse(content);
         } else if (file.name.endsWith('.csv')) {
           parsedData = parseCSV(content);
+        } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+          parsedData = parseExcel(content);
         } else {
           throw new Error(t('unsupportedFileFormat'));
         }
@@ -89,7 +92,12 @@ const ChartRace = () => {
         setIsModalOpen(true);
       }
     };
-    reader.readAsText(file);
+
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
   };
 
   const parseCSV = (csvContent) => {
@@ -97,6 +105,13 @@ const ChartRace = () => {
     return lines.map(line => 
       line.split(',').map(value => value.trim())
     ).filter(row => row.length > 1 || row[0] !== '');
+  };
+
+  const parseExcel = (content) => {
+    const workbook = XLSX.read(content, { type: 'array' });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    return XLSX.utils.sheet_to_json(worksheet, { header: 1 });
   };
 
   const handleColumnChange = (columnType, value) => {
@@ -366,7 +381,7 @@ const ChartRace = () => {
           ) : (
             <p className="mt-1 text-sm text-gray-600">{t('clickToUpload')}</p>
           )}
-            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json,.csv" />
+            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json,.csv,.xlsx,.xls" />
           </label>
         </div>
 
