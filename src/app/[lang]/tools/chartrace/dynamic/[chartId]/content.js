@@ -254,6 +254,8 @@ const DynamicChart = ({ config, initialData }) => {
         </Link>
       </div>
       
+      <p className="mb-8">{t('chartrace')[config.id]?.intro}</p>
+
       {chartOption && (
         <div className="w-full h-[500px]">
           <ReactECharts
