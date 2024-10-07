@@ -66,15 +66,32 @@ const DynamicChart = ({ config, initialData }) => {
   const loadData = async () => {
     try {
       const response = await fetch(`/racechart/${config.dataFile}`);
-      const content = await response.json();
-      if (Array.isArray(content) && content.length > 1) {
-        setData(content);
+      const content = await response.text();
+      let parsedData;
+
+      if (config.dataFile.endsWith('.json')) {
+        parsedData = JSON.parse(content);
+      } else if (config.dataFile.endsWith('.csv')) {
+        parsedData = parseCSV(content);
+      } else {
+        throw new Error("Unsupported file format");
+      }
+
+      if (Array.isArray(parsedData) && parsedData.length > 1) {
+        setData(parsedData);
       } else {
         throw new Error("Invalid data format");
       }
     } catch (error) {
       console.error("Error loading data:", error);
     }
+  };
+
+  const parseCSV = (csvContent) => {
+    const lines = csvContent.split('\n');
+    return lines.map(line => 
+      line.split(',').map(value => value.trim())
+    ).filter(row => row.length > 1 || row[0] !== '');
   };
 
   const generateChart = () => {
