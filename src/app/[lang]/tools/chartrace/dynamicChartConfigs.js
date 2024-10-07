@@ -23,6 +23,18 @@ const dynamicChartConfigs = [
     updatedDate: "2024-10-03T09:00:00.000Z",
     dataSource: "Echarts"
   },
+  {
+    id: 'china_gdp',
+    dataFile: 'china_gdp.csv',
+    columns: {
+      time: 'Year',
+      type: 'Region',
+      value: 'GDP'
+    },
+    publishedDate: "2024-10-06T02:00:00.000Z",
+    updatedDate: "2024-10-06T09:00:00.000Z",
+    dataSource: "NationalData"
+  },
 ];
 
 module.exports = { dynamicChartConfigs };
