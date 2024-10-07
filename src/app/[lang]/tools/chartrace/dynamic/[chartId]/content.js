@@ -153,15 +153,7 @@ const DynamicChart = ({ config, initialData }) => {
     };
 
     // 设置初始数据
-    const initialData = dataRows
-      .filter(row => row[timeIndex] === years[0])
-      .map(row => {
-        return [
-          Number(row[valueIndex]),
-          row[typeIndex],
-          Number(row[timeIndex]),
-        ];
-      });
+    const initialData = dataRows.filter(row => row[timeIndex] === years[0]);
     option.series[0].data = initialData;
 
     setChartOption(option);
@@ -174,9 +166,6 @@ const DynamicChart = ({ config, initialData }) => {
     const headers = data[0];
     const dataRows = data.slice(1);
     const timeIndex = headers.indexOf(config.columns.time);
-    const typeIndex = headers.indexOf(config.columns.type);
-    const valueIndex = headers.indexOf(config.columns.value);
-
     const years = [...new Set(dataRows.map(row => row[timeIndex]))].sort();
 
     let nextYearIndex = currentYearIndex + 1;
@@ -185,15 +174,8 @@ const DynamicChart = ({ config, initialData }) => {
     }
 
     const currentYear = years[nextYearIndex];
-    const currentData = dataRows
-    .filter(row => row[timeIndex] === currentYear)
-    .map(row => {
-      return [
-        Number(row[valueIndex]),
-        row[typeIndex],
-        Number(row[timeIndex]),
-      ];
-    });
+    const currentData = dataRows.filter(row => row[timeIndex] === currentYear);
+    
     const updatedOption = { 
       ...chartOption,
       series: [{

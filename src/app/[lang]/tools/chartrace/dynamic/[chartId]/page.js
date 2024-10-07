@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
+import Papa from 'papaparse';
 
 export async function generateStaticParams() {
   return dynamicChartConfigs.flatMap((config) => 
@@ -16,7 +17,7 @@ export async function generateStaticParams() {
   );
 }
 
-async function fetchChartData(dataFile) {
+async function fetchChartData(dataFile, config) {
   try {
     const filePath = path.join(process.cwd(), 'public', 'racechart', dataFile);
     const content = await fs.readFile(filePath, 'utf8');
@@ -25,13 +26,34 @@ async function fetchChartData(dataFile) {
     if (dataFile.endsWith('.json')) {
       parsedData = JSON.parse(content);
     } else if (dataFile.endsWith('.csv')) {
-      parsedData = parseCSV(content);
+      parsedData = Papa.parse(content, { header: true }).data;
     } else {
       throw new Error("Unsupported file format");
     }
 
+    
     if (Array.isArray(parsedData) && parsedData.length > 1) {
-      return parsedData;
+      if (dataFile.endsWith('.json')) {
+        return parsedData;
+      }
+      // 获取列名
+      const headers = Object.keys(parsedData[0]);
+      // 找到时间和值列的索引
+      const timeIndex = headers.indexOf(config.columns.time);
+      const valueIndex = headers.indexOf(config.columns.value);
+
+      // 处理数据格式
+      const processedData = parsedData.map(row => {
+        const processedRow = headers.map((header, index) => {
+          if (index === timeIndex || index === valueIndex) {
+            return Number(row[header]);
+          }
+          return row[header];
+        });
+        return processedRow;
+      });
+
+      return [headers, ...processedData];
     } else {
       throw new Error("Invalid data format");
     }
@@ -40,13 +62,6 @@ async function fetchChartData(dataFile) {
     return null;
   }
 }
-
-const parseCSV = (csvContent) => {
-  const lines = csvContent.split('\n');
-  return lines.map(line => 
-    line.split(',').map(value => value.trim())
-  ).filter(row => row.length > 1 || row[0] !== '');
-};
 
 export async function generateMetadata({ params: { chartId, lang } }) {
   const dict = await getDictionary(lang);
@@ -72,9 +87,9 @@ export default async function DynamicChartPage({ params }) {
     return <div className="text-center py-10">Chart not found</div>;
   }
 
-  const chartData = await fetchChartData(config.dataFile);
+  const chartData = await fetchChartData(config.dataFile, config);
 
-  // console.log("chartData", chartData);
+  console.log("chartData", chartData);
   if (!chartData) {
     return <div className="text-center py-10">Error loading chart data</div>;
   }
