@@ -74,6 +74,7 @@ export default async function DynamicChartPage({ params }) {
 
   const chartData = await fetchChartData(config.dataFile);
 
+  // console.log("chartData", chartData);
   if (!chartData) {
     return <div className="text-center py-10">Error loading chart data</div>;
   }
