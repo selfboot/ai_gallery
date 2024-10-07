@@ -19,13 +19,34 @@ export async function generateStaticParams() {
 async function fetchChartData(dataFile) {
   try {
     const filePath = path.join(process.cwd(), 'public', 'racechart', dataFile);
-    const fileContents = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(fileContents);
+    const content = await fs.readFile(filePath, 'utf8');
+    let parsedData;
+
+    if (dataFile.endsWith('.json')) {
+      parsedData = JSON.parse(content);
+    } else if (dataFile.endsWith('.csv')) {
+      parsedData = parseCSV(content);
+    } else {
+      throw new Error("Unsupported file format");
+    }
+
+    if (Array.isArray(parsedData) && parsedData.length > 1) {
+      return parsedData;
+    } else {
+      throw new Error("Invalid data format");
+    }
   } catch (error) {
     console.error("Error loading data:", error);
-    return [];
+    return null;
   }
 }
+
+const parseCSV = (csvContent) => {
+  const lines = csvContent.split('\n');
+  return lines.map(line => 
+    line.split(',').map(value => value.trim())
+  ).filter(row => row.length > 1 || row[0] !== '');
+};
 
 export async function generateMetadata({ params: { chartId, lang } }) {
   const dict = await getDictionary(lang);
@@ -52,6 +73,10 @@ export default async function DynamicChartPage({ params }) {
   }
 
   const chartData = await fetchChartData(config.dataFile);
+
+  if (!chartData) {
+    return <div className="text-center py-10">Error loading chart data</div>;
+  }
 
   return (
     <div>
