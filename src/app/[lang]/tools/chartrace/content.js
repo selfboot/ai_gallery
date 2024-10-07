@@ -147,7 +147,7 @@ const ChartRace = () => {
         top: 60,  // 增加顶部边距以容纳标题
         bottom: 30,
         left: 150,
-        right: 80
+        right: 150
       },
       xAxis: {
         max: 'dataMax',
@@ -178,7 +178,7 @@ const ChartRace = () => {
         },
         label: {
           show: true,
-          precision: 1,
+          precision: 0,
           position: 'right',
           valueAnimation: true,
           fontFamily: 'monospace'

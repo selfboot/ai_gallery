@@ -9,7 +9,8 @@ const dynamicChartConfigs = [
     },
     publishedDate: "2024-10-01T02:00:00.000Z",
     updatedDate: "2024-10-03T09:00:00.000Z",
-    dataSource: "Echarts"
+    dataSource: "Echarts",
+    max: -1,
   },
   {
     id: 'income-growth',
@@ -21,7 +22,8 @@ const dynamicChartConfigs = [
     },
     publishedDate: "2024-10-01T02:00:00.000Z",
     updatedDate: "2024-10-03T09:00:00.000Z",
-    dataSource: "Echarts"
+    dataSource: "Echarts",
+    max: -1,
   },
   {
     id: 'china_gdp',
@@ -33,7 +35,9 @@ const dynamicChartConfigs = [
     },
     publishedDate: "2024-10-06T02:00:00.000Z",
     updatedDate: "2024-10-06T09:00:00.000Z",
-    dataSource: "NationalData"
+    dataSource: "NationalData",
+    max: -1,
+    yearInterval: 1000
   },
 ];
 

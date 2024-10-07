@@ -11,13 +11,30 @@ import { useParams } from 'next/navigation';
 const DynamicChart = ({ config, initialData }) => {
   const { t } = useI18n();
   const { lang } = useParams();
-  const [data, setData] = useState(initialData);
+  const [yearInterval] = useState(config.yearInterval || 1000);
+  const [maxDataLength] = useState(config.max || 10);
+  const [data] = useState(initialData);
   const [chartOption, setChartOption] = useState(null);
   const [currentYearIndex, setCurrentYearIndex] = useState(0);
   const chartRef = useRef(null);
+  const [chartHeight, setChartHeight] = useState(500); // 默认高度
+
+  useEffect(() => {
+    if (config.max) {
+      const baseHeight = 50;
+      const itemHeight = 40;
+      const margin = 50;
+      const typeIndex = data[0].indexOf(config.columns.type);
+      const uniqueTypes = new Set(data.slice(1).map(row => row[typeIndex]));
+      const typeCount = uniqueTypes.size;
+      const newHeight = Math.max(500, baseHeight + (typeCount * itemHeight) + margin);
+      setChartHeight(newHeight);
+    }
+    generateChart();
+  }, []);
 
   // 生成随机颜色的函数
-  const generateRandomColor = (index, total) => {
+  const generateRandomColor = (index) => {
     // 使用黄金角度来分配色相，确保颜色分布均匀
     const goldenRatio = 0.618033988749895;
     const hue = ((index * goldenRatio) % 1) * 360;
@@ -44,55 +61,15 @@ const DynamicChart = ({ config, initialData }) => {
   }, [data, config]);
 
   useEffect(() => {
-    loadData();
-  }, [config]);
-
-  useEffect(() => {
-    if (data.length > 0) {
-      generateChart();
-    }
-  }, [data]);
-
-  useEffect(() => {
     let animationInterval;
     if (chartOption) {
       animationInterval = setInterval(() => {
         updateChart();
-      }, 500);
+      }, yearInterval);
     }
+
     return () => clearInterval(animationInterval);
   }, [chartOption, currentYearIndex]);
-
-  const loadData = async () => {
-    try {
-      const response = await fetch(`/racechart/${config.dataFile}`);
-      const content = await response.text();
-      let parsedData;
-
-      if (config.dataFile.endsWith('.json')) {
-        parsedData = JSON.parse(content);
-      } else if (config.dataFile.endsWith('.csv')) {
-        parsedData = parseCSV(content);
-      } else {
-        throw new Error("Unsupported file format");
-      }
-
-      if (Array.isArray(parsedData) && parsedData.length > 1) {
-        setData(parsedData);
-      } else {
-        throw new Error("Invalid data format");
-      }
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
-
-  const parseCSV = (csvContent) => {
-    const lines = csvContent.split('\n');
-    return lines.map(line => 
-      line.split(',').map(value => value.trim())
-    ).filter(row => row.length > 1 || row[0] !== '');
-  };
 
   const generateChart = () => {
     const headers = data[0];
@@ -114,7 +91,7 @@ const DynamicChart = ({ config, initialData }) => {
         top: 60, 
         bottom: 30,
         left: 150,
-        right: 80
+        right: 150
       },
       xAxis: {
         max: 'dataMax',
@@ -127,7 +104,7 @@ const DynamicChart = ({ config, initialData }) => {
       yAxis: {
         type: 'category',
         inverse: true,
-        max: 10,
+        ...(maxDataLength !== -1 && { max: maxDataLength }),
         axisLabel: {
           show: true,
           fontSize: 14
@@ -145,7 +122,7 @@ const DynamicChart = ({ config, initialData }) => {
         },
         label: {
           show: true,
-          precision: 1,
+          precision: 0,
           position: 'right',
           valueAnimation: true,
           fontFamily: 'monospace'
@@ -193,7 +170,7 @@ const DynamicChart = ({ config, initialData }) => {
 
     let nextYearIndex = currentYearIndex + 1;
     if (nextYearIndex >= years.length) {
-      nextYearIndex = 0; // 循环播放
+      nextYearIndex = 0; 
     }
 
     const currentYear = years[nextYearIndex];
@@ -238,7 +215,7 @@ const DynamicChart = ({ config, initialData }) => {
           animationDurationUpdate: 2000 // 或者你之前设置的其他值
         };
         chartRef.current.getEchartsInstance().setOption(resetOption);
-      }, 50);
+      }, 10);
     }
 
     setCurrentYearIndex(nextYearIndex);
@@ -274,7 +251,7 @@ const DynamicChart = ({ config, initialData }) => {
       <p className="mb-8">{t('chartrace')[config.id]?.intro}</p>
 
       {chartOption && (
-        <div className="w-full h-[500px]">
+        <div className="w-full" style={{ height: `${chartHeight}px` }}>
           <ReactECharts
             ref={chartRef}
             option={chartOption}
