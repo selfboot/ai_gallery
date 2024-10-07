@@ -208,8 +208,16 @@ const ChartRace = () => {
       }
     };
 
-    // 设置初始数据
-    const initialData = data.filter(row => row[timeIndex] === years[0]);
+    const processedData = uploadedFile.name.endsWith('.csv')
+    ? data.map(row => {
+        const newRow = [...row];
+        newRow[timeIndex] = Number(row[timeIndex]);
+        newRow[valueIndex] = Number(row[valueIndex]);
+        return newRow;
+      })
+    : data;
+    const initialData = processedData.filter(row => row[timeIndex] === Number(years[0]));
+    // console.log("initialData", initialData);
     option.series[0].data = initialData;
 
     // 重置图表
