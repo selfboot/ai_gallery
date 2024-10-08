@@ -58,6 +58,13 @@ const generatePuzzle = (solution, difficulty = 40) => {
   return puzzle;
 };
 
+const difficulties = {
+  简单: 65,
+  中等: 50,
+  困难: 35,
+  专家: 20
+};
+
 const SudokuGame = () => {
   const [board, setBoard] = useState(Array(9).fill().map(() => Array(9).fill(0)));
   const [solution, setSolution] = useState(null);
@@ -66,10 +73,11 @@ const SudokuGame = () => {
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const [showHints, setShowHints] = useState(false);
+  const [difficulty, setDifficulty] = useState('简单');
 
   useEffect(() => {
     initializeGame();
-  }, []);
+  }, [difficulty]);
 
   useEffect(() => {
     let interval;
@@ -85,7 +93,7 @@ const SudokuGame = () => {
     let newSolution = Array(9).fill().map(() => Array(9).fill(0));
     generateSolution(newSolution);
     setSolution(newSolution);
-    let newPuzzle = generatePuzzle(newSolution);
+    let newPuzzle = generatePuzzle(newSolution, difficulties[difficulty]);
     setBoard(newPuzzle);
     setMistakes(0);
     setTimer(0);
@@ -181,34 +189,54 @@ const SudokuGame = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-      <div className="p-6">
-        <h2 className="text-xl font-bold mb-4">经典数独 Classic Sudoku</h2>
-        <div className="flex justify-between mb-4 text-sm">
-          <span>容易</span>
+    <div className="flex flex-col md:flex-row">
+      <div className="md:w-4/5 mb-6 md:mb-0 md:pr-6 flex flex-col items-center">
+        <div className="flex justify-between w-full mb-4 text-sm">
+          <span>{difficulty}</span>
           <span>错误: {mistakes}/3</span>
           <span>{formatTime(timer)}</span>
         </div>
         <div className="mb-4">{renderBoard()}</div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="grid grid-cols-9 gap-1">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-            <button key={num} onClick={() => handleNumberInput(num)} className="py-1 px-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+            <button 
+              key={num} 
+              onClick={() => handleNumberInput(num)} 
+              className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-lg font-bold"
+            >
               {num}
             </button>
           ))}
         </div>
-        <div className="flex justify-between">
-          <button onClick={initializeGame} className="text-sm flex items-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
+      </div>
+      
+      <div className="md:w-1/5">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">难度选择</h3>
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {Object.keys(difficulties).map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col space-y-2">
+          <button onClick={initializeGame} className="flex items-center justify-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
             <RefreshCw className="w-4 h-4 mr-1" />
             新游戏
           </button>
           <button
             onClick={() => setBoard(board.map(row => row.map(cell => cell === 0 ? 0 : solution[board.indexOf(row)][row.indexOf(cell)])))}
-            className="text-sm px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+            className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
           >
             重置
           </button>
-          <button onClick={toggleHints} className="text-sm flex items-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
+          <button onClick={toggleHints} className="flex items-center justify-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
             {showHints ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
             {showHints ? '隐藏提示' : '显示提示'}
           </button>
