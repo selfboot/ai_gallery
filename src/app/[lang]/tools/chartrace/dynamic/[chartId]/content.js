@@ -224,7 +224,7 @@ const DynamicChart = ({ config, initialData }) => {
   return (
     <div className="container mx-auto">
       <div className="flex items-center p-4 pl-0">
-        <h1 className="text-3xl font-bold text-gray-800 my-6 mr-4">
+        <h1 className="text-3xl font-bold text-gray-800 my-4 mr-4">
           {t('chartrace')[config.id]?.title}
         </h1>
         <Link

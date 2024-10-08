@@ -39,6 +39,20 @@ const dynamicChartConfigs = [
     max: -1,
     yearInterval: 1000
   },
+  {
+    id: 'china_population',
+    dataFile: 'china_population.csv',
+    columns: {
+      time: '年份',
+      type: '省份',
+      value: '人口数量'
+    },
+    publishedDate: "2024-10-08T18:00:00.000Z",
+    updatedDate: "2024-10-08T20:00:00.000Z",
+    dataSource: "NationalData",
+    max: -1,
+    yearInterval: 1000
+  },
 ];
 
 module.exports = { dynamicChartConfigs };
