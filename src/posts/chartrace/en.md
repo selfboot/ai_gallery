@@ -8,7 +8,7 @@ description: This article uses Claude3.5 to implement a chart race tool that sup
 
 From time to time, I see some beautiful racing chart pages online, showing how data changes over time, which looks really cool. After researching, I found that there are ready-made JS libraries that can generate such charts, but I couldn't find a suitable tool that could automatically generate racing charts after uploading data.
 
-So I thought about implementing one using Claude3.5, but the process wasn't smooth, and I encountered quite a few pitfalls along the way. I started working on it in July, trying intermittently multiple times, until recently when I finally managed to implement a simple version. This article records the process of implementing this tool using Claude3.5 and documents the pitfalls encountered along the way. You can experience the final result [here](https://gallery.selfboot.cn/en/tools/bar_chart_race), and feel free to leave comments for discussion.
+So I thought about implementing one using Claude3.5, but the process wasn't smooth, and I encountered quite a few pitfalls along the way. I started working on it in July, trying intermittently multiple times, until recently when I finally managed to implement a simple version. This article records the process of implementing this tool using Claude3.5 and documents the pitfalls encountered along the way. You can experience the final result [here](https://gallery.selfboot.cn/en/tools/chartrace/), and feel free to leave comments for discussion.
 
 ## Failed Attempts
 
