@@ -342,6 +342,10 @@
     "china_gdp": {
       "title": "China GDP Change (2004-2023)",
       "intro": "China's economy has experienced significant growth over the past 20 years. Taking Guangdong Province as an example, its GDP increased from 1,865.83 billion yuan in 2004 to 13,567.32 billion yuan in 2023, growing approximately 6.3 times. By comparing growth rates across different regions and periods, we can observe an overall trend of slowing economic growth. For instance, Guangdong Province's average annual growth rate was about 14.4% during 2004-2013, while it decreased to about 8.0% during 2014-2023. This indicates that China's economy is transitioning from a high-speed growth phase to a high-quality development phase. Beijing and Shanghai, as municipalities directly under the central government, have relatively high total GDP, which may reflect their status as centers for finance, technology, and service industries. Even in the face of global economic challenges (such as in 2020), most regions maintained positive growth, demonstrating the resilience of China's economy."
+    },
+    "china_population": {
+      "title": "China Population Change (2004-2023)",
+      "intro": "The analysis reveals a clear divergence in population trends across China's provinces. Eastern coastal regions such as Beijing, Guangdong, and Shanghai show significant population growth, with average increases ranging from 1.5% to 2%. These areas attract large numbers of migrants due to their economic prosperity and abundant job opportunities. In contrast, northeastern provinces like Heilongjiang and Jilin are experiencing negative population growth, with Heilongjiang seeing the most significant decrease (-1.15%). These regions are facing industrial decline and population outflow. Some central and western provinces, such as Guizhou and Gansu, are also seeing slower population growth. Future demographic changes will likely focus on the relationship between urbanization and regional economic disparities. Eastern economic centers may continue to attract populations, while provinces with less diversified economies may struggle with population loss."
     }
   },
 
@@ -464,7 +468,12 @@
         "title": "China GDP Growth",
         "description": "China's GDP growth from 2004 to 2023: Visualize the economic transformation across provinces. See how growth rates evolved, from rapid expansion to a focus on quality development. Explore regional differences, the impact of major cities, and China's economic resilience in the face of global challenges.",
         "keywords": "China GDP Growth, GDP Statistics, Data Visualization, BarChartRace"
-      } 
+      },
+      "china_population": {
+        "title": "China Population Growth",
+        "description": "The population trends in China's provinces reveal significant regional disparities. While coastal regions like Beijing, Guangdong, and Shanghai continue to see population growth, northeastern provinces such as Heilongjiang and Jilin are experiencing population decline. Urbanization and economic development gaps will likely influence future demographic shifts. ​",
+        "keywords": "China Population Growth, Population Statistics, Data Visualization, BarChartRace"
+      }
     },
     "skiplist": {
       "title": "Skip List Visualization",
