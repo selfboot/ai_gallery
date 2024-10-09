@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Eye, EyeOff } from 'lucide-react';
+import Modal from '@/app/components/Modal';
 
-// 辅助函数：检查在给定位置放置数字是否有效
+// Helper function to check if placing a number in a given position is valid
 const isValid = (board, row, col, num) => {
   for (let x = 0; x < 9; x++) {
     if (board[row][x] === num || board[x][col] === num) return false;
@@ -19,7 +20,7 @@ const isValid = (board, row, col, num) => {
   return true;
 };
 
-// 生成完整的数独解
+// Helper function to generate a complete Sudoku solution
 const generateSolution = (board) => {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
@@ -40,7 +41,7 @@ const generateSolution = (board) => {
   return true;
 };
 
-// 从解中移除数字来创建谜题
+// Helper function to generate a Sudoku puzzle from a solution
 const generatePuzzle = (solution, difficulty = 40) => {
   let puzzle = JSON.parse(JSON.stringify(solution));
   let positions = Array(81).fill().map((_, idx) => idx);
@@ -65,6 +66,19 @@ const difficulties = {
   专家: 20
 };
 
+const isRelatedCell = (selectedRow, selectedCol, currentRow, currentCol) => {
+  // Same row or same column
+  if (selectedRow === currentRow || selectedCol === currentCol) {
+    return true;
+  }
+  // Same 3x3 block
+  const blockRow = Math.floor(selectedRow / 3);
+  const blockCol = Math.floor(selectedCol / 3);
+  const currentBlockRow = Math.floor(currentRow / 3);
+  const currentBlockCol = Math.floor(currentCol / 3);
+  return blockRow === currentBlockRow && blockCol === currentBlockCol;
+};
+
 const SudokuGame = () => {
   const [board, setBoard] = useState(Array(9).fill().map(() => Array(9).fill(0)));
   const [solution, setSolution] = useState(null);
@@ -75,7 +89,10 @@ const SudokuGame = () => {
   const [showHints, setShowHints] = useState(false);
   const [difficulty, setDifficulty] = useState('简单');
   const [history, setHistory] = useState([]);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [errorCells, setErrorCells] = useState([]);
+  
   useEffect(() => {
     initializeGame();
   }, [difficulty]);
@@ -114,6 +131,30 @@ const SudokuGame = () => {
     }
   };
 
+  const handleUndo = () => {
+    if (history.length > 0) {
+      const lastMove = history[history.length - 1];
+      const newBoard = [...board];
+      newBoard[lastMove.row][lastMove.col] = lastMove.prevValue;
+      setBoard(newBoard);
+      setHistory(history.slice(0, -1));
+      const newErrorCells = findAllErrorCells(newBoard);
+      setErrorCells(newErrorCells);
+    }
+  };
+
+  const findAllErrorCells = (board) => {
+    const errors = [];
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (board[row][col] !== 0 && board[row][col] !== solution[row][col]) {
+          errors.push(...findConflictingCells(board, row, col, board[row][col]));
+        }
+      }
+    }
+    return errors;
+  };
+
   const handleNumberInput = (number) => {
     if (selectedCell) {
       const { row, col } = selectedCell;
@@ -121,21 +162,30 @@ const SudokuGame = () => {
         const newBoard = [...board];
         newBoard[row][col] = number;
         setBoard(newBoard);
-        
-        // 记录这次操作
         setHistory([...history, { row, col, prevValue: 0, newValue: number }]);
+        
+        // Cancel hint after filling the blank
+        setShowHints(false);
         
         if (number !== solution[row][col]) {
           setMistakes(mistakes + 1);
+          const newErrorCells = findAllErrorCells(newBoard);
+          setErrorCells(newErrorCells);
+          
           if (mistakes + 1 >= 3) {
             setIsRunning(false);
-            alert("游戏结束！错误次数超过3次。");
+            setModalMessage("游戏结束！错误次数超过3次。");
+            setIsModalOpen(true);
           }
+        } else {
+          const newErrorCells = findAllErrorCells(newBoard);
+          setErrorCells(newErrorCells);
         }
         
         if (JSON.stringify(newBoard) === JSON.stringify(solution)) {
           setIsRunning(false);
-          alert("恭喜！你已经完成了数独谜题！");
+          setModalMessage("恭喜！你已经完成了数独谜题！");
+          setIsModalOpen(true);
         }
       }
     }
@@ -156,19 +206,35 @@ const SudokuGame = () => {
     setShowHints(!showHints);
   };
 
-  const handleUndo = () => {
-    if (history.length > 0) {
-      const lastAction = history[history.length - 1];
-      const newBoard = [...board];
-      newBoard[lastAction.row][lastAction.col] = lastAction.prevValue;
-      setBoard(newBoard);
-      setHistory(history.slice(0, -1));
-      
-      // 如果撤销的是错误的操作，减少错误计数
-      if (lastAction.newValue !== solution[lastAction.row][lastAction.col]) {
-        setMistakes(mistakes - 1);
+  const findConflictingCells = (board, row, col, num) => {
+    const conflictingCells = [];
+    
+    for (let i = 0; i < 9; i++) {
+      if (i !== col && board[row][i] === num) {
+        conflictingCells.push({ row, col: i });
       }
     }
+    
+    for (let i = 0; i < 9; i++) {
+      if (i !== row && board[i][col] === num) {
+        conflictingCells.push({ row: i, col });
+      }
+    }
+    
+    const blockRow = Math.floor(row / 3) * 3;
+    const blockCol = Math.floor(col / 3) * 3;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const currentRow = blockRow + i;
+        const currentCol = blockCol + j;
+        if ((currentRow !== row || currentCol !== col) && board[currentRow][currentCol] === num) {
+          conflictingCells.push({ row: currentRow, col: currentCol });
+        }
+      }
+    }
+    
+    conflictingCells.push({ row, col });
+    return conflictingCells;
   };
 
   const renderBoard = () => {
@@ -176,24 +242,30 @@ const SudokuGame = () => {
       <div key={rowIndex} className="flex">
         {row.map((cell, colIndex) => {
           const possibleNumbers = getPossibleNumbers(rowIndex, colIndex);
+          const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
+          const isRelated = selectedCell && isRelatedCell(selectedCell.row, selectedCell.col, rowIndex, colIndex);
+          const isError = errorCells.some(errorCell => errorCell.row === rowIndex && errorCell.col === colIndex);
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`w-12 h-12 border border-gray-300 flex items-center justify-center cursor-pointer
-                ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex ? 'bg-blue-200' : ''}
+              className={`w-16 h-16 border border-gray-300 flex items-center justify-center cursor-pointer
+                ${isSelected ? 'bg-blue-200' : ''}
+                ${!isSelected && isRelated ? 'bg-gray-100' : ''}
+                ${rowIndex === 0 ? 'border-t-2 border-t-black' : ''}
+                ${colIndex === 0 ? 'border-l-2 border-l-black' : ''}
                 ${(rowIndex + 1) % 3 === 0 ? 'border-b-2 border-b-black' : ''}
                 ${(colIndex + 1) % 3 === 0 ? 'border-r-2 border-r-black' : ''}
                 ${board[rowIndex][colIndex] !== 0 && solution[rowIndex][colIndex] === board[rowIndex][colIndex] ? 'text-blue-600' : ''}
-                ${board[rowIndex][colIndex] !== 0 && solution[rowIndex][colIndex] !== board[rowIndex][colIndex] ? 'text-red-600' : ''}`}
+                ${isError ? 'bg-red-200 text-red-600' : ''}`}
               onClick={() => handleCellClick(rowIndex, colIndex)}
             >
               {cell !== 0 ? (
                 <span className="text-lg">{cell}</span>
               ) : (
                 showHints && (
-                  <div className="grid grid-cols-3 gap-0 w-full h-full p-0.5">
+                  <div className="grid grid-cols-3 gap-0 w-full h-full p-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                      <span key={num} className={`flex items-center justify-center text-[8px] ${possibleNumbers.includes(num) ? '' : 'invisible'}`}>
+                      <span key={num} className={`flex items-center justify-center text-[10px] ${possibleNumbers.includes(num) ? '' : 'invisible'}`}>
                         {num}
                       </span>
                     ))}
@@ -210,10 +282,11 @@ const SudokuGame = () => {
   return (
     <div className="flex flex-col md:flex-row">
       <div className="md:w-4/5 mb-6 md:mb-0 md:pr-6 flex flex-col items-center">
-        <div className="flex justify-between w-full mb-4 text-sm">
-          <span>{difficulty}</span>
-          <span>错误: {mistakes}/3</span>
-          <span>{formatTime(timer)}</span>
+        <div className="flex justify-center items-center w-full mb-4 text-sm">
+          <div className="flex space-x-4">
+            <span>错误: {mistakes}/3</span>
+            <span>耗时: {formatTime(timer)}</span>
+          </div>
         </div>
         <div className="mb-4">{renderBoard()}</div>
         <div className="grid grid-cols-9 gap-1">
@@ -221,7 +294,7 @@ const SudokuGame = () => {
             <button 
               key={num} 
               onClick={() => handleNumberInput(num)} 
-              className="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-lg font-bold"
+              className="w-16 h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-lg font-bold"
             >
               {num}
             </button>
@@ -260,12 +333,20 @@ const SudokuGame = () => {
             </svg>
             撤销
           </button>
-          <button onClick={toggleHints} className="flex items-center justify-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
+          <button 
+            onClick={toggleHints} 
+            className={`flex items-center justify-center px-3 py-2 rounded transition-colors ${
+              showHints ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+            }`}
+          >
             {showHints ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
             {showHints ? '隐藏提示' : '显示提示'}
           </button>
         </div>
       </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <p>{modalMessage}</p>
+      </Modal>
     </div>
   );
 };
