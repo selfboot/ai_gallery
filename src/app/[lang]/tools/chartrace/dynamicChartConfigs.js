@@ -53,6 +53,34 @@ const dynamicChartConfigs = [
     max: -1,
     yearInterval: 1000
   },
+  {
+    id: 'china_income',
+    dataFile: 'china_income.csv',
+    columns: {
+      time: '年份',
+      type: '省份',
+      value: '财政收入'
+    },
+    publishedDate: "2024-10-09T18:00:00.000Z",
+    updatedDate: "2024-10-09T20:00:00.000Z",
+    dataSource: "NationalData",
+    max: -1,
+    yearInterval: 1000
+  },
+  {
+    id: 'china_outcome',
+    dataFile: 'china_outcome.csv',
+    columns: {
+      time: '年份',
+      type: '省份',
+      value: '财政支出'
+    },
+    publishedDate: "2024-10-09T18:00:00.000Z",
+    updatedDate: "2024-10-09T20:00:00.000Z",
+    dataSource: "NationalData",
+    max: -1,
+    yearInterval: 1000
+  },
 ];
 
 module.exports = { dynamicChartConfigs };
