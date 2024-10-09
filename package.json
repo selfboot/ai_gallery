@@ -44,7 +44,7 @@
     "remark-rehype": "^11.1.0",
     "rss": "^1.2.2",
     "web-vitals": "^4.2.2",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
