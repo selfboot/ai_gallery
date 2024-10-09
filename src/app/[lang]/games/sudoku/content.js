@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, Eye, EyeOff } from 'lucide-react';
 import Modal from '@/app/components/Modal';
 
@@ -93,6 +93,8 @@ const SudokuGame = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [errorCells, setErrorCells] = useState([]);
   
+  const inputRef = useRef(null);
+
   useEffect(() => {
     initializeGame();
   }, [difficulty]);
@@ -106,6 +108,12 @@ const SudokuGame = () => {
     }
     return () => clearInterval(interval);
   }, [isRunning]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [selectedCell]);
 
   const initializeGame = () => {
     let newSolution = Array(9).fill().map(() => Array(9).fill(0));
@@ -166,7 +174,7 @@ const SudokuGame = () => {
         
         // Cancel hint after filling the blank
         setShowHints(false);
-        
+
         if (number !== solution[row][col]) {
           setMistakes(mistakes + 1);
           const newErrorCells = findAllErrorCells(newBoard);
@@ -189,6 +197,14 @@ const SudokuGame = () => {
         }
       }
     }
+  };
+
+  const handleInputChange = (event) => {
+    const input = event.target.value;
+    if (input >= '1' && input <= '9') {
+      handleNumberInput(parseInt(input));
+    }
+    event.target.value = ''; // 清空输入框
   };
 
   const getPossibleNumbers = (row, col) => {
@@ -281,6 +297,12 @@ const SudokuGame = () => {
 
   return (
     <div className="flex flex-col md:flex-row">
+      <input
+        ref={inputRef}
+        type="text"
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        onChange={handleInputChange}
+      />
       <div className="md:w-4/5 mb-6 md:mb-0 md:pr-6 flex flex-col items-center">
         <div className="flex justify-center items-center w-full mb-4 text-sm">
           <div className="flex space-x-4">
