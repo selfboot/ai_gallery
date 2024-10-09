@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faDownload, faWrench } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useParams } from 'next/navigation';
+import LineChart from './LineChart';
 
 const DynamicChart = ({ config, initialData }) => {
   const { t } = useI18n();
@@ -17,7 +18,7 @@ const DynamicChart = ({ config, initialData }) => {
   const [chartOption, setChartOption] = useState(null);
   const [currentYearIndex, setCurrentYearIndex] = useState(0);
   const chartRef = useRef(null);
-  const [chartHeight, setChartHeight] = useState(500); // 默认高度
+  const [chartHeight, setChartHeight] = useState(500); 
 
   useEffect(() => {
     if (config.max) {
@@ -250,6 +251,11 @@ const DynamicChart = ({ config, initialData }) => {
       
       <p className="mb-8">{t('chartrace')[config.id]?.intro}</p>
 
+      <div className="mb-8">
+        <LineChart data={data} config={config} />
+      </div>
+
+      {/* 现有的动态条形图保持不变 */}
       {chartOption && (
         <div className="w-full" style={{ height: `${chartHeight}px` }}>
           <ReactECharts
