@@ -92,6 +92,7 @@ const SudokuGame = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [errorCells, setErrorCells] = useState([]);
+  const [lastErrorCell, setLastErrorCell] = useState(null);
   
   const inputRef = useRef(null);
 
@@ -125,6 +126,10 @@ const SudokuGame = () => {
     setTimer(0);
     setIsRunning(true);
     setShowHints(false);
+    setHistory([]);     // Reset history
+    setErrorCells([]);  // Reset error cells
+    setSelectedCell(null);  // Reset selected cell
+    setLastErrorCell(null);
   };
 
   const formatTime = (time) => {
@@ -134,7 +139,14 @@ const SudokuGame = () => {
   };
 
   const handleCellClick = (row, col) => {
-    if (board[row][col] === 0) {
+    if (lastErrorCell) {
+      // If there is an error cell, only allow selecting that cell
+      if (lastErrorCell.row === row && lastErrorCell.col === col) {
+        console.log("Error cell selected:", row, col);
+        setSelectedCell({ row, col });
+      }
+    } else if (board[row][col] === 0) {
+      console.log("Cell selected:", row, col);
       setSelectedCell({ row, col });
     }
   };
@@ -148,6 +160,11 @@ const SudokuGame = () => {
       setHistory(history.slice(0, -1));
       const newErrorCells = findAllErrorCells(newBoard);
       setErrorCells(newErrorCells);
+      
+      // If the last move was an error cell, clear lastErrorCell
+      if (lastErrorCell && lastErrorCell.row === lastMove.row && lastErrorCell.col === lastMove.col) {
+        setLastErrorCell(null);
+      }
     }
   };
 
@@ -166,19 +183,23 @@ const SudokuGame = () => {
   const handleNumberInput = (number) => {
     if (selectedCell) {
       const { row, col } = selectedCell;
-      if (board[row][col] === 0) {
+      if (board[row][col] === 0 || (lastErrorCell && lastErrorCell.row === row && lastErrorCell.col === col)) {
         const newBoard = [...board];
-        newBoard[row][col] = number;
+        const prevValue = newBoard[row][col];
+        newBoard[row][col] = parseInt(number);
         setBoard(newBoard);
         setHistory([...history, { row, col, prevValue: 0, newValue: number }]);
         
         // Cancel hint after filling the blank
         setShowHints(false);
-
-        if (number !== solution[row][col]) {
-          setMistakes(mistakes + 1);
+        
+        if (parseInt(number) !== solution[row][col]) {
+          if (prevValue === 0) {  // Only increase mistake count when a new number is entered
+            setMistakes(mistakes + 1);
+          }
           const newErrorCells = findAllErrorCells(newBoard);
           setErrorCells(newErrorCells);
+          setLastErrorCell({ row, col }); 
           
           if (mistakes + 1 >= 3) {
             setIsRunning(false);
@@ -188,6 +209,7 @@ const SudokuGame = () => {
         } else {
           const newErrorCells = findAllErrorCells(newBoard);
           setErrorCells(newErrorCells);
+          setLastErrorCell(null);
         }
         
         if (JSON.stringify(newBoard) === JSON.stringify(solution)) {
@@ -204,7 +226,7 @@ const SudokuGame = () => {
     if (input >= '1' && input <= '9') {
       handleNumberInput(parseInt(input));
     }
-    event.target.value = ''; // 清空输入框
+    event.target.value = ''; // Clear input field
   };
 
   const getPossibleNumbers = (row, col) => {
