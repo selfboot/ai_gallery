@@ -20,7 +20,7 @@
     "@next/third-parties": "^14.2.5",
     "@react-spring/web": "^9.7.4",
     "@tailwindcss/typography": "^0.5.14",
-    "cookies-next": "^4.2.1",
+    "cookies-next": "^4.3.0",
     "crypto": "^1.0.1",
     "echarts-for-react": "^3.0.2",
     "gif.js": "^0.2.0",
