@@ -30,7 +30,6 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
           title={`RSS Feed for AI Gallery`}
           href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
-        <meta name="baidu-site-verification" content="codeva-aNF6ICHngY" />
       </head>
       <body>
         <div className="flex flex-col min-h-screen">
