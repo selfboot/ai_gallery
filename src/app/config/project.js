@@ -8,11 +8,11 @@ const Projects = {
       link: "/games/gomoku",
     },
     {
-      id: "chess",
-      title: "chess_title",
-      description: "chess_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_chess.png/webp",
-      link: "/games/chess",
+      id: "sudoku",
+      title: "sudoku_title",
+      description: "sudoku_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241010_ai_gallery_sudoku.webp",
+      link: "/games/sudoku",
     },
     {
       id: "tetris",
@@ -34,6 +34,13 @@ const Projects = {
       description: "snake_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20240714_ai_gallery_snake.gif",
       link: "/games/snake",
+    },
+    {
+      id: "chess",
+      title: "chess_title",
+      description: "chess_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240706_ai_gallery_chess.png/webp",
+      link: "/games/chess",
     },
   ],
   algorithms: [
