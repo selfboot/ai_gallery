@@ -339,6 +339,21 @@
   "moreChartRace": "这里有一批生成好的动态条形图，涵盖各种有趣的数据。",
   "clickHere": "点击查看",
 
+  "sudoku_title": "数独填字游戏",
+  "sudoku_description": "经典的数独游戏，支持免费在线玩。可以生成随机数独题目，支持选择题目难度，支持撤销操作以及提示功能。欢迎来玩～",
+  "easy": "简单",
+  "medium": "中等",
+  "hard": "困难",
+  "expert": "专家",
+  "mistakes": "错误",
+  "selectDifficulty": "选择难度",
+  "newGame": "新游戏",
+  "undo": "撤销",
+  "showHints": "显示提示",
+  "hideHints": "隐藏提示",
+  "gameOver": "游戏结束！错误次数超过3次。",
+  "congratulations_sudo": "恭喜！你已经完成了数独谜题！",
+
   "chartrace": {
       "population-growth": {
         "title": "世界人口变化(1800-2015)",
@@ -461,6 +476,11 @@
       "title": "开源贪吃蛇",
       "description": "开源的 React 经典免费贪吃蛇在线版。控制蛇吃食物,变得更长,避免撞到墙壁或蛇的身体。无需下载，源代码开放。",
       "keywords": "贪吃蛇,在线玩贪吃蛇,免费贪吃蛇游戏,贪吃蛇吃食物,Claude 编写的贪吃蛇,在线贪吃蛇游戏"
+    },
+    "sudoku": {
+      "title": "开源在线免费数独游戏",
+      "description": "开源的 React 数独 sudoku 游戏。在线数独，挑战你的逻辑思维!提供多种难度级别，从简单到专家，适合所有技能水平的玩家。包括实时错误检查、提示系统和计时器，独特的键盘和鼠标输入支持，游戏体验流畅。",
+      "keywords": "数独,在线玩数独,免费数独游戏,Claude 编写的数独,在线数独游戏"
     },
     "chartrace": {
       "title": "在线生成条形图竞赛",

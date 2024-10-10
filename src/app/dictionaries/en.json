@@ -330,6 +330,22 @@
   "ChartsIndexTableIntro": "Intro",
   "ChartsIndexTableDataSource": "Data Source",
 
+  "sudoku_title": "Sudoku",
+  "sudoku_description": "Classic Sudoku game, free to play online. Generate random Sudoku puzzles, choose difficulty levels, and enjoy undo and hint features. Come and play!",
+
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "expert": "Expert",
+  "mistakes": "Mistakes",
+  "selectDifficulty": "Select Difficulty",
+  "newGame": "New Game",
+  "undo": "Undo",
+  "showHints": "Show Hints",
+  "hideHints": "Hide Hints",
+  "gameOver": "Game Over! You've made more than 3 mistakes.",
+  "congratulations_sudo": "Congratulations! You've completed the Sudoku puzzle!",
+  
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",
@@ -452,6 +468,11 @@
       "title": "Free Snake Game Online",
       "description": "Enjoy the classic free snake game online. Control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.. No download needed.",
       "keywords": "Snake, Play snake online, Free snake game, Snake eat food, Snake Claude write, Online snake game"
+    },
+    "sudoku": {
+      "title": "Free Sudoku Game Online",
+      "description": "Open-source React Sudoku game. Play Sudoku online and challenge your logical thinking! Offers multiple difficulty levels, from easy to expert, suitable for players of all skill levels. Features include real-time error checking, a hint system, and a timer. Unique keyboard and mouse input support ensures a smooth gaming experience.",
+      "keywords": "Sudoku, Play sudoku online, Free sudoku game, Sudoku strategy, Sudoku Claude write, Online sudoku game"
     },
     "chartrace": {
       "title": "BarChartRace Generate Online",

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, Eye, EyeOff } from 'lucide-react';
 import Modal from '@/app/components/Modal';
+import { useI18n } from "@/app/i18n/client";
 
 // Helper function to check if placing a number in a given position is valid
 const isValid = (board, row, col, num) => {
@@ -59,13 +60,6 @@ const generatePuzzle = (solution, difficulty = 40) => {
   return puzzle;
 };
 
-const difficulties = {
-  简单: 65,
-  中等: 50,
-  困难: 35,
-  专家: 20
-};
-
 const isRelatedCell = (selectedRow, selectedCol, currentRow, currentCol) => {
   // Same row or same column
   if (selectedRow === currentRow || selectedCol === currentCol) {
@@ -80,6 +74,8 @@ const isRelatedCell = (selectedRow, selectedCol, currentRow, currentCol) => {
 };
 
 const SudokuGame = () => {
+  const { t } = useI18n();
+  
   const [board, setBoard] = useState(Array(9).fill().map(() => Array(9).fill(0)));
   const [solution, setSolution] = useState(null);
   const [selectedCell, setSelectedCell] = useState(null);
@@ -87,7 +83,7 @@ const SudokuGame = () => {
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const [showHints, setShowHints] = useState(false);
-  const [difficulty, setDifficulty] = useState('简单');
+  const [difficulty, setDifficulty] = useState(t('easy'));
   const [history, setHistory] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -203,7 +199,7 @@ const SudokuGame = () => {
           
           if (mistakes + 1 >= 3) {
             setIsRunning(false);
-            setModalMessage("游戏结束！错误次数超过3次。");
+            setModalMessage("gameOver");
             setIsModalOpen(true);
           }
         } else {
@@ -214,7 +210,7 @@ const SudokuGame = () => {
         
         if (JSON.stringify(newBoard) === JSON.stringify(solution)) {
           setIsRunning(false);
-          setModalMessage("恭喜！你已经完成了数独谜题！");
+          setModalMessage("congratulations_sudo");
           setIsModalOpen(true);
         }
       }
@@ -317,6 +313,13 @@ const SudokuGame = () => {
     ));
   };
 
+  const difficulties = {
+    [t('easy')]: 65,
+    [t('medium')]: 50,
+    [t('hard')]: 35,
+    [t('expert')]: 20
+  };
+
   return (
     <div className="flex flex-col md:flex-row">
       <input
@@ -328,8 +331,8 @@ const SudokuGame = () => {
       <div className="md:w-4/5 mb-6 md:mb-0 md:pr-6 flex flex-col items-center">
         <div className="flex justify-center items-center w-full mb-4 text-sm">
           <div className="flex space-x-4">
-            <span>错误: {mistakes}/3</span>
-            <span>耗时: {formatTime(timer)}</span>
+            <span>{t('mistakes')}: {mistakes}/3</span>
+            <span>{t('time')}: {formatTime(timer)}</span>
           </div>
         </div>
         <div className="mb-4">{renderBoard()}</div>
@@ -348,7 +351,7 @@ const SudokuGame = () => {
       
       <div className="md:w-1/5">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">难度选择</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('selectDifficulty')}</h3>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
@@ -364,7 +367,7 @@ const SudokuGame = () => {
         <div className="flex flex-col space-y-2">
           <button onClick={initializeGame} className="flex items-center justify-center px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
             <RefreshCw className="w-4 h-4 mr-1" />
-            新游戏
+            {t('newGame')}
           </button>
           <button
             onClick={handleUndo}
@@ -375,7 +378,7 @@ const SudokuGame = () => {
               <path d="M3 9H16.5C18.9853 9 21 11.0147 21 13.5C21 15.9853 18.9853 18 16.5 18H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M7 5L3 9L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            撤销
+            {t('undo')}
           </button>
           <button 
             onClick={toggleHints} 
@@ -384,12 +387,12 @@ const SudokuGame = () => {
             }`}
           >
             {showHints ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
-            {showHints ? '隐藏提示' : '显示提示'}
+            {showHints ? t('hideHints') : t('showHints')}
           </button>
         </div>
       </div>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <p>{modalMessage}</p>
+        <p>{t(modalMessage)}</p>
       </Modal>
     </div>
   );
