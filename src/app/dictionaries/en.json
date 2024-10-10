@@ -346,6 +346,14 @@
     "china_population": {
       "title": "China Population Change (2004-2023)",
       "intro": "The analysis reveals a clear divergence in population trends across China's provinces. Eastern coastal regions such as Beijing, Guangdong, and Shanghai show significant population growth, with average increases ranging from 1.5% to 2%. These areas attract large numbers of migrants due to their economic prosperity and abundant job opportunities. In contrast, northeastern provinces like Heilongjiang and Jilin are experiencing negative population growth, with Heilongjiang seeing the most significant decrease (-1.15%). These regions are facing industrial decline and population outflow. Some central and western provinces, such as Guizhou and Gansu, are also seeing slower population growth. Future demographic changes will likely focus on the relationship between urbanization and regional economic disparities. Eastern economic centers may continue to attract populations, while provinces with less diversified economies may struggle with population loss."
+    },
+    "china_income": {
+      "title": "China Income Change (2004-2023)",
+      "intro": "The analysis reveals significant regional disparities in fiscal revenues across Chinese provinces, with coastal provinces like Guangdong and Jiangsu far outperforming inland provinces such as Tibet and Qinghai, reflecting uneven economic development. Nevertheless, most provinces showed a continuous growth trend from 2004 to 2023, demonstrating China's overall economic progress. However, recent years have seen a general slowdown in growth rates, possibly reflecting the impact of economic transformation and structural adjustments. Notably, some provinces like Guizhou and Tibet have experienced rapid fiscal revenue growth, likely tied to national regional development strategies and support policies. Meanwhile, provinces with diversified economic structures, such as Guangdong and Zhejiang, have shown stronger resilience to economic fluctuations, highlighting the importance of industrial diversity for fiscal stability."
+    },
+    "china_outcome": {
+      "title": "China Expenditure Change (2004-2023)",
+      "intro": "The analysis reveals a continuous growth trend in fiscal expenditure across Chinese provinces, reflecting the government's increasing investment in people's livelihoods and economic development. However, there are significant regional differences in the scale and growth rate of expenditures, with economically developed eastern coastal provinces like Guangdong and Jiangsu far outspending western provinces like Qinghai and Ningxia, highlighting the vast disparity in fiscal strength. Notably, some central and western provinces such as Sichuan and Guizhou have seen faster expenditure growth, possibly linked to national strategies for balanced regional development. "
     }
   },
 
@@ -473,6 +481,16 @@
         "title": "China Population Growth",
         "description": "The population trends in China's provinces reveal significant regional disparities. While coastal regions like Beijing, Guangdong, and Shanghai continue to see population growth, northeastern provinces such as Heilongjiang and Jilin are experiencing population decline. Urbanization and economic development gaps will likely influence future demographic shifts. ​",
         "keywords": "China Population Growth, Population Statistics, Data Visualization, BarChartRace"
+      },
+      "china_income": {
+        "title": "China Province Income Change",
+        "description": "This analysis employs linear dynamic charts and animated bar graphs to vividly illustrate the fiscal revenue trends of Chinese provinces from 2004 to 2023. Through these intuitive visualization tools, we clearly present significant regional economic disparities, sustained growth patterns, a slowdown in growth rates, the impact of regional development policies, and the influence of economic diversification on fiscal revenues. The dynamic charts not only display static data but also showcase the dynamic process of fiscal revenue changes, providing readers with a deeper and more comprehensive understanding. ",
+        "keywords": "China Province Income Growth, Fiscal Revenue, Data Visualization, BarChartRace"
+      },
+      "china_outcome": {
+        "title": "China Province Expenditure Change",
+        "description": "This analysis employs linear dynamic charts and animated bar graphs to vividly illustrate the fiscal expenditure trends across Chinese provinces from 2004 to 2023. Through these intuitive visualization tools, we clearly present the continuous growth in fiscal spending, regional disparities, policy impacts, and economic development characteristics. The dynamic charts not only display static data but also showcase the evolving process of fiscal expenditures, allowing readers to visually grasp the changes in fiscal strength and policy orientations across provinces. ",
+        "keywords": "China Province Expenditure Growth, Fiscal Expenditure, Data Visualization, BarChartRace"
       }
     },
     "skiplist": {
