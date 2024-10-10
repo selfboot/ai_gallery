@@ -19,6 +19,8 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
   const dict = await getDictionary(lang);
   const pathname = `/${lang}/${slug.join('/')}`;
 
+  const rssFileName = lang === 'zh' ? 'rss.xml' : `rss-${lang}.xml`;
+
   return (
     <html lang={lang}>
       <head>
@@ -26,8 +28,9 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
           rel="alternate"
           type="application/rss+xml"
           title={`RSS Feed for AI Gallery`}
-          href={`https://gallery.selfboot.cn/${lang}/rss.xml`}
+          href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
+        <meta name="baidu-site-verification" content="codeva-aNF6ICHngY" />
       </head>
       <body>
         <div className="flex flex-col min-h-screen">
