@@ -272,6 +272,7 @@ const SudokuGame = () => {
   };
 
   const renderBoard = () => {
+    const cellSize = 'w-12 h-12 md:w-16 md:h-16';
     return board.map((row, rowIndex) => (
       <div key={rowIndex} className="flex">
         {row.map((cell, colIndex) => {
@@ -282,7 +283,7 @@ const SudokuGame = () => {
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`w-16 h-16 border border-gray-300 flex items-center justify-center cursor-pointer
+              className={`${cellSize} border border-gray-300 flex items-center justify-center cursor-pointer
                 ${isSelected ? 'bg-blue-200' : ''}
                 ${!isSelected && isRelated ? 'bg-gray-100' : ''}
                 ${rowIndex === 0 ? 'border-t-2 border-t-black' : ''}
@@ -299,7 +300,7 @@ const SudokuGame = () => {
                 showHints && (
                   <div className="grid grid-cols-3 gap-0 w-full h-full p-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                      <span key={num} className={`flex items-center justify-center text-[10px] ${possibleNumbers.includes(num) ? '' : 'invisible'}`}>
+                      <span key={num} className={`flex items-center justify-center text-[8px] md:text-[10px] ${possibleNumbers.includes(num) ? '' : 'invisible'}`}>
                         {num}
                       </span>
                     ))}
@@ -321,14 +322,14 @@ const SudokuGame = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row">
-      <input
-        ref={inputRef}
-        type="text"
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-        onChange={handleInputChange}
-      />
-      <div className="md:w-4/5 mb-6 md:mb-0 md:pr-6 flex flex-col items-center">
+    <div className="flex flex-col lg:flex-row max-w-full overflow-x-hidden">
+      <div className="w-full lg:w-4/5 mb-6 lg:mb-0 lg:pr-6 flex flex-col items-center">
+        <input
+          ref={inputRef}
+          type="text"
+          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+          onChange={handleInputChange}
+        />
         <div className="flex justify-center items-center w-full mb-4 text-sm">
           <div className="flex space-x-4">
             <span>{t('mistakes')}: {mistakes}/3</span>
@@ -341,7 +342,7 @@ const SudokuGame = () => {
             <button 
               key={num} 
               onClick={() => handleNumberInput(num)} 
-              className="w-16 h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-lg font-bold"
+              className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base md:text-lg font-bold"
             >
               {num}
             </button>
@@ -349,7 +350,7 @@ const SudokuGame = () => {
         </div>
       </div>
       
-      <div className="md:w-1/5">
+      <div className="w-full lg:w-1/5">
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2">{t('selectDifficulty')}</h3>
           <select
