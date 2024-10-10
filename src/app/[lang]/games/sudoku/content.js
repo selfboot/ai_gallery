@@ -322,7 +322,7 @@ const SudokuGame = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row max-w-full overflow-x-hidden">
+    <div className="flex flex-col lg:flex-row">
       <div className="w-full lg:w-4/5 mb-6 lg:mb-0 lg:pr-6 flex flex-col items-center">
         <input
           ref={inputRef}
@@ -336,17 +336,21 @@ const SudokuGame = () => {
             <span>{t('time')}: {formatTime(timer)}</span>
           </div>
         </div>
-        <div className="mb-4">{renderBoard()}</div>
-        <div className="grid grid-cols-9 gap-1">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-            <button 
-              key={num} 
-              onClick={() => handleNumberInput(num)} 
-              className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base md:text-lg font-bold"
-            >
-              {num}
-            </button>
-          ))}
+        <div className="overflow-x-auto w-full relative lg:flex lg:justify-center">
+          <div className="inline-block min-w-max">
+            <div className="mb-4">{renderBoard()}</div>
+            <div className="grid grid-cols-9 gap-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => handleNumberInput(num)}
+                  className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base md:text-lg font-bold"
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       
