@@ -336,7 +336,7 @@ const SudokuGame = () => {
             <span>{t('time')}: {formatTime(timer)}</span>
           </div>
         </div>
-        <div className="overflow-x-auto w-full relative lg:flex lg:justify-center">
+        <div className="overflow-x-auto w-full relative flex justify-center">
           <div className="inline-block min-w-max">
             <div className="mb-4">{renderBoard()}</div>
             <div className="grid grid-cols-9 gap-1">

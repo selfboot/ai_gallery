@@ -3,6 +3,7 @@ import SudokuGame from "./content";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
+import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
@@ -21,6 +22,7 @@ export default function SudokuPage({ params: { lang } }) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/sudoku`} />
       <SudokuGame lang={lang} />
+      <BlogMarkdown lang={lang} directory="src/app/[lang]/games/sudoku" />
       <CommonComments lang={lang} />
     </>
   );
