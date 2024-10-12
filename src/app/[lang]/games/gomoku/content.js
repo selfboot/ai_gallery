@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import { useI18n } from "@/app/i18n/client";
+import Modal from "@/app/components/Modal";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -14,6 +13,11 @@ const GomokuGame = () => {
   const [gameOver, setGameOver] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [firstMove, setFirstMove] = useState("black");
+  const [hoverPosition, setHoverPosition] = useState(null);
+  const [moveHistory, setMoveHistory] = useState([]);
+  const [undoCount, setUndoCount] = useState({ black: 3, white: 3 });
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const createBoard = useCallback(() => {
     const newBoard = Array(boardSize)
@@ -27,6 +31,8 @@ const GomokuGame = () => {
     setCurrentPlayer(firstMove);
     setStatus(firstMove === "black" ? t("black_turn") : t("white_turn"));
     setGameOver(false);
+    setMoveHistory([]);
+    setUndoCount({ black: 3, white: 3 });
   }, [t, boardSize, firstMove]);
 
   useEffect(() => {
@@ -43,12 +49,13 @@ const GomokuGame = () => {
     const newBoard = [...gameBoard];
     newBoard[row][col] = currentPlayer;
     setGameBoard(newBoard);
+    setMoveHistory([...moveHistory, { row, col, player: currentPlayer }]);
 
     if (checkWin(row, col)) {
-      setStatus(currentPlayer === "black" ? t("black_win") : t("white_win"));
+      const winMessage = currentPlayer === "black" ? t("black_win") : t("white_win");
+      setModalMessage(winMessage);
+      setShowModal(true);
       setGameOver(true);
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
     } else {
       setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
       setStatus(currentPlayer === "black" ? t("white_turn") : t("black_turn"));
@@ -101,6 +108,7 @@ const GomokuGame = () => {
                            (row === 7 && col === 7) ||
                            (row === 11 && col === 3) ||
                            (row === 11 && col === 11);
+    const isHovered = hoverPosition && hoverPosition.row === row && hoverPosition.col === col;
 
     return (
       <div
@@ -112,12 +120,21 @@ const GomokuGame = () => {
           width: `${100 / 16}%`,
           height: `${100 / 16}%`,
         }}
+        onMouseEnter={() => setHoverPosition({ row, col })}
+        onMouseLeave={() => setHoverPosition(null)}
       >
         {stone && (
           <div
             className={`rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] ${
               stone === "black" ? "bg-black" : "bg-white border border-black"
             }`}
+          />
+        )}
+        {isHovered && !stone && (
+          <div
+            className={`rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] ${
+              currentPlayer === "black" ? "bg-black" : "bg-white border border-black"
+            } opacity-50`}
           />
         )}
         {isSpecialPoint && !stone && (
@@ -131,6 +148,35 @@ const GomokuGame = () => {
         />
       </div>
     );
+  };
+
+  const undoMove = (player) => {
+    if (moveHistory.length === 0 || gameOver) return;
+    
+    const lastMove = moveHistory[moveHistory.length - 1];
+    if (lastMove.player !== player) {
+      setModalMessage(t("not_your_turn"));
+      setShowModal(true);
+      return;
+    }
+    
+    if (undoCount[player] > 0) {
+      const newBoard = [...gameBoard];
+      newBoard[lastMove.row][lastMove.col] = "";
+      setGameBoard(newBoard);
+      
+      setMoveHistory(moveHistory.slice(0, -1));
+      setCurrentPlayer(player);
+      setStatus(player === "black" ? t("black_turn") : t("white_turn"));
+      
+      setUndoCount({
+        ...undoCount,
+        [player]: undoCount[player] - 1
+      });
+    } else {
+      setModalMessage(t("no_undo_left"));
+      setShowModal(true);
+    }
   };
 
   return (
@@ -181,25 +227,37 @@ const GomokuGame = () => {
               <option value="white">{t("white")}</option>
             </select>
           </div>
+          <div className="flex space-x-2 mb-2">
+            <button
+              className={`flex-1 px-4 py-2 text-white rounded ${
+                undoCount.black > 0 ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-400 cursor-not-allowed'
+              }`}
+              onClick={() => undoMove("black")}
+              disabled={undoCount.black === 0 || gameOver || moveHistory.length === 0}
+            >
+              {t("undo_black")} ({undoCount.black})
+            </button>
+            <button
+              className={`flex-1 px-4 py-2 text-gray-800 rounded ${
+                undoCount.white > 0 ? 'bg-white hover:bg-gray-100 border border-gray-300' : 'bg-gray-200 cursor-not-allowed text-gray-500'
+              }`}
+              onClick={() => undoMove("white")}
+              disabled={undoCount.white === 0 || gameOver || moveHistory.length === 0}
+            >
+              {t("undo_white")} ({undoCount.white})
+            </button>
+          </div>
           <button
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-2"
             onClick={resetGame}
           >
             {t("restart_game")}
           </button>
         </div>
       </div>
-      {showCelebration && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-5 rounded-lg flex flex-col items-center">
-            <FontAwesomeIcon
-              icon={faTrophy}
-              className="text-yellow-400 text-6xl"
-            />
-            <p className="text-xl font-bold mt-2">{status}</p>
-          </div>
-        </div>
-      )}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <p>{modalMessage}</p>
+      </Modal>
     </div>
   );
 };

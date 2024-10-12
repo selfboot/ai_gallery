@@ -19,6 +19,10 @@
   "congratulations": "Congratulations!",
   "first_move": "First Move",
   "white": "White",
+  "undo_black": "Undo Black",
+  "undo_white": "Undo White",
+  "not_your_turn": "It's not your turn to undo",
+  "no_undo_left": "No undo moves left",
 
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",

@@ -20,6 +20,10 @@
   "go_back": "返回",
   "first_move": "先手",
   "white": "白方",
+  "undo_black": "黑方悔棋",
+  "undo_white": "白方悔棋",
+  "not_your_turn": "现在不是你的回合，不能悔棋",
+  "no_undo_left": "没有剩余的悔棋次数",
 
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
