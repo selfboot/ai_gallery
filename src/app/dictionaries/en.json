@@ -17,6 +17,9 @@
   "restart_game": "Restart Game",
   "game_over": "Game Over!",
   "congratulations": "Congratulations!",
+  "first_move": "First Move",
+  "white": "White",
+
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",
   "chess_description": "Chinese Chess game with a minimalist board layout, complete rules, alternating turns between black and red players, checks, and endgame determination. Undo feature is also supported.",

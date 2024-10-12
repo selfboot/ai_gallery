@@ -18,6 +18,8 @@
   "congratulations": "恭喜，你成功了!",
   "restart_game": "重新开始",
   "go_back": "返回",
+  "first_move": "先手",
+  "white": "白方",
 
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
