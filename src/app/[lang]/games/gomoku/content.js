@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
+import { checkThreeThree } from "./forbiddenMoves";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -11,13 +12,13 @@ const GomokuGame = () => {
   const [currentPlayer, setCurrentPlayer] = useState("black");
   const [status, setStatus] = useState(() => t("black_turn"));
   const [gameOver, setGameOver] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [firstMove, setFirstMove] = useState("black");
   const [hoverPosition, setHoverPosition] = useState(null);
   const [moveHistory, setMoveHistory] = useState([]);
   const [undoCount, setUndoCount] = useState({ black: 3, white: 3 });
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [forbiddenMove, setForbiddenMove] = useState(null);
 
   const createBoard = useCallback(() => {
     const newBoard = Array(boardSize)
@@ -48,6 +49,15 @@ const GomokuGame = () => {
 
     const newBoard = [...gameBoard];
     newBoard[row][col] = currentPlayer;
+
+    if (currentPlayer === firstMove && checkThreeThree(newBoard, row, col, currentPlayer)) {
+      setForbiddenMove("three-three");
+      setModalMessage(t("three_three_forbidden", { player: t(currentPlayer) }));
+      setShowModal(true);
+      setGameOver(true);
+      return;
+    }
+
     setGameBoard(newBoard);
     setMoveHistory([...moveHistory, { row, col, player: currentPlayer }]);
 

@@ -24,6 +24,9 @@
   "undo_white": "白方悔棋",
   "not_your_turn": "现在不是你的回合，不能悔棋",
   "no_undo_left": "没有剩余的悔棋次数",
+  "three_three_forbidden": "{{player}}因三三禁手判负！",
+  "forbidden_move": "禁手：{{type}}",
+  "three-three": "三三禁手",
 
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
