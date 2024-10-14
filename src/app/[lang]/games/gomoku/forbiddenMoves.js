@@ -25,7 +25,7 @@ function visualizeBoard(board) {
   ).join('\n');
 }
 
-function checkContinuousOpenThree(board, row, col, dx, dy, player) {
+export function checkContinuousOpenThree(board, row, col, dx, dy, player) {
 //   console.log("checkContinuousOpenThree");
 //   console.log(visualizeBoard(board));
 //   console.log(`row: ${row}, col: ${col}, dx: ${dx}, dy: ${dy}, player: ${player}`);
@@ -65,20 +65,88 @@ function checkContinuousOpenThree(board, row, col, dx, dy, player) {
     }
   }
 
-  return matchCount === 1 ? { pattern: matchedPattern, positions: matchedPositions } : false;
+  return matchCount === 1 ? { isOpen: true, type: ThreeType.CONTINUOUS,pattern: matchedPattern, positions: matchedPositions } : { isOpen: false };
+}
+
+export function checkJumpOpenThree(board, row, col, dx, dy, player) {
+  const patterns = [
+    {indices: [-4, -3, -2, -1, 0, 1], values: ["", player, player, "", player, ""]},  // _OO_X_
+    {indices: [-2, -1, 0, 1, 2, 3], values: ["", player, player, "", player, ""]},    // _OX_O_
+    {indices: [-1, 0, 1, 2, 3, 4], values: ["", player, player, "", player, ""]},    // _XO_O_
+    {indices: [-1, 0, 1, 2, 3, 4], values: ["", player, "", player, player, ""]},    // _X_OO_
+    {indices: [-3, -2, -1, 0, 1, 2], values: ["", player, "", player, player, ""]},  // _0_XO_
+    {indices: [-4, -3, -2, -1, 0, 1], values: ["", player, "", player, player, ""]}, // _0_OX_
+  ];
+
+  let matchCount = 0;
+  let matchedPattern = null;
+  let matchedPositions = null;
+//   console.log("checkJumpOpenThree");
+//   console.log(visualizeBoard(board));
+//   console.log(`row: ${row}, col: ${col}, dx: ${dx}, dy: ${dy}, player: ${player}`);
+  
+  for (let pattern of patterns) {
+    let match = true;
+    let positions = [];
+    for (let i = 0; i < pattern.indices.length; i++) {
+      const x = row + pattern.indices[i] * dx;
+      const y = col + pattern.indices[i] * dy;
+      if (!isValidPosition(x, y) || board[x][y] !== pattern.values[i]) {
+        match = false;
+        break;
+      }
+    //   console.log("x", x, "y", y, "pattern.values[i]", pattern.values[i], "board[x][y]", board[x][y]);
+      positions.push([x, y]);
+    }
+
+    if (match) {
+      matchCount++;
+      matchedPattern = pattern;
+      matchedPositions = positions;
+    //   console.log("matchedPattern", matchedPattern, matchedPositions, matchCount);
+      if (matchCount > 1) {
+        return false; // 如果匹配多于一种模式，不是跳活三
+      }
+    }
+  }
+
+  if (matchCount === 1) {
+    // console.log("matchedPattern", matchedPattern, matchedPositions, matchCount);
+    return { isOpen: true, type: ThreeType.JUMP, pattern: matchedPattern, positions: matchedPositions };
+  } else {
+    return { isOpen: false };
+  }
 }
 
 export function isOpenThree(board, row, col, dx, dy, player) {
-  const result = checkContinuousOpenThree(board, row, col, dx, dy, player);
-  if (result) {
-    return {
-      isOpen: true,
-      type: ThreeType.CONTINUOUS,
-      pattern: result.pattern,
-      positions: result.positions
-    };
+  const continuousResult = checkContinuousOpenThree(board, row, col, dx, dy, player);
+  if (continuousResult) {
+    return continuousResult;
   }
+
+  const jumpResult = checkJumpOpenThree(board, row, col, dx, dy, player);
+  if (jumpResult) {
+    return jumpResult;
+  }
+
   return { isOpen: false };
+}
+
+export function findOpenThrees(board, row, col, player) {
+  const openThrees = [];
+
+  for (const [dx, dy] of directions) {
+    const result = isOpenThree(board, row, col, dx, dy, player);
+    if (result.isOpen) {
+      openThrees.push({
+        type: result.type,
+        direction: [dx, dy],
+        positions: result.positions
+      });
+    }
+  }
+
+  return openThrees;
 }
 
 export function checkDoubleThree(board, row, col, player) {
@@ -88,8 +156,8 @@ export function checkDoubleThree(board, row, col, player) {
 
   let forbiddenPositions = [];
   if (isDoubleThree) {
-    forbiddenPositions = openThrees.flatMap(three => three.path);
-    // Remove duplicates
+    forbiddenPositions = openThrees.flatMap(three => three.positions);
+    // 移除重复的位置
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
 

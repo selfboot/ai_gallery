@@ -1,4 +1,4 @@
-import { isOpenThree, directions, ThreeType } from '../forbiddenMoves';
+import { checkContinuousOpenThree, checkJumpOpenThree, directions, ThreeType } from '../forbiddenMoves';
 
 const directionMap = {
   horizontal: directions[0],
@@ -352,7 +352,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       test(testCase.name, () => {
         const { position: [row, col], board: updatedBoard } = findXPositionAndReplace(testCase.board, testCase.player);
         const [dx, dy] = directionMap[testCase.direction];
-        const result = isOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
+        const result = checkContinuousOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
         expect(result.isOpen).toBe(testCase.expected.isOpen);
         expect(result.type).toBe(testCase.expected.type);
         expect(result.positions).toEqual(expect.arrayContaining(testCase.expected.positions));
@@ -494,8 +494,135 @@ describe('Gomoku isOpenThree - Not Continuous Open Three', () => {
     test(testCase.name, () => {
       const { position: [row, col], board: updatedBoard } = findXPositionAndReplace(testCase.board, testCase.player);
       const [dx, dy] = directionMap[testCase.direction];
-      const result = isOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
+      const result = checkContinuousOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
       expect(result.isOpen).toBe(testCase.expected.isOpen);
+    });
+  });
+});
+
+describe('Gomoku isOpenThree - Jump Open Three', () => {
+  const testCases = [
+    {
+      name: "Jump Open Three (Horizontal - _OO_X_)",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "B", "B", "", "X", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "horizontal",
+      expected: {
+        isOpen: true,
+        type: ThreeType.JUMP,
+        positions: [[6,1], [6,2], [6,3], [6,4], [6,5], [6,6]]
+      }
+    },
+    {
+      name: "Jump Open Three (Vertical - _OX_O_)",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "B", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "X", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "B", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "vertical",
+      expected: {
+        isOpen: true,
+        type: ThreeType.JUMP,
+        positions: [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]]
+      }
+    },
+    {
+      name: "Jump Open Three (Diagonal Right - _X_OO_)",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "X", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "B", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "B", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "diagonalRight",
+      expected: {
+        isOpen: true,
+        type: ThreeType.JUMP,
+        positions: [[2,2], [3,3], [4,4], [5,5], [6,6], [7,7]]
+      }
+    },
+    {
+      name: "Jump Open Three (Diagonal Left - _O_OX_)",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "B", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "B", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "X", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "diagonalLeft",
+      expected: {
+        isOpen: true,
+        type: ThreeType.JUMP,
+        positions: [[6, 4], [5, 5], [4, 6], [3, 7], [2, 8], [1, 9]]
+      }
+    }
+
+  ];
+
+  testCases.forEach(testCase => {
+    test(testCase.name, () => {
+      const { position: [row, col], board: updatedBoard } = findXPositionAndReplace(testCase.board, testCase.player);
+      const [dx, dy] = directionMap[testCase.direction];
+      
+      const result = checkJumpOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
+      expect(result.isOpen).toBe(testCase.expected.isOpen);
+      expect(result.type).toBe(testCase.expected.type);
+      expect(result.positions).toEqual(expect.arrayContaining(testCase.expected.positions));
+      expect(result.positions.length).toBe(testCase.expected.positions.length);
     });
   });
 });
