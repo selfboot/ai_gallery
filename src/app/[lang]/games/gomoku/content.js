@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import { checkThreeThree } from "./forbiddenMoves";
+import { checkDoubleThree } from "./forbiddenMoves";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -18,7 +18,7 @@ const GomokuGame = () => {
   const [undoCount, setUndoCount] = useState({ black: 3, white: 3 });
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [forbiddenMove, setForbiddenMove] = useState(null);
+  const [forbiddenPositions, setForbiddenPositions] = useState([]);
 
   const createBoard = useCallback(() => {
     const newBoard = Array(boardSize)
@@ -50,16 +50,20 @@ const GomokuGame = () => {
     const newBoard = [...gameBoard];
     newBoard[row][col] = currentPlayer;
 
-    if (currentPlayer === firstMove && checkThreeThree(newBoard, row, col, currentPlayer)) {
-      setForbiddenMove("three-three");
-      setModalMessage(t("three_three_forbidden", { player: t(currentPlayer) }));
-      setShowModal(true);
-      setGameOver(true);
-      return;
+    if (currentPlayer === firstMove) {
+      const { isForbidden, forbiddenPositions } = checkDoubleThree(newBoard, row, col, currentPlayer);
+      if (isForbidden) {
+        setForbiddenPositions(forbiddenPositions);
+        setModalMessage(t("three_three_forbidden", { player: t(currentPlayer) }));
+        setShowModal(true);
+        setGameOver(true);
+        return;
+      }
     }
 
     setGameBoard(newBoard);
     setMoveHistory([...moveHistory, { row, col, player: currentPlayer }]);
+    setForbiddenPositions([]);
 
     if (checkWin(row, col)) {
       const winMessage = currentPlayer === "black" ? t("black_win") : t("white_win");
@@ -119,6 +123,7 @@ const GomokuGame = () => {
                            (row === 11 && col === 3) ||
                            (row === 11 && col === 11);
     const isHovered = hoverPosition && hoverPosition.row === row && hoverPosition.col === col;
+    const isForbidden = forbiddenPositions.some(([r, c]) => r === row && c === col);
 
     return (
       <div
@@ -137,7 +142,7 @@ const GomokuGame = () => {
           <div
             className={`rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] ${
               stone === "black" ? "bg-black" : "bg-white border border-black"
-            }`}
+            } ${isForbidden ? "ring-2 ring-red-500" : ""}`}
           />
         )}
         {isHovered && !stone && (
