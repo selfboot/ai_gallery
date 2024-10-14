@@ -167,3 +167,41 @@ export function checkDoubleThree(board, row, col, player) {
     openThrees
   };
 }
+
+// 检测长连的函数
+export function checkOverline(board, row, col, player) {
+  const overlines = [];
+
+  for (const [dx, dy] of directions) {
+    const path = [[row, col]];  // 包含当前位置
+    let count = 1;
+
+    // 向一个方向检查
+    for (let i = 1; i < 6; i++) {
+      const newRow = row + i * dx;
+      const newCol = col + i * dy;
+      if (!isValidPosition(newRow, newCol) || board[newRow][newCol] !== player) {
+        break;
+      }
+      path.push([newRow, newCol]);
+      count++;
+    }
+
+    // 向相反方向检查
+    for (let i = 1; i < 6; i++) {
+      const newRow = row - i * dx;
+      const newCol = col - i * dy;
+      if (!isValidPosition(newRow, newCol) || board[newRow][newCol] !== player) {
+        break;
+      }
+      path.unshift([newRow, newCol]);  // 在数组开头添加
+      count++;
+    }
+
+    if (count > 5) {
+      overlines.push(path);
+    }
+  }
+
+  return overlines;  // 返回所有长连的路径
+}

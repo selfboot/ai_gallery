@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import { checkDoubleThree } from "./forbiddenMoves";
+import { checkDoubleThree, checkOverline } from "./forbiddenMoves";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -19,13 +19,7 @@ const GomokuGame = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [forbiddenPositions, setForbiddenPositions] = useState([]);
-
-  const createBoard = useCallback(() => {
-    const newBoard = Array(boardSize)
-      .fill()
-      .map(() => Array(boardSize).fill(""));
-    setGameBoard(newBoard);
-  }, [boardSize]);
+  const [forbiddenRules, setForbiddenRules] = useState(["noRestriction"]);
 
   const resetGame = useCallback(() => {
     setGameBoard(Array(boardSize).fill().map(() => Array(boardSize).fill("")));
@@ -50,14 +44,27 @@ const GomokuGame = () => {
     const newBoard = [...gameBoard];
     newBoard[row][col] = currentPlayer;
 
-    if (currentPlayer === firstMove) {
-      const { isForbidden, forbiddenPositions } = checkDoubleThree(newBoard, row, col, currentPlayer);
-      if (isForbidden) {
-        setForbiddenPositions(forbiddenPositions);
-        setModalMessage(t("three_three_forbidden", { player: t(currentPlayer) }));
-        setShowModal(true);
-        setGameOver(true);
-        return;
+    if (currentPlayer === firstMove && forbiddenRules.length > 0 && !forbiddenRules.includes("noRestriction")) {
+      if (forbiddenRules.includes("threeThree")) {
+        const { isForbidden, forbiddenPositions } = checkDoubleThree(newBoard, row, col, currentPlayer);
+        if (isForbidden) {
+          setForbiddenPositions(forbiddenPositions);
+          setModalMessage(t("three_three_forbidden", { player: t(currentPlayer) }));
+          setShowModal(true);
+          setGameOver(true);
+          return;
+        }
+      }
+
+      if (forbiddenRules.includes("longConnection")) {
+        const overlines = checkOverline(newBoard, row, col, currentPlayer);
+        if (overlines.length > 0) {
+          setForbiddenPositions(overlines.flat());
+          setModalMessage(t("long_connection_forbidden", { player: t(currentPlayer) }));
+          setShowModal(true);
+          setGameOver(true);
+          return;
+        }
       }
     }
 
@@ -194,6 +201,21 @@ const GomokuGame = () => {
     }
   };
 
+  const handleForbiddenRulesChange = (rule) => {
+    setForbiddenRules((prevRules) => {
+      if (rule === "noRestriction") {
+        return ["noRestriction"];
+      } else {
+        const newRules = prevRules.filter((r) => r !== "noRestriction");
+        if (newRules.includes(rule)) {
+          return newRules.filter((r) => r !== rule);
+        } else {
+          return [...newRules, rule];
+        }
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-start lg:space-x-8">
@@ -241,6 +263,38 @@ const GomokuGame = () => {
               <option value="black">{t("black")}</option>
               <option value="white">{t("white")}</option>
             </select>
+          </div>
+          <div className="mb-4">
+            <label className="text-gray-700 block mb-2">{t("forbidden_rules")}:</label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={forbiddenRules.includes("noRestriction")}
+                  onChange={() => handleForbiddenRulesChange("noRestriction")}
+                  className="mr-2"
+                />
+                {t("no_restriction")}
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={forbiddenRules.includes("threeThree")}
+                  onChange={() => handleForbiddenRulesChange("threeThree")}
+                  className="mr-2"
+                />
+                {t("three-three")}
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={forbiddenRules.includes("longConnection")}
+                  onChange={() => handleForbiddenRulesChange("longConnection")}
+                  className="mr-2"
+                />
+                {t("long_connection")}
+              </label>
+            </div>
           </div>
           <div className="flex space-x-2 mb-2">
             <button

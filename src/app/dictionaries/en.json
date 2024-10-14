@@ -25,7 +25,10 @@
   "no_undo_left": "No undo moves left",
   "three_three_forbidden": "{{player}} loses due to Three-Three forbidden move!",
   "forbidden_move": "Forbidden move: {{type}}",
-  "three-three": "Three-Three",
+  "three-three": "Three-Three Forbidden",
+  "long_connection": "Long Connection Forbidden",
+  "no_restriction": "No Restriction",
+  "forbidden_rules": "Select Forbidden Rules",
 
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",

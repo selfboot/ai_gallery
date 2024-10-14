@@ -27,6 +27,9 @@
   "three_three_forbidden": "{{player}}因三三禁手判负！",
   "forbidden_move": "禁手：{{type}}",
   "three-three": "三三禁手",
+  "long_connection": "长连禁手",
+  "no_restriction": "无禁手",
+  "forbidden_rules": "选择先手禁手",
 
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
