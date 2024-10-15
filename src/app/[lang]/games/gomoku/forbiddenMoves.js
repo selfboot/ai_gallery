@@ -4,10 +4,10 @@ export const ThreeType = {
 };
 
 export const directions = [
-  [0, 1],  // 水平
-  [1, 0],  // 垂直
-  [1, 1],  // 右下对角线
-  [-1, 1]  // 左下对角线
+  [0, 1],  // horizontal
+  [1, 0],  // vertical
+  [1, 1],  // right-down diagonal
+  [-1, 1]  // left-down diagonal
 ];
 
 function isValidPosition(x, y) {
@@ -105,7 +105,7 @@ export function checkJumpOpenThree(board, row, col, dx, dy, player) {
       matchedPositions = positions;
     //   console.log("matchedPattern", matchedPattern, matchedPositions, matchCount);
       if (matchCount > 1) {
-        return false; // 如果匹配多于一种模式，不是跳活三
+        return false; // Not jump open three if more than one pattern
       }
     }
   }
@@ -168,15 +168,14 @@ export function checkDoubleThree(board, row, col, player) {
   };
 }
 
-// 检测长连的函数
 export function checkOverline(board, row, col, player) {
   const overlines = [];
 
   for (const [dx, dy] of directions) {
-    const path = [[row, col]];  // 包含当前位置
+    const path = [[row, col]];
     let count = 1;
 
-    // 向一个方向检查
+    // Check in one direction
     for (let i = 1; i < 6; i++) {
       const newRow = row + i * dx;
       const newCol = col + i * dy;
@@ -187,14 +186,14 @@ export function checkOverline(board, row, col, player) {
       count++;
     }
 
-    // 向相反方向检查
+    // Check in the opposite direction
     for (let i = 1; i < 6; i++) {
       const newRow = row - i * dx;
       const newCol = col - i * dy;
       if (!isValidPosition(newRow, newCol) || board[newRow][newCol] !== player) {
         break;
       }
-      path.unshift([newRow, newCol]);  // 在数组开头添加
+      path.unshift([newRow, newCol]);
       count++;
     }
 
@@ -203,5 +202,70 @@ export function checkOverline(board, row, col, player) {
     }
   }
 
-  return overlines;  // 返回所有长连的路径
+  return overlines; // return all overlines
+}
+
+export function checkOpenFour(board, row, col, player) {
+  const openFours = [];
+
+  for (const [dx, dy] of directions) {
+    let count = 1;
+    let leftSpace = 0;
+    let rightSpace = 0;
+    let path = [[row, col]];
+
+    for (let i = 1; i <= 5; i++) {
+      const newRow = row - i * dx;
+      const newCol = col - i * dy;
+      if (!isValidPosition(newRow, newCol)) break;
+      if (board[newRow][newCol] === player) {
+        count++;
+        path.unshift([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        leftSpace++;
+        if (leftSpace === 2) break;
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 1; i <= 5; i++) {
+      const newRow = row + i * dx;
+      const newCol = col + i * dy;
+      if (!isValidPosition(newRow, newCol)) break;
+      if (board[newRow][newCol] === player) {
+        count++;
+        path.push([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        rightSpace++;
+        if (rightSpace === 2) break;
+      } else {
+        break;
+      }
+    }
+
+    if (count === 4 && leftSpace >= 1 && rightSpace >= 1) {
+      openFours.push(path);
+    }
+  }
+
+  return openFours;
+}
+
+export function findDoubleFours(board, row, col, player) {
+  const fours = checkOpenFour(board, row, col, player);
+  const isDoubleFour = fours.length >= 2;
+  
+  let forbiddenPositions = [];
+  if (isDoubleFour) {
+    forbiddenPositions = fours.flat();
+    // 移除重复的位置
+    forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
+  }
+
+  return {
+    isDoubleFour,
+    fours,
+    forbiddenPositions
+  };
 }

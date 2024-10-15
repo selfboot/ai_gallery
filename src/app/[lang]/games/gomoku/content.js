@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import { checkDoubleThree, checkOverline } from "./forbiddenMoves";
+import { checkDoubleThree, checkOverline, findDoubleFours } from "./forbiddenMoves";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -61,6 +61,17 @@ const GomokuGame = () => {
         if (overlines.length > 0) {
           setForbiddenPositions(overlines.flat());
           setModalMessage(t("long_connection_forbidden", { player: t(currentPlayer) }));
+          setShowModal(true);
+          setGameOver(true);
+          return;
+        }
+      }
+
+      if (forbiddenRules.includes("fourFour")) {
+        const { isDoubleFour, fours, forbiddenPositions } = findDoubleFours(newBoard, row, col, currentPlayer);
+        if (isDoubleFour) {
+          setForbiddenPositions(forbiddenPositions);
+          setModalMessage(t("four_four_forbidden", { player: t(currentPlayer) }));
           setShowModal(true);
           setGameOver(true);
           return;
@@ -291,7 +302,7 @@ const GomokuGame = () => {
                   onChange={() => handleForbiddenRulesChange("threeThree")}
                   className="mr-2"
                 />
-                {t("three-three")}
+                {t("three_three")}
               </label>
               <label className="flex items-center">
                 <input
@@ -301,6 +312,15 @@ const GomokuGame = () => {
                   className="mr-2"
                 />
                 {t("long_connection")}
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={forbiddenRules.includes("fourFour")}
+                  onChange={() => handleForbiddenRulesChange("fourFour")}
+                  className="mr-2"
+                />
+                {t("four_four")}
               </label>
             </div>
           </div>
