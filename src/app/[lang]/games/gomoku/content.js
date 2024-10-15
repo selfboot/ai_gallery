@@ -3,11 +3,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import { checkDoubleThree, checkOverline, findDoubleFours } from "./forbiddenMoves";
+import { checkWin, checkDoubleThree, checkOverline, findDoubleFours, boardSize } from "./move";
 
 const GomokuGame = () => {
   const { t } = useI18n();
-  const boardSize = 15;
   const [gameBoard, setGameBoard] = useState(() => Array(boardSize).fill().map(() => Array(boardSize).fill("")));
   const [currentPlayer, setCurrentPlayer] = useState("black");
   const [status, setStatus] = useState(() => t("black_turn"));
@@ -83,7 +82,7 @@ const GomokuGame = () => {
     setMoveHistory([...moveHistory, { row, col, player: currentPlayer }]);
     setForbiddenPositions([]);
 
-    if (checkWin(row, col)) {
+    if (checkWin(gameBoard, row, col, currentPlayer)) {
       const winMessage = currentPlayer === "black" ? t("black_win") : t("white_win");
       setModalMessage(winMessage);
       setShowModal(true);
@@ -92,45 +91,6 @@ const GomokuGame = () => {
       setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
       setStatus(currentPlayer === "black" ? t("white_turn") : t("black_turn"));
     }
-  };
-
-  const checkWin = (row, col) => {
-    const directions = [
-      [1, 0],
-      [0, 1],
-      [1, 1],
-      [1, -1],
-    ];
-
-    for (const [dx, dy] of directions) {
-      let count = 1;
-      count += countDirection(row, col, dx, dy);
-      count += countDirection(row, col, -dx, -dy);
-
-      if (count >= 5) return true;
-    }
-
-    return false;
-  };
-
-  const countDirection = (row, col, dx, dy) => {
-    let count = 0;
-    let x = row + dx;
-    let y = col + dy;
-
-    while (
-      x >= 0 &&
-      x < boardSize &&
-      y >= 0 &&
-      y < boardSize &&
-      gameBoard[x][y] === currentPlayer
-    ) {
-      count++;
-      x += dx;
-      y += dy;
-    }
-
-    return count;
   };
 
   const renderIntersection = (row, col) => {

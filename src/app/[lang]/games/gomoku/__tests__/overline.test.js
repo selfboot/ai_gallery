@@ -1,4 +1,4 @@
-import { checkOverline, directions } from '../forbiddenMoves';
+import { checkOverline, directions } from '../move';
 
 function findXPositionAndReplace(board, player) {
   const newBoard = board.map(row => [...row]);

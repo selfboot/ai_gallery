@@ -1,4 +1,4 @@
-import { checkContinuousOpenThree, checkJumpOpenThree, directions, ThreeType } from '../forbiddenMoves';
+import { checkContinuousOpenThree, checkJumpOpenThree, directions, ThreeType } from '../move';
 
 const directionMap = {
   horizontal: directions[0],

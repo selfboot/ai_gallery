@@ -3,6 +3,8 @@ export const ThreeType = {
   JUMP: "跳活三",
 };
 
+export const boardSize = 15;
+
 export const directions = [
   [0, 1],  // horizontal
   [1, 0],  // vertical
@@ -13,6 +15,38 @@ export const directions = [
 function isValidPosition(x, y) {
   return x >= 0 && x < 15 && y >= 0 && y < 15;
 }
+
+export const checkWin = (gameBoard, row, col, currentPlayer) => {
+  for (const [dx, dy] of directions) {
+    let count = 1;
+    count += countDirection(gameBoard, row, col, dx, dy, currentPlayer);
+    count += countDirection(gameBoard, row, col, -dx, -dy, currentPlayer);
+
+    if (count >= 5) return true;
+  }
+
+  return false;
+};
+
+export const countDirection = (gameBoard, row, col, dx, dy, currentPlayer) => {
+  let count = 0;
+  let x = row + dx;
+  let y = col + dy;
+
+  while (
+    x >= 0 &&
+      x < boardSize &&
+      y >= 0 &&
+      y < boardSize &&
+      gameBoard[x][y] === currentPlayer
+    ) {
+      count++;
+      x += dx;
+    y += dy;
+   }
+
+  return count;
+};
 
 function visualizeBoard(board) {
   const symbols = {
@@ -258,49 +292,48 @@ export function checkRushFour(board, row, col, player) {
   const rushFours = [];
 
   for (const [dx, dy] of directions) {
-    let count = 1;
-    let leftSpace = 0;
-    let rightSpace = 0;
-    let path = [[row, col]];
-
-    // 向左检查
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row - i * dx;
-      const newCol = col - i * dy;
-      if (!isValidPosition(newRow, newCol)) break;
-      if (board[newRow][newCol] === player) {
-        count++;
-        path.unshift([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        leftSpace++;
-        if (leftSpace === 2) break;
+    // 构建该方向的所有相关位置
+    const line = [];
+    const positions = [];
+    for (let i = -4; i <= 4; i++) {
+      const x = row + i * dx;
+      const y = col + i * dy;
+      if (isValidPosition(x, y)) {
+        line.push(board[x][y]);
+        positions.push([x, y]);
       } else {
-        break;
+        line.push('O'); // 使用 'O' 表示边界或对手的棋子
+        positions.push(null);
       }
     }
 
-    // 向右检查
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row + i * dx;
-      const newCol = col + i * dy;
-      if (!isValidPosition(newRow, newCol)) break;
-      if (board[newRow][newCol] === player) {
-        count++;
-        path.push([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        rightSpace++;
-        if (rightSpace === 2) break;
-      } else {
-        break;
-      }
-    }
+    // 检查所有可能的5个连续位置
+    for (let i = 0; i <= line.length - 5; i++) {
+      const window = line.slice(i, i + 5);
+      const windowPositions = positions.slice(i, i + 5);
+      const playerCount = window.filter(cell => cell === player).length;
+      const emptyCount = window.filter(cell => cell === '').length;
 
-    if (count === 4 && (leftSpace === 1 || rightSpace === 1)) {
-      rushFours.push(path);
+      if (playerCount === 4 && emptyCount === 1) {
+        const emptyIndex = window.indexOf('');
+        const emptyPos = windowPositions[emptyIndex];
+        if (emptyPos && isValidPosition(emptyPos[0], emptyPos[1])) {
+          board[emptyPos[0]][emptyPos[1]] = player;
+          if (checkWin(board, emptyPos[0], emptyPos[1], player)) {
+            const rushFourPositions = windowPositions.filter((pos, index) => 
+              pos !== null && window[index] === player
+            );
+            console.log("rushFourPositions", dx, dy, i, windowPositions, rushFourPositions);
+            rushFours.push(rushFourPositions);
+          }
+          board[emptyPos[0]][emptyPos[1]] = ''; // 恢复空位
+        }
+      }
     }
   }
 
-  return rushFours;
+  // 只有一个冲四情况时返回
+  return rushFours.length === 1 ? rushFours : [];
 }
 
 export function findDoubleFours(board, row, col, player) {
@@ -312,7 +345,7 @@ export function findDoubleFours(board, row, col, player) {
   let forbiddenPositions = [];
   if (isDoubleFour) {
     forbiddenPositions = totalFours.flat();
-    // 移除重复的位置
+    // Remove duplicate positions
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
 
