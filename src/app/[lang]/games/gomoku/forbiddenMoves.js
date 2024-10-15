@@ -205,8 +205,8 @@ export function checkOverline(board, row, col, player) {
   return overlines; // return all overlines
 }
 
-export function checkOpenFour(board, row, col, player) {
-  const openFours = [];
+export function checkLiveFour(board, row, col, player) {
+  const liveFours = [];
 
   for (const [dx, dy] of directions) {
     let count = 1;
@@ -214,7 +214,57 @@ export function checkOpenFour(board, row, col, player) {
     let rightSpace = 0;
     let path = [[row, col]];
 
-    for (let i = 1; i <= 5; i++) {
+    // 向左检查
+    for (let i = 1; i <= 4; i++) {
+      const newRow = row - i * dx;
+      const newCol = col - i * dy;
+      if (!isValidPosition(newRow, newCol)) break;
+      if (board[newRow][newCol] === player) {
+        count++;
+        path.unshift([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        leftSpace++;
+        break;
+      } else {
+        break;
+      }
+    }
+
+    // 向右检查
+    for (let i = 1; i <= 4; i++) {
+      const newRow = row + i * dx;
+      const newCol = col + i * dy;
+      if (!isValidPosition(newRow, newCol)) break;
+      if (board[newRow][newCol] === player) {
+        count++;
+        path.push([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        rightSpace++;
+        break;
+      } else {
+        break;
+      }
+    }
+
+    if (count === 4 && leftSpace === 1 && rightSpace === 1) {
+      liveFours.push(path);
+    }
+  }
+
+  return liveFours;
+}
+
+export function checkRushFour(board, row, col, player) {
+  const rushFours = [];
+
+  for (const [dx, dy] of directions) {
+    let count = 1;
+    let leftSpace = 0;
+    let rightSpace = 0;
+    let path = [[row, col]];
+
+    // 向左检查
+    for (let i = 1; i <= 4; i++) {
       const newRow = row - i * dx;
       const newCol = col - i * dy;
       if (!isValidPosition(newRow, newCol)) break;
@@ -229,7 +279,8 @@ export function checkOpenFour(board, row, col, player) {
       }
     }
 
-    for (let i = 1; i <= 5; i++) {
+    // 向右检查
+    for (let i = 1; i <= 4; i++) {
       const newRow = row + i * dx;
       const newCol = col + i * dy;
       if (!isValidPosition(newRow, newCol)) break;
@@ -244,28 +295,31 @@ export function checkOpenFour(board, row, col, player) {
       }
     }
 
-    if (count === 4 && leftSpace >= 1 && rightSpace >= 1) {
-      openFours.push(path);
+    if (count === 4 && (leftSpace === 1 || rightSpace === 1)) {
+      rushFours.push(path);
     }
   }
 
-  return openFours;
+  return rushFours;
 }
 
 export function findDoubleFours(board, row, col, player) {
-  const fours = checkOpenFour(board, row, col, player);
-  const isDoubleFour = fours.length >= 2;
+  const liveFours = checkLiveFour(board, row, col, player);
+  const rushFours = checkRushFour(board, row, col, player);
+  const totalFours = [...liveFours, ...rushFours];
+  const isDoubleFour = totalFours.length >= 2;
   
   let forbiddenPositions = [];
   if (isDoubleFour) {
-    forbiddenPositions = fours.flat();
+    forbiddenPositions = totalFours.flat();
     // 移除重复的位置
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
 
   return {
     isDoubleFour,
-    fours,
+    liveFours,
+    rushFours,
     forbiddenPositions
   };
 }
