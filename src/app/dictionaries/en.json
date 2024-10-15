@@ -24,6 +24,7 @@
   "not_your_turn": "It's not your turn to undo",
   "no_undo_left": "No undo moves left",
   "three_three_forbidden": "{{player}} loses due to Three-Three forbidden move!",
+  "long_connection_forbidden": "{{player}} loses due to Long Connection forbidden move!",
   "forbidden_move": "Forbidden move: {{type}}",
   "three-three": "Three-Three Forbidden",
   "long_connection": "Long Connection Forbidden",

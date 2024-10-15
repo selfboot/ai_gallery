@@ -150,7 +150,15 @@ const GomokuGame = () => {
             className={`rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] ${
               stone === "black" ? "bg-black" : "bg-white border border-black"
             } ${isForbidden ? "ring-2 ring-red-500" : ""}`}
-          />
+          >
+            {isForbidden && (
+              <div className="absolute inset-0 flex items-center justify-center text-red-500 w-full h-full">
+                <svg viewBox="0 0 24 24" className="w-3/4 h-3/4 fill-current">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+              </div>
+            )}
+          </div>
         )}
         {isHovered && !stone && (
           <div
@@ -296,26 +304,20 @@ const GomokuGame = () => {
               </label>
             </div>
           </div>
-          <div className="flex space-x-2 mb-2">
-            <button
-              className={`flex-1 px-4 py-2 text-white rounded ${
-                undoCount.black > 0 ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-400 cursor-not-allowed'
-              }`}
-              onClick={() => undoMove("black")}
-              disabled={undoCount.black === 0 || gameOver || moveHistory.length === 0}
-            >
-              {t("undo_black")} ({undoCount.black})
-            </button>
-            <button
-              className={`flex-1 px-4 py-2 text-gray-800 rounded ${
-                undoCount.white > 0 ? 'bg-white hover:bg-gray-100 border border-gray-300' : 'bg-gray-200 cursor-not-allowed text-gray-500'
-              }`}
-              onClick={() => undoMove("white")}
-              disabled={undoCount.white === 0 || gameOver || moveHistory.length === 0}
-            >
-              {t("undo_white")} ({undoCount.white})
-            </button>
-          </div>
+          <button
+            className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded mb-2"
+            onClick={() => undoMove("black")}
+            disabled={undoCount.black === 0 || gameOver || moveHistory.length === 0}
+          >
+            {t("undo_black")} ({undoCount.black})
+          </button>
+          <button
+            className="w-full px-4 py-2 bg-white text-gray-800 rounded hover:bg-gray-100 border border-gray-300 mb-2"
+            onClick={() => undoMove("white")}
+            disabled={undoCount.white === 0 || gameOver || moveHistory.length === 0}
+          >
+            {t("undo_white")} ({undoCount.white})
+          </button>
           <button
             className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-2"
             onClick={resetGame}

@@ -25,6 +25,7 @@
   "not_your_turn": "现在不是你的回合，不能悔棋",
   "no_undo_left": "没有剩余的悔棋次数",
   "three_three_forbidden": "{{player}}因三三禁手判负！",
+  "long_connection_forbidden": "{{player}}因长连禁手判负！",
   "forbidden_move": "禁手：{{type}}",
   "three-three": "三三禁手",
   "long_connection": "长连禁手",
