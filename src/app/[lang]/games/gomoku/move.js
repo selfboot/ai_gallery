@@ -94,7 +94,7 @@ export function checkContinuousOpenThree(board, row, col, dx, dy, player) {
       matchedPattern = pattern;
       matchedPositions = positions;
       if (matchCount > 1) {
-        return false; // 如果匹配多于一种模式，不是连续活三
+        return false; // It's not continuous open three if more than one pattern
       }
     }
   }
@@ -191,7 +191,6 @@ export function checkDoubleThree(board, row, col, player) {
   let forbiddenPositions = [];
   if (isDoubleThree) {
     forbiddenPositions = openThrees.flatMap(three => three.positions);
-    // 移除重复的位置
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
 
@@ -248,7 +247,7 @@ export function checkLiveFour(board, row, col, player) {
     let rightSpace = 0;
     let path = [[row, col]];
 
-    // 向左检查
+    // Check left
     for (let i = 1; i <= 4; i++) {
       const newRow = row - i * dx;
       const newCol = col - i * dy;
@@ -264,7 +263,7 @@ export function checkLiveFour(board, row, col, player) {
       }
     }
 
-    // 向右检查
+    // Check right
     for (let i = 1; i <= 4; i++) {
       const newRow = row + i * dx;
       const newCol = col + i * dy;
@@ -292,48 +291,74 @@ export function checkRushFour(board, row, col, player) {
   const rushFours = [];
 
   for (const [dx, dy] of directions) {
-    // 构建该方向的所有相关位置
-    const line = [];
-    const positions = [];
-    for (let i = -4; i <= 4; i++) {
-      const x = row + i * dx;
-      const y = col + i * dy;
-      if (isValidPosition(x, y)) {
-        line.push(board[x][y]);
-        positions.push([x, y]);
+    let leftCount = 0;
+    let rightCount = 0;
+    let leftSpace = 0;
+    let rightSpace = 0;
+    let leftBlocked = false;
+    let rightBlocked = false;
+    let path = [[row, col]];
+
+    // 检查左边
+    for (let i = 1; i <= 4; i++) {
+      const newRow = row - i * dx;
+      const newCol = col - i * dy;
+      if (!isValidPosition(newRow, newCol)) {
+        leftBlocked = true;
+        break;
+      }
+      if (board[newRow][newCol] === player) {
+        leftCount++;
+        path.unshift([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        if (leftSpace === 0) {
+          leftSpace++;
+          path.unshift([newRow, newCol]);
+        } else {
+          break;
+        }
       } else {
-        line.push('O'); // 使用 'O' 表示边界或对手的棋子
-        positions.push(null);
+        leftBlocked = true;
+        break;
       }
     }
 
-    // 检查所有可能的5个连续位置
-    for (let i = 0; i <= line.length - 5; i++) {
-      const window = line.slice(i, i + 5);
-      const windowPositions = positions.slice(i, i + 5);
-      const playerCount = window.filter(cell => cell === player).length;
-      const emptyCount = window.filter(cell => cell === '').length;
-
-      if (playerCount === 4 && emptyCount === 1) {
-        const emptyIndex = window.indexOf('');
-        const emptyPos = windowPositions[emptyIndex];
-        if (emptyPos && isValidPosition(emptyPos[0], emptyPos[1])) {
-          board[emptyPos[0]][emptyPos[1]] = player;
-          if (checkWin(board, emptyPos[0], emptyPos[1], player)) {
-            const rushFourPositions = windowPositions.filter((pos, index) => 
-              pos !== null && window[index] === player
-            );
-            console.log("rushFourPositions", dx, dy, i, windowPositions, rushFourPositions);
-            rushFours.push(rushFourPositions);
-          }
-          board[emptyPos[0]][emptyPos[1]] = ''; // 恢复空位
+    // 检查右边
+    for (let i = 1; i <= 4; i++) {
+      const newRow = row + i * dx;
+      const newCol = col + i * dy;
+      if (!isValidPosition(newRow, newCol)) {
+        rightBlocked = true;
+        break;
+      }
+      if (board[newRow][newCol] === player) {
+        rightCount++;
+        path.push([newRow, newCol]);
+      } else if (board[newRow][newCol] === "") {
+        if (rightSpace === 0) {
+          rightSpace++;
+          path.push([newRow, newCol]);
+        } else {
+          break;
         }
+      } else {
+        rightBlocked = true;
+        break;
+      }
+    }
+
+    const totalCount = leftCount + rightCount + 1; // +1 for the current position
+    const totalSpace = leftSpace + rightSpace;
+
+    // 判断是否为冲四
+    if (totalCount === 4 && totalSpace === 1) {
+      if ((leftSpace === 1 && rightBlocked) || (rightSpace === 1 && leftBlocked) || (leftSpace === 0 && rightSpace === 0)) {
+        rushFours.push(path.filter(pos => board[pos[0]][pos[1]] === player));
       }
     }
   }
 
-  // 只有一个冲四情况时返回
-  return rushFours.length === 1 ? rushFours : [];
+  return rushFours;
 }
 
 export function findDoubleFours(board, row, col, player) {

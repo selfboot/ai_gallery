@@ -292,7 +292,7 @@ describe('Gomoku checkRushFour - Valid Rush Four', () => {
       expected: [[[4,1], [5,2], [6,3], [7,4]]]
     },
     {
-        name: "Rush Four (Diagonal Right - Left blocked)",
+        name: "Rush Four (Diagonal Right - Left blocked middle)",
         board: [
           ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
           ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
@@ -311,7 +311,7 @@ describe('Gomoku checkRushFour - Valid Rush Four', () => {
           ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
         ],
         player: "B",
-        expected: [[[4,1], [5,2], [6,3], [7,4]]]
+        expected: [[[4,1], [5,2], [7,4], [8,5]]]
       }
   ];
 
