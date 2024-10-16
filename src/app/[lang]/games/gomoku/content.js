@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import { checkWin, checkDoubleThree, checkOverline, findDoubleFours, boardSize } from "./move";
+import { checkWin, checkDoubleThree, checkOverline, checkDoubleFours, boardSize } from "./move";
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -67,7 +67,7 @@ const GomokuGame = () => {
       }
 
       if (forbiddenRules.includes("fourFour")) {
-        const { isDoubleFour, forbiddenPositions } = findDoubleFours(newBoard, row, col, currentPlayer);
+        const { isDoubleFour, forbiddenPositions } = checkDoubleFours(newBoard, row, col, currentPlayer);
         if (isDoubleFour) {
           setForbiddenPositions(forbiddenPositions);
           setModalMessage(t("four_four_forbidden", { player: t(currentPlayer) }));

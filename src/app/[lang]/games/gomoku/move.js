@@ -43,16 +43,16 @@ export const countDirection = (gameBoard, row, col, dx, dy, currentPlayer) => {
   return count;
 };
 
-function visualizeBoard(board) {
-  const symbols = {
-    '': '.',
-    'B': '●',
-    'W': '○'
-  };
-  return board.map(row => 
-    row.map(cell => symbols[cell] || cell).join(' ')
-  ).join('\n');
-}
+// function visualizeBoard(board) {
+//   const symbols = {
+//     '': '.',
+//     'B': '●',
+//     'W': '○'
+//   };
+//   return board.map(row => 
+//     row.map(cell => symbols[cell] || cell).join(' ')
+//   ).join('\n');
+// }
 
 export function checkContinuousOpenThree(board, row, col, dx, dy, player) {
 //   console.log("checkContinuousOpenThree");
@@ -223,7 +223,7 @@ export function checkOverline(board, row, col, player) {
   return overlines; // return all overlines
 }
 
-export function findDoubleFours(board, row, col, player) {
+export function checkDoubleFours(board, row, col, player) {
   const { rushFours, liveFours } = checkFourInRow(board, row, col, player);
   
   const totalFours = [...rushFours, ...liveFours];
@@ -235,7 +235,7 @@ export function findDoubleFours(board, row, col, player) {
     // Remove duplicate positions
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
-
+  // console.log(visualizeBoard(board), row, col, player, isDoubleFour, forbiddenPositions, rushFours, liveFours);
   return {
     isDoubleFour,
     forbiddenPositions
