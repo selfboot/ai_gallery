@@ -67,7 +67,7 @@ const GomokuGame = () => {
       }
 
       if (forbiddenRules.includes("fourFour")) {
-        const { isDoubleFour, fours, forbiddenPositions } = findDoubleFours(newBoard, row, col, currentPlayer);
+        const { isDoubleFour, forbiddenPositions } = findDoubleFours(newBoard, row, col, currentPlayer);
         if (isDoubleFour) {
           setForbiddenPositions(forbiddenPositions);
           setModalMessage(t("four_four_forbidden", { player: t(currentPlayer) }));

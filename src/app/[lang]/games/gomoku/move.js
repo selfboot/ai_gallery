@@ -238,133 +238,10 @@ export function checkOverline(board, row, col, player) {
   return overlines; // return all overlines
 }
 
-export function checkLiveFour(board, row, col, player) {
-  const liveFours = [];
-
-  for (const [dx, dy] of directions) {
-    let count = 1;
-    let leftSpace = 0;
-    let rightSpace = 0;
-    let path = [[row, col]];
-
-    // Check left
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row - i * dx;
-      const newCol = col - i * dy;
-      if (!isValidPosition(newRow, newCol)) break;
-      if (board[newRow][newCol] === player) {
-        count++;
-        path.unshift([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        leftSpace++;
-        break;
-      } else {
-        break;
-      }
-    }
-
-    // Check right
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row + i * dx;
-      const newCol = col + i * dy;
-      if (!isValidPosition(newRow, newCol)) break;
-      if (board[newRow][newCol] === player) {
-        count++;
-        path.push([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        rightSpace++;
-        break;
-      } else {
-        break;
-      }
-    }
-
-    if (count === 4 && leftSpace === 1 && rightSpace === 1) {
-      liveFours.push(path);
-    }
-  }
-
-  return liveFours;
-}
-
-export function checkRushFour(board, row, col, player) {
-  const rushFours = [];
-
-  for (const [dx, dy] of directions) {
-    let leftCount = 0;
-    let rightCount = 0;
-    let leftSpace = 0;
-    let rightSpace = 0;
-    let leftBlocked = false;
-    let rightBlocked = false;
-    let path = [[row, col]];
-
-    // 检查左边
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row - i * dx;
-      const newCol = col - i * dy;
-      if (!isValidPosition(newRow, newCol)) {
-        leftBlocked = true;
-        break;
-      }
-      if (board[newRow][newCol] === player) {
-        leftCount++;
-        path.unshift([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        if (leftSpace === 0) {
-          leftSpace++;
-          path.unshift([newRow, newCol]);
-        } else {
-          break;
-        }
-      } else {
-        leftBlocked = true;
-        break;
-      }
-    }
-
-    // 检查右边
-    for (let i = 1; i <= 4; i++) {
-      const newRow = row + i * dx;
-      const newCol = col + i * dy;
-      if (!isValidPosition(newRow, newCol)) {
-        rightBlocked = true;
-        break;
-      }
-      if (board[newRow][newCol] === player) {
-        rightCount++;
-        path.push([newRow, newCol]);
-      } else if (board[newRow][newCol] === "") {
-        if (rightSpace === 0) {
-          rightSpace++;
-          path.push([newRow, newCol]);
-        } else {
-          break;
-        }
-      } else {
-        rightBlocked = true;
-        break;
-      }
-    }
-
-    const totalCount = leftCount + rightCount + 1; // +1 for the current position
-    const totalSpace = leftSpace + rightSpace;
-
-    // 判断是否为冲四
-    if (totalCount === 4 && totalSpace === 1) {
-      if ((leftSpace === 1 && rightBlocked) || (rightSpace === 1 && leftBlocked) || (leftSpace === 0 && rightSpace === 0)) {
-        rushFours.push(path.filter(pos => board[pos[0]][pos[1]] === player));
-      }
-    }
-  }
-
-  return rushFours;
-}
-
 export function findDoubleFours(board, row, col, player) {
-  const liveFours = checkLiveFour(board, row, col, player);
-  const rushFours = checkRushFour(board, row, col, player);
-  const totalFours = [...liveFours, ...rushFours];
+  const { rushFours, liveFours } = checkFourInRow(board, row, col, player);
+  
+  const totalFours = [...rushFours, ...liveFours];
   const isDoubleFour = totalFours.length >= 2;
   
   let forbiddenPositions = [];
@@ -376,8 +253,66 @@ export function findDoubleFours(board, row, col, player) {
 
   return {
     isDoubleFour,
-    liveFours,
-    rushFours,
     forbiddenPositions
   };
+}
+
+export function checkFourInRow(board, row, col, player) {
+  const potentialFives = [];
+  for (const [dx, dy] of directions) {
+    for (let start = -4; start <= 0; start++) {
+      const positions = [];
+      let playerCount = 0;
+      let emptyCount = 0;
+      let emptyPositions = [];
+
+      for (let i = 0; i < 5; i++) {
+        const newRow = row + (start + i) * dx;
+        const newCol = col + (start + i) * dy;
+
+        if (!isValidPosition(newRow, newCol)) break;
+
+        positions.push([newRow, newCol]);
+
+        if (board[newRow][newCol] === player) {
+          playerCount++;
+        } else if (board[newRow][newCol] === '') {
+          emptyCount++;
+          emptyPositions.push([newRow, newCol]);
+        } else {
+          break;
+        }
+      }
+
+      if (playerCount === 4 && emptyCount === 1) {
+        potentialFives.push({
+          fourPositions: positions.filter(([r, c]) => board[r][c] === player),
+          emptyPosition: emptyPositions[0]
+        });
+      }
+    }
+  }
+
+  const fourPositionsMap = new Map();
+
+  for (const { fourPositions, emptyPosition } of potentialFives) {
+    const key = JSON.stringify(fourPositions.sort((a, b) => a[0] - b[0] || a[1] - b[1]));
+    if (!fourPositionsMap.has(key)) {
+      fourPositionsMap.set(key, { fourPositions, emptyPositions: [] });
+    }
+    fourPositionsMap.get(key).emptyPositions.push(emptyPosition);
+  }
+
+  const rushFours = [];
+  const liveFours = [];
+
+  for (const { fourPositions, emptyPositions } of fourPositionsMap.values()) {
+    if (emptyPositions.length === 1) {
+      rushFours.push(fourPositions);
+    } else if (emptyPositions.length >= 2) {
+      liveFours.push(fourPositions);
+    }
+  }
+
+  return { rushFours, liveFours };
 }
