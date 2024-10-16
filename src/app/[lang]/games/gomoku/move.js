@@ -1,8 +1,3 @@
-export const ThreeType = {
-  CONTINUOUS: "连活三",
-  JUMP: "跳活三",
-};
-
 export const boardSize = 15;
 
 export const directions = [
@@ -71,7 +66,6 @@ export function checkContinuousOpenThree(board, row, col, dx, dy, player) {
   ];
 
   let matchCount = 0;
-  let matchedPattern = null;
   let matchedPositions = null;
 
   for (let pattern of patterns) {
@@ -85,21 +79,21 @@ export function checkContinuousOpenThree(board, row, col, dx, dy, player) {
         match = false;
         break;
       }
-      positions.push([x, y]);
+      if (pattern.values[i] === player) {
+        positions.push([x, y]);
+      }
     }
-    // console.log("match", match, positions);
 
     if (match) {
       matchCount++;
-      matchedPattern = pattern;
       matchedPositions = positions;
       if (matchCount > 1) {
-        return false; // It's not continuous open three if more than one pattern
+        return false; // It's not continuous open three if more than one pattern matches
       }
     }
   }
 
-  return matchCount === 1 ? { isOpen: true, type: ThreeType.CONTINUOUS,pattern: matchedPattern, positions: matchedPositions } : { isOpen: false };
+  return matchCount === 1 ? { isOpen: true, positions: matchedPositions } : { isOpen: false };
 }
 
 export function checkJumpOpenThree(board, row, col, dx, dy, player) {
@@ -113,12 +107,8 @@ export function checkJumpOpenThree(board, row, col, dx, dy, player) {
   ];
 
   let matchCount = 0;
-  let matchedPattern = null;
   let matchedPositions = null;
-//   console.log("checkJumpOpenThree");
-//   console.log(visualizeBoard(board));
-//   console.log(`row: ${row}, col: ${col}, dx: ${dx}, dy: ${dy}, player: ${player}`);
-  
+
   for (let pattern of patterns) {
     let match = true;
     let positions = [];
@@ -129,37 +119,31 @@ export function checkJumpOpenThree(board, row, col, dx, dy, player) {
         match = false;
         break;
       }
-    //   console.log("x", x, "y", y, "pattern.values[i]", pattern.values[i], "board[x][y]", board[x][y]);
-      positions.push([x, y]);
+      if (pattern.values[i] === player) {
+        positions.push([x, y]);
+      }
     }
 
     if (match) {
       matchCount++;
-      matchedPattern = pattern;
       matchedPositions = positions;
-    //   console.log("matchedPattern", matchedPattern, matchedPositions, matchCount);
       if (matchCount > 1) {
-        return false; // Not jump open three if more than one pattern
+        return false; // It's not jump open three if more than one pattern matches
       }
     }
   }
 
-  if (matchCount === 1) {
-    // console.log("matchedPattern", matchedPattern, matchedPositions, matchCount);
-    return { isOpen: true, type: ThreeType.JUMP, pattern: matchedPattern, positions: matchedPositions };
-  } else {
-    return { isOpen: false };
-  }
+  return matchCount === 1 ? { isOpen: true, positions: matchedPositions } : { isOpen: false };
 }
 
 export function isOpenThree(board, row, col, dx, dy, player) {
   const continuousResult = checkContinuousOpenThree(board, row, col, dx, dy, player);
-  if (continuousResult) {
+  if (continuousResult.isOpen) {
     return continuousResult;
   }
 
   const jumpResult = checkJumpOpenThree(board, row, col, dx, dy, player);
-  if (jumpResult) {
+  if (jumpResult.isOpen) {
     return jumpResult;
   }
 
@@ -171,10 +155,9 @@ export function findOpenThrees(board, row, col, player) {
 
   for (const [dx, dy] of directions) {
     const result = isOpenThree(board, row, col, dx, dy, player);
+
     if (result.isOpen) {
       openThrees.push({
-        type: result.type,
-        direction: [dx, dy],
         positions: result.positions
       });
     }
@@ -184,6 +167,7 @@ export function findOpenThrees(board, row, col, player) {
 }
 
 export function checkDoubleThree(board, row, col, player) {
+
   const openThrees = findOpenThrees(board, row, col, player);
   
   const isDoubleThree = openThrees.length >= 2;
@@ -194,6 +178,7 @@ export function checkDoubleThree(board, row, col, player) {
     forbiddenPositions = Array.from(new Set(forbiddenPositions.map(JSON.stringify)), JSON.parse);
   }
 
+  // console.log("checkDoubleThree", isDoubleThree, forbiddenPositions, openThrees);
   return {
     isForbidden: isDoubleThree,
     forbiddenPositions,
@@ -315,4 +300,18 @@ export function checkFourInRow(board, row, col, player) {
   }
 
   return { rushFours, liveFours };
+}
+
+// Helper function to find 'X' in the board and replace it with the player's stone
+export function findXPositionAndReplace(board, player) {
+  const newBoard = board.map(row => [...row]);
+  for (let i = 0; i < newBoard.length; i++) {
+    for (let j = 0; j < newBoard[i].length; j++) {
+      if (newBoard[i][j] === 'X') {
+        newBoard[i][j] = player;
+        return { position: [i, j], board: newBoard };
+      }
+    }
+  }
+  throw new Error('No "X" found in the board');
 }

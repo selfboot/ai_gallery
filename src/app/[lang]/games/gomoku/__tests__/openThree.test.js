@@ -1,4 +1,4 @@
-import { checkContinuousOpenThree, checkJumpOpenThree, directions, ThreeType } from '../move';
+import { checkContinuousOpenThree, checkJumpOpenThree, directions, findXPositionAndReplace } from '../move';
 
 const directionMap = {
   horizontal: directions[0],
@@ -6,19 +6,6 @@ const directionMap = {
   diagonalRight: directions[2],
   diagonalLeft: directions[3]
 };
-
-function findXPositionAndReplace(board, player) {
-  const newBoard = board.map(row => [...row]);
-  for (let i = 0; i < newBoard.length; i++) {
-    for (let j = 0; j < newBoard[i].length; j++) {
-      if (newBoard[i][j] === 'X') {
-        newBoard[i][j] = player;
-        return { position: [i, j], board: newBoard };
-      }
-    }
-  }
-  throw new Error('No "X" found in the board');
-}
 
 describe('Gomoku isOpenThree - Continuous Open Three', () => {
   const testCases = [
@@ -45,8 +32,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "horizontal",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[6,1],[6,2], [6,3], [6,4], [6,5]]
+        positions: [[6, 2], [6, 3], [6, 4]]
       }
     },
     {
@@ -72,8 +58,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "horizontal",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[6,2], [6,3], [6,4], [6,5], [6,6]]
+        positions: [[6, 3], [6, 4], [6, 5]]
       }
     },
     {
@@ -99,8 +84,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "horizontal",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[6,3], [6,4], [6,5], [6,6], [6,7]]
+        positions: [[6, 4], [6, 5], [6, 6]]
       }
     },
     {
@@ -126,8 +110,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "vertical",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[3,4], [4,4], [5,4], [6,4], [7,4]]
+        positions: [[4, 4], [5, 4], [6, 4]]
       }
     },
     {
@@ -153,8 +136,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "vertical",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[3,4], [4,4], [5,4], [6,4], [7,4]]
+        positions: [[4, 4], [5, 4], [6, 4]]
       }
     },
     {
@@ -180,8 +162,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "vertical",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[4,4], [5,4], [6,4], [7,4], [8,4]]
+        positions: [[5, 4], [6, 4], [7, 4]]
       }
     },
     {
@@ -207,8 +188,33 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "diagonalRight",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[2,3], [3,4], [4,5], [5,6], [6,7]]
+        positions: [[3, 4], [4, 5], [5, 6]]
+      }
+    },
+    {
+      name: "Open Three With banned position",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "B", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "X", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "B", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "B", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "diagonalRight",
+      expected: {
+        isOpen: true,
+        positions: [[3, 4], [4, 5], [5, 6]]
       }
     },
     {
@@ -234,8 +240,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "diagonalRight",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[2,3], [3,4], [4,5], [5,6], [6,7]]
+        positions: [[3, 4], [4, 5], [5, 6]]
       }
     },
     {
@@ -261,8 +266,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
       direction: "diagonalRight",
       expected: {
         isOpen: true,
-        type: ThreeType.CONTINUOUS,
-        positions: [[3, 3], [4, 4], [5, 5], [6, 6], [7, 7]]
+        positions: [[4, 4], [5, 5], [6, 6]]
       }
     },
     {
@@ -288,8 +292,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
         direction: "diagonalLeft",
         expected: {
           isOpen: true,
-          type: ThreeType.CONTINUOUS,
-          positions: [[2,8], [3,7], [4,6], [5,5], [6,4]]
+          positions: [[5, 5], [4, 6], [3, 7]]
         }
       },
       {
@@ -315,8 +318,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
         direction: "diagonalLeft",
         expected: {
           isOpen: true,
-          type: ThreeType.CONTINUOUS,
-          positions: [[2,8], [3,7], [4,6], [5,5], [6,4]]
+          positions: [[5, 5], [4, 6], [3, 7]]
         }
       },
       {
@@ -342,8 +344,7 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
         direction: "diagonalLeft",
         expected: {
           isOpen: true,
-          type: ThreeType.CONTINUOUS,
-          positions: [[7, 4], [6, 5], [5, 6], [4, 7], [3, 8]]
+          positions: [[6, 5], [5, 6], [4, 7]]
         }
       },
     ];
@@ -354,7 +355,6 @@ describe('Gomoku isOpenThree - Continuous Open Three', () => {
         const [dx, dy] = directionMap[testCase.direction];
         const result = checkContinuousOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
         expect(result.isOpen).toBe(testCase.expected.isOpen);
-        expect(result.type).toBe(testCase.expected.type);
         expect(result.positions).toEqual(expect.arrayContaining(testCase.expected.positions));
         expect(result.positions.length).toBe(testCase.expected.positions.length);
       });
@@ -525,8 +525,7 @@ describe('Gomoku isOpenThree - Jump Open Three', () => {
       direction: "horizontal",
       expected: {
         isOpen: true,
-        type: ThreeType.JUMP,
-        positions: [[6,1], [6,2], [6,3], [6,4], [6,5], [6,6]]
+        positions: [[6, 2], [6, 3], [6, 5]]
       }
     },
     {
@@ -552,8 +551,7 @@ describe('Gomoku isOpenThree - Jump Open Three', () => {
       direction: "vertical",
       expected: {
         isOpen: true,
-        type: ThreeType.JUMP,
-        positions: [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]]
+        positions: [[2, 4], [3, 4], [5, 4]]
       }
     },
     {
@@ -579,8 +577,7 @@ describe('Gomoku isOpenThree - Jump Open Three', () => {
       direction: "diagonalRight",
       expected: {
         isOpen: true,
-        type: ThreeType.JUMP,
-        positions: [[2,2], [3,3], [4,4], [5,5], [6,6], [7,7]]
+        positions: [[3, 3], [5, 5], [6, 6]]
       }
     },
     {
@@ -606,11 +603,35 @@ describe('Gomoku isOpenThree - Jump Open Three', () => {
       direction: "diagonalLeft",
       expected: {
         isOpen: true,
-        type: ThreeType.JUMP,
-        positions: [[6, 4], [5, 5], [4, 6], [3, 7], [2, 8], [1, 9]]
+        positions: [[5, 5], [4, 6], [2, 8]]
       }
-    }
-
+    },
+    {
+      name: "Jump threes (Diagonal Left - _OX_O_)",
+      board: [
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "B", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "X", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "B", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      ],
+      player: "B",
+      direction: "diagonalLeft",
+      expected: {
+        isOpen: true,
+        positions: [[7, 5], [6, 6], [4, 8]]
+      }
+    },
   ];
 
   testCases.forEach(testCase => {
@@ -620,7 +641,6 @@ describe('Gomoku isOpenThree - Jump Open Three', () => {
       
       const result = checkJumpOpenThree(updatedBoard, row, col, dx, dy, testCase.player);
       expect(result.isOpen).toBe(testCase.expected.isOpen);
-      expect(result.type).toBe(testCase.expected.type);
       expect(result.positions).toEqual(expect.arrayContaining(testCase.expected.positions));
       expect(result.positions.length).toBe(testCase.expected.positions.length);
     });

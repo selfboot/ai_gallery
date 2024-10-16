@@ -1,17 +1,4 @@
-import { checkFourInRow } from '../move';
-
-function findXPositionAndReplace(board, player) {
-  const newBoard = board.map(row => [...row]);
-  for (let i = 0; i < newBoard.length; i++) {
-    for (let j = 0; j < newBoard[i].length; j++) {
-      if (newBoard[i][j] === 'X') {
-        newBoard[i][j] = player;
-        return { position: [i, j], board: newBoard };
-      }
-    }
-  }
-  throw new Error('No "X" found in the board');
-}
+import { checkFourInRow, findXPositionAndReplace} from '../move';
 
 describe('Gomoku checkFourInRow - Valid Live Four', () => {
   const testCases = [
@@ -331,4 +318,4 @@ describe('Gomoku checkFourInRow - Not Four', () => {
       });
     });
   });
-  
+
