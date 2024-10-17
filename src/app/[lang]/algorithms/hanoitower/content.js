@@ -219,6 +219,7 @@ const HanoiTower = () => {
     
     return (
       <div
+        data-testid={`tower-${index}`} 
         className="relative flex flex-col items-center justify-end w-full md:w-1/3 mb-4 md:mb-0 ml-2"
         style={{ height: `${towerHeight}px` }}
         onDragOver={handleDragOver}
@@ -230,6 +231,7 @@ const HanoiTower = () => {
         {disks.map((disk, diskIndex) => (
           <div
             key={diskIndex}
+            data-testid="hanoi-disk"  // For testing
             className={`absolute transition-all duration-500 ease-in-out rounded-md ${
               mode === "manual" ? "cursor-move" : ""
             } ${
@@ -313,6 +315,7 @@ const HanoiTower = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700">{t("mode")}</label>
           <select
+            data-testid="mode-select"
             value={mode}
             onChange={(e) => handleModeChange(e.target.value)}
             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -325,6 +328,7 @@ const HanoiTower = () => {
           <button
             onClick={startVisualization}
             disabled={isPlaying}
+            data-testid="start-auto-button"
             className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline disabled:opacity-50"
           >
             {totalMoves > 0 ? t("continue") : t("start")}
