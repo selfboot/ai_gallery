@@ -34,6 +34,7 @@ const HanoiTower = () => {
   const [mode, setMode] = useState("manual");
   const [message, setMessage] = useState("");
   const [hintMove, setHintMove] = useState(null);
+  const [selectedTower, setSelectedTower] = useState(null);
   const { t } = useI18n();
 
   const resetTowers = useCallback(() => {
@@ -172,16 +173,57 @@ const HanoiTower = () => {
     }
   };
 
+  const handleTowerClick = (towerIndex) => {
+    if (mode !== "manual") return;
+
+    if (selectedTower === null) {
+      // 如果没有选中的塔,选择这个塔
+      if (towers[towerIndex].length > 0) {
+        setSelectedTower(towerIndex);
+      }
+    } else {
+      // 如果已经有选中的塔,尝试移动
+      const fromTower = selectedTower;
+      const toTower = towerIndex;
+      const diskSize = towers[fromTower][towers[fromTower].length - 1];
+
+      if (fromTower !== toTower) {
+        if (towers[toTower].length === 0 || diskSize < towers[toTower][towers[toTower].length - 1]) {
+          setTowers((prev) => {
+            const newTowers = prev.map((tower) => [...tower]);
+            const disk = newTowers[fromTower].pop();
+            newTowers[toTower].push(disk);
+            return newTowers;
+          });
+          setTotalMoves((prev) => prev + 1);
+          setMessage(t("moveSuccess"));
+          setHintMove(null);
+
+          // 检查游戏是否完成
+          if (towers[2].length === disks - 1 && toTower === 2) {
+            setMessage(t("gameCompleted"));
+          }
+        } else {
+          setMessage(t("moveFailure"));
+        }
+      }
+      setSelectedTower(null);
+    }
+  };
+
   const Tower = React.memo(({ disks, index, totalDisks }) => {
     const MIN_TOWER_HEIGHT = 400;
-    const towerHeight = Math.max(MIN_TOWER_HEIGHT, totalDisks * DISK_HEIGHT + 40);
-
+    const calculatedHeight = (totalDisks * DISK_HEIGHT) + 40;
+    const isMobile = window.innerWidth < 768;
+    const towerHeight = isMobile ? calculatedHeight : Math.max(MIN_TOWER_HEIGHT, calculatedHeight);
+    
     return (
       <div
         className="relative flex flex-col items-center justify-end w-full md:w-1/3 mb-4 md:mb-0 ml-2"
         style={{ height: `${towerHeight}px` }}
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, index)}
+        onClick={() => handleTowerClick(index)}
       >
         <div className="absolute bottom-0 w-full h-2 bg-gray-400" />
         <div className="absolute bottom-2 w-2 bg-gray-400" style={{ height: `${towerHeight - 8}px` }} />
@@ -190,6 +232,10 @@ const HanoiTower = () => {
             key={diskIndex}
             className={`absolute transition-all duration-500 ease-in-out rounded-md ${
               mode === "manual" ? "cursor-move" : ""
+            } ${
+              selectedTower === index && diskIndex === disks.length - 1
+                ? "ring-2 ring-blue-500 ring-offset-2"
+                : ""
             }`}
             style={{
               width: `${(disk / totalDisks) * 90}%`,
@@ -197,7 +243,9 @@ const HanoiTower = () => {
               backgroundColor: DISK_COLORS[disk % DISK_COLORS.length],
               bottom: `${diskIndex * DISK_HEIGHT + 8}px`,
               border:
-                hintMove && hintMove.from === index && diskIndex === disks.length - 1 ? "2px solid yellow" : "none",
+                hintMove && hintMove.from === index && diskIndex === disks.length - 1
+                  ? "2px solid yellow"
+                  : "none",
             }}
             draggable={mode === "manual"}
             onDragStart={(e) => handleDragStart(e, index, diskIndex)}
