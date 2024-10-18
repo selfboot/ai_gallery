@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { Flag, X, Frown } from "lucide-react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Flag, X, Frown, CheckCircle } from "lucide-react";
 import { useI18n } from "@/app/i18n/client";
+import Modal from "@/app/components/Modal";
 
 const AStarPathFind = () => {
   const { t } = useI18n();
@@ -24,20 +25,56 @@ const AStarPathFind = () => {
     },
   ];
 
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [gridSize, setGridSize] = useState({ width: 10, height: 10 });
   const [grid, setGrid] = useState([]);
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
   const [path, setPath] = useState([]);
   const [mode, setMode] = useState(GRID_MODES[0]);
-  const [searchSpeed, setSearchSpeed] = useState(5);
   const [isSearching, setIsSearching] = useState(false);
-  const [isPanelOpen, setIsPanelOpen] = useState(true); // 控制面板展开和收起
+  const searchSpeedRef = useRef(5);
+  const [searchSpeedUI, setSearchSpeedUI] = useState(5);
   const [openSet, setOpenSet] = useState([]);
   const [closedSet, setClosedSet] = useState([]);
-  const [showNoPathModal, setShowNoPathModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState("");
 
-  const initializeGrid = useCallback(() => {
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const calculateGridSize = () => {
+      const cellSize = 40; // Size of each cell
+      let totalWidth;
+      
+      if (screenWidth < 768) { // Assume screen smaller than 768px is a small screen
+        totalWidth = screenWidth - 20;
+      } else {
+        totalWidth = (screenWidth * 0.8) - 300; // Original calculation for large screens
+      }
+      
+      const width = Math.floor(totalWidth / cellSize);
+      const height = Math.floor(width * 0.75); // Set height to 3/4 of width
+      return { 
+        width: Math.max(width, 5), 
+        height: Math.max(height, 5) 
+      }; 
+    };
+
+    setGridSize(calculateGridSize());
+  }, [screenWidth]);
+
+  const initializeGrid = useCallback((shouldSetInitialState = true) => {
     const newGrid = Array(gridSize.height)
       .fill()
       .map((_, y) =>
@@ -53,16 +90,45 @@ const AStarPathFind = () => {
             parent: null,
           }))
       );
+
+    if (shouldSetInitialState) {
+      // Set start point to bottom-left corner
+      const startX = 0;
+      const startY = gridSize.height - 1;
+      setStart({ x: startX, y: startY });
+
+      // Set end point to top-right corner
+      const endX = gridSize.width - 1;
+      const endY = 0;
+      setEnd({ x: endX, y: endY });
+
+      // Randomly set 10 obstacles
+      let obstaclesSet = 0;
+      while (obstaclesSet < 10) {
+        const randomX = Math.floor(Math.random() * gridSize.width);
+        const randomY = Math.floor(Math.random() * gridSize.height);
+        
+        // Ensure obstacles are not set on start or end points
+        if ((randomX !== startX || randomY !== startY) && 
+            (randomX !== endX || randomY !== endY) && 
+            !newGrid[randomY][randomX].obstacle) {
+          newGrid[randomY][randomX].obstacle = true;
+          obstaclesSet++;
+        }
+      }
+    } else {
+      setStart(null);
+      setEnd(null);
+    }
+
     setGrid(newGrid);
-    setStart(null);
-    setEnd(null);
     setPath([]);
     setOpenSet([]);
     setClosedSet([]);
   }, [gridSize]);
 
   useEffect(() => {
-    initializeGrid();
+    initializeGrid(true);
   }, [initializeGrid]);
 
   const handleCellClick = (x, y) => {
@@ -107,7 +173,13 @@ const AStarPathFind = () => {
   };
 
   const astar = async () => {
-    if (!start || !end || isSearching) return;
+    console.log("astar", start, end);
+    if (!start || !end) {
+      setModalContent(t("set_start_end_points"));
+      setShowModal(true);
+      return;
+    }
+    if (isSearching) return;
     setIsSearching(true);
     setPath([]);
     setOpenSet([]);
@@ -123,14 +195,16 @@ const AStarPathFind = () => {
     let closedSet = [];
 
     while (openSet.length > 0) {
-      await sleep(1000 / searchSpeed);
+      await sleep(1000 / searchSpeedRef.current);
 
       let current = openSet.reduce((a, b) => (a.f < b.f ? a : b));
-
+      console.log("current", start, end, current);
       if (current === endNode) {
         const finalPath = reconstructPath(current);
         setPath(finalPath);
         setIsSearching(false);
+        setModalContent(t("path_found"));
+        setShowModal(true);
         return;
       }
 
@@ -157,8 +231,8 @@ const AStarPathFind = () => {
       setOpenSet([...openSet]);
       setClosedSet([...closedSet]);
     }
-    setShowNoPathModal(true);
-    setTimeout(() => setShowNoPathModal(false), 3000);
+    setModalContent(t("no_path_found"));
+    setShowModal(true);
     setIsSearching(false);
   };
 
@@ -169,9 +243,7 @@ const AStarPathFind = () => {
         ...prev,
         [key]: newSize,
       }));
-    }
-    // 如果输入无效或删除了数字，强制回退到最小值5
-    else {
+    } else {
       setGridSize((prev) => ({
         ...prev,
         [key]: 5,
@@ -180,13 +252,12 @@ const AStarPathFind = () => {
   };
 
   const handleReset = () => {
-    setPath([]); // 清空已找到的路径
-    setOpenSet([]); // 清空开放集
-    setClosedSet([]); // 清空关闭集
-    setIsSearching(false); // 停止搜索状态
-    initializeGrid(); // 重置网格到初始状态
-    setStart(null); // 清除起点
-    setEnd(null); // 清除终点
+    setPath([]);
+    setOpenSet([]);
+    setClosedSet([]);
+    setIsSearching(false);
+    initializeGrid(false);
+    setMode(GRID_MODES[0]); // Reset to obstacle setting mode
   };
 
   const renderCell = (x, y) => {
@@ -223,90 +294,84 @@ const AStarPathFind = () => {
         key={`${x},${y}`}
         className={cellClass}
         onClick={() => handleCellClick(x, y)}
+        data-testid={`cell-${x}-${y}`}
       >
         {content}
       </div>
     );
   };
 
-  const renderNoPathAlert = () => {
-    if (!showNoPathModal) return null;
-    return (
-      <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-10">
-        <div className="bg-white p-4 rounded-lg flex flex-col items-center z-20">
-          <Frown className="text-red-500 text-6xl" />
-          <p className="text-xl mt-2">{t("no_path_found")}</p>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="flex items-start p-4 mx-auto overflow-hidden relative min-h-[450px]">
-      <div className="flex-grow flex justify-center overflow-x-auto">
-        <div
-          className="grid"
-          style={{
-            gridTemplateColumns: `repeat(${gridSize.width}, minmax(40px, 1fr))`,
-          }}
-        >
-          {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
-          {renderNoPathAlert()}
+    <div className="flex flex-col lg:flex-row items-start mx-auto overflow-hidden min-h-[450px]">
+      <div className="lg:w-4/5 w-full flex justify-center pr-4 lg:pr-12">
+        <div className="max-w-full overflow-x-auto">
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `repeat(${gridSize.width}, minmax(40px, 1fr))`,
+            }}
+            data-testid="grid"
+          >
+            {grid.map((row, y) => row.map((_, x) => renderCell(x, y)))}
+          </div>
         </div>
       </div>
-
-      <div
-        className={`absolute right-0 top-0 p-4 bg-gray-200 shadow-lg min-w-[100px] min-h-[450px] ${
-          isPanelOpen ? "" : "hidden"
-        }`}
-        style={{ maxHeight: "calc(100vh - 8px)", overflowY: "auto" }}
-      >
+      
+      <div className="lg:w-1/5 w-full lg:mt-0 mt-8">
         <div className="w-full mb-4 space-y-4">
-          <div className="flex justify-between items-center">
-            <label className="text-lg flex-shrink-0 whitespace-nowrap">
-              {t("grid_width")}&nbsp;
-            </label>
-            <input
-              type="number"
-              min="5"
-              value={gridSize.width}
-              onChange={(e) => handleSizeChange("width", e.target.value)}
-              className="w-full ml-4 p-2 border border-gray-300 rounded"
-            />
+          <div className="flex flex-col mb-4">
+            <div className="flex items-center mb-2">
+              <label className="text-lg w-1/3">{t("grid_width")}</label>
+              <input
+                type="number"
+                min="5"
+                value={gridSize.width}
+                onChange={(e) => handleSizeChange("width", e.target.value)}
+                className="w-2/3 p-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div className="flex items-center mb-2">
+              <label className="text-lg w-1/3">{t("grid_height")}</label>
+              <input
+                type="number"
+                min="5"
+                value={gridSize.height}
+                onChange={(e) => handleSizeChange("height", e.target.value)}
+                className="w-2/3 p-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div className="flex items-center">
+              <span className="text-lg mr-4 flex-shrink-0 whitespace-nowrap w-1/3">
+                {t("search_speed")}
+              </span>
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={searchSpeedUI}
+                onChange={(e) => {
+                  const newSpeed = Number(e.target.value);
+                  setSearchSpeedUI(newSpeed);
+                  searchSpeedRef.current = newSpeed;
+                }}
+                className="w-full"
+              />
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <label className="text-lg flex-shrink-0 whitespace-nowrap">
-              {t("grid_height")}
-            </label>
-            <input
-              type="number"
-              min="5"
-              value={gridSize.height}
-              onChange={(e) => handleSizeChange("height", e.target.value)}
-              className="w-full ml-4 p-2 border border-gray-300 rounded"
-            />
-          </div>
-          <div className="flex items-center">
-            <span className="text-lg mr-4 text-lg flex-shrink-0 whitespace-nowrap">
-              {t("search_speed")}
-            </span>
-            <input
-              type="range"
-              min="1"
-              max="20"
-              value={searchSpeed}
-              onChange={(e) => setSearchSpeed(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-        </div>
-        <div className="space-y-4 mb4">
-          {GRID_MODES.map((gridMode) => (
-            <div key={gridMode.id} className="w-full">
+          <div className="space-y-4">
+            <button
+              onClick={astar}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full"
+              disabled={isSearching}
+              data-testid="find-path-button"
+            >
+              {t("find_path")}
+            </button>
+            {GRID_MODES.map((gridMode) => (
               <button
                 key={gridMode.id}
                 onClick={() => setMode(gridMode)}
-                className={`px-4 py-2 text-white rounded ${gridMode.color} ${
+                className={`px-4 py-2 text-white rounded w-full ${gridMode.color} ${
                   mode.id === gridMode.id
                     ? "ring-2 ring-offset-2 ring-blue-500"
                     : ""
@@ -315,46 +380,22 @@ const AStarPathFind = () => {
               >
                 {gridMode.name}
               </button>
-            </div>
-          ))}
-          <div className="w-full space-y-4 mb4">
-            <div>
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                disabled={isSearching}
-              >
-                {t("reset_grid")}
-              </button>
-            </div>
-          </div>
-          <div>
+            ))}
             <button
-              onClick={astar}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              onClick={handleReset}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 w-full"
               disabled={isSearching}
+              data-testid="reset-grid-button"
             >
-              {t("find_path")}
+              {t("reset_grid")}
             </button>
           </div>
         </div>
-        {/* 折叠/展开按钮, 现在位于设置面板内 */}
-        <button
-          onClick={() => setIsPanelOpen(false)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-lg"
-        >
-          ▶
-        </button>
       </div>
 
-      {!isPanelOpen && (
-        <button
-          onClick={() => setIsPanelOpen(true)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-lg"
-        >
-          ◀
-        </button>
-      )}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <p className="text-lg">{modalContent}</p>
+      </Modal>
     </div>
   );
 };

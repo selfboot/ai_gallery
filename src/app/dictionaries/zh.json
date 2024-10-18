@@ -65,8 +65,9 @@
   "search_speed": "搜索速度",
   "find_path": "查找路径",
   "reset_grid": "重置网格",
+  "path_found": "找到了最短路径",
   "no_path_found": "找不到路径。",
-
+  "set_start_end_points": "请设置起点和终点",
   "dijkstra_title": "Dijkstra 寻路",
   "dijkstra_description": "可视化展示 Dijkstra 寻路算法，给定一个网络，可以设置不同节点之间的权重，选择起点后，就可以计算到其他节点的最短路径",
   "submit": "提交",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@/app/test_utils'; // 使用自定义render
+import { render, screen, fireEvent, waitFor} from '@/app/test_utils';
 import '@testing-library/jest-dom';
 import HanoiTower from '../content';
 
