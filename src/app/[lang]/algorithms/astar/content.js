@@ -173,7 +173,6 @@ const AStarPathFind = () => {
   };
 
   const astar = async () => {
-    console.log("astar", start, end);
     if (!start || !end) {
       setModalContent(t("set_start_end_points"));
       setShowModal(true);
@@ -198,7 +197,6 @@ const AStarPathFind = () => {
       await sleep(1000 / searchSpeedRef.current);
 
       let current = openSet.reduce((a, b) => (a.f < b.f ? a : b));
-      console.log("current", start, end, current);
       if (current === endNode) {
         const finalPath = reconstructPath(current);
         setPath(finalPath);
@@ -328,6 +326,7 @@ const AStarPathFind = () => {
                 value={gridSize.width}
                 onChange={(e) => handleSizeChange("width", e.target.value)}
                 className="w-2/3 p-2 border border-gray-300 rounded"
+                data-testid="grid-width-input"
               />
             </div>
             <div className="flex items-center mb-2">
@@ -338,6 +337,7 @@ const AStarPathFind = () => {
                 value={gridSize.height}
                 onChange={(e) => handleSizeChange("height", e.target.value)}
                 className="w-2/3 p-2 border border-gray-300 rounded"
+                data-testid="grid-height-input"
               />
             </div>
             <div className="flex items-center">
@@ -355,6 +355,7 @@ const AStarPathFind = () => {
                   searchSpeedRef.current = newSpeed;
                 }}
                 className="w-full"
+                data-testid="search-speed-slider"
               />
             </div>
           </div>

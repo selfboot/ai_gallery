@@ -31,6 +31,16 @@ describe('AStarPathFind', () => {
   test('finds a path when possible', async () => {
     render(<AStarPathFind />);
     
+    // Set grid size
+    const widthInput = screen.getByTestId('grid-width-input');
+    const heightInput = screen.getByTestId('grid-height-input');
+    fireEvent.change(widthInput, { target: { value: '10' } });
+    fireEvent.change(heightInput, { target: { value: '10' } });
+
+    await waitFor(() => {
+        expect(screen.getAllByTestId(/^cell-/)).toHaveLength(100); // 10x10 grid
+    });
+    
     // Set start point
     const startModeButton = screen.getByText('Set Start Point');
     fireEvent.click(startModeButton);
@@ -38,9 +48,9 @@ describe('AStarPathFind', () => {
     fireEvent.click(startCell);
 
     // Set end point
-    const endModeButton = screen.getByText('Set End Point');
-    fireEvent.click(endModeButton);
-    const endCell = screen.getByTestId('cell-3-1');
+    const setEndButton = screen.getByText('Set End Point');
+    fireEvent.click(setEndButton);
+    const endCell = screen.getByTestId('cell-4-1');
     fireEvent.click(endCell);
 
     // Set obstacles
@@ -48,38 +58,51 @@ describe('AStarPathFind', () => {
     fireEvent.click(obstacleModeButton);
     const obstacle1 = screen.getByTestId('cell-1-1');
     fireEvent.click(obstacle1);
-    const obstacle2 = screen.getByTestId('cell-2-1');
-    fireEvent.click(obstacle2);
+
+    const speedSlider = screen.getByTestId('search-speed-slider');
+    fireEvent.change(speedSlider, { target: { value: '20' } });
 
     // Find path
     const findPathButton = screen.getByTestId('find-path-button');
     fireEvent.click(findPathButton);
 
     // Wait for path to be found
-    await waitFor(() => {
-        expect(screen.getByText('Path Found')).toBeInTheDocument();
-    });
-
+    const noPathFoundMessage = await screen.findByText('Path Found', {}, { timeout: 10000 });
+    expect(noPathFoundMessage).toBeInTheDocument();
+   
     // Verify path exists and connects start to end
-    // const pathCells = screen.getAllByTestId(/cell-\d-\d/);
-    // const path = pathCells.filter(cell => cell.classList.contains('bg-green-300'));
-    // expect(path.length).toBeGreaterThan(0);
-    
-    // // Check if path starts at start point and ends at end point
-    // const pathStart = path[0];
-    // const pathEnd = path[path.length - 1];
-    // expect(pathStart).toBe(startCell);
-    // expect(pathEnd).toBe(endCell);
+    const pathCells = screen.getAllByTestId(/cell-\d-\d/);
+
+    const path = pathCells.filter(cell => cell.classList.contains('bg-green-300'));
+    expect(path.length).toBeGreaterThan(0);
+    // expect(path.length).toBe(4);
   });
 
   test('shows a modal when no path is found', async () => {
     render(<AStarPathFind />);
 
+    // Set grid size
+    const widthInput = screen.getByTestId('grid-width-input');
+    const heightInput = screen.getByTestId('grid-height-input');
+    fireEvent.change(widthInput, { target: { value: '5' } });
+    fireEvent.change(heightInput, { target: { value: '5' } });
+
+    // Wait for grid to update
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/^cell-/)).toHaveLength(25); // 5x5 grid
+    });
+
     // Set start point
     const setStartButton = screen.getByText('Set Start Point');
     fireEvent.click(setStartButton);
-    const StartCell = screen.getByTestId('cell-0-0');
-    fireEvent.click(StartCell);
+    const startCell = screen.getByTestId('cell-0-0');
+    fireEvent.click(startCell);
+    
+    // Set end point
+    const setEndButton = screen.getByText('Set End Point');
+    fireEvent.click(setEndButton);
+    const endCell = screen.getByTestId('cell-4-4');
+    fireEvent.click(endCell);
     
     // Set obstacle mode
     const obstacleModeButton = screen.getByText('Set Obstacles');
@@ -95,14 +118,16 @@ describe('AStarPathFind', () => {
       fireEvent.click(obstacleCell);
     });
 
+    const speedSlider = screen.getByTestId('search-speed-slider');
+    fireEvent.change(speedSlider, { target: { value: '20' } });
+
     // Find path
     const findPathButton = screen.getByTestId('find-path-button');
     fireEvent.click(findPathButton);
 
     // Wait for modal to appear
-    await waitFor(() => {
-      expect(screen.getByText('No Path Found')).toBeInTheDocument();
-    });
+    const noPathFoundMessage = await screen.findByText('No Path Found', {}, { timeout: 5000 });
+    expect(noPathFoundMessage).toBeInTheDocument();
   });
 
   test('resets the grid when reset button is clicked', async () => {
