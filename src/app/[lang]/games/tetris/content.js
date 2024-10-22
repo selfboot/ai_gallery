@@ -55,6 +55,8 @@ const TetrisGame = () => {
   const [gameOver, setGameOver] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const { t } = useI18n();
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchStartY, setTouchStartY] = useState(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -221,6 +223,41 @@ const TetrisGame = () => {
     }
   }, [isClient, gameActive, updateGame]);
 
+  const handleTouchStart = useCallback((e) => {
+    if (!gameActive) return;
+    setTouchStartX(e.touches[0].clientX);
+    setTouchStartY(e.touches[0].clientY);
+  }, [gameActive]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!gameActive || touchStartX === null || touchStartY === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // 水平滑动
+      if (deltaX > 0) {
+        movePiece(1, 0); // 右移
+      } else {
+        movePiece(-1, 0); // 左移
+      }
+    } else {
+      // 垂直滑动
+      if (deltaY > 0) {
+        movePiece(0, 1); // 下移
+      } else {
+        rotatePiece(); // 上滑旋转
+      }
+    }
+    
+    setTouchStartX(null);
+    setTouchStartY(null);
+  }, [gameActive, touchStartX, touchStartY, movePiece, rotatePiece]);
+
   const renderBoard = () => {
     const boardWithPiece = board.map((row) => [...row]);
     if (currentPiece) {
@@ -267,7 +304,11 @@ const TetrisGame = () => {
   }
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 p-4">
+    <div 
+      className="flex flex-col items-center bg-gray-100 p-4"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="mb-4 text-xl font-bold">
         {t("gain_score", { score: score })}
       </div>
