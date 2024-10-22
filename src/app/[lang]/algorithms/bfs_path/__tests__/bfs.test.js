@@ -117,7 +117,7 @@ describe("BFSPathFind", () => {
 
   test("allows setting and removing obstacles", () => {
     render(<BFSPathFind />);
-
+    fireEvent.click(screen.getByTestId('reset-grid-button'));
     fireEvent.click(screen.getByText("Set Obstacles"));
     fireEvent.click(screen.getByTestId("cell-1-1"));
     expect(screen.getByTestId("cell-1-1")).toHaveClass("bg-gray-200");
