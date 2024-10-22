@@ -8,7 +8,7 @@
   "try": "Try",
   "tableofcontents": "Table of Contents",
   "gomoku_title": "Gomoku",
-  "gomoku_description": "Gomoku is a two-player pure strategy board game. This version supports the complete game rules.",
+  "gomoku_description": "Backgammon is a two-player game of pure strategy classic chess game, this game supports custom selection of forbidden hand rules, supports regret chess, welcome to the five-in-a-row battle.",
   "black_turn": "Black's Turn",
   "black_win": "Black Wins",
   "white_turn": "White's Turn",

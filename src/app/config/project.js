@@ -4,7 +4,7 @@ const Projects = {
       id: "gomoku",
       title: "gomoku_title",
       description: "gomoku_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_gomoku.png/webp",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241022_ai_gallery_gomoku.webp",
       link: "/games/gomoku",
     },
     {

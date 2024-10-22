@@ -8,7 +8,7 @@
   "try": "玩一玩",
   "tableofcontents": "目录",
   "gomoku_title": "五子棋",
-  "gomoku_description": "五子棋是一种双人对弈的纯策略型棋类游戏，这里支持完整的游戏规则。",
+  "gomoku_description": "五子棋是一种双人对弈的纯策略型经典棋类游戏，本游戏支持自定义选择禁手规则，支持悔棋，欢迎来五子棋对战。",
   "black_turn": "黑方回合",
   "black_win": "黑方获胜",
   "white_turn": "白方回合",

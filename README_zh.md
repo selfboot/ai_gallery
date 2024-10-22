@@ -27,7 +27,7 @@
 游戏：实现了一些经典的游戏，如五子棋、中国象棋、俄罗斯方块和 2048。
 
 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-  <img src="https://slefboot-1251736664.file.myqcloud.com/20240704_ai_gallery_gomoku.png/webp" alt="五子棋" width="32%" height="200">
+  <img src="https://slefboot-1251736664.file.myqcloud.com/20241022_ai_gallery_gomoku.webp" alt="五子棋" width="32%" height="200">
   <img src="https://slefboot-1251736664.file.myqcloud.com/20240707_ai_gallery_tetris_v2.png/webp" alt="俄罗斯方块" width="32%" height="200">
   <img src="https://slefboot-1251736664.file.myqcloud.com/20240710_ai_gallery_game2048.gif" alt="2024" width="32%" height="200">
 </div>
