@@ -16,12 +16,24 @@ const FACE_COLORS = {
 
 // 定义可能的移动
 const MOVES = {
-  U: { axis: "y", layer: 1, angle: Math.PI / 2 },  // 上层顺时针
-  D: { axis: "y", layer: -1, angle: -Math.PI / 2 }, // 下层顺时针
-  R: { axis: "x", layer: 1, angle: Math.PI / 2 },  // 右层顺时针
-  L: { axis: "x", layer: -1, angle: -Math.PI / 2 }, // 左层顺时针
-  F: { axis: "z", layer: 1, angle: Math.PI / 2 },  // 前层顺时针
-  B: { axis: "z", layer: -1, angle: -Math.PI / 2 }, // 后层顺时针
+  // 整层旋转
+  U: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
+  UP: { axis: "y", layer: 1, angle: -Math.PI / 2 },   // 上层逆时针
+  D: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
+  R: { axis: "x", layer: 1, angle: Math.PI / 2 },     // 右层顺时针
+  L: { axis: "x", layer: -1, angle: -Math.PI / 2 },   // 左层逆时针
+  F: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前层顺时针
+  B: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后层逆时针
+
+  // 前面的行移动（从上到下：上、中、下）
+  FU: { axis: "z", layer: 1, row: 1, angle: -Math.PI / 2 },    // 前面上层向左
+  FM: { axis: "z", layer: 1, row: 0, angle: -Math.PI / 2 },    // 前面中层向左
+  FD: { axis: "z", layer: 1, row: -1, angle: -Math.PI / 2 },   // 前面下层向左
+  
+  // 前面的列移动（从左到右：左、中、右）
+  FL: { axis: "z", layer: 1, col: -1, angle: Math.PI / 2 },    // 前面左列向上
+  FC: { axis: "z", layer: 1, col: 0, angle: Math.PI / 2 },     // 前面中列向上
+  FR: { axis: "z", layer: 1, col: 1, angle: Math.PI / 2 },     // 前面右列向上
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -78,10 +90,7 @@ function performMove(cubes, moveName) {
 
   cubes.forEach((cube) => {
     const pos = cube.position;
-    const shouldRotate =
-      (move.axis === "x" && Math.abs(pos.x - move.layer) < 0.1) ||
-      (move.axis === "y" && Math.abs(pos.y - move.layer) < 0.1) ||
-      (move.axis === "z" && Math.abs(pos.z - move.layer) < 0.1);
+    const shouldRotate = Math.abs(pos[move.axis] - move.layer) < 0.1;
 
     if (shouldRotate) {
       switch (move.axis) {
@@ -96,15 +105,10 @@ function performMove(cubes, moveName) {
           break;
       }
 
-      // 更新位置
       cube.position.applyMatrix4(rotationMatrix);
-
-      // 更新旋转
       cube.rotation.setFromRotationMatrix(
         rotationMatrix.multiply(new THREE.Matrix4().makeRotationFromEuler(cube.rotation))
       );
-
-      // 更新矩阵
       cube.updateMatrix();
     }
   });
@@ -207,51 +211,131 @@ function performMoveWithAnimation(cubes, moveName, onComplete) {
   requestAnimationFrame(animate);
 }
 
-// 确定移动方向的辅助函数
-function determineMoveFromDrag(normal, deltaMove) {
-  // 计算拖动的主要方向
-  const absX = Math.abs(deltaMove.x);
-  const absY = Math.abs(deltaMove.y);
-  const dragDirection = absX > absY ? 
+// 根据拖动确定移动方向
+function determineMoveFromDrag(faceNormal, deltaMove, position) {
+  const normal = [
+    Math.round(faceNormal.x),
+    Math.round(faceNormal.y),
+    Math.round(faceNormal.z)
+  ];
+  
+  const pos = {
+    x: Math.round(position.x),
+    y: Math.round(position.y),
+    z: Math.round(position.z)
+  };
+
+  const isHorizontal = Math.abs(deltaMove.x) > Math.abs(deltaMove.y);
+  const moveDirection = isHorizontal ? 
     (deltaMove.x > 0 ? 'right' : 'left') : 
     (deltaMove.y > 0 ? 'down' : 'up');
 
-  console.log('确定移动方向:', {
-    法线: normal,
-    拖动方向: dragDirection,
-    deltaX: deltaMove.x,
-    deltaY: deltaMove.y
+  // 首先判断是否在顶层（y = 1）
+  if (pos.y === 1) {
+    if (isHorizontal) {
+      // 向右拖动时顺时针(U)，向左拖动时逆时针(U')
+      return moveDirection === 'right' ? 'U' : 'UP'; 
+    }
+  }
+
+  // 其他情况保持原有逻辑
+  if (normal[2] === 1) { // 前面
+    if (isHorizontal) {
+      if (pos.y === 0) return 'FM';  // 中行
+      else if (pos.y === -1) return 'FD'; // 下行
+    } else {
+      if (pos.x === -1) return 'FL';  // 左列
+      else if (pos.x === 0) return 'FC';  // 中列
+      else if (pos.x === 1) return 'FR';  // 右列
+    }
+  }
+
+  return null;
+}
+
+// 动画版本的执行移动
+function animateMove(cubes, moveName, onComplete) {
+  const move = MOVES[moveName];
+  if (!move) return;
+
+  const startTime = Date.now();
+  const rotationMatrix = new THREE.Matrix4();
+  const targetAngle = move.angle;
+  
+  // 找出需要旋转的方块
+  const rotatingCubes = cubes.filter(cube => {
+    const pos = cube.position;
+    return (move.axis === "x" && Math.abs(pos.x - move.layer) < 0.1) ||
+           (move.axis === "y" && Math.abs(pos.y - move.layer) < 0.1) ||
+           (move.axis === "z" && Math.abs(pos.z - move.layer) < 0.1);
   });
 
-  // 根据法线和拖动方向确定移动
-  let move = null;
-  if (Math.abs(normal.x) > 0.9) {
-    // 右或左面
-    move = dragDirection === 'up' ? 'U' : 
-           dragDirection === 'down' ? 'D' : 
-           dragDirection === 'left' ? 'B' : 'F';
-    console.log('在右/左面拖动');
-  } else if (Math.abs(normal.y) > 0.9) {
-    // 上或下面
-    move = dragDirection === 'right' ? 'R' : 
-           dragDirection === 'left' ? 'L' : 
-           dragDirection === 'up' ? 'B' : 'F';
-    console.log('在上/下面上拖动');
-  } else if (Math.abs(normal.z) > 0.9) {
-    // 前或后面
-    move = dragDirection === 'up' ? 'U' : 
-           dragDirection === 'down' ? 'D' : 
-           dragDirection === 'right' ? 'R' : 'L';
-    console.log('在前/后面上拖动');
+  // 动画函数
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+    
+    // 使用缓动函数使动画更平滑
+    const easeProgress = progress * (2 - progress);
+    const currentAngle = targetAngle * easeProgress;
+
+    // 为每个需要旋转的方块应用旋转
+    rotatingCubes.forEach(cube => {
+      switch (move.axis) {
+        case "x":
+          rotationMatrix.makeRotationX(currentAngle);
+          break;
+        case "y":
+          rotationMatrix.makeRotationY(currentAngle);
+          break;
+        case "z":
+          rotationMatrix.makeRotationZ(currentAngle);
+          break;
+      }
+
+      // 计算新位置
+      cube.position.copy(cube.userData.startPosition)
+        .applyMatrix4(rotationMatrix);
+
+      // 更新旋转
+      cube.rotation.setFromRotationMatrix(
+        rotationMatrix.multiply(
+          new THREE.Matrix4().makeRotationFromEuler(cube.userData.startRotation)
+        )
+      );
+    });
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // 动画完成后更新最终状态
+      rotatingCubes.forEach(cube => {
+        cube.updateMatrix();
+        delete cube.userData.startPosition;
+        delete cube.userData.startRotation;
+      });
+      if (onComplete) onComplete();
+    }
   }
-  
-  console.log('最终决定的移动:', move);
-  return move;
+
+  // 保存初始状态
+  rotatingCubes.forEach(cube => {
+    cube.userData.startPosition = cube.position.clone();
+    cube.userData.startRotation = cube.rotation.clone();
+  });
+
+  // 开始动画
+  requestAnimationFrame(animate);
 }
 
 // 魔方控制钩子
 function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
   const { camera, gl } = useThree();
+  const dragInfo = useRef({
+    isDragging: false,
+    startPoint: null,
+    startIntersection: null
+  });
 
   useEffect(() => {
     if (!groupRef.current) return;
@@ -273,36 +357,85 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       return intersects[0];
     };
 
-    // 鼠标移动事件处理
-    const handleMouseMove = (event) => {
+    // 鼠标按下事件处理
+    const handleMouseDown = (event) => {
       const intersection = checkIntersection(event);
-      setEnableOrbitControls(!intersection); // 当鼠标在魔方上时禁用轨道控制
-
       if (intersection) {
-        console.log('鼠标悬浮在魔方表面:', {
+        setEnableOrbitControls(false);
+        dragInfo.current = {
+          isDragging: true,
+          startPoint: { x: event.clientX, y: event.clientY },
+          startIntersection: intersection
+        };
+        console.log('开始拖动:', {
           position: intersection.object.position,
-          point: intersection.point,
           normal: intersection.face.normal
         });
       }
     };
 
-    // 鼠标点击事件处理
-    const handleMouseDown = (event) => {
+    // 鼠标移动事件处理
+    const handleMouseMove = (event) => {
       const intersection = checkIntersection(event);
-      if (intersection) {
-        setEnableOrbitControls(false); // 点击魔方时禁用轨道控制
-        console.log('点击到魔方表面:', {
-          position: intersection.object.position,
-          point: intersection.point,
-          normal: intersection.face.normal
-        });
+      setEnableOrbitControls(!intersection);
+
+      if (dragInfo.current.isDragging) {
+        const deltaMove = {
+          x: event.clientX - dragInfo.current.startPoint.x,
+          y: event.clientY - dragInfo.current.startPoint.y
+        };
+
+        if (Math.abs(deltaMove.x) > 10 || Math.abs(deltaMove.y) > 10) {
+          // 判断移动方向
+          const isHorizontal = Math.abs(deltaMove.x) > Math.abs(deltaMove.y);
+          const moveDirection = isHorizontal ? 
+            (deltaMove.x > 0 ? 'right' : 'left') : 
+            (deltaMove.y > 0 ? 'down' : 'up');
+
+          // 获取点击的方块位置和法线
+          const position = dragInfo.current.startIntersection.object.position;
+          const normal = dragInfo.current.startIntersection.face.normal;
+
+          console.log('拖动信息:', {
+            position: {
+              x: Math.round(position.x),
+              y: Math.round(position.y),
+              z: Math.round(position.z)
+            },
+            normal: {
+              x: Math.round(normal.x),
+              y: Math.round(normal.y),
+              z: Math.round(normal.z)
+            },
+            moveDirection,
+            delta: deltaMove
+          });
+
+          const move = determineMoveFromDrag(
+            dragInfo.current.startIntersection.face.normal,
+            deltaMove,
+            dragInfo.current.startIntersection.object.position
+          );
+          
+          if (move) {
+            console.log('决定的移动:', move);
+            dragInfo.current.isDragging = false;
+            animateMove(cubesRef.current, move, () => {
+              console.log('动画完成');
+            });
+          }
+        }
       }
     };
 
     // 鼠标抬起事件处理
     const handleMouseUp = () => {
-      setEnableOrbitControls(true); // 鼠标抬起时重新启用轨道控制
+      dragInfo.current = {
+        isDragging: false,
+        startPoint: null,
+        startIntersection: null
+      };
+      setEnableOrbitControls(true);
     };
 
     container.addEventListener('mousemove', handleMouseMove);
