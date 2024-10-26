@@ -16,29 +16,21 @@ const FACE_COLORS = {
 
 // 定义可能的移动
 const MOVES = {
-  // 整层旋转
+  // 水平层旋转（6种）
   U: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
   UP: { axis: "y", layer: 1, angle: -Math.PI / 2 },   // 上层逆时针
   D: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
   DP: { axis: "y", layer: -1, angle: Math.PI / 2 },   // 下层顺时针 
-  R: { axis: "x", layer: 1, angle: Math.PI / 2 },     // 右层顺时针
-  L: { axis: "x", layer: -1, angle: -Math.PI / 2 },   // 左层逆时针
-  F: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前层顺时针
-  B: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后层逆时针
-
-  // 前面的行移动（从上到下：上、中、下）
-  FU: { axis: "z", layer: 1, row: 1, angle: -Math.PI / 2 },    // 前面上层向左
-  FM: { axis: "z", layer: 1, row: 0, angle: -Math.PI / 2 },    // 前面中层向左
-  FD: { axis: "z", layer: 1, row: -1, angle: -Math.PI / 2 },   // 前面下层向左
-  
-  // 前面的列移动（从左到右：左、中、右）
-  FL: { axis: "z", layer: 1, col: -1, angle: Math.PI / 2 },    // 前面左列向上
-  FC: { axis: "z", layer: 1, col: 0, angle: Math.PI / 2 },     // 前面中列向上
-  FR: { axis: "z", layer: 1, col: 1, angle: Math.PI / 2 },     // 前面右列向上
-
-  // 中间层的水平旋转
   M: { axis: "y", layer: 0, angle: -Math.PI / 2 },    // 中间层逆时针（向左）
   MP: { axis: "y", layer: 0, angle: Math.PI / 2 },    // 中间层顺时针（向右）
+
+  // 垂直列旋转（6种）
+  RU: { axis: "x", layer: 1, angle: -Math.PI / 2 },   // 右列向上
+  RD: { axis: "x", layer: 1, angle: Math.PI / 2 },    // 右列向下
+  CU: { axis: "x", layer: 0, angle: -Math.PI / 2 },   // 中列向上
+  CD: { axis: "x", layer: 0, angle: Math.PI / 2 },    // 中列向下
+  LU: { axis: "x", layer: -1, angle: Math.PI / 2 },  // 左列向上
+  LD: { axis: "x", layer: -1, angle: -Math.PI / 2 },   // 左列向下
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -153,77 +145,8 @@ function resetCube(cubes) {
   });
 }
 
-// 执行带动画的移动
-function performMoveWithAnimation(cubes, moveName, onComplete) {
-  const move = MOVES[moveName];
-  if (!move) return;
-
-  const startTime = Date.now();
-  const targetAngle = move.angle;
-  const rotationMatrix = new THREE.Matrix4();
-  
-  // 存储初始状态
-  const initialStates = cubes.map(cube => ({
-    position: cube.position.clone(),
-    rotation: cube.rotation.clone(),
-    shouldRotate: (move.axis === "x" && Math.abs(cube.position.x - move.layer) < 0.1) ||
-                 (move.axis === "y" && Math.abs(cube.position.y - move.layer) < 0.1) ||
-                 (move.axis === "z" && Math.abs(cube.position.z - move.layer) < 0.1)
-  }));
-
-  function animate() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-    
-    // 使用缓动函数使动画更自然
-    const easeProgress = 1 - Math.pow(1 - progress, 3); // 缓出效果
-    const currentAngle = targetAngle * easeProgress;
-
-    cubes.forEach((cube, index) => {
-      if (initialStates[index].shouldRotate) {
-        switch (move.axis) {
-          case "x":
-            rotationMatrix.makeRotationX(currentAngle);
-            break;
-          case "y":
-            rotationMatrix.makeRotationY(currentAngle);
-            break;
-          case "z":
-            rotationMatrix.makeRotationZ(currentAngle);
-            break;
-        }
-
-        // 从初始位置开始应用旋转
-        cube.position.copy(initialStates[index].position);
-        cube.rotation.copy(initialStates[index].rotation);
-        
-        cube.position.applyMatrix4(rotationMatrix);
-        cube.rotation.setFromRotationMatrix(
-          rotationMatrix.multiply(new THREE.Matrix4().makeRotationFromEuler(initialStates[index].rotation))
-        );
-
-        cube.updateMatrix();
-      }
-    });
-
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      if (onComplete) onComplete();
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
 // 根据拖动确定移动方向
 function determineMoveFromDrag(faceNormal, deltaMove, position) {
-  const normal = [
-    Math.round(faceNormal.x),
-    Math.round(faceNormal.y),
-    Math.round(faceNormal.z)
-  ];
-  
   const pos = {
     x: Math.round(position.x),
     y: Math.round(position.y),
@@ -235,38 +158,27 @@ function determineMoveFromDrag(faceNormal, deltaMove, position) {
     (deltaMove.x > 0 ? 'right' : 'left') : 
     (deltaMove.y > 0 ? 'down' : 'up');
 
-  // 顶层判断（y = 1）
-  if (pos.y === 1) {
-    if (isHorizontal) {
-      return moveDirection === 'right' ? 'U' : 'UP';
-    }
-  }
-  
-  // 中间层判断（y = 0）
-  if (pos.y === 0) {
-    if (isHorizontal) {
-      return moveDirection === 'right' ? 'MP' : 'M';
-    }
-  }
-  
-  // 底层判断（y = -1）
-  if (pos.y === -1) {
-    if (isHorizontal) {
-      return moveDirection === 'right' ? 'DP' : 'D';
+  // 垂直拖动的逻辑
+  if (!isHorizontal) {
+    if (pos.x === 1) {
+      return moveDirection === 'up' ? 'RU' : 'RD';
+    } else if (pos.x === 0) {
+      return moveDirection === 'up' ? 'CU' : 'CD';
+    } else if (pos.x === -1) {
+      return moveDirection === 'up' ? 'LU' : 'LD';
     }
   }
 
-  // 其他情况保持原有逻辑
-  if (normal[2] === 1) { // 前面
-    if (isHorizontal) {
-      if (pos.y === 0) return 'FM';
-      else if (pos.y === -1) return 'FD';
-    } else {
-      if (pos.x === -1) return 'FL';
-      else if (pos.x === 0) return 'FC';
-      else if (pos.x === 1) return 'FR';
+  // 水平拖动 - 旋转层
+  if (isHorizontal) {
+    if (pos.y === 1) {
+      return moveDirection === 'right' ? 'U' : 'UP';
+    } else if (pos.y === 0) {
+      return moveDirection === 'right' ? 'MP' : 'M';
+    } else if (pos.y === -1) {
+      return moveDirection === 'right' ? 'DP' : 'D';
     }
-  }
+  } 
 
   return null;
 }
