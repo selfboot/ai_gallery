@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import * as THREE from 'three';
+import { useThree } from '@react-three/fiber';  // 添加这行
 
 // 颜色配置
 const FACE_COLORS = {
@@ -229,7 +230,7 @@ function determineMoveFromDrag(normal, deltaMove) {
     move = dragDirection === 'up' ? 'U' : 
            dragDirection === 'down' ? 'D' : 
            dragDirection === 'left' ? 'B' : 'F';
-    console.log('在右/左面上拖动');
+    console.log('在右/左面拖动');
   } else if (Math.abs(normal.y) > 0.9) {
     // 上或下面
     move = dragDirection === 'right' ? 'R' : 
@@ -249,51 +250,34 @@ function determineMoveFromDrag(normal, deltaMove) {
 }
 
 // 魔方控制钩子
-function useCubeControl(groupRef, cubesRef) {
+function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
+  const { camera, gl } = useThree();
+
   useEffect(() => {
-    // 获取相机和容器
-    const camera = groupRef.current?.parent?.parent?.camera;
-    if (!camera) {
-      console.error('Camera not found');
-      return;
-    }
+    if (!groupRef.current) return;
 
-    // 使用 Canvas 的父容器
-    const container = document.querySelector('.relative.bg-gradient-to-br');
-    if (!container) {
-      console.error('Container not found');
-      return;
-    }
-
+    const container = gl.domElement;
+    
     // 射线检测函数
     const checkIntersection = (event) => {
-      // 获取 canvas 元素
-      const canvas = container.querySelector('canvas');
-      if (!canvas) return null;
-
-      const rect = canvas.getBoundingClientRect();
+      const rect = container.getBoundingClientRect();
       const x = ((event.clientX) - rect.left) / rect.width * 2 - 1;
       const y = -((event.clientY) - rect.top) / rect.height * 2 + 1;
 
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
       
-      // 只检测魔方的小方块，不检测背景方块
       const cubes = cubesRef.current.filter(cube => cube !== null);
       const intersects = raycaster.intersectObjects(cubes);
       
-      console.log('射线检测结果:', {
-        x,
-        y,
-        intersects: intersects.length
-      });
-
       return intersects[0];
     };
 
     // 鼠标移动事件处理
     const handleMouseMove = (event) => {
       const intersection = checkIntersection(event);
+      setEnableOrbitControls(!intersection); // 当鼠标在魔方上时禁用轨道控制
+
       if (intersection) {
         console.log('鼠标悬浮在魔方表面:', {
           position: intersection.object.position,
@@ -307,6 +291,7 @@ function useCubeControl(groupRef, cubesRef) {
     const handleMouseDown = (event) => {
       const intersection = checkIntersection(event);
       if (intersection) {
+        setEnableOrbitControls(false); // 点击魔方时禁用轨道控制
         console.log('点击到魔方表面:', {
           position: intersection.object.position,
           point: intersection.point,
@@ -315,24 +300,38 @@ function useCubeControl(groupRef, cubesRef) {
       }
     };
 
-    // 添加事件监听
+    // 鼠标抬起事件处理
+    const handleMouseUp = () => {
+      setEnableOrbitControls(true); // 鼠标抬起时重新启用轨道控制
+    };
+
     container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mouseleave', handleMouseUp);
 
-    // 清理函数
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mouseleave', handleMouseUp);
     };
-  }, [groupRef, cubesRef]);
+  }, [camera, gl, groupRef, cubesRef, setEnableOrbitControls]);
 }
 
 // 主组件
-export default function RubiksCube({ isScrambling, onScrambleComplete, onMoveComplete, isResetting, onResetComplete }) {
+export default function RubiksCube({ 
+  isScrambling, 
+  onScrambleComplete, 
+  onMoveComplete, 
+  isResetting, 
+  onResetComplete,
+  setEnableOrbitControls 
+}) {
   const groupRef = useRef();
   const cubesRef = useRef([]);
 
-  useCubeControl(groupRef, cubesRef);
+  useCubeControl(groupRef, cubesRef, setEnableOrbitControls);
 
   useEffect(() => {
     if (isScrambling) {

@@ -10,6 +10,7 @@ export default function CubeGame() {
   const [currentMove, setCurrentMove] = useState(null);
   const [isScrambling, setIsScrambling] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [enableOrbitControls, setEnableOrbitControls] = useState(true);
 
   return (
     <div className="w-full flex flex-col lg:flex-row">
@@ -49,12 +50,13 @@ export default function CubeGame() {
                 setIsResetting(false);
                 setCurrentMove(null);
               }}
+              setEnableOrbitControls={setEnableOrbitControls}
             />
             <OrbitControls 
               makeDefault
               enablePan={false}
               enableZoom={false}
-              enableRotate={true}
+              enableRotate={enableOrbitControls}
               minDistance={8}
               maxDistance={8}
               mouseButtons={{
