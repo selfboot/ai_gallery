@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import RubiksCube from "./RubiksCube";
 import { useState } from "react";
+import * as THREE from 'three';
 
 export default function CubeGame() {
   const [currentMove, setCurrentMove] = useState(null);
@@ -13,13 +14,19 @@ export default function CubeGame() {
   return (
     <div className="w-full flex flex-col lg:flex-row">
       <div className="h-[70vh] lg:w-4/5 relative flex items-center justify-center">
-        <div className="w-full lg:w-3/4 h-full relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-inner">
+        <div className="w-full lg:w-4/5 h-full relative bg-gradient-to-br rounded-lg shadow-inner border border-gray-400">
           <Canvas
             camera={{
               position: [6, 6, 6],
               fov: 40,
               near: 0.1,
               far: 1000
+            }}
+            gl={{
+              antialias: true,
+              toneMapping: THREE.NoToneMapping,
+              outputColorSpace: "srgb",
+              preserveDrawingBuffer: true,
             }}
             style={{
               position: "absolute",
@@ -29,8 +36,6 @@ export default function CubeGame() {
               height: "100%",
             }}
           >
-            <ambientLight intensity={0.7} />
-            <directionalLight position={[10, 10, 5]} intensity={1.5} />
             <RubiksCube
               currentMove={currentMove}
               isScrambling={isScrambling}
@@ -46,11 +51,21 @@ export default function CubeGame() {
               }}
             />
             <OrbitControls 
-              enablePan={false} 
-              enableZoom={false} 
+              makeDefault
+              enablePan={false}
+              enableZoom={false}
               enableRotate={true}
               minDistance={8}
               maxDistance={8}
+              mouseButtons={{
+                LEFT: THREE.MOUSE.ROTATE,  // 保持左键旋转
+                MIDDLE: null,
+                RIGHT: null
+              }}
+              touches={{
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: null
+              }}
             />
           </Canvas>
         </div>
