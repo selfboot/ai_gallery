@@ -20,6 +20,7 @@ const MOVES = {
   U: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
   UP: { axis: "y", layer: 1, angle: -Math.PI / 2 },   // 上层逆时针
   D: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
+  DP: { axis: "y", layer: -1, angle: Math.PI / 2 },   // 下层顺时针 
   R: { axis: "x", layer: 1, angle: Math.PI / 2 },     // 右层顺时针
   L: { axis: "x", layer: -1, angle: -Math.PI / 2 },   // 左层逆时针
   F: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前层顺时针
@@ -34,6 +35,10 @@ const MOVES = {
   FL: { axis: "z", layer: 1, col: -1, angle: Math.PI / 2 },    // 前面左列向上
   FC: { axis: "z", layer: 1, col: 0, angle: Math.PI / 2 },     // 前面中列向上
   FR: { axis: "z", layer: 1, col: 1, angle: Math.PI / 2 },     // 前面右列向上
+
+  // 中间层的水平旋转
+  M: { axis: "y", layer: 0, angle: -Math.PI / 2 },    // 中间层逆时针（向左）
+  MP: { axis: "y", layer: 0, angle: Math.PI / 2 },    // 中间层顺时针（向右）
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -230,23 +235,36 @@ function determineMoveFromDrag(faceNormal, deltaMove, position) {
     (deltaMove.x > 0 ? 'right' : 'left') : 
     (deltaMove.y > 0 ? 'down' : 'up');
 
-  // 首先判断是否在顶层（y = 1）
+  // 顶层判断（y = 1）
   if (pos.y === 1) {
     if (isHorizontal) {
-      // 向右拖动时顺时针(U)，向左拖动时逆时针(U')
-      return moveDirection === 'right' ? 'U' : 'UP'; 
+      return moveDirection === 'right' ? 'U' : 'UP';
+    }
+  }
+  
+  // 中间层判断（y = 0）
+  if (pos.y === 0) {
+    if (isHorizontal) {
+      return moveDirection === 'right' ? 'MP' : 'M';
+    }
+  }
+  
+  // 底层判断（y = -1）
+  if (pos.y === -1) {
+    if (isHorizontal) {
+      return moveDirection === 'right' ? 'DP' : 'D';
     }
   }
 
   // 其他情况保持原有逻辑
   if (normal[2] === 1) { // 前面
     if (isHorizontal) {
-      if (pos.y === 0) return 'FM';  // 中行
-      else if (pos.y === -1) return 'FD'; // 下行
+      if (pos.y === 0) return 'FM';
+      else if (pos.y === -1) return 'FD';
     } else {
-      if (pos.x === -1) return 'FL';  // 左列
-      else if (pos.x === 0) return 'FC';  // 中列
-      else if (pos.x === 1) return 'FR';  // 右列
+      if (pos.x === -1) return 'FL';
+      else if (pos.x === 0) return 'FC';
+      else if (pos.x === 1) return 'FR';
     }
   }
 
