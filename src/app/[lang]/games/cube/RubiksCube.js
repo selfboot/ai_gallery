@@ -16,21 +16,29 @@ const FACE_COLORS = {
 
 // 定义可能的移动
 const MOVES = {
-  // 水平层旋转（6种）
-  U: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
-  UP: { axis: "y", layer: 1, angle: -Math.PI / 2 },   // 上层逆时针
-  D: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
-  DP: { axis: "y", layer: -1, angle: Math.PI / 2 },   // 下层顺时针 
-  M: { axis: "y", layer: 0, angle: -Math.PI / 2 },    // 中间层逆时针（向左）
-  MP: { axis: "y", layer: 0, angle: Math.PI / 2 },    // 中间层顺时针（向右）
+  // 水平层旋转（Y轴，6种）
+  UR: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
+  UL: { axis: "y", layer: 1, angle: -Math.PI / 2 },    // 上层逆时针
+  MR: { axis: "y", layer: 0, angle: Math.PI / 2 },     // 中层顺时针
+  ML: { axis: "y", layer: 0, angle: -Math.PI / 2 },    // 中层逆时针
+  DR: { axis: "y", layer: -1, angle: Math.PI / 2 },    // 下层顺时针
+  DL: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
 
-  // 垂直列旋转（6种）
+  // 垂直列旋转（Z轴，6种）
+  FU: { axis: "z", layer: 1, angle: -Math.PI / 2 },    // 前列向上
+  FD: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前列向下
+  CU: { axis: "z", layer: 0, angle: -Math.PI / 2 },    // 中列向上
+  CD: { axis: "z", layer: 0, angle: Math.PI / 2 },     // 中列向下
+  BU: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后列向上
+  BD: { axis: "z", layer: -1, angle: Math.PI / 2 },    // 后列向下
+
+  // 沿 X 轴旋转（6种）
   RU: { axis: "x", layer: 1, angle: -Math.PI / 2 },   // 右列向上
   RD: { axis: "x", layer: 1, angle: Math.PI / 2 },    // 右列向下
-  CU: { axis: "x", layer: 0, angle: -Math.PI / 2 },   // 中列向上
-  CD: { axis: "x", layer: 0, angle: Math.PI / 2 },    // 中列向下
-  LU: { axis: "x", layer: -1, angle: Math.PI / 2 },  // 左列向上
-  LD: { axis: "x", layer: -1, angle: -Math.PI / 2 },   // 左列向下
+  MU: { axis: "x", layer: 0, angle: -Math.PI / 2 },   // 中列向上
+  MD: { axis: "x", layer: 0, angle: Math.PI / 2 },    // 中列向下
+  LU: { axis: "x", layer: -1, angle: -Math.PI / 2 },  // 左列向上
+  LD: { axis: "x", layer: -1, angle: Math.PI / 2 },   // 左列向下
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -145,43 +153,6 @@ function resetCube(cubes) {
   });
 }
 
-// 根据拖动确定移动方向
-function determineMoveFromDrag(faceNormal, deltaMove, position) {
-  const pos = {
-    x: Math.round(position.x),
-    y: Math.round(position.y),
-    z: Math.round(position.z)
-  };
-
-  const isHorizontal = Math.abs(deltaMove.x) > Math.abs(deltaMove.y);
-  const moveDirection = isHorizontal ? 
-    (deltaMove.x > 0 ? 'right' : 'left') : 
-    (deltaMove.y > 0 ? 'down' : 'up');
-
-  // 垂直拖动的逻辑
-  if (!isHorizontal) {
-    if (pos.x === 1) {
-      return moveDirection === 'up' ? 'RU' : 'RD';
-    } else if (pos.x === 0) {
-      return moveDirection === 'up' ? 'CU' : 'CD';
-    } else if (pos.x === -1) {
-      return moveDirection === 'up' ? 'LU' : 'LD';
-    }
-  }
-
-  // 水平拖动 - 旋转层
-  if (isHorizontal) {
-    if (pos.y === 1) {
-      return moveDirection === 'right' ? 'U' : 'UP';
-    } else if (pos.y === 0) {
-      return moveDirection === 'right' ? 'MP' : 'M';
-    } else if (pos.y === -1) {
-      return moveDirection === 'right' ? 'DP' : 'D';
-    }
-  } 
-
-  return null;
-}
 
 // 动画版本的执行移动
 function animateMove(cubes, moveName, onComplete) {
@@ -223,7 +194,7 @@ function animateMove(cubes, moveName, onComplete) {
           break;
       }
 
-      // 计算新位置
+      // 计算新位
       cube.position.copy(cube.userData.startPosition)
         .applyMatrix4(rotationMatrix);
 
@@ -258,128 +229,238 @@ function animateMove(cubes, moveName, onComplete) {
   requestAnimationFrame(animate);
 }
 
+// 添加一个函数来创建和显示指示器
+function createIndicator(position) {
+  const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+  const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
+  const sphere = new THREE.Mesh(geometry, material);
+  sphere.position.copy(position);
+  return sphere;
+}
+
 // 魔方控制钩子
 function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
-  const { camera, gl } = useThree();
+  const { camera, gl, scene } = useThree();
   const dragInfo = useRef({
     isDragging: false,
-    startPoint: null,
-    startIntersection: null
+    startIntersection: null,
+    startX: null,  // 修改：保存起始X坐标
+    startY: null,  // 修改：保存起始Y坐标
+    currentIntersection: null
   });
+
+  const checkIntersection = (event) => {
+    const rect = gl.domElement.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+    
+    const cubes = cubesRef.current.filter(cube => cube !== null);
+    const intersects = raycaster.intersectObjects(cubes);
+    
+    return intersects[0];
+  };
+
+  const determineMove = (startIntersection, currentIntersection, startX, startY, currentX, currentY) => {
+    // 计算屏幕上的移动差值
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+
+    // 设置最小移动阈值
+    const threshold = 5;
+    if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+      return null;
+    }
+
+    // 确定是否为左右滑动
+    const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+    if (!isHorizontal) {
+      return null; // 暂时只处理左右滑动
+    }
+
+    // 获取起始点击的面的法向量
+    const faceNormal = startIntersection.face.normal.clone();
+    // 将法向量从局部坐标转换到世界坐标
+    faceNormal.transformDirection(startIntersection.object.matrixWorld);
+
+    // 获取起始点的位置
+    const position = startIntersection.object.position;
+    const y = Math.round(position.y);
+
+    // 确定滑动方向
+    const direction = deltaX > 0 ? 'right' : 'left';
+    
+    console.log(`屏幕移动: deltaX=${deltaX}, deltaY=${deltaY}`);
+    console.log(`滑动方向: ${direction}`);
+    console.log(`点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`);
+    console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
+
+    // 判断是否点击的是上面（法向量向上）
+    const isTopFace = Math.abs(faceNormal.y) > 0.5;
+
+    if (isTopFace) {
+      // 获取相机在世界坐标系中的位置
+      const cameraPosition = new THREE.Vector3();
+      camera.getWorldPosition(cameraPosition);
+      const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
+      const degrees = ((angle * 180 / Math.PI) + 360) % 360;
+
+      // 获取点击位置
+      const x = Math.round(position.x);
+      const z = Math.round(position.z);
+
+      console.log(`相机角度: ${degrees.toFixed(2)}度`);
+      console.log(`点击位置: x=${x}, z=${z}`);
+
+      // 首先确定相机视角
+      let viewDirection;
+      if (degrees >= 315 || degrees < 45) {
+        viewDirection = 'front';
+      } else if (degrees >= 45 && degrees < 135) {
+        viewDirection = 'right';
+      } else if (degrees >= 135 && degrees < 225) {
+        viewDirection = 'back';
+      } else {
+        viewDirection = 'left';
+      }
+
+      console.log(`视角方向: ${viewDirection}`);
+
+      // 根据视角和滑动方向决定旋转
+      switch (viewDirection) {
+  //       FU: { axis: "z", layer: 1, angle: -Math.PI / 2 },    // 前列向上
+  // FD: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前列向下
+  // CU: { axis: "z", layer: 0, angle: -Math.PI / 2 },    // 中列向上
+  // CD: { axis: "z", layer: 0, angle: Math.PI / 2 },     // 中列向下
+  // BU: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后列向上
+  // BD: { axis: "z", layer: -1, angle: Math.PI / 2 },    // 后列向下
+
+        case 'front':
+          // 从前面看，世界坐标就是视觉坐标
+          if (direction === 'right') {
+            if (z === 1) return 'FU';      // 视觉右列向上
+            if (z === 0) return 'CU';      // 视觉中列向上
+            if (z === -1) return 'BU';     // 视觉左列向上
+          } else {
+            if (z === 1) return 'FD';      // 视觉右列向下
+            if (z === 0) return 'CD';      // 视觉中列向下
+            if (z === -1) return 'BD';     // 视觉左列向下
+          }
+          break;
+
+        case 'back':
+          if (direction === 'right') {
+            if (z === 1) return 'FD';
+            if (z === 0) return 'CD';
+            if (z === -1) return 'BD';
+          } else {
+            if (z === 1) return 'FU';
+            if (z === 0) return 'CU';
+            if (z === -1) return 'BU';
+          }
+          break;
+        case 'left':
+          if (direction === 'right') {
+            if (x === -1) return 'LD';
+            if (x === 0) return 'MD';
+            if (x === 1) return 'RD';
+          } else {
+            if (x === -1) return 'LU';
+            if (x === 0) return 'MU';
+            if (x === 1) return 'RU';
+          }
+          break;
+        case 'right':
+          if (direction === 'right') {
+            if (x === 1) return 'RU';
+            if (x === 0) return 'MU';
+            if (x === -1) return 'LU';
+          } else {
+            if (x === 1) return 'RD';
+            if (x === 0) return 'MD';
+            if (x === -1) return 'LD';
+          }
+          break;
+      }
+    } else {
+      // 如果点击的是侧面，那么向右滑动会触发水平面的旋转
+      if (y === 1) {
+        return direction === 'right' ? 'UR' : 'UL';  // 上层
+      } else if (y === 0) {
+        return direction === 'right' ? 'MR' : 'ML';  // 中层
+      } else {
+        return direction === 'right' ? 'DR' : 'DL';  // 下层
+      }
+    }
+  };
 
   useEffect(() => {
     if (!groupRef.current) return;
 
     const container = gl.domElement;
     
-    // 射线检测函数
-    const checkIntersection = (event) => {
-      const rect = container.getBoundingClientRect();
-      const x = ((event.clientX) - rect.left) / rect.width * 2 - 1;
-      const y = -((event.clientY) - rect.top) / rect.height * 2 + 1;
-
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-      
-      const cubes = cubesRef.current.filter(cube => cube !== null);
-      const intersects = raycaster.intersectObjects(cubes);
-      
-      return intersects[0];
-    };
-
-    // 鼠标按下事件处理
     const handleMouseDown = (event) => {
       const intersection = checkIntersection(event);
       if (intersection) {
+        // 添加点击坐标日志
+        const position = intersection.object.position;
+        console.log(`点击方块坐标: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
+        
         setEnableOrbitControls(false);
         dragInfo.current = {
           isDragging: true,
-          startPoint: { x: event.clientX, y: event.clientY },
-          startIntersection: intersection
+          startIntersection: intersection,
+          startX: event.clientX,
+          startY: event.clientY,
+          currentIntersection: intersection
         };
-        console.log('开始拖动:', {
-          position: intersection.object.position,
-          normal: intersection.face.normal
-        });
       }
     };
 
-    // 鼠标移动事件处理
     const handleMouseMove = (event) => {
+      if (!dragInfo.current.isDragging) return;
+
       const intersection = checkIntersection(event);
-      setEnableOrbitControls(!intersection);
+      if (intersection) {
+        dragInfo.current.currentIntersection = intersection;
+        
+        const move = determineMove(
+          dragInfo.current.startIntersection,
+          intersection,
+          dragInfo.current.startX,
+          dragInfo.current.startY,
+          event.clientX,
+          event.clientY
+        );
 
-      if (dragInfo.current.isDragging) {
-        const deltaMove = {
-          x: event.clientX - dragInfo.current.startPoint.x,
-          y: event.clientY - dragInfo.current.startPoint.y
-        };
-
-        if (Math.abs(deltaMove.x) > 10 || Math.abs(deltaMove.y) > 10) {
-          // 判断移动方向
-          const isHorizontal = Math.abs(deltaMove.x) > Math.abs(deltaMove.y);
-          const moveDirection = isHorizontal ? 
-            (deltaMove.x > 0 ? 'right' : 'left') : 
-            (deltaMove.y > 0 ? 'down' : 'up');
-
-          // 获取点击的方块位置和法线
-          const position = dragInfo.current.startIntersection.object.position;
-          const normal = dragInfo.current.startIntersection.face.normal;
-
-          console.log('拖动信息:', {
-            position: {
-              x: Math.round(position.x),
-              y: Math.round(position.y),
-              z: Math.round(position.z)
-            },
-            normal: {
-              x: Math.round(normal.x),
-              y: Math.round(normal.y),
-              z: Math.round(normal.z)
-            },
-            moveDirection,
-            delta: deltaMove
+        if (move) {
+          dragInfo.current.isDragging = false;
+          animateMove(cubesRef.current, move, () => {
+            console.log('Move completed:', move);
           });
-
-          const move = determineMoveFromDrag(
-            dragInfo.current.startIntersection.face.normal,
-            deltaMove,
-            dragInfo.current.startIntersection.object.position
-          );
-          
-          if (move) {
-            console.log('决定的移动:', move);
-            dragInfo.current.isDragging = false;
-            animateMove(cubesRef.current, move, () => {
-              console.log('动画完成');
-            });
-          }
         }
       }
     };
 
-    // 鼠标抬起事件处理
     const handleMouseUp = () => {
-      dragInfo.current = {
-        isDragging: false,
-        startPoint: null,
-        startIntersection: null
-      };
+      dragInfo.current.isDragging = false;
       setEnableOrbitControls(true);
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mouseup', handleMouseUp);
     container.addEventListener('mouseleave', handleMouseUp);
 
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseup', handleMouseUp);
       container.removeEventListener('mouseleave', handleMouseUp);
     };
-  }, [camera, gl, groupRef, cubesRef, setEnableOrbitControls]);
+  }, [camera, gl, scene, groupRef, cubesRef, setEnableOrbitControls]);
 }
 
 // 主组件
