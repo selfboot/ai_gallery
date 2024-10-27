@@ -43,6 +43,10 @@ const MOVES = {
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
 
+// 添加初始相机状态常量
+const INITIAL_CAMERA_POSITION = new THREE.Vector3(4, 4, 4);
+const INITIAL_CAMERA_TARGET = new THREE.Vector3(0, 0, 0);
+
 // 创建单个方块的材质
 function createCubeMaterials(x, y, z) {
   return [
@@ -85,63 +89,31 @@ function createCubeMaterials(x, y, z) {
   ];
 }
 
-// 执行单个移动
-function performMove(cubes, moveName) {
-  const move = MOVES[moveName];
-  if (!move) return;
-
-  const rotationMatrix = new THREE.Matrix4();
-  const angle = move.angle;
-
-  cubes.forEach((cube) => {
-    const pos = cube.position;
-    const shouldRotate = Math.abs(pos[move.axis] - move.layer) < 0.1;
-
-    if (shouldRotate) {
-      switch (move.axis) {
-        case "x":
-          rotationMatrix.makeRotationX(angle);
-          break;
-        case "y":
-          rotationMatrix.makeRotationY(angle);
-          break;
-        case "z":
-          rotationMatrix.makeRotationZ(angle);
-          break;
-      }
-
-      cube.position.applyMatrix4(rotationMatrix);
-      cube.rotation.setFromRotationMatrix(
-        rotationMatrix.multiply(new THREE.Matrix4().makeRotationFromEuler(cube.rotation))
-      );
-      cube.updateMatrix();
-    }
-  });
-}
-
 // 打乱魔方
 function scrambleCube(cubes, onComplete) {
   const moves = Object.keys(MOVES);
-  const scrambleSequence = Array(20)
-    .fill(0)
-    .map(() => moves[Math.floor(Math.random() * moves.length)]);
-
+  const scrambleCount = 20;
   let moveIndex = 0;
+
   const scrambleInterval = setInterval(() => {
-    if (moveIndex < scrambleSequence.length) {
-      performMove(cubes, scrambleSequence[moveIndex]);
-      moveIndex++;
-    } else {
-      clearInterval(scrambleInterval);
-      if (onComplete) onComplete();
+    if (moveIndex < scrambleCount) {
+      const randomMove = moves[Math.floor(Math.random() * moves.length)];
+      animateMove(cubes, randomMove, () => {
+        moveIndex++;
+        if (moveIndex === scrambleCount && onComplete) {
+          clearInterval(scrambleInterval);
+          onComplete();
+        }
+      });
     }
-  }, 100);
+  }, ANIMATION_DURATION + 50);
 
   return () => clearInterval(scrambleInterval);
 }
 
 // 重置魔方
-function resetCube(cubes) {
+function resetCube(cubes, camera, controls) {
+  // 重置方块位置和旋转
   cubes.forEach((cube, index) => {
     const x = Math.floor(index / 9) - 1;
     const y = Math.floor((index % 9) / 3) - 1;
@@ -151,8 +123,46 @@ function resetCube(cubes) {
     cube.rotation.set(0, 0, 0);
     cube.updateMatrix();
   });
-}
 
+  // 重置相机位置和视角
+  if (camera && controls) {
+    // 使用动画过渡到初始位置
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const startTime = Date.now();
+    const duration = 1000; // 1秒的动画时间
+
+    function animateCamera() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // 使用缓动函数使动画更平滑
+      const easeProgress = progress * (2 - progress);
+
+      // 插值计算相机位置
+      camera.position.lerpVectors(
+        startPosition,
+        INITIAL_CAMERA_POSITION,
+        easeProgress
+      );
+
+      // 插值计算目标点
+      controls.target.lerpVectors(
+        startTarget,
+        INITIAL_CAMERA_TARGET,
+        easeProgress
+      );
+
+      controls.update();
+
+      if (progress < 1) {
+        requestAnimationFrame(animateCamera);
+      }
+    }
+
+    // animateCamera();
+  }
+}
 
 // 动画版本的执行移动
 function animateMove(cubes, moveName, onComplete) {
@@ -162,20 +172,20 @@ function animateMove(cubes, moveName, onComplete) {
   const startTime = Date.now();
   const rotationMatrix = new THREE.Matrix4();
   const targetAngle = move.angle;
-  
+
   // 找出需要旋转的方块
   const rotatingCubes = cubes.filter(cube => {
     const pos = cube.position;
     return (move.axis === "x" && Math.abs(pos.x - move.layer) < 0.1) ||
-           (move.axis === "y" && Math.abs(pos.y - move.layer) < 0.1) ||
-           (move.axis === "z" && Math.abs(pos.z - move.layer) < 0.1);
+      (move.axis === "y" && Math.abs(pos.y - move.layer) < 0.1) ||
+      (move.axis === "z" && Math.abs(pos.z - move.layer) < 0.1);
   });
 
   // 动画函数
   function animate() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-    
+
     // 使用缓动函数使动画更平滑
     const easeProgress = progress * (2 - progress);
     const currentAngle = targetAngle * easeProgress;
@@ -229,13 +239,21 @@ function animateMove(cubes, moveName, onComplete) {
   requestAnimationFrame(animate);
 }
 
-// 添加一个函数来创建和显示指示器
-function createIndicator(position) {
-  const geometry = new THREE.SphereGeometry(0.1, 32, 32);
-  const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
-  const sphere = new THREE.Mesh(geometry, material);
-  sphere.position.copy(position);
-  return sphere;
+// 获取更精确的视角方向
+function getDetailedViewDirection(degrees) {
+  // 将360度分成8个区域，每个区域45度, 从 0 度开始
+  const sector = Math.floor(((degrees) % 360) / 45);
+
+  switch (sector) {
+    case 0: return 'front';           // 0-45
+    case 1: return 'front-right';     // 45-90
+    case 2: return 'right';           // 90-135
+    case 3: return 'right-back';      // 135-180
+    case 4: return 'back';            // 180-225
+    case 5: return 'back-left';       // 225-270
+    case 6: return 'left';            // 270-315
+    case 7: return 'left-front';      // 315-360
+  }
 }
 
 // 魔方控制钩子
@@ -244,7 +262,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
   const dragInfo = useRef({
     isDragging: false,
     startIntersection: null,
-    startX: null,  // 修改：保存起始X坐标
+    startX: null,  // 修：保存起始X坐标
     startY: null,  // 修改：保存起始Y坐标
     currentIntersection: null
   });
@@ -256,10 +274,10 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-    
+
     const cubes = cubesRef.current.filter(cube => cube !== null);
     const intersects = raycaster.intersectObjects(cubes);
-    
+
     return intersects[0];
   };
 
@@ -274,26 +292,26 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       return null;
     }
 
-    // 确定是否为左右滑动
+    // 确定是否为左右滑动，并判断垂直方向
     const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
     if (!isHorizontal) {
-      return null; // 暂时只处理左右滑动
+      return null;
     }
 
-    // 获取起始点击的面的法向量
-    const faceNormal = startIntersection.face.normal.clone();
-    // 将法向量从局部坐标转换到世界坐标
-    faceNormal.transformDirection(startIntersection.object.matrixWorld);
+    // 判断是向上还是向下的倾向
+    const isUpward = deltaY < 0;
 
-    // 获取起始点的位置
+    // 获取起始点击的面的法向量和位置
+    const faceNormal = startIntersection.face.normal.clone();
+    faceNormal.transformDirection(startIntersection.object.matrixWorld);
     const position = startIntersection.object.position;
     const y = Math.round(position.y);
 
-    // 确定滑动方向
+    // 确定基本滑动方向
     const direction = deltaX > 0 ? 'right' : 'left';
-    
+
     console.log(`屏幕移动: deltaX=${deltaX}, deltaY=${deltaY}`);
-    console.log(`滑动方向: ${direction}`);
+    console.log(`滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
     console.log(`点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`);
     console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
 
@@ -301,86 +319,209 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const isTopFace = Math.abs(faceNormal.y) > 0.5;
 
     if (isTopFace) {
-      // 获取相机在世界坐标系中的位置
       const cameraPosition = new THREE.Vector3();
       camera.getWorldPosition(cameraPosition);
       const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
       const degrees = ((angle * 180 / Math.PI) + 360) % 360;
 
-      // 获取点击位置
       const x = Math.round(position.x);
       const z = Math.round(position.z);
 
       console.log(`相机角度: ${degrees.toFixed(2)}度`);
-      console.log(`点击位置: x=${x}, z=${z}`);
 
-      // 首先确定相机视角
-      let viewDirection;
-      if (degrees >= 315 || degrees < 45) {
-        viewDirection = 'front';
-      } else if (degrees >= 45 && degrees < 135) {
-        viewDirection = 'right';
-      } else if (degrees >= 135 && degrees < 225) {
-        viewDirection = 'back';
-      } else {
-        viewDirection = 'left';
-      }
+      const viewDirection = getDetailedViewDirection(degrees);
+      console.log(`详细视角方向: ${viewDirection}`);
 
-      console.log(`视角方向: ${viewDirection}`);
-
-      // 根据视角和滑动方向决定旋转
+      // 根据更精确的视角和滑动方向决定旋转
       switch (viewDirection) {
-  //       FU: { axis: "z", layer: 1, angle: -Math.PI / 2 },    // 前列向上
-  // FD: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前列向下
-  // CU: { axis: "z", layer: 0, angle: -Math.PI / 2 },    // 中列向上
-  // CD: { axis: "z", layer: 0, angle: Math.PI / 2 },     // 中列向下
-  // BU: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后列向上
-  // BD: { axis: "z", layer: -1, angle: Math.PI / 2 },    // 后列向下
-
         case 'front':
-          // 从前面看，世界坐标就是视觉坐标
           if (direction === 'right') {
-            if (z === 1) return 'FU';      // 视觉右列向上
-            if (z === 0) return 'CU';      // 视觉中列向上
-            if (z === -1) return 'BU';     // 视觉左列向上
+            if (isUpward) {
+              // 前视角，向右上滑动
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            } else {
+              // 前视角，向右下滑动
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            }
           } else {
-            if (z === 1) return 'FD';      // 视觉右列向下
-            if (z === 0) return 'CD';      // 视觉中列向下
-            if (z === -1) return 'BD';     // 视觉左列向下
+            if (isUpward) {
+              // 前视角，向左上滑动
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            } else {
+              // 前视角，向左下滑动
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            }
           }
           break;
-
-        case 'back':
+        case 'front-right':
           if (direction === 'right') {
-            if (z === 1) return 'FD';
-            if (z === 0) return 'CD';
-            if (z === -1) return 'BD';
+            if (isUpward) {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            } else {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            }
           } else {
-            if (z === 1) return 'FU';
-            if (z === 0) return 'CU';
-            if (z === -1) return 'BU';
-          }
-          break;
-        case 'left':
-          if (direction === 'right') {
-            if (x === -1) return 'LD';
-            if (x === 0) return 'MD';
-            if (x === 1) return 'RD';
-          } else {
-            if (x === -1) return 'LU';
-            if (x === 0) return 'MU';
-            if (x === 1) return 'RU';
+            if (isUpward) {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            } else {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            }
           }
           break;
         case 'right':
           if (direction === 'right') {
-            if (x === 1) return 'RU';
-            if (x === 0) return 'MU';
-            if (x === -1) return 'LU';
+            if (isUpward) {
+              // 右侧视觉，向右滑动，向上滑动
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            } else {
+              // 右侧视觉，向右滑动，向下滑动
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            }
           } else {
-            if (x === 1) return 'RD';
-            if (x === 0) return 'MD';
-            if (x === -1) return 'LD';
+            if (isUpward) {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            } else {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            }
+          }
+          break;
+        case 'right-back':
+          if (direction === 'right') {
+            if (isUpward) {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            } else {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            }
+          } else {
+            if (isUpward) {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            } else {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            }
+          }
+          break;
+        case 'back':
+          if (direction === 'right') {
+            if (isUpward) {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            } else {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            }
+          } else {
+            if (isUpward) {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            } else {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            }
+          }
+          break;
+        case 'back-left':
+          if (direction === 'right') {
+            if (isUpward) {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            } else {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            }
+          } else {
+            if (isUpward) {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            } else {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            }
+          }
+          break;
+        case 'left':
+          if (direction === 'right') {
+            if (isUpward) {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            } else {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            }
+          } else {
+            if (isUpward) {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            } else {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            }
+          }
+          break;
+        case 'left-front':
+          if (direction === 'right') {
+            if (isUpward) {
+              if (z === 1) return 'FU';
+              if (z === 0) return 'CU';
+              if (z === -1) return 'BU';
+            } else {
+              if (x === 1) return 'RD';
+              if (x === 0) return 'MD';
+              if (x === -1) return 'LD';
+            }
+          } else {
+            if (isUpward) {
+              if (x === 1) return 'RU';
+              if (x === 0) return 'MU';
+              if (x === -1) return 'LU';
+            } else {
+              if (z === 1) return 'FD';
+              if (z === 0) return 'CD';
+              if (z === -1) return 'BD';
+            }
           }
           break;
       }
@@ -400,14 +541,14 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     if (!groupRef.current) return;
 
     const container = gl.domElement;
-    
+
     const handleMouseDown = (event) => {
       const intersection = checkIntersection(event);
       if (intersection) {
         // 添加点击坐标日志
         const position = intersection.object.position;
         console.log(`点击方块坐标: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
-        
+
         setEnableOrbitControls(false);
         dragInfo.current = {
           isDragging: true,
@@ -425,7 +566,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       const intersection = checkIntersection(event);
       if (intersection) {
         dragInfo.current.currentIntersection = intersection;
-        
+
         const move = determineMove(
           dragInfo.current.startIntersection,
           intersection,
@@ -464,16 +605,17 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
 }
 
 // 主组件
-export default function RubiksCube({ 
-  isScrambling, 
-  onScrambleComplete, 
-  onMoveComplete, 
-  isResetting, 
+export default function RubiksCube({
+  isScrambling,
+  onScrambleComplete,
+  onMoveComplete,
+  isResetting,
   onResetComplete,
-  setEnableOrbitControls 
+  setEnableOrbitControls
 }) {
   const groupRef = useRef();
   const cubesRef = useRef([]);
+  const { camera, controls } = useThree();  // 获取相机和控制器
 
   useCubeControl(groupRef, cubesRef, setEnableOrbitControls);
 
@@ -486,10 +628,10 @@ export default function RubiksCube({
 
   useEffect(() => {
     if (isResetting) {
-      resetCube(cubesRef.current);
+      resetCube(cubesRef.current, camera, controls);
       onResetComplete();
     }
-  }, [isResetting]);
+  }, [isResetting, camera, controls]);
 
   return (
     <>
