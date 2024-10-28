@@ -14,46 +14,42 @@ const FACE_COLORS = {
   down: '#FFFF00', // 黄色
 };
 
-// 定义可能的移动
-const MOVES = {
-  // 水平层旋转（Y轴，6种）
-  UR: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // 上层顺时针
-  UL: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // 上层逆时针
-  MR: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // 中层顺时针
-  ML: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // 中层逆时针
-  DR: { axis: 'y', layer: -1, angle: Math.PI / 2 }, // 下层顺时针
-  DL: { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // 下层逆时针
-
-  // 垂直列旋转（Z轴，6种）
-  FU: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // 前列向上
-  FD: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // 前列向下
-  CU: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // 中列向上
-  CD: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // 中列向下
-  BU: { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // 后列向上
-  BD: { axis: 'z', layer: -1, angle: Math.PI / 2 }, // 后列向下
-
-  // 沿 X 轴旋转（6种）
-  RU: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // 右列向上
-  RD: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // 右列向下
-  MU: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // 中列向上
-  MD: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // 中列向下
-  LU: { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // 左列向上
-  LD: { axis: 'x', layer: -1, angle: Math.PI / 2 }, // 左列向下
-};
-
-// 添加旋转映射常量
 const ROTATION_MAPS = {
   x: {
-    up: { 1: 'RU', 0: 'MU', '-1': 'LU' },
-    down: { 1: 'RD', 0: 'MD', '-1': 'LD' },
+    up: {
+      1: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // RU: 右列向上
+      0: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // MU: 中列向上
+      '-1': { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // LU: 左列向上
+    },
+    down: {
+      1: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // RD: 右列向下
+      0: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // MD: 中列向下
+      '-1': { axis: 'x', layer: -1, angle: Math.PI / 2 }, // LD: 左列向下
+    },
   },
   y: {
-    right: { 1: 'UR', 0: 'MR', '-1': 'DR' },
-    left: { 1: 'UL', 0: 'ML', '-1': 'DL' },
+    right: {
+      1: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // UR: 上层顺时针
+      0: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // MR: 中层顺时针
+      '-1': { axis: 'y', layer: -1, angle: Math.PI / 2 }, // DR: 下层顺时针
+    },
+    left: {
+      1: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // UL: 上层逆时针
+      0: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // ML: 中层逆时针
+      '-1': { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // DL: 下层逆时针
+    },
   },
   z: {
-    up: { 1: 'FU', 0: 'CU', '-1': 'BU' },
-    down: { 1: 'FD', 0: 'CD', '-1': 'BD' },
+    up: {
+      1: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // FU: 前列向上
+      0: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // CU: 中列向上
+      '-1': { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // BU: 后列向上
+    },
+    down: {
+      1: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // FD: 前列向下
+      0: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // CD: 中列向下
+      '-1': { axis: 'z', layer: -1, angle: Math.PI / 2 }, // BD: 后列向下
+    },
   },
 };
 
@@ -151,12 +147,17 @@ function createCubeMaterials(x, y, z) {
 
 // 打乱魔方
 function scrambleCube(cubes, onComplete) {
-  const moves = Object.keys(MOVES);
+  // 获取所有可能的移动
+  const moves = Object.values(ROTATION_MAPS).flatMap((axisMap) =>
+    Object.values(axisMap).flatMap((directionMap) => Object.values(directionMap))
+  );
+
   const scrambleCount = 20;
   let moveIndex = 0;
 
   const scrambleInterval = setInterval(() => {
     if (moveIndex < scrambleCount) {
+      // 随机选择一个移动配置
       const randomMove = moves[Math.floor(Math.random() * moves.length)];
       animateMove(cubes, randomMove, () => {
         moveIndex++;
@@ -217,8 +218,7 @@ function resetCube(cubes, camera, controls) {
 }
 
 // 动画版本的执行移动
-function animateMove(cubes, moveName, onComplete) {
-  const move = MOVES[moveName];
+function animateMove(cubes, move, onComplete) {
   if (!move) return;
 
   const startTime = Date.now();
