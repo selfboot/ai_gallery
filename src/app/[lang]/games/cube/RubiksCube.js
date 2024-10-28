@@ -341,7 +341,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     return intersects[0];
   };
 
-  const determineMove = (startIntersection, currentIntersection, startX, startY, currentX, currentY) => {
+  const determineMove = (startIntersection, startX, startY, currentX, currentY) => {
     // 计算屏幕上的移动差值
     const deltaX = currentX - startX;
     const deltaY = currentY - startY;
@@ -405,6 +405,86 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     }
   };
 
+  // 用于转换垂直滑动为水平滑动的等效操作
+  function getEquivalentHorizontalMove(startIntersection, startX, startY, currentX, currentY) {
+    // 1. 计算原始移动向量
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+    const verticalDirection = deltaY > 0 ? '向下' : '向上';
+    const horizontalDirection = deltaX > 0 ? '向右' : '向左';
+    console.log(`垂直滑动: ${verticalDirection}, ${horizontalDirection}`);
+
+    // 2. 先将视角顺时针旋转90度来看待垂直滑动
+    const rotatedStartX = -startY;
+    const rotatedStartY = startX;
+    const rotatedCurrentX = -currentY;
+    const rotatedCurrentY = currentX;
+    const rotatedDeltaX = rotatedCurrentX - rotatedStartX;
+    const rotatedDeltaY = rotatedCurrentY - rotatedStartY;
+    const rotatedVerticalDirection = rotatedDeltaY > 0 ? '向下' : '向上';
+    const rotatedHorizontalDirection = rotatedDeltaX > 0 ? '向右' : '向左';
+    console.log(`顺时针旋转后滑动: ${rotatedVerticalDirection}, ${rotatedHorizontalDirection}`);
+
+    // 旋转 intersection 中的点坐标
+    const rotatedIntersection = {
+      ...startIntersection,
+      object: {
+        ...startIntersection.object,
+        position: new THREE.Vector3(
+          -startIntersection.object.position.y, // x = -y
+          startIntersection.object.position.x, // y = x
+          startIntersection.object.position.z // z 保持不变
+        ),
+      },
+    };
+
+    // 3. 使用原有的 determineMove 获取基础旋转操作
+    const baseMove = determineMove(rotatedIntersection, rotatedStartX, rotatedStartY, rotatedCurrentX, rotatedCurrentY);
+
+    if (!baseMove) return null;
+
+    // 5. 计算最终的旋转操作
+    // 首先应用逆时针90度的补偿旋转，然后应用基础旋转
+    let finalAxis, finalAngle, finalLayer;
+    console.log('基础旋转:', {
+      axis: baseMove.axis,
+      layer: baseMove.layer,
+      angle: baseMove.angle,
+    });
+
+    // 根据轴向调整旋转角度和层数
+    const position = startIntersection.object.position;
+    switch (baseMove.axis) {
+      case 'x':
+        finalAxis = 'y';
+        finalLayer = baseMove.layer * Math.round(position.x);
+        finalAngle = -baseMove.angle;
+        break;
+      case 'y':
+        finalAxis = 'z';
+        finalLayer = baseMove.layer * Math.round(position.z);
+        finalAngle = baseMove.angle;
+        break;
+      case 'z':
+        finalAxis = 'z';
+        finalLayer = -baseMove.layer * Math.round(position.z);
+        finalAngle = baseMove.angle;
+        break;
+    }
+
+    console.log('最终旋转操作:', {
+      axis: finalAxis,
+      layer: finalLayer,
+      angle: finalAngle,
+    });
+    // 返回新的旋转操作
+    return {
+      axis: finalAxis,
+      layer: finalLayer,
+      angle: finalAngle,
+    };
+  }
+
   useEffect(() => {
     if (!groupRef.current) return;
 
@@ -435,14 +515,36 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       if (intersection) {
         dragInfo.current.currentIntersection = intersection;
 
-        const move = determineMove(
-          dragInfo.current.startIntersection,
-          intersection,
-          dragInfo.current.startX,
-          dragInfo.current.startY,
-          event.clientX,
-          event.clientY
-        );
+        // 判断是水平还是垂直滑动
+        const deltaX = event.clientX - dragInfo.current.startX;
+        const deltaY = event.clientY - dragInfo.current.startY;
+        const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+
+        const threshold = 5;
+        if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
+          return null;
+        }
+
+        let move;
+        if (isHorizontal) {
+          // 原有的水平滑动逻辑
+          move = determineMove(
+            dragInfo.current.startIntersection,
+            dragInfo.current.startX,
+            dragInfo.current.startY,
+            event.clientX,
+            event.clientY
+          );
+        } else {
+          // 垂直滑动转换为等效的水平滑动
+          move = getEquivalentHorizontalMove(
+            dragInfo.current.startIntersection,
+            dragInfo.current.startX,
+            dragInfo.current.startY,
+            event.clientX,
+            event.clientY
+          );
+        }
 
         if (move) {
           dragInfo.current.isDragging = false;
