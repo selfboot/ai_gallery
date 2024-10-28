@@ -60,5 +60,9 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

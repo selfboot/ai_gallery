@@ -1,44 +1,104 @@
-"use client";
+'use client';
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { useThree } from '@react-three/fiber';  // 添加这行
+import { useThree } from '@react-three/fiber'; // 添加这行
 
 // 颜色配置
 const FACE_COLORS = {
-  up: "#FFFFFF",    // 白色
-  front: "#FF0000", // 红色
-  right: "#0000FF", // 蓝色
-  back: "#FFA500",  // 橙色
-  left: "#00FF00",  // 绿色
-  down: "#FFFF00",  // 黄色
+  up: '#FFFFFF', // 白色
+  front: '#FF0000', // 红色
+  right: '#0000FF', // 蓝色
+  back: '#FFA500', // 橙色
+  left: '#00FF00', // 绿色
+  down: '#FFFF00', // 黄色
 };
 
 // 定义可能的移动
 const MOVES = {
   // 水平层旋转（Y轴，6种）
-  UR: { axis: "y", layer: 1, angle: Math.PI / 2 },     // 上层顺时针
-  UL: { axis: "y", layer: 1, angle: -Math.PI / 2 },    // 上层逆时针
-  MR: { axis: "y", layer: 0, angle: Math.PI / 2 },     // 中层顺时针
-  ML: { axis: "y", layer: 0, angle: -Math.PI / 2 },    // 中层逆时针
-  DR: { axis: "y", layer: -1, angle: Math.PI / 2 },    // 下层顺时针
-  DL: { axis: "y", layer: -1, angle: -Math.PI / 2 },   // 下层逆时针
+  UR: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // 上层顺时针
+  UL: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // 上层逆时针
+  MR: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // 中层顺时针
+  ML: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // 中层逆时针
+  DR: { axis: 'y', layer: -1, angle: Math.PI / 2 }, // 下层顺时针
+  DL: { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // 下层逆时针
 
   // 垂直列旋转（Z轴，6种）
-  FU: { axis: "z", layer: 1, angle: -Math.PI / 2 },    // 前列向上
-  FD: { axis: "z", layer: 1, angle: Math.PI / 2 },     // 前列向下
-  CU: { axis: "z", layer: 0, angle: -Math.PI / 2 },    // 中列向上
-  CD: { axis: "z", layer: 0, angle: Math.PI / 2 },     // 中列向下
-  BU: { axis: "z", layer: -1, angle: -Math.PI / 2 },   // 后列向上
-  BD: { axis: "z", layer: -1, angle: Math.PI / 2 },    // 后列向下
+  FU: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // 前列向上
+  FD: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // 前列向下
+  CU: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // 中列向上
+  CD: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // 中列向下
+  BU: { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // 后列向上
+  BD: { axis: 'z', layer: -1, angle: Math.PI / 2 }, // 后列向下
 
   // 沿 X 轴旋转（6种）
-  RU: { axis: "x", layer: 1, angle: -Math.PI / 2 },   // 右列向上
-  RD: { axis: "x", layer: 1, angle: Math.PI / 2 },    // 右列向下
-  MU: { axis: "x", layer: 0, angle: -Math.PI / 2 },   // 中列向上
-  MD: { axis: "x", layer: 0, angle: Math.PI / 2 },    // 中列向下
-  LU: { axis: "x", layer: -1, angle: -Math.PI / 2 },  // 左列向上
-  LD: { axis: "x", layer: -1, angle: Math.PI / 2 },   // 左列向下
+  RU: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // 右列向上
+  RD: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // 右列向下
+  MU: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // 中列向上
+  MD: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // 中列向下
+  LU: { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // 左列向上
+  LD: { axis: 'x', layer: -1, angle: Math.PI / 2 }, // 左列向下
+};
+
+// 添加旋转映射常量
+const ROTATION_MAPS = {
+  x: {
+    up: { 1: 'RU', 0: 'MU', '-1': 'LU' },
+    down: { 1: 'RD', 0: 'MD', '-1': 'LD' },
+  },
+  y: {
+    right: { 1: 'UR', 0: 'MR', '-1': 'DR' },
+    left: { 1: 'UL', 0: 'ML', '-1': 'DL' },
+  },
+  z: {
+    up: { 1: 'FU', 0: 'CU', '-1': 'BU' },
+    down: { 1: 'FD', 0: 'CD', '-1': 'BD' },
+  },
+};
+
+// 获取基于视角的移动映射
+const VIEW_MOVE_MAPS = {
+  front: {
+    right: {
+      up: { axis: 'x', isUp: true },
+      down: { axis: 'z', isUp: true },
+    },
+    left: {
+      up: { axis: 'z', isUp: false },
+      down: { axis: 'x', isUp: false },
+    },
+  },
+  right: {
+    right: {
+      up: { axis: 'z', isUp: false },
+      down: { axis: 'x', isUp: true },
+    },
+    left: {
+      up: { axis: 'x', isUp: false },
+      down: { axis: 'z', isUp: true },
+    },
+  },
+  back: {
+    right: {
+      up: { axis: 'x', isUp: false },
+      down: { axis: 'z', isUp: false },
+    },
+    left: {
+      up: { axis: 'z', isUp: true },
+      down: { axis: 'x', isUp: true },
+    },
+  },
+  left: {
+    right: {
+      up: { axis: 'z', isUp: true },
+      down: { axis: 'x', isUp: false },
+    },
+    left: {
+      up: { axis: 'x', isUp: true },
+      down: { axis: 'z', isUp: false },
+    },
+  },
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -52,37 +112,37 @@ function createCubeMaterials(x, y, z) {
   return [
     // right
     new THREE.MeshBasicMaterial({
-      color: x === 1 ? FACE_COLORS.right : "#000000",
+      color: x === 1 ? FACE_COLORS.right : '#000000',
       transparent: x !== 1,
       opacity: x === 1 ? 1 : 0,
     }),
     // left
     new THREE.MeshBasicMaterial({
-      color: x === -1 ? FACE_COLORS.left : "#000000",
+      color: x === -1 ? FACE_COLORS.left : '#000000',
       transparent: x !== -1,
       opacity: x === -1 ? 1 : 0,
     }),
     // top
     new THREE.MeshBasicMaterial({
-      color: y === 1 ? FACE_COLORS.up : "#000000",
+      color: y === 1 ? FACE_COLORS.up : '#000000',
       transparent: y !== 1,
       opacity: y === 1 ? 1 : 0,
     }),
     // bottom
     new THREE.MeshBasicMaterial({
-      color: y === -1 ? FACE_COLORS.down : "#000000",
+      color: y === -1 ? FACE_COLORS.down : '#000000',
       transparent: y !== -1,
       opacity: y === -1 ? 1 : 0,
     }),
     // front
     new THREE.MeshBasicMaterial({
-      color: z === 1 ? FACE_COLORS.front : "#000000",
+      color: z === 1 ? FACE_COLORS.front : '#000000',
       transparent: z !== 1,
       opacity: z === 1 ? 1 : 0,
     }),
     // back
     new THREE.MeshBasicMaterial({
-      color: z === -1 ? FACE_COLORS.back : "#000000",
+      color: z === -1 ? FACE_COLORS.back : '#000000',
       transparent: z !== -1,
       opacity: z === -1 ? 1 : 0,
     }),
@@ -140,18 +200,10 @@ function resetCube(cubes, camera, controls) {
       const easeProgress = progress * (2 - progress);
 
       // 插值计算相机位置
-      camera.position.lerpVectors(
-        startPosition,
-        INITIAL_CAMERA_POSITION,
-        easeProgress
-      );
+      camera.position.lerpVectors(startPosition, INITIAL_CAMERA_POSITION, easeProgress);
 
       // 插值计算目标点
-      controls.target.lerpVectors(
-        startTarget,
-        INITIAL_CAMERA_TARGET,
-        easeProgress
-      );
+      controls.target.lerpVectors(startTarget, INITIAL_CAMERA_TARGET, easeProgress);
 
       controls.update();
 
@@ -174,11 +226,13 @@ function animateMove(cubes, moveName, onComplete) {
   const targetAngle = move.angle;
 
   // 找出需要旋转的方块
-  const rotatingCubes = cubes.filter(cube => {
+  const rotatingCubes = cubes.filter((cube) => {
     const pos = cube.position;
-    return (move.axis === "x" && Math.abs(pos.x - move.layer) < 0.1) ||
-      (move.axis === "y" && Math.abs(pos.y - move.layer) < 0.1) ||
-      (move.axis === "z" && Math.abs(pos.z - move.layer) < 0.1);
+    return (
+      (move.axis === 'x' && Math.abs(pos.x - move.layer) < 0.1) ||
+      (move.axis === 'y' && Math.abs(pos.y - move.layer) < 0.1) ||
+      (move.axis === 'z' && Math.abs(pos.z - move.layer) < 0.1)
+    );
   });
 
   // 动画函数
@@ -191,28 +245,25 @@ function animateMove(cubes, moveName, onComplete) {
     const currentAngle = targetAngle * easeProgress;
 
     // 为每个需要旋转的方块应用旋转
-    rotatingCubes.forEach(cube => {
+    rotatingCubes.forEach((cube) => {
       switch (move.axis) {
-        case "x":
+        case 'x':
           rotationMatrix.makeRotationX(currentAngle);
           break;
-        case "y":
+        case 'y':
           rotationMatrix.makeRotationY(currentAngle);
           break;
-        case "z":
+        case 'z':
           rotationMatrix.makeRotationZ(currentAngle);
           break;
       }
 
       // 计算新位
-      cube.position.copy(cube.userData.startPosition)
-        .applyMatrix4(rotationMatrix);
+      cube.position.copy(cube.userData.startPosition).applyMatrix4(rotationMatrix);
 
       // 更新旋转
       cube.rotation.setFromRotationMatrix(
-        rotationMatrix.multiply(
-          new THREE.Matrix4().makeRotationFromEuler(cube.userData.startRotation)
-        )
+        rotationMatrix.multiply(new THREE.Matrix4().makeRotationFromEuler(cube.userData.startRotation))
       );
     });
 
@@ -220,7 +271,7 @@ function animateMove(cubes, moveName, onComplete) {
       requestAnimationFrame(animate);
     } else {
       // 动画完成后更新最终状态
-      rotatingCubes.forEach(cube => {
+      rotatingCubes.forEach((cube) => {
         cube.updateMatrix();
         delete cube.userData.startPosition;
         delete cube.userData.startRotation;
@@ -230,7 +281,7 @@ function animateMove(cubes, moveName, onComplete) {
   }
 
   // 保存初始状态
-  rotatingCubes.forEach(cube => {
+  rotatingCubes.forEach((cube) => {
     cube.userData.startPosition = cube.position.clone();
     cube.userData.startRotation = cube.rotation.clone();
   });
@@ -239,21 +290,30 @@ function animateMove(cubes, moveName, onComplete) {
   requestAnimationFrame(animate);
 }
 
-// 获取更精确的视角方向
-function getDetailedViewDirection(degrees) {
-  // 将360度分成8个区域，每个区域45度, 从 0 度开始
-  const sector = Math.floor(((degrees) % 360) / 45);
+// 修改视角判断函数，返回方向和高度信息
+function getDetailedViewDirection(degrees, cameraPosition) {
+  // 判断相机是在魔方上方还是下方
+  const height = cameraPosition.y > 0 ? 'top' : 'bottom';
 
+  // 将360度分成4个区域，每个区域90度
+  const sector = Math.floor((degrees % 360) / 90);
+  let viewDirection;
   switch (sector) {
-    case 0: return 'front';           // 0-45
-    case 1: return 'front-right';     // 45-90
-    case 2: return 'right';           // 90-135
-    case 3: return 'right-back';      // 135-180
-    case 4: return 'back';            // 180-225
-    case 5: return 'back-left';       // 225-270
-    case 6: return 'left';            // 270-315
-    case 7: return 'left-front';      // 315-360
+    case 0:
+      viewDirection = 'front';
+      break;
+    case 1:
+      viewDirection = 'right';
+      break;
+    case 2:
+      viewDirection = 'back';
+      break;
+    case 3:
+      viewDirection = 'left';
+      break;
   }
+
+  return { viewDirection, height };
 }
 
 // 魔方控制钩子
@@ -262,9 +322,9 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
   const dragInfo = useRef({
     isDragging: false,
     startIntersection: null,
-    startX: null,  // 修：保存起始X坐标
-    startY: null,  // 修改：保存起始Y坐标
-    currentIntersection: null
+    startX: null, // 修：保存起始X坐标
+    startY: null, // 修改：保存起始Y坐标
+    currentIntersection: null,
   });
 
   const checkIntersection = (event) => {
@@ -275,7 +335,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
-    const cubes = cubesRef.current.filter(cube => cube !== null);
+    const cubes = cubesRef.current.filter((cube) => cube !== null);
     const intersects = raycaster.intersectObjects(cubes);
 
     return intersects[0];
@@ -308,232 +368,40 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const y = Math.round(position.y);
 
     // 确定基本滑动方向
-    const direction = deltaX > 0 ? 'right' : 'left';
-
+    let direction = deltaX > 0 ? 'right' : 'left';
     console.log(`屏幕移动: deltaX=${deltaX}, deltaY=${deltaY}`);
     console.log(`滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
-    console.log(`点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`);
+    console.log(
+      `点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`
+    );
     console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
 
-    // 判断是否点击的是上面（法向量向上）
-    const isTopFace = Math.abs(faceNormal.y) > 0.5;
-
-    if (isTopFace) {
+    // 判断是否点击的是上面和下面
+    const isTopOrDownFace = Math.abs(faceNormal.y) > 0.5;
+    if (isTopOrDownFace) {
       const cameraPosition = new THREE.Vector3();
       camera.getWorldPosition(cameraPosition);
       const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
-      const degrees = ((angle * 180 / Math.PI) + 360) % 360;
+      const degrees = ((angle * 180) / Math.PI + 360) % 360;
 
       const x = Math.round(position.x);
       const z = Math.round(position.z);
 
       console.log(`相机角度: ${degrees.toFixed(2)}度`);
+      let { viewDirection, height } = getDetailedViewDirection(degrees, cameraPosition);
+      console.log(`详细视角方向: ${viewDirection} ${height}`);
 
-      const viewDirection = getDetailedViewDirection(degrees);
-      console.log(`详细视角方向: ${viewDirection}`);
-
-      // 根据更精确的视角和滑动方向决定旋转
-      switch (viewDirection) {
-        case 'front':
-          if (direction === 'right') {
-            if (isUpward) {
-              // 前视角，向右上滑动
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            } else {
-              // 前视角，向右下滑动
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            }
-          } else {
-            if (isUpward) {
-              // 前视角，向左上滑动
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            } else {
-              // 前视角，向左下滑动
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            }
-          }
-          break;
-        case 'front-right':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            } else {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            }
-          } else {
-            if (isUpward) {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            } else {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            }
-          }
-          break;
-        case 'right':
-          if (direction === 'right') {
-            if (isUpward) {
-              // 右侧视觉，向右滑动，向上滑动
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            } else {
-              // 右侧视觉，向右滑动，向下滑动
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            }
-          } else {
-            if (isUpward) {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            } else {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            }
-          }
-          break;
-        case 'right-back':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            } else {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            }
-          } else {
-            if (isUpward) {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            } else {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            }
-          }
-          break;
-        case 'back':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            } else {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            }
-          } else {
-            if (isUpward) {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            } else {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            }
-          }
-          break;
-        case 'back-left':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            } else {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            }
-          } else {
-            if (isUpward) {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            } else {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            }
-          }
-          break;
-        case 'left':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            } else {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            }
-          } else {
-            if (isUpward) {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            } else {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            }
-          }
-          break;
-        case 'left-front':
-          if (direction === 'right') {
-            if (isUpward) {
-              if (z === 1) return 'FU';
-              if (z === 0) return 'CU';
-              if (z === -1) return 'BU';
-            } else {
-              if (x === 1) return 'RD';
-              if (x === 0) return 'MD';
-              if (x === -1) return 'LD';
-            }
-          } else {
-            if (isUpward) {
-              if (x === 1) return 'RU';
-              if (x === 0) return 'MU';
-              if (x === -1) return 'LU';
-            } else {
-              if (z === 1) return 'FD';
-              if (z === 0) return 'CD';
-              if (z === -1) return 'BD';
-            }
-          }
-          break;
+      if (height === 'bottom') {
+        direction = direction === 'right' ? 'left' : 'right';
       }
+
+      // 获取移动配置
+      const moveConfig = VIEW_MOVE_MAPS[viewDirection][direction][isUpward ? 'up' : 'down'];
+      const pos = moveConfig.axis === 'x' ? x : z;
+      return ROTATION_MAPS[moveConfig.axis][moveConfig.isUp ? 'up' : 'down'][pos];
     } else {
-      // 如果点击的是侧面，那么向右滑动会触发水平面的旋转
-      if (y === 1) {
-        return direction === 'right' ? 'UR' : 'UL';  // 上层
-      } else if (y === 0) {
-        return direction === 'right' ? 'MR' : 'ML';  // 中层
-      } else {
-        return direction === 'right' ? 'DR' : 'DL';  // 下层
-      }
+      // return getRotationMove('y', y, direction);
+      return ROTATION_MAPS['y'][direction][y];
     }
   };
 
@@ -555,7 +423,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
           startIntersection: intersection,
           startX: event.clientX,
           startY: event.clientY,
-          currentIntersection: intersection
+          currentIntersection: intersection,
         };
       }
     };
@@ -611,11 +479,11 @@ export default function RubiksCube({
   onMoveComplete,
   isResetting,
   onResetComplete,
-  setEnableOrbitControls
+  setEnableOrbitControls,
 }) {
   const groupRef = useRef();
   const cubesRef = useRef([]);
-  const { camera, controls } = useThree();  // 获取相机和控制器
+  const { camera, controls } = useThree(); // 获取相机和控制器
 
   useCubeControl(groupRef, cubesRef, setEnableOrbitControls);
 
@@ -648,12 +516,7 @@ export default function RubiksCube({
           const z = (index % 3) - 1;
 
           return (
-            <mesh
-              key={index}
-              ref={(el) => (cubesRef.current[index] = el)}
-              position={[x, y, z]}
-              renderOrder={2}
-            >
+            <mesh key={index} ref={(el) => (cubesRef.current[index] = el)} position={[x, y, z]} renderOrder={2}>
               <boxGeometry args={[0.95, 0.95, 0.95]} />
               {createCubeMaterials(x, y, z).map((material, idx) => (
                 <primitive key={idx} object={material} attach={`material-${idx}`} />
