@@ -425,19 +425,36 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const rotatedHorizontalDirection = rotatedDeltaX > 0 ? '向右' : '向左';
     console.log(`顺时针旋转后滑动: ${rotatedVerticalDirection}, ${rotatedHorizontalDirection}`);
 
-    // 旋转 intersection 中的点坐标
     const rotatedIntersection = {
       ...startIntersection,
+      face: {
+        ...startIntersection.face,
+        normal: new THREE.Vector3(
+          startIntersection.face.normal.y,
+          -startIntersection.face.normal.x,
+          startIntersection.face.normal.z
+        )
+      },
       object: {
         ...startIntersection.object,
         position: new THREE.Vector3(
-          -startIntersection.object.position.y, // x = -y
-          startIntersection.object.position.x, // y = x
-          startIntersection.object.position.z // z 保持不变
+          startIntersection.object.position.y,
+          -startIntersection.object.position.x,
+          startIntersection.object.position.z
         ),
+        matrixWorld: new THREE.Matrix4().multiplyMatrices(
+          startIntersection.object.matrixWorld,
+          new THREE.Matrix4().makeRotationZ(Math.PI / 2)
+        )
       },
+      point: new THREE.Vector3(
+        startIntersection.point.y,
+        -startIntersection.point.x,
+        startIntersection.point.z
+      )
     };
-
+    console.log('旋转前的点击面:', startIntersection);
+    console.log('旋转后的点击面:', rotatedIntersection);
     // 3. 使用原有的 determineMove 获取基础旋转操作
     const baseMove = determineMove(rotatedIntersection, rotatedStartX, rotatedStartY, rotatedCurrentX, rotatedCurrentY);
 
@@ -457,18 +474,18 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     switch (baseMove.axis) {
       case 'x':
         finalAxis = 'y';
-        finalLayer = baseMove.layer * Math.round(position.x);
-        finalAngle = -baseMove.angle;
+        finalLayer = -baseMove.layer;
+        finalAngle = baseMove.angle;
         break;
       case 'y':
-        finalAxis = 'z';
-        finalLayer = baseMove.layer * Math.round(position.z);
+        finalAxis = 'x';
+        finalLayer = baseMove.layer;
         finalAngle = baseMove.angle;
         break;
       case 'z':
         finalAxis = 'z';
-        finalLayer = -baseMove.layer * Math.round(position.z);
-        finalAngle = baseMove.angle;
+        finalLayer = baseMove.layer;
+        finalAngle = -baseMove.angle;
         break;
     }
 
