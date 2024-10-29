@@ -400,107 +400,10 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       const pos = moveConfig.axis === 'x' ? x : z;
       return ROTATION_MAPS[moveConfig.axis][moveConfig.isUp ? 'up' : 'down'][pos];
     } else {
-      // return getRotationMove('y', y, direction);
       return ROTATION_MAPS['y'][direction][y];
     }
   };
 
-  // 用于转换垂直滑动为水平滑动的等效操作
-  function getEquivalentHorizontalMove(startIntersection, startX, startY, currentX, currentY) {
-    // 1. 计算原始移动向量
-    const deltaX = currentX - startX;
-    const deltaY = currentY - startY;
-    const verticalDirection = deltaY > 0 ? '向下' : '向上';
-    const horizontalDirection = deltaX > 0 ? '向右' : '向左';
-    console.log(`垂直滑动: ${verticalDirection}, ${horizontalDirection}`);
-
-    // 2. 先将视角顺时针旋转90度来看待垂直滑动
-    const rotatedStartX = -startY;
-    const rotatedStartY = startX;
-    const rotatedCurrentX = -currentY;
-    const rotatedCurrentY = currentX;
-    const rotatedDeltaX = rotatedCurrentX - rotatedStartX;
-    const rotatedDeltaY = rotatedCurrentY - rotatedStartY;
-    const rotatedVerticalDirection = rotatedDeltaY > 0 ? '向下' : '向上';
-    const rotatedHorizontalDirection = rotatedDeltaX > 0 ? '向右' : '向左';
-    console.log(`顺时针旋转后滑动: ${rotatedVerticalDirection}, ${rotatedHorizontalDirection}`);
-
-    const rotatedIntersection = {
-      ...startIntersection,
-      face: {
-        ...startIntersection.face,
-        normal: new THREE.Vector3(
-          startIntersection.face.normal.y,
-          -startIntersection.face.normal.x,
-          startIntersection.face.normal.z
-        )
-      },
-      object: {
-        ...startIntersection.object,
-        position: new THREE.Vector3(
-          startIntersection.object.position.y,
-          -startIntersection.object.position.x,
-          startIntersection.object.position.z
-        ),
-        matrixWorld: new THREE.Matrix4().multiplyMatrices(
-          startIntersection.object.matrixWorld,
-          new THREE.Matrix4().makeRotationZ(Math.PI / 2)
-        )
-      },
-      point: new THREE.Vector3(
-        startIntersection.point.y,
-        -startIntersection.point.x,
-        startIntersection.point.z
-      )
-    };
-    console.log('旋转前的点击面:', startIntersection);
-    console.log('旋转后的点击面:', rotatedIntersection);
-    // 3. 使用原有的 determineMove 获取基础旋转操作
-    const baseMove = determineMove(rotatedIntersection, rotatedStartX, rotatedStartY, rotatedCurrentX, rotatedCurrentY);
-
-    if (!baseMove) return null;
-
-    // 5. 计算最终的旋转操作
-    // 首先应用逆时针90度的补偿旋转，然后应用基础旋转
-    let finalAxis, finalAngle, finalLayer;
-    console.log('基础旋转:', {
-      axis: baseMove.axis,
-      layer: baseMove.layer,
-      angle: baseMove.angle,
-    });
-
-    // 根据轴向调整旋转角度和层数
-    const position = startIntersection.object.position;
-    switch (baseMove.axis) {
-      case 'x':
-        finalAxis = 'y';
-        finalLayer = -baseMove.layer;
-        finalAngle = baseMove.angle;
-        break;
-      case 'y':
-        finalAxis = 'x';
-        finalLayer = baseMove.layer;
-        finalAngle = baseMove.angle;
-        break;
-      case 'z':
-        finalAxis = 'z';
-        finalLayer = baseMove.layer;
-        finalAngle = -baseMove.angle;
-        break;
-    }
-
-    console.log('最终旋转操作:', {
-      axis: finalAxis,
-      layer: finalLayer,
-      angle: finalAngle,
-    });
-    // 返回新的旋转操作
-    return {
-      axis: finalAxis,
-      layer: finalLayer,
-      angle: finalAngle,
-    };
-  }
 
   useEffect(() => {
     if (!groupRef.current) return;
@@ -553,8 +456,8 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
             event.clientY
           );
         } else {
-          // 垂直滑动转换为等效的水平滑动
-          move = getEquivalentHorizontalMove(
+          // 垂直滑动
+          move = determineMove(
             dragInfo.current.startIntersection,
             dragInfo.current.startX,
             dragInfo.current.startY,
