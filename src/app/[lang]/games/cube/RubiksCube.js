@@ -14,87 +14,138 @@ const FACE_COLORS = {
   down: '#FFFF00', // 黄色
 };
 
-const ROTATION_MAPS = {
+// 重构后的旋转映射
+const CLOCKWISE_ROTATION_MAPS = {
+  // X轴旋转 (从右侧看)
   x: {
-    up: {
-      1: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // RU: 右列向上
-      0: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // MU: 中列向上
-      '-1': { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // LU: 左列向上
+    clockwise: { // 顺时针
+      1: { axis: 'x', layer: 1, angle: -Math.PI / 2 },    // 右层顺时针
+      0: { axis: 'x', layer: 0, angle: -Math.PI / 2 },    // 中层顺时针
+      '-1': { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // 左层顺时针
     },
-    down: {
-      1: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // RD: 右列向下
-      0: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // MD: 中列向下
-      '-1': { axis: 'x', layer: -1, angle: Math.PI / 2 }, // LD: 左列向下
-    },
+    counterclockwise: { // 逆时针
+      1: { axis: 'x', layer: 1, angle: Math.PI / 2 },    // 右层逆时针
+      0: { axis: 'x', layer: 0, angle: Math.PI / 2 },    // 中层逆时针
+      '-1': { axis: 'x', layer: -1, angle: Math.PI / 2 }, // 左层逆时针
+    }
   },
+  // Y轴旋转 (从上方看)
   y: {
-    right: {
-      1: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // UR: 上层顺时针
-      0: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // MR: 中层顺时针
-      '-1': { axis: 'y', layer: -1, angle: Math.PI / 2 }, // DR: 下层顺时针
+    clockwise: { // 顺时针
+      1: { axis: 'y', layer: 1, angle: Math.PI / 2 },    // 上层顺时针
+      0: { axis: 'y', layer: 0, angle: Math.PI / 2 },    // 中层顺时针
+      '-1': { axis: 'y', layer: -1, angle: Math.PI / 2 }, // 下层顺时针
     },
-    left: {
-      1: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // UL: 上层逆时针
-      0: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // ML: 中层逆时针
-      '-1': { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // DL: 下层逆时针
-    },
+    counterclockwise: { // 逆时针
+      1: { axis: 'y', layer: 1, angle: -Math.PI / 2 },    // 上层逆时针
+      0: { axis: 'y', layer: 0, angle: -Math.PI / 2 },    // 中层逆时针
+      '-1': { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // 下层逆时针
+    }
   },
+  // Z轴旋转 (从前方看)
   z: {
-    up: {
-      1: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // FU: 前列向上
-      0: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // CU: 中列向上
-      '-1': { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // BU: 后列向上
+    clockwise: { // 顺时针
+      1: { axis: 'z', layer: 1, angle: -Math.PI / 2 },    // 前层顺时针
+      0: { axis: 'z', layer: 0, angle: -Math.PI / 2 },    // 中层顺时针
+      '-1': { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // 后层顺时针
     },
-    down: {
-      1: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // FD: 前列向下
-      0: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // CD: 中列向下
-      '-1': { axis: 'z', layer: -1, angle: Math.PI / 2 }, // BD: 后列向下
-    },
-  },
+    counterclockwise: { // 逆时针
+      1: { axis: 'z', layer: 1, angle: Math.PI / 2 },    // 前层逆时针
+      0: { axis: 'z', layer: 0, angle: Math.PI / 2 },    // 中层逆时针
+      '-1': { axis: 'z', layer: -1, angle: Math.PI / 2 }, // 后层逆时针
+    }
+  }
 };
+
+// const ROTATION_MAPS = {
+//   x: {
+//     up: {
+//       1: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // RU: 右列向上
+//       0: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // MU: 中列向上
+//       '-1': { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // LU: 左列向上
+//     },
+//     down: {
+//       1: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // RD: 右列向下
+//       0: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // MD: 中列向下
+//       '-1': { axis: 'x', layer: -1, angle: Math.PI / 2 }, // LD: 左列向下
+//     },
+//   },
+//   y: {
+//     right: {
+//       1: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // UR: 上层顺时针
+//       0: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // MR: 中层顺时针
+//       '-1': { axis: 'y', layer: -1, angle: Math.PI / 2 }, // DR: 下层顺时针
+//     },
+//     left: {
+//       1: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // UL: 上层逆时针
+//       0: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // ML: 中层逆时针
+//       '-1': { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // DL: 下层逆时针
+//     },
+//   },
+//   z: {
+//     up: {
+//       1: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // FU: 前列向上
+//       0: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // CU: 中列向上
+//       '-1': { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // BU: 后列向上
+//     },
+//     down: {
+//       1: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // FD: 前列向下
+//       0: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // CD: 中列向下
+//       '-1': { axis: 'z', layer: -1, angle: Math.PI / 2 }, // BD: 后列向下
+//     },
+//   },
+// };
 
 // 获取基于视角的移动映射
 const VIEW_MOVE_MAPS = {
   front: {
     right: {
-      up: { axis: 'x', isUp: true },
-      down: { axis: 'z', isUp: true },
+      up: { axis: 'x', isClockwise: true },
+      down: { axis: 'z', isClockwise: true },
     },
     left: {
-      up: { axis: 'z', isUp: false },
-      down: { axis: 'x', isUp: false },
+      up: { axis: 'z', isClockwise: false },
+      down: { axis: 'x', isClockwise: false },
     },
+    up: { axis: 'z', isClockwise: false },
+    down: { axis: 'z', isClockwise: true }
   },
   right: {
     right: {
-      up: { axis: 'z', isUp: false },
-      down: { axis: 'x', isUp: true },
+      up: { axis: 'z', isClockwise: false },
+      down: { axis: 'x', isClockwise: true },
     },
     left: {
-      up: { axis: 'x', isUp: false },
-      down: { axis: 'z', isUp: true },
+      up: { axis: 'x', isClockwise: false },
+      down: { axis: 'z', isClockwise: true },
     },
+    up: { axis: 'z', isClockwise: false },
+    down: { axis: 'z', isClockwise: true }
   },
   back: {
     right: {
-      up: { axis: 'x', isUp: false },
-      down: { axis: 'z', isUp: false },
+      up: { axis: 'x', isClockwise: false },
+      down: { axis: 'z', isClockwise: false },
     },
     left: {
-      up: { axis: 'z', isUp: true },
-      down: { axis: 'x', isUp: true },
+      up: { axis: 'z', isClockwise: true },
+      down: { axis: 'x', isClockwise: true },
     },
+    up: { axis: 'z', isClockwise: true },
+    down: { axis: 'z', isClockwise: false }
   },
   left: {
     right: {
-      up: { axis: 'z', isUp: true },
-      down: { axis: 'x', isUp: false },
+      up: { axis: 'z', isClockwise: true },
+      down: { axis: 'x', isClockwise: false },
     },
     left: {
-      up: { axis: 'x', isUp: true },
-      down: { axis: 'z', isUp: false },
+      up: { axis: 'x', isClockwise: true },
+      down: { axis: 'z', isClockwise: false },
     },
-  },
+    up: { axis: 'z', isClockwise: true },
+    down: { axis: 'z', isClockwise: false }
+  }
 };
 
 const ANIMATION_DURATION = 200; // 动画持续时间（毫秒）
@@ -148,7 +199,7 @@ function createCubeMaterials(x, y, z) {
 // 打乱魔方
 function scrambleCube(cubes, onComplete) {
   // 获取所有可能的移动
-  const moves = Object.values(ROTATION_MAPS).flatMap((axisMap) =>
+  const moves = Object.values(CLOCKWISE_ROTATION_MAPS).flatMap((axisMap) =>
     Object.values(axisMap).flatMap((directionMap) => Object.values(directionMap))
   );
 
@@ -356,7 +407,6 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const y = Math.round(position.y);
 
     console.log(`屏幕横向滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
-    console.log(`点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`);
     console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
 
     // 判断是否点击的是上面和下面
@@ -367,9 +417,6 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
       const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
       const degrees = ((angle * 180) / Math.PI + 360) % 360;
 
-      const x = Math.round(position.x);
-      const z = Math.round(position.z);
-
       console.log(`相机角度: ${degrees.toFixed(2)}度`);
       let { viewDirection, height } = getDetailedViewDirection(degrees, cameraPosition);
       console.log(`详细视角方向: ${viewDirection} ${height}`);
@@ -378,12 +425,13 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
         direction = direction === 'right' ? 'left' : 'right';
       }
 
-      // 获取移动配置
       const moveConfig = VIEW_MOVE_MAPS[viewDirection][direction][isUpward ? 'up' : 'down'];
+      const x = Math.round(position.x);
+      const z = Math.round(position.z);
       const pos = moveConfig.axis === 'x' ? x : z;
-      return ROTATION_MAPS[moveConfig.axis][moveConfig.isUp ? 'up' : 'down'][pos];
+      return CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
     } else {
-      return ROTATION_MAPS['y'][direction][y];
+      return CLOCKWISE_ROTATION_MAPS['y'][direction === 'right' ? 'clockwise' : 'counterclockwise'][y];
     }
   };
 
@@ -392,38 +440,36 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const deltaY = currentY - startY;
     // 判断是向上还是向下的倾向
     const isUpward = deltaY < 0;
+    let direction = deltaX > 0 ? 'right' : 'left';
     // 获取起始点击的面的法向量和位置
     const faceNormal = startIntersection.face.normal.clone();
     faceNormal.transformDirection(startIntersection.object.matrixWorld);
     const position = startIntersection.object.position;
-    const y = Math.round(position.y);
-
-    // 确定基本滑动方向
-    let direction = deltaY > 0 ? 'down' : 'up';
     console.log(`屏幕竖向滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
-    console.log(
-      `点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`
-    );
     console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
+    const cameraPosition = new THREE.Vector3();
+    camera.getWorldPosition(cameraPosition);
+    const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
+    const degrees = ((angle * 180) / Math.PI + 360) % 360;
+    let { viewDirection, height } = getDetailedViewDirection(degrees, cameraPosition);
+    console.log(`详细视角方向: ${viewDirection} ${height}`);
 
     const isLeftRightFace = Math.abs(faceNormal.x) > 0.5;
     if (isLeftRightFace) {
-      // 对于左右面，都是绕 Z 轴旋转
-      return ROTATION_MAPS['z'][direction][x];
+      const moveConfig = VIEW_MOVE_MAPS[viewDirection][isUpward ? 'up' : 'down'];
+      const y = Math.round(position.y);
+      const z = Math.round(position.z);
+      const pos = moveConfig.axis === 'y' ? y : z;
+      return CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
     } else {
       // 对于前后上下面，都是绕 X 轴旋转
-      const cameraPosition = new THREE.Vector3();
-      camera.getWorldPosition(cameraPosition);
-      const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
-      const degrees = ((angle * 180) / Math.PI + 360) % 360;
-      let { viewDirection, height } = getDetailedViewDirection(degrees, cameraPosition);
-      console.log(`垂直滑动视角方向: ${viewDirection} ${height}`);
-      // 如果视角方向是背面或右面，则需要反转滑动方向，因为 X 轴是按照上下来的
+      let moveClockwise = isUpward ? 'clockwise' : 'counterclockwise';
       if (viewDirection === 'back' || viewDirection === 'right') {
-        direction = direction === 'up' ? 'down' : 'up';
+        moveClockwise = moveClockwise === 'clockwise' ? 'counterclockwise' : 'clockwise';
       }
+      console.log('Not left right face', isUpward, moveClockwise);
       const x = Math.round(position.x);
-      return ROTATION_MAPS['x'][direction][x];
+      return CLOCKWISE_ROTATION_MAPS['x'][moveClockwise][x];
     }
   };
 
