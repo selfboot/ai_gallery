@@ -341,25 +341,13 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     return intersects[0];
   };
 
-  const determineMove = (startIntersection, startX, startY, currentX, currentY) => {
+  const determineHorizontalMove = (startIntersection, startX, startY, currentX, currentY) => {
     // 计算屏幕上的移动差值
     const deltaX = currentX - startX;
     const deltaY = currentY - startY;
-
-    // 设置最小移动阈值
-    const threshold = 5;
-    if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
-      return null;
-    }
-
-    // 确定是否为左右滑动，并判断垂直方向
-    const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
-    if (!isHorizontal) {
-      return null;
-    }
-
     // 判断是向上还是向下的倾向
     const isUpward = deltaY < 0;
+    let direction = deltaX > 0 ? 'right' : 'left';
 
     // 获取起始点击的面的法向量和位置
     const faceNormal = startIntersection.face.normal.clone();
@@ -367,13 +355,8 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     const position = startIntersection.object.position;
     const y = Math.round(position.y);
 
-    // 确定基本滑动方向
-    let direction = deltaX > 0 ? 'right' : 'left';
-    console.log(`屏幕移动: deltaX=${deltaX}, deltaY=${deltaY}`);
-    console.log(`滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
-    console.log(
-      `点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`
-    );
+    console.log(`屏幕横向滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
+    console.log(`点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`);
     console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
 
     // 判断是否点击的是上面和下面
@@ -404,6 +387,45 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
     }
   };
 
+  const determineVerticalMove = (startIntersection, startX, startY, currentX, currentY) => {
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+    // 判断是向上还是向下的倾向
+    const isUpward = deltaY < 0;
+    // 获取起始点击的面的法向量和位置
+    const faceNormal = startIntersection.face.normal.clone();
+    faceNormal.transformDirection(startIntersection.object.matrixWorld);
+    const position = startIntersection.object.position;
+    const y = Math.round(position.y);
+
+    // 确定基本滑动方向
+    let direction = deltaY > 0 ? 'down' : 'up';
+    console.log(`屏幕竖向滑动方向: ${direction} ${isUpward ? '向上' : '向下'}`);
+    console.log(
+      `点击面法向量: x=${faceNormal.x.toFixed(2)}, y=${faceNormal.y.toFixed(2)}, z=${faceNormal.z.toFixed(2)}`
+    );
+    console.log(`起始点位置: x=${position.x.toFixed(2)}, y=${position.y.toFixed(2)}, z=${position.z.toFixed(2)}`);
+
+    const isLeftRightFace = Math.abs(faceNormal.x) > 0.5;
+    if (isLeftRightFace) {
+      // 对于左右面，都是绕 Z 轴旋转
+      return ROTATION_MAPS['z'][direction][x];
+    } else {
+      // 对于前后上下面，都是绕 X 轴旋转
+      const cameraPosition = new THREE.Vector3();
+      camera.getWorldPosition(cameraPosition);
+      const angle = Math.atan2(cameraPosition.x, cameraPosition.z);
+      const degrees = ((angle * 180) / Math.PI + 360) % 360;
+      let { viewDirection, height } = getDetailedViewDirection(degrees, cameraPosition);
+      console.log(`垂直滑动视角方向: ${viewDirection} ${height}`);
+      // 如果视角方向是背面或右面，则需要反转滑动方向，因为 X 轴是按照上下来的
+      if (viewDirection === 'back' || viewDirection === 'right') {
+        direction = direction === 'up' ? 'down' : 'up';
+      }
+      const x = Math.round(position.x);
+      return ROTATION_MAPS['x'][direction][x];
+    }
+  };
 
   useEffect(() => {
     if (!groupRef.current) return;
@@ -447,8 +469,8 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
 
         let move;
         if (isHorizontal) {
-          // 原有的水平滑动逻辑
-          move = determineMove(
+          // 水平滑动
+          move = determineHorizontalMove(
             dragInfo.current.startIntersection,
             dragInfo.current.startX,
             dragInfo.current.startY,
@@ -457,7 +479,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
           );
         } else {
           // 垂直滑动
-          move = determineMove(
+          move = determineVerticalMove(
             dragInfo.current.startIntersection,
             dragInfo.current.startX,
             dragInfo.current.startY,
