@@ -367,6 +367,36 @@
   "cube_description": "Classic Rubik's Cube puzzle game, free to play online. Supports random scrambling, rotating the cube, sliding the cube, and getting hints for solving the cube. Open source, free to play Rubik's Cube online.",
   "scramble": "Scramble",
 
+  "fileUpload_dragHere": "Drag files here, or ",
+  "fileUpload_clickUpload": "click to upload",
+  "fileUpload_sizeLimit": "Only {{accept}} files, max {{size}}MB",
+  "gendocx_title": "Batch Generate Word From Excel",
+  "gendocx_description": "Upload Excel files and Word templates, support batch generation of Word documents based on the content of the Excel file, and support downloading all and single downloads. The interface is beautiful and simple, and generates a large number of duplicate Word documents with one click.",
+  "gendocx_uploadExcel": "Upload Excel File",
+  "gendocx_uploadWord": "Upload Word Template",
+  "gendocx_generate": "Generate Documents",
+  "gendocx_generating": "Generating...",
+  "gendocx_downloadAll": "Download All",
+  "gendocx_download": "Download",
+  "gendocx_status_pending": "Pending",
+  "gendocx_status_failed": "Failed",
+  "gendocx_status_generated": "Generated",
+  "gendocx_pageSize": "Items per page:",
+  "gendocx_items": "items",
+  "gendocx_showing": "Showing",
+  "gendocx_to": "to",
+  "gendocx_total": "of",
+  "gendocx_prevPage": "Previous",
+  "gendocx_nextPage": "Next",
+  "gendocx_error_noFiles": "Please upload Excel file and Word template first",
+  "gendocx_error_worksheet": "Cannot read worksheet",
+  "gendocx_error_generate": "Error generating documents: {{message}}",
+  "gendocx_error_download": "Download failed, please try again",
+  "gendocx_error_excel": "Failed to read Excel file",
+  "gendocx_fileName": "File Name",
+  "gendocx_status": "Status",
+  "fileUpload_sizeExceeded": "File size cannot exceed {{size}}MB",
+
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",
@@ -574,6 +604,11 @@
       "title": "Binary Search Tree Visualization",
       "description": "Explore the Binary Search Tree algorithm through interactive visualization. Learn how Binary Search Tree works and understand its applications in real-time. Source code is available.",
       "keywords": "Binary Search Tree, algorithm visualization, binary search tree operation, binary search tree visualization"
+    },
+    "gendocx": {
+      "title": "Batch Online Word Document Generator",
+      "description": "Upload Excel files and Word templates, generate Word documents in batch, and download all or individually. Beautiful interface, simple operation, batch generation of large number of Word documents.",
+      "keywords": "Word document generator, Excel to Word, batch Word generation, Word document download"
     }
   }
 }

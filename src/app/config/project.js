@@ -186,6 +186,13 @@ const Projects = {
       image: "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_subtitles.webp",
       link: "/tools/subtitles/",
     },
+    {
+      id: "gendocx",
+      title: "gendocx_title",
+      description: "gendocx_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/gendocx/",
+    }
   ],
 };
 

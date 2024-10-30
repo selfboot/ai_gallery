@@ -3,16 +3,17 @@ import GenDocx from "./content";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
+import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return PageMeta({
-    title: dict.seo.chartrace.title,
-    description: dict.seo.chartrace.description,
-    keywords: dict.seo.chartrace.keywords,
+    title: dict.seo.gendocx.title,
+    description: dict.seo.gendocx.description,
+    keywords: dict.seo.gendocx.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/gendocx`,
-    publishedDate: "2024-07-08T02:00:00.000Z",
-    updatedDate: "2024-07-08T09:00:00.000Z",
+    publishedDate: "2024-10-30T10:00:00.000Z",
+    updatedDate: "2024-10-30T18:00:00.000Z",
   });
 }
 
@@ -21,6 +22,7 @@ export default function GenDocxPage({ params: { lang } }) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx`} />
       <GenDocx lang={lang} />
+      <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/gendocx" />
       <CommonComments lang={lang} />
     </>
   );

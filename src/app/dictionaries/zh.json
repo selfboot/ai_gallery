@@ -374,6 +374,36 @@
   "cube_description": "经典的魔方智力游戏，免费在线玩 3D 魔方。支持随机打乱、旋转视角、滑动魔方、获取魔方玩法提示。代码开源，免费在线玩魔方。",
   "scramble": "随机打乱魔方",
 
+  "fileUpload_dragHere": "将文件拖到此处，或",
+  "fileUpload_clickUpload": "点击上传",
+  "fileUpload_sizeLimit": "仅支持{{accept}}文件，且不超过{{size}}MB",
+  "gendocx_title": "Word 文档生成器",
+  "gendocx_description": "上传 Excel 文件和 Word 模板，支持根据 excel 中的内容批量生成 Word 文档，支持下载全部和单个下载。界面优美简单，一键生成大量重复 word 文档。",
+  "gendocx_uploadExcel": "上传Excel文件",
+  "gendocx_uploadWord": "上传Word模板",
+  "gendocx_generate": "生成文档",
+  "gendocx_generating": "生成中...",
+  "gendocx_downloadAll": "下载全部",
+  "gendocx_download": "下载",
+  "gendocx_status_pending": "待生成",
+  "gendocx_status_failed": "失败",
+  "gendocx_status_generated": "已生成",
+  "gendocx_pageSize": "每页显示：",
+  "gendocx_items": "条",
+  "gendocx_showing": "显示第",
+  "gendocx_to": "到",
+  "gendocx_total": "条，共",
+  "gendocx_prevPage": "上一页",
+  "gendocx_nextPage": "下一页",
+  "gendocx_fileName": "文件名",
+  "gendocx_status": "状态",
+  "gendocx_error_noFiles": "请先上传Excel文件和Word模板",
+  "gendocx_error_worksheet": "无法读取工作表",
+  "gendocx_error_generate": "生成文档时出错: {{message}}",
+  "gendocx_error_download": "下载失败，请重试",
+  "gendocx_error_excel": "读取 Excel 文件失败",
+  "fileUpload_sizeExceeded": "文件大小不能超过 {{size}}MB",
+  
   "chartrace": {
       "population-growth": {
         "title": "世界人口变化(1800-2015)",
@@ -581,6 +611,11 @@
       "title": "二叉搜索树可视化",
       "description": "通过交互式可视化探索二叉搜索树算法。学习二叉搜索树的工作原理，并实时理解其应用。开放源代码，可查看原理。",
       "keywords": "二叉搜索树,算法可视化,二叉搜索树操作,二叉搜索树可视化"
+    },
+    "gendocx": {
+      "title": "在线批量生成 Word 文档",
+      "description": "上传 Excel 文件和 Word 模板，批量生成 Word 文档，支持下载所有。美观的界面，简单的操作，批量生成大量 Word 文档。",
+      "keywords": "Word 文档生成器, Excel 转 Word, 批量生成 Word, Word 文档下载"
     }
   }
 }

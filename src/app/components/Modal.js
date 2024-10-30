@@ -16,7 +16,9 @@ const Modal = ({ isOpen, onClose, children }) => {
             </svg>
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );
