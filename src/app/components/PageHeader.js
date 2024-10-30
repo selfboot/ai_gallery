@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCode } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getDictionary } from "@/app/dictionaries";
+import ShareButtons from "./ShareButtons";
 
 async function PageHeader({ lang, pathname }) {
   const dict = await getDictionary(lang);
@@ -17,10 +18,8 @@ async function PageHeader({ lang, pathname }) {
 
   const getCodeLink = () => {
     const pathSegments = pathname.split("/").filter(Boolean);
-    const languages = ['zh', 'en']; // 添加所有可能的语言代码
-    
+    const languages = ['zh', 'en'];
     const filePathSegments = pathSegments.filter(segment => !languages.includes(segment));
-    
     const filePath = filePathSegments.join("/");
     const baseUrl = "https://github.com/selfboot/ai_gallery/tree/main/src/app/%5Blang%5D";
     return `${baseUrl}/${filePath}/content.js`;
@@ -37,24 +36,27 @@ async function PageHeader({ lang, pathname }) {
   const backLink = getBackLink();
 
   return (
-    <div className="flex items-center p-4 pl-0">
-      <h1 className="text-xl">{title}</h1>
-      {codeLink && (
+    <div className="flex items-center justify-between py-4 pl-0">
+      <div className="flex items-center">
+        <h1 className="text-xl">{title}</h1>
+        {codeLink && (
+          <Link
+            href={codeLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center ml-4"
+          >
+            <FontAwesomeIcon icon={faCode} className="mr-2" />
+          </Link>
+        )}
         <Link
-          href={codeLink}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={backLink}
           className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center ml-4"
         >
-          <FontAwesomeIcon icon={faCode} className="mr-2" />
+          <FontAwesomeIcon icon={faArrowLeft} />
         </Link>
-      )}
-      <Link
-        href={backLink}
-        className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center ml-4"
-      >
-        <FontAwesomeIcon icon={faArrowLeft} />
-      </Link>
+      </div>
+      <ShareButtons />
     </div>
   );
 }
