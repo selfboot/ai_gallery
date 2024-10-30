@@ -5,17 +5,19 @@ import { OrbitControls } from "@react-three/drei";
 import RubiksCube from "./RubiksCube";
 import { useState } from "react";
 import * as THREE from 'three';
+import { useI18n } from "@/app/i18n/client";
 
 export default function CubeGame() {
   const [currentMove, setCurrentMove] = useState(null);
   const [isScrambling, setIsScrambling] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [enableOrbitControls, setEnableOrbitControls] = useState(true);
+  const { t } = useI18n();
 
   return (
     <div className="w-full flex flex-col lg:flex-row">
       <div className="h-[70vh] lg:w-4/5 relative flex items-center justify-center">
-        <div className="w-full lg:w-4/5 h-full relative bg-gradient-to-br rounded-lg shadow-inner border border-gray-400">
+        <div className="w-full lg:w-4/5 h-full relative bg-gradient-to-br rounded-lg shadow-inner border border-gray-400 bg-gray-200">
           <Canvas
             camera={{
               position: [6, 6, 6],
@@ -41,7 +43,6 @@ export default function CubeGame() {
               currentMove={currentMove}
               isScrambling={isScrambling}
               isResetting={isResetting}
-              onMoveComplete={() => setCurrentMove(null)}
               onScrambleComplete={() => {
                 setIsScrambling(false);
                 setCurrentMove(null);
@@ -59,8 +60,10 @@ export default function CubeGame() {
               enableRotate={enableOrbitControls}
               minDistance={8}
               maxDistance={8}
+              enableDamping={true}
+              dampingFactor={0.05}
               mouseButtons={{
-                LEFT: THREE.MOUSE.ROTATE,  // 保持左键旋转
+                LEFT: THREE.MOUSE.ROTATE,
                 MIDDLE: null,
                 RIGHT: null
               }}
@@ -80,14 +83,14 @@ export default function CubeGame() {
             onClick={() => setIsScrambling(true)}
             disabled={isScrambling || isResetting || currentMove !== null}
           >
-            随机打乱
+            {t('scramble')}
           </button>
           <button
             className="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400"
             onClick={() => setIsResetting(true)}
             disabled={isScrambling || isResetting || currentMove !== null}
           >
-            还原初始状态
+            {t('reset')}
           </button>
         </div>
       </div>

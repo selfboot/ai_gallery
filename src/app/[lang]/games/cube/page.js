@@ -17,7 +17,7 @@ export async function generateMetadata({ params: { lang } }) {
   });
 }
 
-export default function GomokuPage({ params: { lang } }) {
+export default function CubePage({ params: { lang } }) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/cube`} />

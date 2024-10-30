@@ -363,7 +363,10 @@
   "hideHints": "Hide Hints",
   "gameOver": "Game Over! You've made more than 3 mistakes.",
   "congratulations_sudo": "Congratulations! You've completed the Sudoku puzzle!",
-  
+  "cube_title": "3D Online Rubik's Cube",
+  "cube_description": "Classic Rubik's Cube puzzle game, free to play online. Supports random scrambling, rotating the cube, sliding the cube, and getting hints for solving the cube. Open source, free to play Rubik's Cube online.",
+  "scramble": "Scramble",
+
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",

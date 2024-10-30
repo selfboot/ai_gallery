@@ -57,45 +57,6 @@ const CLOCKWISE_ROTATION_MAPS = {
   }
 };
 
-// const ROTATION_MAPS = {
-//   x: {
-//     up: {
-//       1: { axis: 'x', layer: 1, angle: -Math.PI / 2 }, // RU: 右列向上
-//       0: { axis: 'x', layer: 0, angle: -Math.PI / 2 }, // MU: 中列向上
-//       '-1': { axis: 'x', layer: -1, angle: -Math.PI / 2 }, // LU: 左列向上
-//     },
-//     down: {
-//       1: { axis: 'x', layer: 1, angle: Math.PI / 2 }, // RD: 右列向下
-//       0: { axis: 'x', layer: 0, angle: Math.PI / 2 }, // MD: 中列向下
-//       '-1': { axis: 'x', layer: -1, angle: Math.PI / 2 }, // LD: 左列向下
-//     },
-//   },
-//   y: {
-//     right: {
-//       1: { axis: 'y', layer: 1, angle: Math.PI / 2 }, // UR: 上层顺时针
-//       0: { axis: 'y', layer: 0, angle: Math.PI / 2 }, // MR: 中层顺时针
-//       '-1': { axis: 'y', layer: -1, angle: Math.PI / 2 }, // DR: 下层顺时针
-//     },
-//     left: {
-//       1: { axis: 'y', layer: 1, angle: -Math.PI / 2 }, // UL: 上层逆时针
-//       0: { axis: 'y', layer: 0, angle: -Math.PI / 2 }, // ML: 中层逆时针
-//       '-1': { axis: 'y', layer: -1, angle: -Math.PI / 2 }, // DL: 下层逆时针
-//     },
-//   },
-//   z: {
-//     up: {
-//       1: { axis: 'z', layer: 1, angle: -Math.PI / 2 }, // FU: 前列向上
-//       0: { axis: 'z', layer: 0, angle: -Math.PI / 2 }, // CU: 中列向上
-//       '-1': { axis: 'z', layer: -1, angle: -Math.PI / 2 }, // BU: 后列向上
-//     },
-//     down: {
-//       1: { axis: 'z', layer: 1, angle: Math.PI / 2 }, // FD: 前列向下
-//       0: { axis: 'z', layer: 0, angle: Math.PI / 2 }, // CD: 中列向下
-//       '-1': { axis: 'z', layer: -1, angle: Math.PI / 2 }, // BD: 后列向下
-//     },
-//   },
-// };
-
 // 获取基于视角的移动映射
 const VIEW_MOVE_MAPS = {
   front: {
@@ -250,13 +211,8 @@ function resetCube(cubes, camera, controls) {
 
       // 使用缓动函数使动画更平滑
       const easeProgress = progress * (2 - progress);
-
-      // 插值计算相机位置
       camera.position.lerpVectors(startPosition, INITIAL_CAMERA_POSITION, easeProgress);
-
-      // 插值计算目标点
       controls.target.lerpVectors(startTarget, INITIAL_CAMERA_TARGET, easeProgress);
-
       controls.update();
 
       if (progress < 1) {
@@ -264,7 +220,7 @@ function resetCube(cubes, camera, controls) {
       }
     }
 
-    // animateCamera();
+    animateCamera();
   }
 }
 
@@ -562,11 +518,9 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls) {
   }, [camera, gl, scene, groupRef, cubesRef, setEnableOrbitControls]);
 }
 
-// 主组件
 export default function RubiksCube({
   isScrambling,
   onScrambleComplete,
-  onMoveComplete,
   isResetting,
   onResetComplete,
   setEnableOrbitControls,

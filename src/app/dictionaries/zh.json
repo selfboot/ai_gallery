@@ -370,6 +370,10 @@
   "gameOver": "游戏结束！错误次数超过3次。",
   "congratulations_sudo": "恭喜！你已经完成了数独谜题！",
 
+  "cube_title": "3D 在线魔方",
+  "cube_description": "经典的魔方智力游戏，免费在线玩 3D 魔方。支持随机打乱、旋转视角、滑动魔方、获取魔方玩法提示。代码开源，免费在线玩魔方。",
+  "scramble": "随机打乱魔方",
+
   "chartrace": {
       "population-growth": {
         "title": "世界人口变化(1800-2015)",
