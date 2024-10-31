@@ -1,7 +1,9 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Listbox } from '@headlessui/react';
+import { CustomListbox } from '@/app/components/ListBox';
+import { useI18n } from '@/app/i18n/client';
+import Modal from '@/app/components/Modal';
 
 // Priority Queue implementation
 class PriorityQueue {
@@ -24,6 +26,7 @@ class PriorityQueue {
 }
 
 const SlidingPuzzle = () => {
+  const { t } = useI18n();
   const [size, setSize] = useState(3);
   const [board, setBoard] = useState([]);
   const [emptyPos, setEmptyPos] = useState({ row: size - 1, col: size - 1 });
@@ -32,6 +35,12 @@ const SlidingPuzzle = () => {
   const [solution, setSolution] = useState([]);
   const [currentSolutionStep, setCurrentSolutionStep] = useState(-1);
   const [solving, setSolving] = useState(false);
+  const [time, setTime] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [availableNumbers, setAvailableNumbers] = useState([]);
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Manhattan distance heuristic
   const getManhattanDistance = (board) => {
@@ -55,21 +64,28 @@ const SlidingPuzzle = () => {
   // Get valid moves for current position
   const getValidMoves = (board, emptyPos) => {
     const moves = [];
-    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // up, down, left, right
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ]; // up, down, left, right
 
     for (const [dx, dy] of directions) {
       const newRow = emptyPos.row + dx;
       const newCol = emptyPos.col + dy;
 
       if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
-        const newBoard = board.map(row => [...row]);
-        [newBoard[emptyPos.row][emptyPos.col], newBoard[newRow][newCol]] =
-          [newBoard[newRow][newCol], newBoard[emptyPos.row][emptyPos.col]];
+        const newBoard = board.map((row) => [...row]);
+        [newBoard[emptyPos.row][emptyPos.col], newBoard[newRow][newCol]] = [
+          newBoard[newRow][newCol],
+          newBoard[emptyPos.row][emptyPos.col],
+        ];
 
         moves.push({
           board: newBoard,
           emptyPos: { row: newRow, col: newCol },
-          move: `Move ${board[newRow][newCol]} ${dx === 1 ? 'up' : dx === -1 ? 'down' : dy === 1 ? 'left' : 'right'}`
+          move: `Move ${board[newRow][newCol]} ${dx === 1 ? 'up' : dx === -1 ? 'down' : dy === 1 ? 'left' : 'right'}`,
         });
       }
     }
@@ -86,7 +102,7 @@ const SlidingPuzzle = () => {
       board: initialBoard,
       emptyPos: initialEmptyPos,
       path: [],
-      cost: 0
+      cost: 0,
     };
 
     pq.enqueue(initial, getManhattanDistance(initialBoard));
@@ -107,12 +123,15 @@ const SlidingPuzzle = () => {
       const moves = getValidMoves(current.board, current.emptyPos);
       for (const move of moves) {
         if (!visited.has(boardToString(move.board))) {
-          pq.enqueue({
-            board: move.board,
-            emptyPos: move.emptyPos,
-            path: [...current.path, { board: move.board, move: move.move }],
-            cost: current.cost + 1
-          }, current.cost + 1 + getManhattanDistance(move.board));
+          pq.enqueue(
+            {
+              board: move.board,
+              emptyPos: move.emptyPos,
+              path: [...current.path, { board: move.board, move: move.move }],
+              cost: current.cost + 1,
+            },
+            current.cost + 1 + getManhattanDistance(move.board)
+          );
         }
       }
     }
@@ -159,6 +178,8 @@ const SlidingPuzzle = () => {
     setIsSolved(false);
     setSolution([]);
     setCurrentSolutionStep(-1);
+    setTime(0);
+    setTimerActive(true);
   };
 
   // Fisher-Yates shuffle
@@ -182,13 +203,12 @@ const SlidingPuzzle = () => {
   const handleTileClick = (row, col) => {
     if (isSolved || solving) return;
 
-    const isAdjacent = (
+    const isAdjacent =
       (Math.abs(row - emptyPos.row) === 1 && col === emptyPos.col) ||
-      (Math.abs(col - emptyPos.col) === 1 && row === emptyPos.row)
-    );
+      (Math.abs(col - emptyPos.col) === 1 && row === emptyPos.row);
 
     if (isAdjacent) {
-      const newBoard = board.map(row => [...row]);
+      const newBoard = board.map((row) => [...row]);
       newBoard[emptyPos.row][emptyPos.col] = newBoard[row][col];
       newBoard[row][col] = 0;
 
@@ -200,7 +220,12 @@ const SlidingPuzzle = () => {
 
       if (checkSolution(newBoard)) {
         setIsSolved(true);
+        setTimerActive(false);
       }
+    }
+
+    if (!timerActive && moves === 0) {
+      setTimerActive(true);
     }
   };
 
@@ -217,107 +242,295 @@ const SlidingPuzzle = () => {
     }
   };
 
+  // Handle edit mode
+  const handleEditMode = () => {
+    if (!isEditing) {
+      const newBoard = Array(size).fill().map(() => Array(size).fill(undefined));
+      setBoard(newBoard);
+      setAvailableNumbers(Array.from({ length: size * size }, (_, i) => i));
+      setIsEditing(true);
+    } else {
+      const usedNumbers = board.flat();
+      const hasEmptyCell = usedNumbers.includes(undefined) || usedNumbers.filter(n => n === 0).length !== 1;
+      
+      if (hasEmptyCell) {
+        setShowModal(true);
+        return;
+      }
+      
+      const newEmptyPos = findEmptyPosition(board);
+      if (newEmptyPos) {
+        setEmptyPos(newEmptyPos);
+        setMoves(0);
+        setIsSolved(false);
+        setSolution([]);
+        setCurrentSolutionStep(-1);
+        setTime(0);
+        setTimerActive(false);
+        setIsEditing(false);
+      }
+    }
+  };
+
+  // Handle number select
+  const handleNumberSelect = (number) => {
+    if (!selectedCell) return;
+    
+    const [row, col] = selectedCell;
+    const newBoard = board.map(row => [...row]);
+    newBoard[row][col] = number;
+    setBoard(newBoard);
+    setSelectedCell(null);
+    
+    const usedNumbers = newBoard.flat().filter(n => n !== undefined);
+    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i)
+      .filter(num => {
+        if (num === 0) {
+          return usedNumbers.filter(n => n === 0).length === 0;
+        }
+        return !usedNumbers.includes(num);
+      });
+    
+    setAvailableNumbers(newAvailableNumbers);
+  };
+
+  // Handle cell click
+  const handleCellClick = (row, col) => {
+    if (isEditing) {
+      if (board[row][col] !== undefined) {
+        return;
+      }
+      if (availableNumbers.length === 0) {
+        return;
+      }
+      setSelectedCell([row, col]);
+      return;
+    }
+    handleTileClick(row, col);
+  };
+
   // Initialize on mount and size change
   useEffect(() => {
     initializeBoard(size);
   }, [size]);
 
+  // Add timer effect
+  useEffect(() => {
+    let interval;
+    if (timerActive && !isSolved) {
+      interval = setInterval(() => {
+        setTime((time) => time + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, isSolved]);
+
+  // Handle number delete
+  const handleNumberDelete = (row, col) => {
+    const newBoard = board.map(r => [...r]);
+    const deletedNumber = newBoard[row][col];
+    newBoard[row][col] = undefined;
+    setBoard(newBoard);
+    
+    const usedNumbers = newBoard.flat().filter(n => n !== undefined);
+    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i)
+      .filter(num => {
+        if (num === 0) {
+          return usedNumbers.filter(n => n === 0).length === 0;
+        }
+        return !usedNumbers.includes(num);
+      });
+    
+    setAvailableNumbers(newAvailableNumbers);
+  };
+
+  // 添加一个检查是否所有格子都已填写的函数
+  const isAllCellsFilled = () => {
+    const usedNumbers = board.flat();
+    return !usedNumbers.includes(undefined) && usedNumbers.filter(n => n === 0).length === 1;
+  };
+
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <div className="flex gap-4 items-center">
-        <Listbox value={size.toString()} onChange={(value) => setSize(parseInt(value))}>
-          <div className="relative w-32">
-            <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-3 pr-10 text-left border shadow-sm hover:bg-gray-50">
-              <span className="block truncate">{size}x{size}</span>
-              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                  <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </Listbox.Button>
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {[3, 4, 5].map((n) => (
-                <Listbox.Option
-                  key={n}
-                  value={n.toString()}
-                  className={({ active }) =>
-                    `relative cursor-pointer select-none py-2 pl-3 pr-9 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
-                    }`
-                  }
-                >
-                  {n}x{n}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
+    <div className="container mx-auto">
+      <div className="lg:flex lg:items-start lg:space-x-8">
+        <div className="lg:w-4/5 flex flex-col items-center">
+          <div className="text-center mb-4">
+            {isSolved && <div className="text-lg font-bold text-green-600">{t('puzzle_solved', { moves })}</div>}
           </div>
-        </Listbox>
-
-        <button
-          onClick={() => initializeBoard(size)}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          New Game
-        </button>
-
-        <button
-          onClick={() => solvePuzzle(board, emptyPos)}
-          disabled={solving || isSolved}
-          className={`w-24 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            ${solving || isSolved ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-        >
-          {solving ? 'Solving...' : 'Solve'}
-        </button>
-
-        {solution.length > 0 && (
-          <button
-            onClick={handleSolverStep}
-            disabled={currentSolutionStep >= solution.length - 1}
-            className={`px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-              ${currentSolutionStep >= solution.length - 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+          <div
+            className="inline-grid gap-1 p-2 bg-gray-200 rounded-lg w-1/3 aspect-square"
+            style={{
+              gridTemplateColumns: `repeat(${size}, 1fr)`,
+            }}
           >
-            Next Step
-          </button>
-        )}
+            {board.map((row, i) =>
+              row.map((num, j) => (
+                <div
+                  key={`${i}-${j}`}
+                  onClick={() => handleCellClick(i, j)}
+                  className={`
+                    aspect-square flex items-center justify-center
+                    text-2xl md:text-3xl lg:text-4xl font-bold rounded-lg cursor-pointer
+                    transition-all duration-200 relative
+                    ${num === undefined ? 'bg-gray-50' : num === 0 ? 'bg-gray-300' : 'bg-white shadow-md hover:bg-blue-100'}
+                    ${isSolved ? 'bg-green-100' : ''}
+                    ${isEditing ? 'hover:bg-blue-50' : ''}
+                    ${selectedCell && selectedCell[0] === i && selectedCell[1] === j ? 'ring-2 ring-blue-500' : ''}
+                  `}
+                >
+                  {num !== undefined && num !== 0 && num}
+                  {isEditing && num !== undefined && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNumberDelete(i, j);
+                      }}
+                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center 
+                        text-gray-500 hover:text-red-500 text-sm bg-white rounded-full 
+                        shadow hover:shadow-md transition-all duration-200"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
 
-        <div className="text-sm">Moves: {moves}</div>
-      </div>
-
-      <div className="inline-grid gap-1 p-2 bg-gray-200 rounded-lg"
-        style={{
-          gridTemplateColumns: `repeat(${size}, 1fr)`,
-        }}>
-        {board.map((row, i) =>
-          row.map((num, j) => (
-            <div
-              key={`${i}-${j}`}
-              onClick={() => handleTileClick(i, j)}
-              className={`
-                w-16 h-16 flex items-center justify-center
-                text-xl font-bold rounded-lg cursor-pointer
-                transition-all duration-200
-                ${num === 0 ? 'bg-gray-300' : 'bg-white shadow-md hover:bg-blue-100'}
-                ${isSolved ? 'bg-green-100' : ''}
-              `}
-            >
-              {num !== 0 && num}
+          {isEditing && selectedCell && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-4 max-w-sm w-full mx-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {availableNumbers.map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleNumberSelect(num)}
+                      className="p-4 text-xl font-bold rounded-lg hover:bg-blue-100"
+                    >
+                      {num === 0 ? '空格' : num}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setSelectedCell(null)}
+                  className="mt-4 w-full px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  取消
+                </button>
+              </div>
             </div>
-          ))
-        )}
+          )}
+
+          <div className="mt-6 flex justify-center space-x-8">
+            <div className="flex items-center space-x-2">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span className="text-xl font-semibold">{moves} 步</span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="text-xl font-semibold">
+                {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, '0')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:w-1/5 mt-8 lg:mt-0">
+          <h2 className="text-xl font-bold mb-4">游戏设置</h2>
+
+          <div className="space-y-4">
+            <div className="mb-4">
+              <label className="text-gray-700 block mb-2">棋盘大小:</label>
+              <CustomListbox
+                value={`${size}x${size}`}
+                onChange={(value) => setSize(parseInt(value.split('x')[0]))}
+                options={['3x3', '4x4', '5x5']}
+              />
+            </div>
+
+            <button
+              onClick={handleEditMode}
+              className={`w-full px-4 py-2 rounded text-white ${
+                isEditing 
+                  ? isAllCellsFilled()
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+              disabled={isEditing && !isAllCellsFilled()}
+            >
+              {isEditing ? '完成编辑' : '手动设置'}
+            </button>
+
+            <button
+              onClick={() => initializeBoard(size)}
+              disabled={isEditing}
+              className={`w-full px-4 py-2 rounded text-white ${
+                isEditing ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              新游戏
+            </button>
+
+            <button
+              onClick={() => solvePuzzle(board, emptyPos)}
+              disabled={solving || isSolved}
+              className={`w-full px-4 py-2 rounded text-white mb-2 ${
+                solving || isSolved ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {solving ? '求解中...' : '求解'}
+            </button>
+
+            {solution.length > 0 && (
+              <button
+                onClick={handleSolverStep}
+                disabled={currentSolutionStep >= solution.length - 1}
+                className={`w-full px-4 py-2 rounded text-white mb-2 ${
+                  currentSolutionStep >= solution.length - 1 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+                }`}
+              >
+                下一步
+              </button>
+            )}
+
+            <div className="text-sm space-y-2">
+              <div>移动次数: {moves}</div>
+              {solution.length > 0 && currentSolutionStep >= 0 && (
+                <>
+                  <div>下一步: {solution[currentSolutionStep].move}</div>
+                  <div>剩余步数: {solution.length - currentSolutionStep - 1}</div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {solution.length > 0 && currentSolutionStep >= 0 && (
-        <div className="text-sm">
-          Next move: {solution[currentSolutionStep].move}
-          <br />
-          Steps remaining: {solution.length - currentSolutionStep - 1}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      >
+        <div className="text-center">
+          <p className="text-lg mb-4">请填写所有格子，并确保只有一个空格（0）</p>
+          <button
+            onClick={() => setShowModal(false)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            确定
+          </button>
         </div>
-      )}
-
-      {isSolved && (
-        <div className="text-lg font-bold text-green-600">
-          Puzzle solved in {moves} moves!
-        </div>
-      )}
+      </Modal>
     </div>
   );
 };
