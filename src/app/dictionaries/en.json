@@ -422,6 +422,8 @@
   "direction_down": "down",
   "direction_left": "left",
   "direction_right": "right",
+  "sliding_title": "Free Online Sliding Puzzle",
+  "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, supports customizing the number layout of each cell, and supports obtaining intelligent solution plans! Code is open source, free to play online!",
 
   "chartrace": {
     "population-growth": {
@@ -635,6 +637,11 @@
       "title": "Batch Online Word Document Generator",
       "description": "Upload Excel files and Word templates, generate Word documents in batch, and download all or individually. Beautiful interface, simple operation, batch generation of large number of Word documents.",
       "keywords": "Word document generator, Excel to Word, batch Word generation, Word document download"
+    },
+    "sliding": {
+      "title": "Online Digital Sliding Puzzle",
+      "description": "A classic free online digital puzzle game. It supports random generation of starting layouts of different difficulty and size, supports customizing the numbers of each grid, and supports obtaining intelligent solutions! The code is open source and can be played online for free!",
+      "keywords": "Digital sliding puzzle, Online digital sliding puzzle, Free digital sliding puzzle"
     }
   }
 }

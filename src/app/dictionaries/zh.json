@@ -429,6 +429,8 @@
   "direction_down": "下",
   "direction_left": "左",
   "direction_right": "右",
+  "sliding_title": "在线免费数字华容道",
+  "sliding_description": "经典的数字华容道游戏，支持随机生成不同难度，不同大小的开局，支持自定义每个格子的数字布局，支持获取智能求解方案！代码开源，免费在线玩",
 
   "chartrace": {
       "population-growth": {
@@ -642,6 +644,11 @@
       "title": "在线批量生成 Word 文档",
       "description": "上传 Excel 文件和 Word 模板，批量生成 Word 文档，支持下载所有。美观的界面，简单的操作，批量生成大量 Word 文档。",
       "keywords": "Word 文档生成器, Excel 转 Word, 批量生成 Word, Word 文档下载"
+    },
+    "sliding": {
+      "title": "在线数字华容道拼图",
+      "description": "经典的在线免费数字华容道拼图游戏。支持随机生成不同难度和不同大小的起始布局，支持自定义每个格子的数字，支持获取智能解法方案！代码开源，免费在线玩！",
+      "keywords": "数字滑块拼图, 在线数字华容道，免费数字华容道"
     }
   }
 }

@@ -36,6 +36,13 @@ const Projects = {
       link: "/games/tetris",
     },
     {
+      id: "sliding",
+      title: "sliding_title",
+      description: "sliding_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sliding.webp",
+      link: "/games/sliding",
+    },
+    {
       id: "2048",
       title: "2048_title",
       description: "2048_description",
