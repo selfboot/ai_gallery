@@ -1,3 +1,11 @@
+[[headers]]
+  for = "/_next/image/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, must-revalidate"
+    X-Nextjs-Cache = "HIT"
+    Surrogate-Control = "public, max-age=2592000"
+    Netlify-CDN-Cache-Control = "public, max-age=2592000"
+
 [build]
   command = "node scripts/generate-sitemap-rss.mjs && next build"
   publish = ".next"
@@ -7,9 +15,3 @@
 
 [build.environment]
   NODE_VERSION = "20"
-
-[[headers]]
-  for = "/_next/image/*"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, must-revalidate"
-    X-Nextjs-Cache = "HIT"
