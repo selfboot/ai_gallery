@@ -30,7 +30,7 @@ export function middleware(request) {
   // 处理根路径
   if (pathname === "/") {
     const preferredLocale = getPreferredLocale(request);
-    response = NextResponse.redirect(new URL(`/${preferredLocale}/algorithms`, request.url));
+    response = NextResponse.redirect(new URL(`/${preferredLocale}/games`, request.url));
   } else if (pathname.endsWith(".xml") || pathname.endsWith(".js") || pathname.endsWith(".json") || pathname.endsWith(".csv") || pathname.endsWith(".xlsx") || pathname.endsWith(".docx")) {
     response = NextResponse.next();
   } else {
