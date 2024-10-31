@@ -7,3 +7,9 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[headers]]
+  for = "/_next/image/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, must-revalidate"
+    X-Nextjs-Cache = "HIT"
