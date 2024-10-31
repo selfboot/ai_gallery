@@ -28,6 +28,7 @@ class PriorityQueue {
 const SlidingPuzzle = () => {
   const { t } = useI18n();
   const [size, setSize] = useState(3);
+  const [difficulty, setDifficulty] = useState(t('difficulty_medium'));
   const [board, setBoard] = useState([]);
   const [emptyPos, setEmptyPos] = useState({ row: size - 1, col: size - 1 });
   const [moves, setMoves] = useState(0);
@@ -40,7 +41,9 @@ const SlidingPuzzle = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [availableNumbers, setAvailableNumbers] = useState([]);
   const [selectedCell, setSelectedCell] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [animatingTiles, setAnimatingTiles] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   // Manhattan distance heuristic
   const getManhattanDistance = (board) => {
@@ -85,7 +88,17 @@ const SlidingPuzzle = () => {
         moves.push({
           board: newBoard,
           emptyPos: { row: newRow, col: newCol },
-          move: `Move ${board[newRow][newCol]} ${dx === 1 ? 'up' : dx === -1 ? 'down' : dy === 1 ? 'left' : 'right'}`,
+          move: t('move_direction', {
+            number: board[newRow][newCol],
+            direction:
+              dx === 1
+                ? t('direction_up')
+                : dx === -1
+                ? t('direction_down')
+                : dy === 1
+                ? t('direction_left')
+                : t('direction_right'),
+          }),
         });
       }
     }
@@ -142,10 +155,26 @@ const SlidingPuzzle = () => {
 
   // Apply solution step
   const applySolutionStep = (step) => {
-    setBoard(step.board);
+    const oldEmptyPos = findEmptyPosition(board);
     const newEmptyPos = findEmptyPosition(step.board);
-    setEmptyPos(newEmptyPos);
-    setMoves(moves + 1);
+    
+    // 计算移动方向
+    const dx = oldEmptyPos.col - newEmptyPos.col;
+    const dy = oldEmptyPos.row - newEmptyPos.row;
+    
+    // 设置动画状态
+    const movingTileIndex = newEmptyPos.row * size + newEmptyPos.col;
+    setAnimatingTiles({
+      [movingTileIndex]: { dx, dy }
+    });
+
+    // 延迟更新实际位置
+    setTimeout(() => {
+      setBoard(step.board);
+      setEmptyPos(newEmptyPos);
+      setMoves(moves + 1);
+      setAnimatingTiles({});
+    }, 200); // 动画持续时间
   };
 
   // Find empty position in board
@@ -160,18 +189,75 @@ const SlidingPuzzle = () => {
     return null;
   };
 
-  // Initialize board
-  const initializeBoard = (size) => {
-    const numbers = Array.from({ length: size * size - 1 }, (_, i) => i + 1);
-    numbers.push(0);
-    shuffleArray(numbers);
+  // Check if the puzzle is solvable
+  const isSolvable = (board) => {
+    const flatBoard = board.flat();
+    let inversions = 0;
+    let emptyRow = 0;
 
-    const newBoard = [];
-    for (let i = 0; i < size; i++) {
-      newBoard.push(numbers.slice(i * size, (i + 1) * size));
+    // Calculate the inverse number数
+    for (let i = 0; i < flatBoard.length - 1; i++) {
+      if (flatBoard[i] === 0) {
+        emptyRow = Math.floor(i / size);
+        continue;
+      }
+      for (let j = i + 1; j < flatBoard.length; j++) {
+        if (flatBoard[j] === 0) continue;
+        if (flatBoard[i] > flatBoard[j]) {
+          inversions++;
+        }
+      }
     }
 
-    const newEmptyPos = findEmptyPosition(newBoard);
+    if (size % 2 === 1) {
+      // For odd-sized chessboards, the board is solvable if the inversion number is even.
+      return inversions % 2 === 0;
+    } else {
+      // For even-sized chessboards, the board is solvable if the inversion number plus the empty row number (from the bottom) is odd.
+      const emptyRowFromBottom = size - emptyRow;
+      return (inversions + emptyRowFromBottom) % 2 === 1;
+    }
+  };
+
+  const getMovesByDifficulty = (difficulty) => {
+    switch (difficulty) {
+      case t('difficulty_easy'):
+        return Math.floor(Math.random() * 4 + 1);
+      case t('difficulty_medium'):
+        return Math.floor(Math.random() * 45) + 5;
+      case t('difficulty_hard'):
+        return Math.floor(Math.random() * 450) + 50;
+      default:
+        return Math.floor(Math.random() * 10);
+    }
+  };
+
+  const initializeBoard = (size) => {
+    // 如果在编辑状态，先退出编辑状态
+    if (isEditing) {
+      setIsEditing(false);
+      setSelectedCell(null);
+      setAvailableNumbers([]);
+    }
+
+    // First create the completed board
+    const newBoard = Array.from({ length: size }, (_, row) =>
+      Array.from({ length: size }, (_, col) => (row * size + col + 1) % (size * size))
+    );
+    let newEmptyPos = { row: size - 1, col: size - 1 };
+
+    const moves = getMovesByDifficulty(difficulty);
+
+    for (let i = 0; i < moves; i++) {
+      const validMoves = getValidMoves(newBoard, newEmptyPos);
+      if (validMoves.length > 0) {
+        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+        newBoard[newEmptyPos.row][newEmptyPos.col] = newBoard[randomMove.emptyPos.row][randomMove.emptyPos.col];
+        newBoard[randomMove.emptyPos.row][randomMove.emptyPos.col] = 0;
+        newEmptyPos = randomMove.emptyPos;
+      }
+    }
+
     setBoard(newBoard);
     setEmptyPos(newEmptyPos);
     setMoves(0);
@@ -179,7 +265,7 @@ const SlidingPuzzle = () => {
     setSolution([]);
     setCurrentSolutionStep(-1);
     setTime(0);
-    setTimerActive(true);
+    setTimerActive(false); 
   };
 
   // Fisher-Yates shuffle
@@ -208,89 +294,111 @@ const SlidingPuzzle = () => {
       (Math.abs(col - emptyPos.col) === 1 && row === emptyPos.row);
 
     if (isAdjacent) {
-      const newBoard = board.map((row) => [...row]);
-      newBoard[emptyPos.row][emptyPos.col] = newBoard[row][col];
-      newBoard[row][col] = 0;
-
-      setBoard(newBoard);
-      setEmptyPos({ row, col });
-      setMoves(moves + 1);
-      setSolution([]);
-      setCurrentSolutionStep(-1);
-
-      if (checkSolution(newBoard)) {
-        setIsSolved(true);
-        setTimerActive(false);
+      if (moves === 0) {
+        setTimerActive(true);
       }
-    }
 
-    if (!timerActive && moves === 0) {
-      setTimerActive(true);
+      const dx = emptyPos.col - col;
+      const dy = emptyPos.row - row;
+
+      setAnimatingTiles({
+        [row * size + col]: { dx, dy },
+      });
+
+      setTimeout(() => {
+        const newBoard = board.map((row) => [...row]);
+        newBoard[emptyPos.row][emptyPos.col] = newBoard[row][col];
+        newBoard[row][col] = 0;
+
+        setBoard(newBoard);
+        setEmptyPos({ row, col });
+        setMoves(moves + 1);
+        setSolution([]);
+        setCurrentSolutionStep(-1);
+        setAnimatingTiles({});
+
+        if (checkSolution(newBoard)) {
+          setIsSolved(true);
+          setTimerActive(false);
+        }
+      }, 200);
     }
   };
 
   // Handle solver step
   const handleSolverStep = () => {
     if (currentSolutionStep < solution.length - 1) {
-      const nextStep = solution[currentSolutionStep + 1];
-      applySolutionStep(nextStep);
-      setCurrentSolutionStep(currentSolutionStep + 1);
+      applySolutionStep(solution[currentSolutionStep + 1]);
+      const nextStep = currentSolutionStep + 1;
+      setCurrentSolutionStep(nextStep);
 
-      if (currentSolutionStep + 1 === solution.length - 1) {
+      // If it is the last step, set the game to completed status.态
+      if (nextStep === solution.length - 1) {
         setIsSolved(true);
+        setTimerActive(false);
       }
     }
   };
 
   // Handle edit mode
   const handleEditMode = () => {
-    if (!isEditing) {
-      const newBoard = Array(size).fill().map(() => Array(size).fill(undefined));
+    if (isEditing && isAllCellsFilled()) {
+      if (!isSolvable(board)) {
+        const message = t('unsolvable_puzzle_message', {
+          size: `${size}x${size}`,
+          rule: size % 2 === 1 
+            ? t('solvable_rule_odd')
+            : t('solvable_rule_even')
+        });
+        setModalMessage(message);
+        setIsModalOpen(true);
+        return;
+      }
+      setIsEditing(false);
+      setSelectedCell(null);
+      setAvailableNumbers([]);
+      const newEmptyPos = findEmptyPosition(board);
+      setEmptyPos(newEmptyPos);
+
+      // Reset game status
+      setMoves(0);
+      setTime(0);
+      setTimerActive(false);
+      setSolution([]);
+      setCurrentSolutionStep(-1);
+      setIsSolved(false);
+    } else {
+      const newBoard = Array(size)
+        .fill()
+        .map(() => Array(size).fill(undefined));
       setBoard(newBoard);
       setAvailableNumbers(Array.from({ length: size * size }, (_, i) => i));
       setIsEditing(true);
-    } else {
-      const usedNumbers = board.flat();
-      const hasEmptyCell = usedNumbers.includes(undefined) || usedNumbers.filter(n => n === 0).length !== 1;
-      
-      if (hasEmptyCell) {
-        setShowModal(true);
-        return;
-      }
-      
-      const newEmptyPos = findEmptyPosition(board);
-      if (newEmptyPos) {
-        setEmptyPos(newEmptyPos);
-        setMoves(0);
-        setIsSolved(false);
-        setSolution([]);
-        setCurrentSolutionStep(-1);
-        setTime(0);
-        setTimerActive(false);
-        setIsEditing(false);
-      }
+      setTimerActive(false);
+      setSolution([]);
+      setCurrentSolutionStep(-1);
+      setIsSolved(false);
     }
   };
 
   // Handle number select
   const handleNumberSelect = (number) => {
     if (!selectedCell) return;
-    
+
     const [row, col] = selectedCell;
-    const newBoard = board.map(row => [...row]);
+    const newBoard = board.map((row) => [...row]);
     newBoard[row][col] = number;
     setBoard(newBoard);
     setSelectedCell(null);
-    
-    const usedNumbers = newBoard.flat().filter(n => n !== undefined);
-    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i)
-      .filter(num => {
-        if (num === 0) {
-          return usedNumbers.filter(n => n === 0).length === 0;
-        }
-        return !usedNumbers.includes(num);
-      });
-    
+
+    const usedNumbers = newBoard.flat().filter((n) => n !== undefined);
+    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i).filter((num) => {
+      if (num === 0) {
+        return usedNumbers.filter((n) => n === 0).length === 0;
+      }
+      return !usedNumbers.includes(num);
+    });
+
     setAvailableNumbers(newAvailableNumbers);
   };
 
@@ -327,27 +435,33 @@ const SlidingPuzzle = () => {
 
   // Handle number delete
   const handleNumberDelete = (row, col) => {
-    const newBoard = board.map(r => [...r]);
+    const newBoard = board.map((r) => [...r]);
     const deletedNumber = newBoard[row][col];
     newBoard[row][col] = undefined;
     setBoard(newBoard);
-    
-    const usedNumbers = newBoard.flat().filter(n => n !== undefined);
-    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i)
-      .filter(num => {
-        if (num === 0) {
-          return usedNumbers.filter(n => n === 0).length === 0;
-        }
-        return !usedNumbers.includes(num);
-      });
-    
+
+    const usedNumbers = newBoard.flat().filter((n) => n !== undefined);
+    const newAvailableNumbers = Array.from({ length: size * size }, (_, i) => i).filter((num) => {
+      if (num === 0) {
+        return usedNumbers.filter((n) => n === 0).length === 0;
+      }
+      return !usedNumbers.includes(num);
+    });
+
     setAvailableNumbers(newAvailableNumbers);
   };
 
-  // 添加一个检查是否所有格子都已填写的函数
+  // Check if all cells are filled
   const isAllCellsFilled = () => {
     const usedNumbers = board.flat();
-    return !usedNumbers.includes(undefined) && usedNumbers.filter(n => n === 0).length === 1;
+    return !usedNumbers.includes(undefined) && usedNumbers.filter((n) => n === 0).length === 1;
+  };
+
+  const canSolve = () => {
+    if (isEditing || solving || isSolved) return false;
+    const hasAllNumbers = !board.flat().includes(undefined);
+    const hasOneEmpty = board.flat().filter((n) => n === 0).length === 1;
+    return hasAllNumbers && hasOneEmpty;
   };
 
   return (
@@ -358,42 +472,58 @@ const SlidingPuzzle = () => {
             {isSolved && <div className="text-lg font-bold text-green-600">{t('puzzle_solved', { moves })}</div>}
           </div>
           <div
-            className="inline-grid gap-1 p-2 bg-gray-200 rounded-lg w-1/3 aspect-square"
+            className="inline-grid gap-1 p-2 bg-gray-200 rounded-lg w-full lg:w-1/2 aspect-square"
             style={{
               gridTemplateColumns: `repeat(${size}, 1fr)`,
             }}
           >
             {board.map((row, i) =>
-              row.map((num, j) => (
-                <div
-                  key={`${i}-${j}`}
-                  onClick={() => handleCellClick(i, j)}
-                  className={`
-                    aspect-square flex items-center justify-center
-                    text-2xl md:text-3xl lg:text-4xl font-bold rounded-lg cursor-pointer
-                    transition-all duration-200 relative
-                    ${num === undefined ? 'bg-gray-50' : num === 0 ? 'bg-gray-300' : 'bg-white shadow-md hover:bg-blue-100'}
-                    ${isSolved ? 'bg-green-100' : ''}
-                    ${isEditing ? 'hover:bg-blue-50' : ''}
-                    ${selectedCell && selectedCell[0] === i && selectedCell[1] === j ? 'ring-2 ring-blue-500' : ''}
-                  `}
-                >
-                  {num !== undefined && num !== 0 && num}
-                  {isEditing && num !== undefined && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleNumberDelete(i, j);
-                      }}
-                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center 
-                        text-gray-500 hover:text-red-500 text-sm bg-white rounded-full 
-                        shadow hover:shadow-md transition-all duration-200"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))
+              row.map((num, j) => {
+                const tileIndex = i * size + j;
+                const animation = animatingTiles[tileIndex];
+
+                return (
+                  <div
+                    key={`${i}-${j}`}
+                    onClick={() => handleCellClick(i, j)}
+                    className={`
+                      aspect-square flex items-center justify-center
+                      text-2xl md:text-3xl lg:text-4xl font-bold rounded-lg cursor-pointer
+                      transition-all duration-200 relative
+                      ${
+                        num === undefined
+                          ? 'bg-gray-50'
+                          : num === 0
+                          ? 'bg-gray-300'
+                          : 'bg-white shadow-md hover:bg-blue-100'
+                      }
+                      ${isSolved ? 'bg-green-100' : ''}
+                      ${isEditing ? 'hover:bg-blue-50' : ''}
+                      ${selectedCell && selectedCell[0] === i && selectedCell[1] === j ? 'ring-2 ring-blue-500' : ''}
+                    `}
+                    style={{
+                      transform: animation ? `translate(${animation.dx * 100}%, ${animation.dy * 100}%)` : 'none',
+                      transition: animation ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                      zIndex: animation ? 10 : num === 0 ? 1 : 2,
+                    }}
+                  >
+                    {num !== undefined && num !== 0 && num}
+                    {isEditing && num !== undefined && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNumberDelete(i, j);
+                        }}
+                        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center 
+                          text-gray-500 hover:text-red-500 text-sm bg-white rounded-full 
+                          shadow hover:shadow-md transition-all duration-200"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
 
@@ -407,7 +537,7 @@ const SlidingPuzzle = () => {
                       onClick={() => handleNumberSelect(num)}
                       className="p-4 text-xl font-bold rounded-lg hover:bg-blue-100"
                     >
-                      {num === 0 ? '空格' : num}
+                      {num === 0 ? t('empty_space') : num}
                     </button>
                   ))}
                 </div>
@@ -446,11 +576,11 @@ const SlidingPuzzle = () => {
         </div>
 
         <div className="lg:w-1/5 mt-8 lg:mt-0">
-          <h2 className="text-xl font-bold mb-4">游戏设置</h2>
+          <h2 className="text-xl font-bold mb-4">{t('game_settings')}</h2>
 
           <div className="space-y-4">
             <div className="mb-4">
-              <label className="text-gray-700 block mb-2">棋盘大小:</label>
+              <label className="text-gray-700 block mb-2">{t('board_size')}</label>
               <CustomListbox
                 value={`${size}x${size}`}
                 onChange={(value) => setSize(parseInt(value.split('x')[0]))}
@@ -458,10 +588,26 @@ const SlidingPuzzle = () => {
               />
             </div>
 
+            <div className="mb-4">
+              <label className="text-gray-700 block mb-2">{t('difficulty')}</label>
+              <CustomListbox
+                value={difficulty}
+                onChange={(value) => setDifficulty(value)}
+                options={[t('difficulty_easy'), t('difficulty_medium'), t('difficulty_hard')]}
+              />
+            </div>
+
+            <button
+              onClick={() => initializeBoard(size)}
+              className={`w-full px-4 py-2 rounded text-white bg-blue-500 hover:bg-blue-600`}
+            >
+              {t('new_game')}
+            </button>
+
             <button
               onClick={handleEditMode}
               className={`w-full px-4 py-2 rounded text-white ${
-                isEditing 
+                isEditing
                   ? isAllCellsFilled()
                     ? 'bg-green-500 hover:bg-green-600'
                     : 'bg-gray-400 cursor-not-allowed'
@@ -469,27 +615,17 @@ const SlidingPuzzle = () => {
               }`}
               disabled={isEditing && !isAllCellsFilled()}
             >
-              {isEditing ? '完成编辑' : '手动设置'}
-            </button>
-
-            <button
-              onClick={() => initializeBoard(size)}
-              disabled={isEditing}
-              className={`w-full px-4 py-2 rounded text-white ${
-                isEditing ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
-              }`}
-            >
-              新游戏
+              {isEditing ? t('finish_editing') : t('manual_setup')}
             </button>
 
             <button
               onClick={() => solvePuzzle(board, emptyPos)}
-              disabled={solving || isSolved}
+              disabled={!canSolve()}
               className={`w-full px-4 py-2 rounded text-white mb-2 ${
-                solving || isSolved ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+                !canSolve() ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
               }`}
             >
-              {solving ? '求解中...' : '求解'}
+              {solving ? t('solving') : t('solve')}
             </button>
 
             {solution.length > 0 && (
@@ -500,16 +636,19 @@ const SlidingPuzzle = () => {
                   currentSolutionStep >= solution.length - 1 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
                 }`}
               >
-                下一步
+                {t('next_move')}
               </button>
             )}
 
             <div className="text-sm space-y-2">
-              <div>移动次数: {moves}</div>
               {solution.length > 0 && currentSolutionStep >= 0 && (
                 <>
-                  <div>下一步: {solution[currentSolutionStep].move}</div>
-                  <div>剩余步数: {solution.length - currentSolutionStep - 1}</div>
+                  <div>
+                    {t('hint')}: {solution[currentSolutionStep].move}
+                  </div>
+                  <div>
+                    {t('remaining_steps')}: {solution.length - currentSolutionStep - 1}
+                  </div>
                 </>
               )}
             </div>
@@ -517,19 +656,8 @@ const SlidingPuzzle = () => {
         </div>
       </div>
 
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-      >
-        <div className="text-center">
-          <p className="text-lg mb-4">请填写所有格子，并确保只有一个空格（0）</p>
-          <button
-            onClick={() => setShowModal(false)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            确定
-          </button>
-        </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {modalMessage}
       </Modal>
     </div>
   );

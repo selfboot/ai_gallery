@@ -12,8 +12,8 @@ export async function generateMetadata({ params: { lang } }) {
     description: dict.seo.gomoku.description,
     keywords: dict.seo.gomoku.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sliding`,
-    publishedDate: "2024-07-01T02:00:00.000Z",
-    updatedDate: "2024-07-01T09:00:00.000Z",
+    publishedDate: "2024-10-31T02:00:00.000Z",
+    updatedDate: "2024-10-31T08:00:00.000Z",
   });
 }
 
