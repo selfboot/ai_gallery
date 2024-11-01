@@ -32,7 +32,17 @@
   "long_connection": "Long Connection Forbidden",
   "no_restriction": "No Restriction",
   "forbidden_rules": "Select Forbidden Rules",
-
+  "game_mode": "Game Mode",
+  "local_mode": "Local Mode",
+  "online_mode": "Online Mode",
+  "room_status": "Room Status",
+  "players": "Players",
+  "spectators": "Spectators",
+  "copy_link": "Copy",
+  "network_error": "Network connection failed, please check your network settings and try again",
+  "server_error": "Server temporarily unavailable, please try again later",
+  "unknown_error": "Unknown error, please try again later",
+  
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",
   "chess_description": "Chinese Chess game with a minimalist board layout, complete rules, alternating turns between black and red players, checks, and endgame determination. Undo feature is also supported.",
