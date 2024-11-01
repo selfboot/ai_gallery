@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import Image from 'next/image';
 
 const getImageUrl = (url, size) => {
   const baseUrl = url.split('/webp')[0]; // 移除任何现有的 /webp 后缀
@@ -8,7 +7,7 @@ const getImageUrl = (url, size) => {
 
 const ResponsiveWebPImage = React.memo(({ src, alt, isGif = false }) => {
   const imageUrls = useMemo(() => {
-    if (isGif) return { src, srcSet: '' };
+    if (isGif) return { src };
     return {
       src: getImageUrl(src, 1600),
       srcSet: `
@@ -21,14 +20,21 @@ const ResponsiveWebPImage = React.memo(({ src, alt, isGif = false }) => {
 
   return (
     <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-      <Image
+      <img
         {...imageUrls}
         alt={alt}
-        fill
-        style={{ objectFit: "cover" }}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        unoptimized={isGif}
         loading="lazy"
+        style={{
+          position: 'absolute',
+          height: '100%',
+          width: '100%',
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          objectFit: "cover",
+        }}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
     </div>
   );
