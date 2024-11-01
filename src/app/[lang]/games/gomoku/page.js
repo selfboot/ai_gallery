@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.gomoku.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/gomoku`,
     publishedDate: "2024-07-01T02:00:00.000Z",
-    updatedDate: "2024-07-01T09:00:00.000Z",
+    updatedDate: "2024-10-26T09:00:00.000Z",
   });
 }
 

@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.hanoitower.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/hanoitower`,
     publishedDate: "2024-08-12T04:00:00.000Z",
-    updatedDate: "2024-08-12T04:00:00.000Z",
+    updatedDate: "2024-10-31T04:00:00.000Z",
   });
 }
 

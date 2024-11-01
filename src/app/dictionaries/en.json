@@ -633,6 +633,11 @@
       "description": "Explore the Binary Search Tree algorithm through interactive visualization. Learn how Binary Search Tree works and understand its applications in real-time. Source code is available.",
       "keywords": "Binary Search Tree, algorithm visualization, binary search tree operation, binary search tree visualization"
     },
+    "cube": {
+      "title": "Free 3D Cube Game Online",
+      "description": "Classic Rubik's Cube puzzle game, play 3D Rubik's Cube online for free. Supports random scrambling, rotating view, sliding Rubik's Cube, and getting Rubik's Cube playing tips. Open source code, play Rubik's Cube online for free",
+      "keywords": "3D Cube, play 3D Cube online, Free 3D Cube game, 3D Cube strategy, 3D Cube Claude write"
+    },
     "gendocx": {
       "title": "Batch Online Word Document Generator",
       "description": "Upload Excel files and Word templates, generate Word documents in batch, and download all or individually. Beautiful interface, simple operation, batch generation of large number of Word documents.",
