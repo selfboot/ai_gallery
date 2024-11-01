@@ -1,6 +1,5 @@
 // src/app/components/BlogIndex.jsx
 import Link from "next/link";
-import Image from "next/image";
 import { getDictionary } from "@/app/dictionaries";
 
 export async function BlogIndex({ posts, lang }) {
@@ -14,7 +13,21 @@ export async function BlogIndex({ posts, lang }) {
             <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="h-48 bg-gray-200 relative">
                 {post.coverImage ? (
-                  <Image src={post.coverImage} alt={post.title} layout="fill" objectFit="cover" />
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    loading="lazy"
+                    style={{
+                      position: 'absolute',
+                      height: '100%',
+                      width: '100%',
+                      left: 0,
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      objectFit: "cover",
+                    }}
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-500">无图片</div>
                 )}
