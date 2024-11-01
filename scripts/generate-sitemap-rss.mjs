@@ -122,11 +122,12 @@ async function generateSitemapAndRss() {
       const slug = path.basename(path.dirname(post));
       const url = `${DOMAIN}/${lang}/blog/${slug}`;
 
-      // 添加到 sitemap
+      const lastmod = new Date(data.date).toISOString().split('.')[0] + '.000Z';
+
       sitemapItems.push(`
   <url>
     <loc>${url}</loc>
-    <lastmod>${data.date}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`);
