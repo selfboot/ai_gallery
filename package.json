@@ -37,6 +37,7 @@
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.416.0",
     "next": "14.2.12",
+    "node-fetch": "^3.3.2",
     "papaparse": "^5.4.1",
     "pizzip": "^3.1.7",
     "react": "^18.3.1",

@@ -37,7 +37,7 @@ async function generateSitemapAndRss() {
       `!src/app/[lang]/blog/[slug]`,
     ]);
 
-    console.log(`Found pages for ${lang}:`, pages);
+    // console.log(`Found pages for ${lang}:`, pages);
 
     let sitemapItems = [];
     let rssItems = [];
@@ -45,14 +45,14 @@ async function generateSitemapAndRss() {
     const dict = getDictionary(lang);
 
     for (const page of pages) {
-      console.log(`Processing page: ${page}`);
+      // console.log(`Processing page: ${page}`);
 
       const route = page
         .replace("src/app/[lang]", "")
         .replace("/page.js", "")
         .replace("/index", "");
 
-      console.log(`Route: ${route}`);
+      // console.log(`Route: ${route}`);
 
       try {
         const content = fs.readFileSync(page, "utf8");
@@ -182,7 +182,7 @@ async function generateSitemapAndRss() {
 }
 
 function addToSitemapAndRss(sitemapItems, rssItems, metadata) {
-  console.log("Metadata:", metadata);
+  // console.log("Metadata:", metadata);
 
   const url = metadata.canonicalUrl;
 
