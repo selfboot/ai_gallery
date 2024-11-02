@@ -49,13 +49,17 @@ const StackVisualization = () => {
   const [items, setItems] = useState([]);
   const [poppedItems, setPoppedItems] = useState([]);
   const [pushedItems, setPushedItems] = useState([]);
-  const [nextNumber, setNextNumber] = useState(Math.floor(Math.random() * 100));
+  const [nextNumber, setNextNumber] = useState(0);
   const [message, setMessage] = useState("");
   const [animatingItem, setAnimatingItem] = useState(null);
   const [stackHeight, setStackHeight] = useState(10);
   const nextItemRef = useRef(null);
   const stackRef = useRef(null);
   const { t } = useI18n();
+
+  useEffect(() => {
+    generateNextNumber();
+  }, []);
 
   const updateStack = () => {
     setItems(stack.getItems());
