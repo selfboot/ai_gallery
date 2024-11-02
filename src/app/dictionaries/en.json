@@ -87,6 +87,7 @@
   "snake_description": "Classic Snake game, control the snake to eat food, and grow longer. Avoid hitting the wall or the snake's body.",
   "resume_game": "Resume Game",
   "pause_game": "Pause Game",
+  "obstacles_difficulty": "Obstacles Difficulty",
 
   "ratelimit_title": "Rate Limit",
   "ratelimit_description": "Rate limiting is a strategy to control the rate of traffic sent or received by a network. Fixed window rate limiting and sliding window rate limiting are the most common rate limiting algorithms. This page shows the characteristics and comparison of these two algorithms.",

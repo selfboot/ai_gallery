@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
+import { CustomListbox } from "@/app/components/ListBox";
 
 const TARGET_CELL_SIZE = 20;
 const INITIAL_DIRECTION = "RIGHT";
@@ -14,6 +15,18 @@ const GAME_STATUS = {
 };
 
 const FOOD_TYPES = ['🍎', '🍌', '🥔', '🍇', '🍊'];
+
+const DIFFICULTY_LEVELS = {
+  EASY: 'easy',
+  MEDIUM: 'medium',
+  HARD: 'hard'
+};
+
+const DIFFICULTY_PERCENTAGES = {
+  [DIFFICULTY_LEVELS.EASY]: { min: 0.001, max: 0.015 },
+  [DIFFICULTY_LEVELS.MEDIUM]: { min: 0.015, max: 0.02 },
+  [DIFFICULTY_LEVELS.HARD]: { min: 0.02, max: 0.2 }
+};
 
 const useGameDimensions = () => {
   const [dimensions, setDimensions] = useState({
@@ -72,14 +85,13 @@ const SnakeGame = () => {
   });
   const [gameTime, setGameTime] = useState(0);
   const [timeInterval, setTimeInterval] = useState(null);
+  const [difficulty, setDifficulty] = useState(DIFFICULTY_LEVELS.EASY);
+  const [obstacles, setObstacles] = useState([]);
   const { t } = useI18n();
 
-  // 添加触摸相关状态
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
 
-  // 处理触摸开始
   const handleTouchStart = useCallback((e) => {
-    // 阻止默认行为
     e.preventDefault();
     const touch = e.touches[0];
     setTouchStart({
@@ -120,7 +132,7 @@ const SnakeGame = () => {
     e.preventDefault();
   }, []);
 
-  const generateRandomFood = useCallback((currentSnake) => {
+  const generateRandomFood = useCallback((currentSnake, currentObstacles = []) => {
     let newFood;
     do {
       newFood = {
@@ -129,12 +141,46 @@ const SnakeGame = () => {
         type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)]
       };
     } while (
-      currentSnake.some(
-        (segment) => segment.x === newFood.x && segment.y === newFood.y
-      )
+      currentSnake.some(segment => segment.x === newFood.x && segment.y === newFood.y) ||
+      (Array.isArray(currentObstacles) && currentObstacles.some(obstacle => obstacle.x === newFood.x && obstacle.y === newFood.y))
     );
     return newFood;
   }, [gridWidth, gridHeight]);
+
+  const generateObstacles = useCallback((currentSnake) => {
+    if (!isReady) return [];
+
+    const totalCells = gridWidth * gridHeight;
+    const { min, max } = DIFFICULTY_PERCENTAGES[difficulty];
+    const obstacleCount = Math.floor(totalCells * (min + Math.random() * (max - min)));
+
+    const obstacles = [];
+    const safeZone = 4; // 蛇周围的安全区域
+
+    // 获取蛇头周围的安全区域坐标
+    const snakeHead = currentSnake[0];
+    const safeCoords = new Set();
+    for (let x = -safeZone; x <= safeZone; x++) {
+      for (let y = -safeZone; y <= safeZone; y++) {
+        safeCoords.add(`${snakeHead.x + x},${snakeHead.y + y}`);
+      }
+    }
+
+    while (obstacles.length < obstacleCount) {
+      const x = Math.floor(Math.random() * gridWidth);
+      const y = Math.floor(Math.random() * gridHeight);
+      const coordKey = `${x},${y}`;
+
+      // 检查是否在安全区域内或与蛇重叠
+      if (!safeCoords.has(coordKey) &&
+        !currentSnake.some(segment => segment.x === x && segment.y === y) &&
+        !obstacles.some(obs => obs.x === x && obs.y === y)) {
+        obstacles.push({ x, y });
+      }
+    }
+
+    return obstacles;
+  }, [gridWidth, gridHeight, difficulty, isReady]);
 
   const initializeGame = useCallback(() => {
     if (!isReady) return;
@@ -145,8 +191,10 @@ const SnakeGame = () => {
       { x: Math.floor(gridWidth / 2) - 2, y: Math.floor(gridHeight / 2) },
     ];
 
+    const newObstacles = generateObstacles(initialSnake);
+    setObstacles(newObstacles);
     setSnake(initialSnake);
-    setFood(generateRandomFood(initialSnake));
+    setFood(generateRandomFood(initialSnake, newObstacles));
     setDirection(INITIAL_DIRECTION);
     setGameOver(false);
     setIsPlaying(false);
@@ -155,7 +203,7 @@ const SnakeGame = () => {
       '🍎': 0, '🍌': 0, '🥔': 0, '🍇': 0, '🍊': 0
     });
     setGameTime(0);
-  }, [isReady, gridWidth, gridHeight, generateRandomFood]);
+  }, [isReady, gridWidth, gridHeight, generateObstacles, generateRandomFood]);
 
   useEffect(() => {
     initializeGame();
@@ -181,6 +229,10 @@ const SnakeGame = () => {
     startGame();
   }, [initializeGame, startGame]);
 
+  const generateFood = useCallback((currentSnake) => {
+    setFood(generateRandomFood(currentSnake, obstacles));
+  }, [generateRandomFood, obstacles]);
+
   const moveSnake = useCallback(() => {
     if (gameOver) return;
 
@@ -194,21 +246,24 @@ const SnakeGame = () => {
       case "RIGHT": head.x += 1; break;
     }
 
-    if (
-      head.x < 0 ||
-      head.x >= gridWidth ||
-      head.y < 0 ||
-      head.y >= gridHeight
-    ) {
+    // 检查边界碰撞
+    if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
       setGameOver(true);
       setIsPlaying(false);
       setGameStatus(GAME_STATUS.OVER);
       return;
     }
 
-    if (
-      newSnake.some((segment) => segment.x === head.x && segment.y === head.y)
-    ) {
+    // 检查自身碰撞
+    if (newSnake.some((segment) => segment.x === head.x && segment.y === head.y)) {
+      setGameOver(true);
+      setIsPlaying(false);
+      setGameStatus(GAME_STATUS.OVER);
+      return;
+    }
+
+    // 检查障碍物碰撞
+    if (obstacles.some(obstacle => obstacle.x === head.x && obstacle.y === head.y)) {
       setGameOver(true);
       setIsPlaying(false);
       setGameStatus(GAME_STATUS.OVER);
@@ -228,11 +283,7 @@ const SnakeGame = () => {
     }
 
     setSnake(newSnake);
-  }, [snake, direction, food, gameOver, gridWidth, gridHeight]);
-
-  const generateFood = useCallback((currentSnake) => {
-    setFood(generateRandomFood(currentSnake));
-  }, [generateRandomFood]);
+  }, [snake, direction, food, gameOver, gridWidth, gridHeight, obstacles, generateFood]);
 
   const handleKeyPress = useCallback((e) => {
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -371,6 +422,19 @@ const SnakeGame = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const renderObstacles = useCallback(() => {
+    return obstacles.map((obstacle, index) => (
+      <rect
+        key={`obstacle-${index}`}
+        x={obstacle.x * cellSize}
+        y={obstacle.y * cellSize}
+        width={cellSize}
+        height={cellSize}
+        fill="#666"
+      />
+    ));
+  }, [obstacles, cellSize]);
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-start lg:space-x-8">
@@ -403,6 +467,7 @@ const SnakeGame = () => {
                     viewBox={`0 0 ${gridWidth * cellSize} ${gridHeight * cellSize}`}
                     preserveAspectRatio="xMidYMid meet"
                   >
+                    {renderObstacles()}
                     {snake.map((segment, index) =>
                       renderSnakeSegment(segment, index, snake, direction, cellSize)
                     )}
@@ -447,7 +512,25 @@ const SnakeGame = () => {
 
         <div className="lg:w-1/5 mt-8 lg:mt-0">
           <h2 className="text-xl font-bold mb-4">{t('game_settings')}</h2>
-          <div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('obstacles_difficulty')}
+              </label>
+              <CustomListbox
+                value={t(difficulty)}
+                onChange={(value) => {
+                  const newDifficulty = Object.keys(DIFFICULTY_LEVELS).find(
+                    key => t(DIFFICULTY_LEVELS[key]) === value
+                  );
+                  setDifficulty(DIFFICULTY_LEVELS[newDifficulty]);
+                  if (gameStatus !== GAME_STATUS.PLAYING) {
+                    initializeGame();
+                  }
+                }}
+                options={Object.values(DIFFICULTY_LEVELS).map(level => t(level))}
+              />
+            </div>
             <button
               className={`w-full px-4 py-2 rounded transition ${getButtonConfig().className}`}
               onClick={getButtonConfig().action}
