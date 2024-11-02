@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.snake.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/snake`,
     publishedDate: "2024-07-08T02:00:00.000Z",
-    updatedDate: "2024-07-08T09:00:00.000Z",
+    updatedDate: "2024-11-02T09:00:00.000Z",
   });
 }
 

@@ -87,6 +87,8 @@
   "select_language": "选择语言",
   "snake_title": "贪吃蛇",
   "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。",
+  "resume_game": "继续游戏",
+  "pause_game": "暂停游戏",
 
   "ratelimit_title": "窗口限流",
   "ratelimit_description": "限流是一种控制网络发送或接收的流量速率的策略，固定窗口限频和滑动窗口限频是最常见的限流算法，本页面展示了这两种算法的特点和对比。",
