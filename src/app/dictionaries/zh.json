@@ -334,12 +334,11 @@
   "found_value": "找到 {{value}}",
   "notFound_value": "未找到 {{value}}",
 
-  "chartrace_title": "竞速条形图",
-  "chartrace_description": "上传数据，自定义时间、类型和数据列，然后就能生成漂亮的动态竞速条形图，还可以导出为 GIF。",
+  "chartrace_title": "在线竞速条形图制作工具",
+  "chartrace_description": "本页面提供了一个方便的动态竞速图制作工具，通过简单的上传数据，自定义时间、类型和数据列，然后就能生成漂亮的动态竞速条形图，还可以导出为 GIF。",
   "jsonParseError": "JSON 解析错误",
   "selectAllColumns": "请选择所有必要的列",
-  "uploadedFile": "已上传文件",
-  "clickToUpload": "点击上传文件",
+  "uploadChartData": "上传图表数据",
   "raceChart": "竞速图",
   "dataPreview": "数据预览",
   "type": "类型",
@@ -352,7 +351,6 @@
   "hint": "提示",
   "dynamicChartsIndexTitle": "重要数据动态图表",
   "personalGenerate": "定制图表",
-  "uploadFileDoc": "本工具支持上传 JSON, CSV, XLSX, XLS 文件，请确保数据格式正确。本工具在浏览器本地处理文件，不会上传文件到服务器。",
   "dynamicChartsIndexDoc": [
     "这里汇集了一系列随时间变化的重要指标数据，每个图表都展示了不同领域的关键数据趋势，让您能够直观地了解各种指标的历史变化和未来走向。\n\n",
     "图表涵盖了多个领域，包括但不限于：\n",
@@ -367,7 +365,6 @@
   "ChartsIndexTableIntro": "介绍",
   "ChartsIndexTableDataSource": "数据源",
   "ChartsIndexSearchPlaceholder": "搜索标题或介绍",
-  "moreChartRace": "这里有一批生成好的动态条形图，涵盖各种有趣的数据。",
   "clickHere": "点击查看",
 
   "sudoku_title": "数独填字游戏",
@@ -521,7 +518,7 @@
       "keywords": "BFS 算法,广度优先搜索,寻路算法,算法可视化,学习 BFS,算法教育"
     },
     "stack": {
-      "title": "栈(Stack)数据结构：原理与交互式可视化",
+      "title": "栈数据结构可视化交互工具",
       "description": "交互式栈操作可视化工具，帮助你理解和可视化栈数据结构的基本操作。适合想要增进对栈操作(如压栈、出栈和查看栈顶元素)理解的学生、教育工作者和编程爱好者。",
       "keywords": "栈可视化,栈数据结构,可视化栈操作,栈压入,栈弹出,栈顶元素,实时栈可视化,栈教程,学习栈,数据结构可视化"
     },

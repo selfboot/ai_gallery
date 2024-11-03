@@ -6,9 +6,9 @@ import Modal from '@/app/components/Modal';
 import GIF from 'gif.js';
 import * as echarts from 'echarts';
 import { useI18n } from "@/app/i18n/client";
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import FileUploadBox from '@/app/components/FileUploadBox';
 
 const ChartRace = () => {
   const { t } = useI18n();
@@ -56,8 +56,7 @@ const ChartRace = () => {
     setColorMap(memoizedColorMap);
   }, [memoizedColorMap]);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = (file) => {
     if (!file) return;
 
     setUploadedFile(file);
@@ -372,26 +371,14 @@ const ChartRace = () => {
 
   return (
     <div className="flex flex-col lg:flex-row w-full space-y-4 lg:space-y-0 lg:space-x-4">
-      <div className="w-full lg:w-3/4 space-y-6">
-        <p>{t('uploadFileDoc')}</p>
-        <p>{t('moreChartRace')}{' '}
-          <Link href={`/${lang}/tools/chartrace/dynamic`} className="text-blue-500 hover:underline">
-            {t('clickHere')}
-          </Link>
-        </p>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <label htmlFor="file-upload" className="cursor-pointer">
-            <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          {uploadedFile ? (
-            <p className="mt-1 text-sm text-gray-600">{t('uploadedFile')}: {uploadedFile.name}</p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-600">{t('clickToUpload')}</p>
-          )}
-            <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".json,.csv,.xlsx,.xls" />
-          </label>
-        </div>
+      <div className="w-full lg:w-3/4 flex flex-col">
+        <FileUploadBox
+          accept=".json,.csv,.xlsx,.xls"
+          onChange={handleFileUpload}
+          title={t('uploadChartData')}
+          maxSize={100}
+          className="flex-1"
+        />
 
         {chartOption && (
           <div>

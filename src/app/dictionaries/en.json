@@ -144,7 +144,7 @@
   "insert_at_end": "Insert at end",
   "click_node_to_remove": "Click a node to remove",
   "remove_node_at": "Remove node at index {{index}}",
-  "stack_title": "Stack Data Structure: Principles and Interactive Visualization Tutorial",
+  "stack_title": "Stack Data Structure Visualization Interactive Tool",
   "stack_description": "Stack is a linear data structure that follows the Last In First Out (LIFO) principle. This page shows the process of push, pop and adjust the height of the stack.",
   "nextElement": "Next Element",
   "stackTop": "Top",
@@ -328,12 +328,11 @@
   "found_value": "Found {{value}}",
   "notFound_value": "{{value}} not found",
 
-  "chartrace_title": "Chart Race",  
-  "chartrace_description": "Chart Race is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
+  "chartrace_title": "Online BarChartRace Generation Tool",  
+  "chartrace_description": "This page provides a handy dynamic racing chart maker that allows you to easily upload data, customize the time, type, and data columns, and then generate beautiful dynamic racing bars, which can also be exported as GIFs.",
+  "uploadChartData": "Upload Chart Data",
   "jsonParseError": "JSON parsing error",
   "selectAllColumns": "Please select all necessary columns",
-  "uploadedFile": "Uploaded file",
-  "clickToUpload": "Click to upload file",
   "raceChart": "Race Chart",
   "dataPreview": "Data Preview",
   "type": "Type",
@@ -344,10 +343,8 @@
   "exportGif": "Export GIF",
   "generatingGif": "Generating GIF...",
   "hint": "Hint",
-  "moreChartRace": "Here are a batch of generated dynamic bar charts covering various interesting data. ",
   "clickHere": "Click to view",
   "personalGenerate": "Customize Generate",
-  "uploadFileDoc": "Supports uploading JSON, CSV, XLSX, XLS files. Ensure the data format is correct. This tool processes files locally in the browser and does not upload files to the server.",
   "dynamicChartsIndexTitle": "Important Data Dynamic Charts",
   "dynamicChartsIndexDoc": [
     "Here is a collection of important data charts that change over time. Each chart shows the key data trends in different fields, allowing you to intuitively understand the historical changes and future trends of various indicators.\n\n",
@@ -575,7 +572,7 @@
       "keywords": "Sudoku, Play sudoku online, Free sudoku game, Sudoku strategy, Sudoku Claude write, Online sudoku game"
     },
     "chartrace": {
-      "title": "BarChartRace Generate Online",
+      "title": "Online BarChartRace Generation Tool",
       "description": "BarChartRace is a dynamic bar chart that shows how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
       "keywords": "BarChartRace, data visualization, data visualization tool, CSV to BarChartRace, Excel to BarChartRace",
       "dynamicCharts": {

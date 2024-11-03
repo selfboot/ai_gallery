@@ -56,6 +56,7 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
         className={`relative border-2 border-dashed rounded-lg p-6 
           ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
           hover:border-blue-500 transition-colors duration-200
+          flex items-center justify-center
           ${className}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
