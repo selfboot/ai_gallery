@@ -55,11 +55,11 @@ export default async function BlogMarkdown({ lang, directory }) {
   if (markdownContent) {
     return (
       <div className="mt-16">
-        <div className="flex gap-8">
-          <div className="w-4/5 mr-8">
+        <div className="flex flex-col lg:flex-row lg:gap-8">
+          <div className="w-full lg:w-4/5 lg:mr-8">
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: markdownContent.contentHtml }} />
           </div>
-          <div className="w-1/5 sticky top-8">
+          <div className="w-full lg:w-1/5 mt-8 lg:mt-0 lg:sticky lg:top-8">
             <SideAdComponent />
           </div>
         </div>
