@@ -8,6 +8,7 @@ import { visit } from "unist-util-visit";
 import fs from 'fs/promises';
 import path from 'path';
 import matter from "gray-matter";
+import { SideAdComponent } from './AdComponent';
 
 // 自定义插件来处理图片
 function rehypeImageSize() {
@@ -26,7 +27,7 @@ export async function markdownToHtml(markdown) {
     .use(remarkGfm)
     .use(remarkRehype)
     .use(rehypeSlug)
-    .use(rehypeImageSize) 
+    .use(rehypeImageSize)
     .use(rehypeHighlight, { ignoreMissing: true })
     .use(rehypeStringify)
     .process(markdown);
@@ -54,7 +55,14 @@ export default async function BlogMarkdown({ lang, directory }) {
   if (markdownContent) {
     return (
       <div className="mt-16">
-        <div className="markdown-body" dangerouslySetInnerHTML={{ __html: markdownContent.contentHtml }} />
+        <div className="flex gap-8">
+          <div className="w-4/5 mr-8">
+            <div className="markdown-body" dangerouslySetInnerHTML={{ __html: markdownContent.contentHtml }} />
+          </div>
+          <div className="w-1/5 sticky top-8">
+            <SideAdComponent />
+          </div>
+        </div>
       </div>
     );
   }
