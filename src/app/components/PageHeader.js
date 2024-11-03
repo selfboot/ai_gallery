@@ -13,7 +13,7 @@ async function PageHeader({ lang, pathname }) {
   const getTitle = () => {
     const pathSegments = pathname.split("/").filter(Boolean);
     const currentPage = pathSegments[pathSegments.length - 1];
-    return dict[`${currentPage}_title`] || currentPage || dict["home"];
+    return dict[`${currentPage}_title`] || currentPage;
   };
 
   const getCodeLink = () => {
@@ -38,7 +38,7 @@ async function PageHeader({ lang, pathname }) {
   return (
     <div className="flex items-center justify-between py-4 pl-0">
       <div className="flex items-center">
-        <h1 className="text-xl">{title}</h1>
+        <h1 className="text-2xl font-bold">{title}</h1>
         {codeLink && (
           <Link
             href={codeLink}

@@ -21,7 +21,7 @@ export default async function Tools({ params: { lang } }) {
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4">{dict.tools}</h2>
+      <h1 className="text-2xl font-bold mb-4">{dict.tools_title}</h1>
       <ProjectGrid category="tools" lang={lang} />
     </>
   );

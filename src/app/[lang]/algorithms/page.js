@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.algorithms.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms`,
     publishedDate: "2024-07-12T02:00:00.000Z",
-    updatedDate: "2024-07-12T02:00:00.000Z",
+    updatedDate: "2024-11-02T10:00:00.000Z",
   });
 }
 
@@ -21,7 +21,7 @@ export default async function Algorithms({ params: { lang } }) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{dict.algorithms}</h2>
+      <h1 className="text-2xl font-bold mb-4">{dict.algorithms_title}</h1>
       <ProjectGrid category="algorithms" lang={lang} />
     </div>
   );

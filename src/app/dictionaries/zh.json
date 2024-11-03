@@ -1,14 +1,16 @@
 {
-  "home": "首页",
-  "profile": "小盛律师",
   "games": "游戏",
+  "games_title": "经典在线游戏创意玩法",
   "algorithms": "算法",
+  "algorithms_title": "常见算法的可视化演示",
   "tools": "工具",
+  "tools_title": "独特的在线实用工具",
   "blog": "博客",
+  "blog_title": "我如何使用 AI 的系列博客",
   "try": "玩一玩",
   "tableofcontents": "目录",
-  "gomoku_title": "五子棋",
-  "gomoku_description": "五子棋是一种双人对弈的纯策略型经典棋类游戏，本游戏支持自定义选择禁手规则，支持悔棋，欢迎来五子棋对战。",
+  "gomoku_title": "经典五子棋在线对战",
+  "gomoku_description": "经典的五子棋游戏，全网特色支持自定义禁手规则，支持悔棋。功能不断完善，后面会支持在线对战，AI对战，支持各种五子棋在线玩法，不容错过",
   "black_turn": "黑方回合",
   "black_win": "黑方获胜",
   "white_turn": "白方回合",
@@ -95,8 +97,8 @@
   "one_step_win": "预设胜利",
   "one_step_fail": "预设失败",
   "select_language": "选择语言",
-  "snake_title": "贪吃蛇",
-  "snake_description": "经典的贪吃蛇游戏，通过键盘控制蛇的移动，吃到食物，蛇的身体会变长，同时速度会加快，直到撞到墙壁或者自己的身体。",
+  "snake_title": "在线创意贪吃蛇",
+  "snake_description": "经典的贪吃蛇游戏融合了一些创意想法，增加障碍物、道具，控制蛇的移动，小心避开墙壁和障碍物，通过道具增加贪吃蛇的功能，给你不一样的体验",
   "resume_game": "继续游戏",
   "pause_game": "暂停游戏",
   "obstacles_difficulty": "障碍物难度",
@@ -147,7 +149,7 @@
   "click_node_to_remove": "选中节点删除",
   "remove_node_at": "删除下标 {{index}} 节点",
 
-  "stack_title": "栈",
+  "stack_title": "栈(Stack)数据结构的原理与交互式可视化",
   "stack_description": "栈是一种后进先出（LIFO）队列，本页面可视化展示了栈的基本操作，包括入栈、出栈、调整栈高度等。",
   "nextElement": "下一个元素",
   "stackTop": "栈顶",
@@ -443,7 +445,7 @@
   "direction_left": "左",
   "direction_right": "右",
   "sliding_title": "在线免费数字华容道",
-  "sliding_description": "经典的数字华容道游戏，支持随机生成不同难度，不同大小的开局，支持自定义每个格子的数字布局，支持获取智能求解方案！代码开源，免费在线玩",
+  "sliding_description": "经典好玩的数字华容道游戏，支持随机生成不同难度，不同大小的开局，支持自定义每个格子的数字布局，支持获取智能求解方案！代码开源，免费在线玩",
 
   "chartrace": {
       "population-growth": {
@@ -479,7 +481,7 @@
       "keywords": "Claude3.5, AI 辅助写代码"
     },
     "algorithms": {
-      "title": "开源算法可视化",
+      "title": "开源各种常见算法的可视化展示",
       "description": "通过 Claude3.5 和 GPT4 生成各种算法的可视化演示，包括字典树、链表、栈、速率限制、路径查找和哈希表。",
       "keywords": "算法可视化,数据结构,在线可视化"
     },
@@ -514,7 +516,7 @@
       "keywords": "BFS 算法,广度优先搜索,寻路算法,算法可视化,学习 BFS,算法教育"
     },
     "stack": {
-      "title": "栈可视化",
+      "title": "栈(Stack)数据结构：原理与交互式可视化",
       "description": "交互式栈操作可视化工具，帮助你理解和可视化栈数据结构的基本操作。适合想要增进对栈操作(如压栈、出栈和查看栈顶元素)理解的学生、教育工作者和编程爱好者。",
       "keywords": "栈可视化,栈数据结构,可视化栈操作,栈压入,栈弹出,栈顶元素,实时栈可视化,栈教程,学习栈,数据结构可视化"
     },

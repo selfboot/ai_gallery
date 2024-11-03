@@ -1,5 +1,3 @@
-## Stack Data Structure: Principles and Interactive Visualization Tutorial
-
 A stack is a linear data structure that follows the **Last-In-First-Out (LIFO)** principle. Imagine a stack of plates where you can only add or remove plates from the top - this is exactly how a stack works.
 
 Stacks play a crucial role in computer science, from function calls to expression evaluation, their applications are widespread.
