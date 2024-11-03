@@ -153,9 +153,9 @@ const StackVisualization = () => {
   }, [animatingItem]);
 
   return (
-    <div className="flex flex-col items-center p-6">
-      <div className="flex justify-center w-full mb-6">
-        <div className="flex flex-col items-center w-2/5">
+    <div className="flex flex-col lg:flex-row w-full">
+      <div className="w-full lg:w-4/5 mb-6 lg:mb-0 lg:pr-6 flex flex-col items-center">
+        <div className="flex flex-col items-center lg:w-2/3">
           <div className="flex items-center justify-center mb-9">
             <div className="flex items-center mr-2 h-12 font-bold">
               {t("nextElement")}
@@ -168,136 +168,140 @@ const StackVisualization = () => {
             </div>
           </div>
 
-          <div className="flex items-start">
-            <div
-              className="flex flex-col justify-between mr-2"
-              style={{ height: `${stackHeight * 50}px`, minHeight: "50px" }}
-            >
-              <div className="flex-grow">
-                {items.length > 0 && (
+          {/* Stack and History Container */}
+          <div className="flex flex-col lg:flex-row w-full gap-6">
+            <div className="flex items-start">
+              <div
+                className="flex flex-col justify-between mr-2"
+                style={{ height: `${stackHeight * 50}px`, minHeight: "50px" }}
+              >
+                <div className="flex-grow">
+                  {items.length > 0 && (
+                    <div
+                      className="bg-red-500 text-white px-2 py-1 text-sm rounded-l mb-1 transition-all duration-300"
+                      style={{
+                        marginTop: `${(stackHeight - items.length) * 50}px`,
+                      }}
+                    >
+                      {t("stackTop")}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-blue-500 text-white px-2 py-1 text-sm rounded-l">
+                  {t("stackBottom")}
+                </div>
+              </div>
+              <div
+                ref={stackRef}
+                className="w-60 rounded-2xl overflow-hidden relative mb-9"
+                style={{
+                  display: "grid",
+                  gridTemplateRows: `repeat(${stackHeight}, 50px)`,
+                  height: `${stackHeight * 50}px`,
+                  borderLeft: "4px solid #3b82f6",
+                  borderRight: "4px solid #3b82f6",
+                  borderBottom: "4px solid #3b82f6",
+                  borderRadius: "0 0 20px 20px",
+                }}
+              >
+                {items.map((item, index) => (
                   <div
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded-l mb-1 transition-all duration-300"
+                    key={index}
+                    className="grid place-items-center w-full p-3 bg-white border-2 border-blue-300 text-center text-lg font-semibold transition-all duration-500"
+                    style={{ gridRowStart: stackHeight - index }}
+                  >
+                    {item}
+                  </div>
+                ))}
+                {animatingItem && (
+                  <div
+                    className="absolute w-12 h-12 bg-yellow-300 rounded-full flex items-center justify-center text-lg font-semibold"
                     style={{
-                      marginTop: `${(stackHeight - items.length) * 50}px`,
+                      animation: "dropAnimation 0.5s forwards",
                     }}
                   >
-                    {t("stackTop")}
+                    {animatingItem.value}
                   </div>
                 )}
               </div>
-              <div className="bg-blue-500 text-white px-2 py-1 text-sm rounded-l">
-                {t("stackBottom")}
-              </div>
             </div>
-            {/* 栈主体 */}
-            <div
-              ref={stackRef}
-              className="w-60 rounded-2xl overflow-hidden relative mb-9"
-              style={{
-                display: "grid",
-                gridTemplateRows: `repeat(${stackHeight}, 50px)`,
-                height: `${stackHeight * 50}px`,
-                borderLeft: "4px solid #3b82f6",
-                borderRight: "4px solid #3b82f6",
-                borderBottom: "4px solid #3b82f6",
-                borderRadius: "0 0 20px 20px",
-              }}
-            >
-              {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="grid place-items-center w-full p-3 bg-white border-2 border-blue-300 text-center text-lg font-semibold transition-all duration-500"
-                  style={{ gridRowStart: stackHeight - index }}
-                >
-                  {item}
+
+            <div className="flex flex-col lg:flex-1 gap-6">
+              {pushedItems.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-2 text-center lg:text-left">{t("pushedElements")}</h3>
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                    {pushedItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center font-bold text-sm"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-              {animatingItem && (
-                <div
-                  className="absolute w-12 h-12 bg-yellow-300 rounded-full flex items-center justify-center text-lg font-semibold"
-                  style={{
-                    animation: "dropAnimation 0.5s forwards",
-                  }}
-                >
-                  {animatingItem.value}
+              )}
+
+              {poppedItems.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-2 text-center lg:text-left">{t("poppedElements")}</h3>
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                    {poppedItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center font-bold text-sm"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </div>
-          <div className="mt-4 flex space-x-4">
-            <button
-              onClick={push}
-              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
-              disabled={animatingItem}
-            >
-              {t("push")}
-            </button>
-            <button
-              onClick={pop}
-              className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300"
-              disabled={animatingItem}
-            >
-              {t("pop")}
-            </button>
-            <button
-              onClick={reset}
-              className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-300"
-            >
-              {t("reset")}
-            </button>
-            <label htmlFor="stackHeight" className="flex items-center">
-              {t("stackHeight")}:
-            </label>
-            <input
-              id="stackHeight"
-              type="number"
-              min={items.length}
-              value={stackHeight}
-              onChange={handleHeightChange}
-              className="w-16 px-2 py-1 border border-gray-300 rounded"
-            />
-          </div>
-          <p className="mt-6 text-lg font-medium text-gray-700">
+          <p className="text-lg font-medium text-gray-700 text-center mt-6">
             {message.key ? t(message.key, message.params) : t(message)}
           </p>
         </div>
-        <div className="flex flex-col items-center w-2/5">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold mb-4"></div>
-          {pushedItems.length > 0 && (
-            <div className="w-full rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">
-                {t("pushedElements")}:{" "}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {pushedItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center font-bold"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      </div>
 
-          {poppedItems.length > 0 && (
-            <div className="w-full mt-6 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">
-                {t("poppedElements")}:{" "}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {poppedItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center font-bold"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      <div className="w-full lg:w-1/5">
+        <h2 className="text-xl font-bold mb-4">{t("settings")}</h2>
+        <div className="flex flex-col space-y-4">
+          <label htmlFor="stackHeight" className="font-medium">
+            {t("stackHeight")}:
+          </label>
+          <input
+            id="stackHeight"
+            type="number"
+            min={items.length}
+            value={stackHeight}
+            onChange={handleHeightChange}
+            className="w-full px-2 py-1 border border-gray-300 rounded"
+          />
+        </div>
+        <div className="flex flex-col mt-4 space-y-4">
+          <button
+            onClick={push}
+            className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
+            disabled={animatingItem}
+          >
+            {t("push")}
+          </button>
+          <button
+            onClick={pop}
+            className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300"
+            disabled={animatingItem}
+          >
+            {t("pop")}
+          </button>
+          <button
+            onClick={reset}
+            className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-300"
+          >
+            {t("reset")}
+          </button>
         </div>
       </div>
     </div>
