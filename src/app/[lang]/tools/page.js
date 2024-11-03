@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.tools.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools`,
     publishedDate: "2024-07-14T06:00:00.000Z",
-    updatedDate: "2024-07-14T06:00:00.000Z",
+    updatedDate: "2024-11-03T06:00:00.000Z",
   });
 }
 

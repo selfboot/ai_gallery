@@ -474,6 +474,11 @@
       "description": "Claude3.5 provides online visualization tools for algorithms, data structures, and games. Explore interactive visualizations of trie, linked list, stack, rate limiting, pathfinding, hash table, and more.",
       "keywords": "Claude3.5, online visualization tools, AI Gallery"
     },
+    "blog": {
+      "title": "The Blogs About How I Use AI",
+      "description": "This is the index page of a series of articles, sharing how I use Cursot and Claude3.5 to write code and generate various fun websites. It includes various classic and interesting games, visualizations of common algorithms, and many useful tools.",
+      "keywords": "AI write code blog, Claude3.5 blog, Cursor coding blog"
+    },  
     "algorithms": {
       "title": "Algorithms Visualization",
       "description": "This page provides visualizations of various algorithms, including trie, linked list, stack, rate limiting, path findind and hash table.",
