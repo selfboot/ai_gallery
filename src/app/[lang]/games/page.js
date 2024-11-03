@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.games.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/games`,
     publishedDate: "2024-07-12T02:00:00.000Z",
-    updatedDate: "2024-07-12T02:00:00.000Z",
+    updatedDate: "2024-11-03T02:00:00.000Z",
   });
 }
 

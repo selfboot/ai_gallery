@@ -470,6 +470,11 @@
       "description": "Claude3.5 辅助写代码，生成各种好玩的页面，包括各种游戏，算法可视化展示，以及有用的工具",
       "keywords": "Claude3.5, AI 辅助写代码"
     },
+    "blog": {
+      "title": "我如何使用 AI 的系列博客",
+      "description": "这里是系列文章的索引页面，分享我如何使用 Cursot 和 Claude3.5 写代码，生成各种好玩的站点。包括各种经典有趣游戏，一些常见算法的可视化展示，和很多有用的工具",
+      "keywords": "Claude3.5 使用博客, AI 辅助写代码博客, Cursor 编码使用博客"
+    },
     "algorithms": {
       "title": "开源各种常见算法的可视化展示",
       "description": "通过 Claude3.5 和 GPT4 生成各种算法的可视化演示，包括字典树、链表、栈、速率限制、路径查找和哈希表。",
