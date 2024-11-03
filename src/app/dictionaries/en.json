@@ -1,10 +1,12 @@
 {
-  "home": "Home",
-  "profile": "Profile",
   "games": "Games",
+  "games_title": "Creative Gameplay of Classic Online Games",
   "algorithms": "Algorithms",
+  "algorithms_title": "Visualization of Common Algorithms",
   "tools": "Tools",
+  "tools_title": "Unique and Practical Online Tools",
   "blog": "Blog",
+  "blog_title": "Blog About How I Use AI",
   "try": "Try",
   "tableofcontents": "Table of Contents",
   "gomoku_title": "Gomoku",
@@ -132,7 +134,7 @@
   "insert_at_end": "Insert at end",
   "click_node_to_remove": "Click a node to remove",
   "remove_node_at": "Remove node at index {{index}}",
-  "stack_title": "Stack",
+  "stack_title": "Stack Data Structure: Principles and Interactive Visualization Tutorial",
   "stack_description": "Stack is a linear data structure that follows the Last In First Out (LIFO) principle. This page shows the process of push, pop and adjust the height of the stack.",
   "nextElement": "Next Element",
   "stackTop": "Top",
@@ -498,7 +500,7 @@
       "keywords": "BFS algorithm, breadth-first search, pathfinding algorithm, algorithm visualization, learn BFS, algorithm education"
     },
     "stack": {
-      "title": "Stack Visualization",
+      "title": "Stack Data Structure: Principles and Interactive Visualization Tutorial",
       "description": "Explore interactive Stack Visualization tool designed to help you understand and visualize the basic operations of a stack data structure in real-time. Perfect for students, educators, and programming enthusiasts looking to enhance their understanding of stack operations such as push, pop, and peek.",
       "keywords": "stack visualization, stack data structure, visualize stack operations, stack push, stack pop, stack peek, real-time stack visualization, stack tutorial, learn stack, data structure visualization"
     },

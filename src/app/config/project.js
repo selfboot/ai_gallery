@@ -8,11 +8,11 @@ const Projects = {
       link: "/games/gomoku",
     },
     {
-      id: "sudoku",
-      title: "sudoku_title",
-      description: "sudoku_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sudoku_small.png",
-      link: "/games/sudoku",
+      id: "sliding",
+      title: "sliding_title",
+      description: "sliding_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sliding_small.png",
+      link: "/games/sliding",
     },
     {
       id: "snake",
@@ -36,11 +36,11 @@ const Projects = {
       link: "/games/tetris",
     },
     {
-      id: "sliding",
-      title: "sliding_title",
-      description: "sliding_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sliding_small.png",
-      link: "/games/sliding",
+      id: "sudoku",
+      title: "sudoku_title",
+      description: "sudoku_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sudoku_small.png",
+      link: "/games/sudoku",
     },
     {
       id: "2048",
