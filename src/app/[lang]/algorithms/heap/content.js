@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { animated, useSpring } from '@react-spring/web';
 import { useI18n } from '@/app/i18n/client';
-import { CustomListbox } from '@/app/components/listbox';
+import { CustomListbox } from '@/app/components/ListBox';
 
 const spaceBetweenNodes = 50; // 节点之间的固定间隔
 const nodeHeight = 70; // 每个节点的高度
