@@ -102,6 +102,10 @@
   "resume_game": "继续游戏",
   "pause_game": "暂停游戏",
   "obstacles_difficulty": "障碍物难度",
+  "power_ups": "道具系统",
+  "ghost_power": "穿障碍物",
+  "food_rain_power": "食物丰收",
+  "golden_power": "破除障碍",
 
   "ratelimit_title": "窗口限流",
   "ratelimit_description": "限流是一种控制网络发送或接收的流量速率的策略，固定窗口限频和滑动窗口限频是最常见的限流算法，本页面展示了这两种算法的特点和对比。",
