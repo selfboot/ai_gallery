@@ -31,6 +31,11 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
           href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
         <meta name="baidu-site-verification" content="codeva-aNF6ICHngY" />
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544"
+          async
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         <div className="flex flex-col min-h-screen">
@@ -58,11 +63,6 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
         src="https://static.cloudflareinsights.com/beacon.min.js"
         data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
         strategy="afterInteractive"
-      />
-      <Script
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544"
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
       />
     </html>
   );
