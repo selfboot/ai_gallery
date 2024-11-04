@@ -12,7 +12,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.heap.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/heap`,
     publishedDate: "2024-07-04T02:00:00.000Z",
-    updatedDate: "2024-07-04T02:00:00.000Z",
+    updatedDate: "2024-11-04T02:00:00.000Z",
   });
 }
 
