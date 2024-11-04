@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { animated } from '@react-spring/web';
+import { animated, useSpring } from '@react-spring/web';
 import { useI18n } from '@/app/i18n/client';
 import { CustomListbox } from '@/app/components/listbox';
 
@@ -164,7 +164,8 @@ const HeapVisualization = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [deletedNode, setDeletedNode] = useState(null);
   const { t } = useI18n();
-  const [windowWidth, setWindowWidth] = useState(1200);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const [showDeletedNode, setShowDeletedNode] = useState(false);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -197,6 +198,7 @@ const HeapVisualization = () => {
     if (!isAnimating && heap.size() > 0) {
       const { max, steps } = heap.removeWithSteps();
       setDeletedNode(max);
+      setShowDeletedNode(true);
       setAnimationSteps(steps);
       setCurrentStep(0);
       setIsAnimating(true);
@@ -265,62 +267,86 @@ const HeapVisualization = () => {
     return calculatePositions(heap, windowWidth);
   }, [heap, windowWidth]);
 
+  // 将 SVG 内容提取为单独的组件
+  const HeapSvgContent = () => {
+    if (!windowWidth) return null;
+
+    return (
+      <svg
+        className="w-full h-full"
+        viewBox={`0 0 ${Math.max(windowWidth * 0.8, MIN_NODE_SPACING * Math.pow(2, heap.depth() - 1))} ${Math.max(
+          400,
+          nodeHeight * (heap.depth() + 1)
+        )}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {positions.map((node, index) => {
+          const leftChildIdx = 2 * index + 1;
+          const rightChildIdx = 2 * index + 2;
+          const leftChild = positions.find((child) => child && child.id === leftChildIdx);
+          const rightChild = positions.find((child) => child && child.id === rightChildIdx);
+
+          const currentStepData =
+            isAnimating && currentStep < animationSteps.length ? animationSteps[currentStep] : null;
+
+          const isHighlighted = currentStepData?.highlight?.includes(index) || false;
+          const isNew = currentStepData?.newNode === index || false;
+
+          return (
+            <React.Fragment key={node.id}>
+              {leftChild && <line x1={node.x} y1={node.y} x2={leftChild.x} y2={leftChild.y} stroke="black" />}
+              {rightChild && <line x1={node.x} y1={node.y} x2={rightChild.x} y2={rightChild.y} stroke="black" />}
+              <AnimatedNode node={node} isNew={isNew} isHighlighted={isHighlighted} />
+            </React.Fragment>
+          );
+        })}
+        {deletedNode && positions.length > 0 && showDeletedNode && (
+          <animated.g style={deletedNodeAnimation}>
+            <text
+              x={positions[0].x + spaceBetweenNodes * 2}
+              y={nodeHeight / 2}
+              textAnchor="middle"
+              fill="#333"
+              fontSize="14"
+            >
+              {t('deleted_node')}
+            </text>
+            <AnimatedNode
+              node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
+              isDeleted={true}
+            />
+          </animated.g>
+        )}
+      </svg>
+    );
+  };
+
+  // 删除节点的动画配置
+  const deletedNodeAnimation = useSpring({
+    opacity: showDeletedNode ? 1 : 0,
+    config: { duration: 500 },
+  });
+
+  useEffect(() => {
+    if (!isAnimating && showDeletedNode) {
+      const timer = setTimeout(() => {
+        setShowDeletedNode(false);
+        setDeletedNode(null);
+      }, 1000); // 1秒后开始淡出
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating, showDeletedNode]);
+
   return (
     <div className="w-full flex flex-col lg:flex-row gap-4">
       <div className="w-full lg:w-4/5">
         <div className="overflow-x-auto overflow-y-hidden w-full border border-gray-200 rounded-lg">
           <div
             style={{
-              height: Math.max(400, nodeHeight * (heap.depth() + 1)),
-              width: Math.max(MIN_NODE_SPACING * Math.pow(2, heap.depth() - 1), windowWidth * 0.8),
+              height: Math.max(400, nodeHeight * (heap.depth() + 1))
             }}
           >
-            <svg
-              className="w-full h-full"
-              viewBox={`0 0 ${Math.max(windowWidth * 0.8, MIN_NODE_SPACING * Math.pow(2, heap.depth() - 1))} ${Math.max(
-                400,
-                nodeHeight * (heap.depth() + 1)
-              )}`}
-              preserveAspectRatio="xMidYMid meet"
-            >
-              {positions.map((node, index) => {
-                const leftChildIdx = 2 * index + 1;
-                const rightChildIdx = 2 * index + 2;
-                const leftChild = positions.find((child) => child && child.id === leftChildIdx);
-                const rightChild = positions.find((child) => child && child.id === rightChildIdx);
-
-                const currentStepData =
-                  isAnimating && currentStep < animationSteps.length ? animationSteps[currentStep] : null;
-
-                const isHighlighted = currentStepData?.highlight?.includes(index) || false;
-                const isNew = currentStepData?.newNode === index || false;
-
-                return (
-                  <React.Fragment key={node.id}>
-                    {leftChild && <line x1={node.x} y1={node.y} x2={leftChild.x} y2={leftChild.y} stroke="black" />}
-                    {rightChild && <line x1={node.x} y1={node.y} x2={rightChild.x} y2={rightChild.y} stroke="black" />}
-                    <AnimatedNode node={node} isNew={isNew} isHighlighted={isHighlighted} />
-                  </React.Fragment>
-                );
-              })}
-              {deletedNode && positions.length > 0 && (
-                <g>
-                  <text
-                    x={positions[0].x + spaceBetweenNodes * 2}
-                    y={nodeHeight / 2}
-                    textAnchor="middle"
-                    fill="#333"
-                    fontSize="14"
-                  >
-                    {t('deleted_node')}
-                  </text>
-                  <AnimatedNode
-                    node={{ x: positions[0].x + spaceBetweenNodes * 2, y: positions[0].y, value: deletedNode }}
-                    isDeleted={true}
-                  />
-                </g>
-              )}
-            </svg>
+            <HeapSvgContent />
           </div>
         </div>
       </div>
