@@ -36,25 +36,27 @@ async function PageHeader({ lang, pathname }) {
   const backLink = getBackLink();
 
   return (
-    <div className="flex items-center justify-between py-4 pl-0">
-      <div className="flex items-center">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full mb-6">
+      <div className="flex flex-wrap items-center gap-4">
         <h1 className="text-2xl font-bold">{title}</h1>
-        {codeLink && (
+        <div className="flex items-center gap-4">
+          {codeLink && (
+            <Link
+              href={codeLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
+            >
+              <FontAwesomeIcon icon={faCode} className="mr-2" />
+            </Link>
+          )}
           <Link
-            href={codeLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center ml-4"
+            href={backLink}
+            className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center"
           >
-            <FontAwesomeIcon icon={faCode} className="mr-2" />
+            <FontAwesomeIcon icon={faArrowLeft} />
           </Link>
-        )}
-        <Link
-          href={backLink}
-          className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center ml-4"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} />
-        </Link>
+        </div>
       </div>
       <ShareButtons />
     </div>
