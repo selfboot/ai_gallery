@@ -90,6 +90,10 @@
   "resume_game": "Resume Game",
   "pause_game": "Pause Game",
   "obstacles_difficulty": "Obstacles Difficulty",
+  "power_ups": "Power Ups",
+  "ghost_power": "Ignore Obstacles",
+  "food_rain_power": "Too Many Foods",
+  "golden_power": "Break Obstacles",
 
   "ratelimit_title": "Rate Limit",
   "ratelimit_description": "Rate limiting is a strategy to control the rate of traffic sent or received by a network. Fixed window rate limiting and sliding window rate limiting are the most common rate limiting algorithms. This page shows the characteristics and comparison of these two algorithms.",

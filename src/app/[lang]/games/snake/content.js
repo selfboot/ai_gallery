@@ -1,31 +1,59 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useCallback } from "react";
-import { useI18n } from "@/app/i18n/client";
-import { CustomListbox } from "@/app/components/ListBox";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useI18n } from '@/app/i18n/client';
+import { CustomListbox } from '@/app/components/ListBox';
 
 const TARGET_CELL_SIZE = 20;
-const INITIAL_DIRECTION = "RIGHT";
+const INITIAL_DIRECTION = 'RIGHT';
 
 const GAME_STATUS = {
-  INIT: 'INIT',      // 初始状态
+  INIT: 'INIT', // 初始状态
   PLAYING: 'PLAYING', // 游戏中
-  PAUSED: 'PAUSED',  // 暂停
-  OVER: 'OVER'       // 游戏结束
+  PAUSED: 'PAUSED', // 暂停
+  OVER: 'OVER', // 游戏结束
 };
 
-const FOOD_TYPES = ['🍎', '🍌', '🥔', '🍇', '🍊'];
+const FOOD_TYPES = ['🍎'];
 
 const DIFFICULTY_LEVELS = {
   EASY: 'easy',
   MEDIUM: 'medium',
-  HARD: 'hard'
+  HARD: 'hard',
 };
 
 const DIFFICULTY_PERCENTAGES = {
   [DIFFICULTY_LEVELS.EASY]: { min: 0.001, max: 0.015 },
   [DIFFICULTY_LEVELS.MEDIUM]: { min: 0.015, max: 0.02 },
-  [DIFFICULTY_LEVELS.HARD]: { min: 0.02, max: 0.2 }
+  [DIFFICULTY_LEVELS.HARD]: { min: 0.02, max: 0.2 },
+};
+
+const POWER_UP_TYPES = {
+  GHOST: {
+    id: 'GHOST',
+    icon: '🌀',
+    name: 'ghost_power', // 用于国际化
+  },
+  FOOD_RAIN: {
+    id: 'FOOD_RAIN',
+    icon: '🌳',
+    name: 'food_rain_power',
+  },
+  GOLDEN: {
+    id: 'GOLDEN',
+    icon: '👑',
+    name: 'golden_power',
+  },
+};
+
+const POWER_UP_CONFIG = {
+  SPAWN_INTERVAL: 5000, // 道具生成间隔(ms)
+  DISPLAY_DURATION: 5000, // 道具显示时间(ms)
+};
+
+const FOOD_RAIN_CONFIG = {
+  FOOD_COUNT: 10, // 食物雨产生的食物数量
+  DURATION: 5000, // 食物雨持续时间(ms)
 };
 
 const useGameDimensions = () => {
@@ -34,33 +62,26 @@ const useGameDimensions = () => {
     gridHeight: 0,
     cellSize: TARGET_CELL_SIZE,
     containerHeight: 0,
-    isReady: false
+    isReady: false,
   });
 
   useEffect(() => {
     const updateSize = () => {
       const viewportHeight = window.innerHeight;
-      const containerHeight = window.innerWidth >= 1024
-        ? viewportHeight * 2 / 3
-        : viewportHeight * 4 / 5;
+      const containerHeight = window.innerWidth >= 1024 ? (viewportHeight * 2) / 3 : (viewportHeight * 4) / 5;
 
-      const containerWidth = window.innerWidth >= 1024
-        ? window.innerWidth * 0.8 * 0.8
-        : window.innerWidth * 0.95;
+      const containerWidth = window.innerWidth >= 1024 ? window.innerWidth * 0.8 * 0.8 : window.innerWidth * 0.95;
 
       const gridWidth = Math.floor(containerWidth / TARGET_CELL_SIZE);
       const gridHeight = Math.floor(containerHeight / TARGET_CELL_SIZE);
-      const cellSize = Math.min(
-        containerWidth / gridWidth,
-        containerHeight / gridHeight
-      );
+      const cellSize = Math.min(containerWidth / gridWidth, containerHeight / gridHeight);
 
       setDimensions({
         gridWidth,
         gridHeight,
         cellSize,
         containerHeight,
-        isReady: true
+        isReady: true,
       });
     };
 
@@ -81,50 +102,67 @@ const SnakeGame = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameStatus, setGameStatus] = useState(GAME_STATUS.INIT);
   const [foodCounts, setFoodCounts] = useState({
-    '🍎': 0, '🍌': 0, '🥔': 0, '🍇': 0, '🍊': 0
+    '🍎': 0,
   });
   const [gameTime, setGameTime] = useState(0);
   const [timeInterval, setTimeInterval] = useState(null);
   const [difficulty, setDifficulty] = useState(DIFFICULTY_LEVELS.EASY);
   const [obstacles, setObstacles] = useState([]);
+  const [powerUp, setPowerUp] = useState(null);
+  const [ghostPowerCount, setGhostPowerCount] = useState(0);
   const { t } = useI18n();
 
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+
+  const [enabledPowerUps, setEnabledPowerUps] = useState([
+    POWER_UP_TYPES.GHOST.id,
+    POWER_UP_TYPES.FOOD_RAIN.id,
+    POWER_UP_TYPES.GOLDEN.id,
+  ]);
+
+  const [foods, setFoods] = useState([]);
+  const [foodRainCount, setFoodRainCount] = useState(0);
+
+  const [isGolden, setIsGolden] = useState(false);
+  const [goldenPowerCount, setGoldenPowerCount] = useState(0);
 
   const handleTouchStart = useCallback((e) => {
     e.preventDefault();
     const touch = e.touches[0];
     setTouchStart({
       x: touch.clientX,
-      y: touch.clientY
+      y: touch.clientY,
     });
   }, []);
 
   // 处理触摸结束
-  const handleTouchEnd = useCallback((e) => {
-    // 阻止默认行为
-    e.preventDefault();
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStart.x;
-    const deltaY = touch.clientY - touchStart.y;
+  const handleTouchEnd = useCallback(
+    (e) => {
+      // 阻止默认行为
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStart.x;
+      const deltaY = touch.clientY - touchStart.y;
 
-    // 确定主要的滑动方向
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      // 水平滑动
-      if (deltaX > 50) {
-        setDirection(prev => prev !== "LEFT" ? "RIGHT" : prev);
-      } else if (deltaX < -50) {
-        setDirection(prev => prev !== "RIGHT" ? "LEFT" : prev);
+      // 确定主要的滑动方向
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // 水平滑动
+        if (deltaX > 50) {
+          setDirection((prev) => (prev !== 'LEFT' ? 'RIGHT' : prev));
+        } else if (deltaX < -50) {
+          setDirection((prev) => (prev !== 'RIGHT' ? 'LEFT' : prev));
+        }
+      } else {
+        // 垂直滑动
+        if (deltaY > 50) {
+          setDirection((prev) => (prev !== 'UP' ? 'DOWN' : prev));
+        } else if (deltaY < -50) {
+          setDirection((prev) => (prev !== 'DOWN' ? 'UP' : prev));
+        }
       }
-    } else {
-      // 垂直滑动
-      if (deltaY > 50) {
-        setDirection(prev => prev !== "UP" ? "DOWN" : prev);
-      } else if (deltaY < -50) {
-        setDirection(prev => prev !== "DOWN" ? "UP" : prev);
-      }
-    }
-  }, [touchStart]);
+    },
+    [touchStart]
+  );
 
   // 添加触摸移动事件处理
   const handleTouchMove = useCallback((e) => {
@@ -132,55 +170,64 @@ const SnakeGame = () => {
     e.preventDefault();
   }, []);
 
-  const generateRandomFood = useCallback((currentSnake, currentObstacles = []) => {
-    let newFood;
-    do {
-      newFood = {
-        x: Math.floor(Math.random() * gridWidth),
-        y: Math.floor(Math.random() * gridHeight),
-        type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)]
-      };
-    } while (
-      currentSnake.some(segment => segment.x === newFood.x && segment.y === newFood.y) ||
-      (Array.isArray(currentObstacles) && currentObstacles.some(obstacle => obstacle.x === newFood.x && obstacle.y === newFood.y))
-    );
-    return newFood;
-  }, [gridWidth, gridHeight]);
+  const generateRandomFood = useCallback(
+    (currentSnake, currentObstacles = []) => {
+      let newFood;
+      do {
+        newFood = {
+          x: Math.floor(Math.random() * gridWidth),
+          y: Math.floor(Math.random() * gridHeight),
+          type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
+        };
+      } while (
+        currentSnake.some((segment) => segment.x === newFood.x && segment.y === newFood.y) ||
+        (Array.isArray(currentObstacles) &&
+          currentObstacles.some((obstacle) => obstacle.x === newFood.x && obstacle.y === newFood.y))
+      );
+      return newFood;
+    },
+    [gridWidth, gridHeight]
+  );
 
-  const generateObstacles = useCallback((currentSnake) => {
-    if (!isReady) return [];
+  const generateObstacles = useCallback(
+    (currentSnake) => {
+      if (!isReady) return [];
 
-    const totalCells = gridWidth * gridHeight;
-    const { min, max } = DIFFICULTY_PERCENTAGES[difficulty];
-    const obstacleCount = Math.floor(totalCells * (min + Math.random() * (max - min)));
+      const totalCells = gridWidth * gridHeight;
+      const { min, max } = DIFFICULTY_PERCENTAGES[difficulty];
+      const obstacleCount = Math.floor(totalCells * (min + Math.random() * (max - min)));
 
-    const obstacles = [];
-    const safeZone = 4; // 蛇周围的安全区域
+      const obstacles = [];
+      const safeZone = 4; // 蛇周围的安全区域
 
-    // 获取蛇头周围的安全区域坐标
-    const snakeHead = currentSnake[0];
-    const safeCoords = new Set();
-    for (let x = -safeZone; x <= safeZone; x++) {
-      for (let y = -safeZone; y <= safeZone; y++) {
-        safeCoords.add(`${snakeHead.x + x},${snakeHead.y + y}`);
+      // 获取蛇头周围的安全区域坐标
+      const snakeHead = currentSnake[0];
+      const safeCoords = new Set();
+      for (let x = -safeZone; x <= safeZone; x++) {
+        for (let y = -safeZone; y <= safeZone; y++) {
+          safeCoords.add(`${snakeHead.x + x},${snakeHead.y + y}`);
+        }
       }
-    }
 
-    while (obstacles.length < obstacleCount) {
-      const x = Math.floor(Math.random() * gridWidth);
-      const y = Math.floor(Math.random() * gridHeight);
-      const coordKey = `${x},${y}`;
+      while (obstacles.length < obstacleCount) {
+        const x = Math.floor(Math.random() * gridWidth);
+        const y = Math.floor(Math.random() * gridHeight);
+        const coordKey = `${x},${y}`;
 
-      // 检查是否在安全区域内或与蛇重叠
-      if (!safeCoords.has(coordKey) &&
-        !currentSnake.some(segment => segment.x === x && segment.y === y) &&
-        !obstacles.some(obs => obs.x === x && obs.y === y)) {
-        obstacles.push({ x, y });
+        // 检查是否在安全区域内或与蛇重叠
+        if (
+          !safeCoords.has(coordKey) &&
+          !currentSnake.some((segment) => segment.x === x && segment.y === y) &&
+          !obstacles.some((obs) => obs.x === x && obs.y === y)
+        ) {
+          obstacles.push({ x, y });
+        }
       }
-    }
 
-    return obstacles;
-  }, [gridWidth, gridHeight, difficulty, isReady]);
+      return obstacles;
+    },
+    [gridWidth, gridHeight, difficulty, isReady]
+  );
 
   const initializeGame = useCallback(() => {
     if (!isReady) return;
@@ -194,15 +241,21 @@ const SnakeGame = () => {
     const newObstacles = generateObstacles(initialSnake);
     setObstacles(newObstacles);
     setSnake(initialSnake);
-    setFood(generateRandomFood(initialSnake, newObstacles));
+    setFoods([generateRandomFood(initialSnake, newObstacles)]);
     setDirection(INITIAL_DIRECTION);
     setGameOver(false);
     setIsPlaying(false);
     setGameStatus(GAME_STATUS.INIT);
     setFoodCounts({
-      '🍎': 0, '🍌': 0, '🥔': 0, '🍇': 0, '🍊': 0
+      '🍎': 0,
+      '🍌': 0,
+      '🥔': 0,
+      '🍇': 0,
+      '🍊': 0,
     });
     setGameTime(0);
+    setGhostPowerCount(0);
+    setPowerUp(null);
   }, [isReady, gridWidth, gridHeight, generateObstacles, generateRandomFood]);
 
   useEffect(() => {
@@ -229,9 +282,81 @@ const SnakeGame = () => {
     startGame();
   }, [initializeGame, startGame]);
 
-  const generateFood = useCallback((currentSnake) => {
-    setFood(generateRandomFood(currentSnake, obstacles));
-  }, [generateRandomFood, obstacles]);
+  const generateFood = useCallback(
+    (currentSnake) => {
+      setFoods([generateRandomFood(currentSnake, obstacles)]);
+    },
+    [generateRandomFood, obstacles]
+  );
+
+  const generatePowerUp = useCallback(() => {
+    if (powerUp || enabledPowerUps.length === 0) return;
+
+    // 收集所有空白格子
+    const emptySpaces = [];
+    for (let x = 0; x < gridWidth; x++) {
+      for (let y = 0; y < gridHeight; y++) {
+        const isOccupied =
+          snake.some((segment) => segment.x === x && segment.y === y) ||
+          foods.some((food) => food.x === x && food.y === y) ||
+          obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y);
+
+        if (!isOccupied) {
+          emptySpaces.push({ x, y });
+        }
+      }
+    }
+
+    if (emptySpaces.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * emptySpaces.length);
+    const position = emptySpaces[randomIndex];
+
+    // 从已启用的道具中随机选择一个
+    const randomPowerUpId = enabledPowerUps[Math.floor(Math.random() * enabledPowerUps.length)];
+    const powerUpType = POWER_UP_TYPES[randomPowerUpId];
+
+    setPowerUp({
+      ...position,
+      type: powerUpType.icon,
+    });
+
+    setTimeout(() => {
+      setPowerUp((prev) => (prev && prev.x === position.x && prev.y === position.y ? null : prev));
+    }, POWER_UP_CONFIG.DISPLAY_DURATION);
+  }, [gridWidth, gridHeight, enabledPowerUps, snake, foods, obstacles]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setPowerUp(null);
+      return;
+    }
+
+    console.log('isPlaying now', isPlaying);
+    generatePowerUp();
+
+    const spawnInterval = setInterval(() => {
+      generatePowerUp();
+    }, POWER_UP_CONFIG.SPAWN_INTERVAL);
+
+    return () => {
+      clearInterval(spawnInterval);
+    };
+  }, [isPlaying, generatePowerUp]);
+
+  const generateFoodRain = useCallback(() => {
+    const newFoods = [];
+    // 生成多个食物
+    for (let i = 0; i < FOOD_RAIN_CONFIG.FOOD_COUNT; i++) {
+      newFoods.push(generateRandomFood(snake, obstacles));
+    }
+    setFoods(newFoods);
+
+    // 5秒后恢复为单个食物
+    setTimeout(() => {
+      setFoods([generateRandomFood(snake, obstacles)]);
+    }, FOOD_RAIN_CONFIG.DURATION);
+  }, [snake, obstacles, generateRandomFood]);
 
   const moveSnake = useCallback(() => {
     if (gameOver) return;
@@ -240,14 +365,23 @@ const SnakeGame = () => {
     const head = { ...newSnake[0] };
 
     switch (direction) {
-      case "UP": head.y -= 1; break;
-      case "DOWN": head.y += 1; break;
-      case "LEFT": head.x -= 1; break;
-      case "RIGHT": head.x += 1; break;
+      case 'UP':
+        head.y -= 1;
+        break;
+      case 'DOWN':
+        head.y += 1;
+        break;
+      case 'LEFT':
+        head.x -= 1;
+        break;
+      case 'RIGHT':
+        head.x += 1;
+        break;
     }
 
     // 检查边界碰撞
     if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
+      console.log('Fail', head.x, head.y, gridWidth, gridHeight);
       setGameOver(true);
       setIsPlaying(false);
       setGameStatus(GAME_STATUS.OVER);
@@ -263,53 +397,94 @@ const SnakeGame = () => {
     }
 
     // 检查障碍物碰撞
-    if (obstacles.some(obstacle => obstacle.x === head.x && obstacle.y === head.y)) {
-      setGameOver(true);
-      setIsPlaying(false);
-      setGameStatus(GAME_STATUS.OVER);
-      return;
+    if (obstacles.some((obstacle) => obstacle.x === head.x && obstacle.y === head.y)) {
+      if (isGolden) {
+        // 金身状态下消除障碍物
+        setObstacles((prev) => prev.filter((obs) => !(obs.x === head.x && obs.y === head.y)));
+      } else if (ghostPowerCount > 0) {
+        setGhostPowerCount((prev) => prev - 1);
+      } else {
+        setGameOver(true);
+        setIsPlaying(false);
+        setGameStatus(GAME_STATUS.OVER);
+        return;
+      }
     }
 
-    newSnake.unshift(head);
+    // 检查是否吃到道具
+    if (powerUp && head.x === powerUp.x && head.y === powerUp.y) {
+      if (powerUp.type === POWER_UP_TYPES.GHOST.icon) {
+        setGhostPowerCount((prev) => prev + 1);
+        setPowerUp(null);
+      } else if (powerUp.type === POWER_UP_TYPES.FOOD_RAIN.icon) {
+        setFoodRainCount((prev) => prev + 1);
+        generateFoodRain();
+        setPowerUp(null);
+      } else if (powerUp.type === POWER_UP_TYPES.GOLDEN.icon) {
+        setGoldenPowerCount((prev) => prev + 1);
+        setIsGolden(true);
+        setPowerUp(null);
+        // 5秒后取消金身状态
+        setTimeout(() => {
+          setIsGolden(false);
+        }, POWER_UP_CONFIG.DISPLAY_DURATION);
+      }
+    }
 
-    if (head.x === food.x && head.y === food.y) {
-      setFoodCounts(prev => ({
+    // 检查是否吃到任何食物
+    const eatenFood = foods.find((f) => f.x === head.x && f.y === head.y);
+    if (eatenFood) {
+      setFoodCounts((prev) => ({
         ...prev,
-        [food.type]: prev[food.type] + 1
+        [eatenFood.type]: prev[eatenFood.type] + 1,
       }));
-      generateFood(newSnake);
+      // 移除被吃掉的食物，并在需要时生成新的食物
+      setFoods((prev) => {
+        const remaining = prev.filter((f) => f !== eatenFood);
+        // 如果是食物雨模式（多个食物），不生成新的食物
+        if (remaining.length > 0) {
+          return remaining;
+        }
+        // 如果是普通模式（单个食物），生成新的食物
+        return [generateRandomFood(newSnake, obstacles)];
+      });
     } else {
       newSnake.pop();
     }
 
+    newSnake.unshift(head);
     setSnake(newSnake);
-  }, [snake, direction, food, gameOver, gridWidth, gridHeight, obstacles, generateFood]);
+  }, [
+    snake,
+    direction,
+    foods,
+    gameOver,
+    gridWidth,
+    gridHeight,
+    obstacles,
+    generateRandomFood,
+    powerUp,
+    ghostPowerCount,
+    generateFoodRain,
+  ]);
 
   const handleKeyPress = useCallback((e) => {
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       e.preventDefault();
     }
 
     switch (e.key) {
-      case "ArrowUp":
-        setDirection((prevDirection) =>
-          prevDirection !== "DOWN" ? "UP" : prevDirection
-        );
+      case 'ArrowUp':
+        setDirection((prevDirection) => (prevDirection !== 'DOWN' ? 'UP' : prevDirection));
         break;
-      case "ArrowDown":
-        setDirection((prevDirection) =>
-          prevDirection !== "UP" ? "DOWN" : prevDirection
-        );
+      case 'ArrowDown':
+        setDirection((prevDirection) => (prevDirection !== 'UP' ? 'DOWN' : prevDirection));
         break;
-      case "ArrowLeft":
-        setDirection((prevDirection) =>
-          prevDirection !== "RIGHT" ? "LEFT" : prevDirection
-        );
+      case 'ArrowLeft':
+        setDirection((prevDirection) => (prevDirection !== 'RIGHT' ? 'LEFT' : prevDirection));
         break;
-      case "ArrowRight":
-        setDirection((prevDirection) =>
-          prevDirection !== "LEFT" ? "RIGHT" : prevDirection
-        );
+      case 'ArrowRight':
+        setDirection((prevDirection) => (prevDirection !== 'LEFT' ? 'RIGHT' : prevDirection));
         break;
     }
   }, []);
@@ -317,18 +492,18 @@ const SnakeGame = () => {
   useEffect(() => {
     if (!isPlaying) return;
     const gameLoop = setInterval(moveSnake, 150);
-    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener('keydown', handleKeyPress);
 
     return () => {
       clearInterval(gameLoop);
-      window.removeEventListener("keydown", handleKeyPress);
+      window.removeEventListener('keydown', handleKeyPress);
     };
   }, [moveSnake, handleKeyPress, isPlaying]);
 
   useEffect(() => {
     if (isPlaying) {
       const interval = setInterval(() => {
-        setGameTime(prev => prev + 1);
+        setGameTime((prev) => prev + 1);
       }, 1000);
       setTimeInterval(interval);
     } else if (timeInterval) {
@@ -346,33 +521,33 @@ const SnakeGame = () => {
     switch (gameStatus) {
       case GAME_STATUS.INIT:
         return {
-          text: t("start_game"),
+          text: t('start_game'),
           action: startGame,
-          className: 'bg-green-500 hover:bg-green-600 text-white'
+          className: 'bg-green-500 hover:bg-green-600 text-white',
         };
       case GAME_STATUS.PLAYING:
         return {
-          text: t("pause_game"),
+          text: t('pause_game'),
           action: pauseGame,
-          className: 'bg-yellow-500 hover:bg-yellow-600 text-white'
+          className: 'bg-yellow-500 hover:bg-yellow-600 text-white',
         };
       case GAME_STATUS.PAUSED:
         return {
-          text: t("resume_game"),
+          text: t('resume_game'),
           action: resumeGame,
-          className: 'bg-blue-500 hover:bg-blue-600 text-white'
+          className: 'bg-blue-500 hover:bg-blue-600 text-white',
         };
       case GAME_STATUS.OVER:
         return {
-          text: t("restart_game"),
+          text: t('restart_game'),
           action: resetGame,
-          className: 'bg-green-500 hover:bg-green-600 text-white'
+          className: 'bg-green-500 hover:bg-green-600 text-white',
         };
       default:
         return {
-          text: t("start_game"),
+          text: t('start_game'),
           action: startGame,
-          className: 'bg-green-500 hover:bg-green-600 text-white'
+          className: 'bg-green-500 hover:bg-green-600 text-white',
         };
     }
   }, [gameStatus, t, startGame, pauseGame, resumeGame, resetGame]);
@@ -382,27 +557,27 @@ const SnakeGame = () => {
     const prevSegment = snake[index - 1] || segment;
 
     let rotation = 0;
-    if (prevSegment.x < segment.x || (isHead && direction === "RIGHT"))
-      rotation = 0;
-    else if (prevSegment.y < segment.y || (isHead && direction === "DOWN"))
-      rotation = 90;
-    else if (prevSegment.x > segment.x || (isHead && direction === "LEFT"))
-      rotation = 180;
-    else if (prevSegment.y > segment.y || (isHead && direction === "UP"))
-      rotation = 270;
+    if (prevSegment.x < segment.x || (isHead && direction === 'RIGHT')) rotation = 0;
+    else if (prevSegment.y < segment.y || (isHead && direction === 'DOWN')) rotation = 90;
+    else if (prevSegment.x > segment.x || (isHead && direction === 'LEFT')) rotation = 180;
+    else if (prevSegment.y > segment.y || (isHead && direction === 'UP')) rotation = 270;
 
     const radius = cellSize / 2;
+    const snakeColor = isGolden ? 'gold' : 'blue'; // 根据金身状态设置颜色
 
     return (
       <g
         key={index}
-        transform={`translate(${segment.x * cellSize}, ${segment.y * cellSize}) rotate(${rotation}, ${cellSize / 2}, ${cellSize / 2})`}
+        transform={`translate(${segment.x * cellSize}, ${segment.y * cellSize}) rotate(${rotation}, ${cellSize / 2}, ${
+          cellSize / 2
+        })`}
       >
         <circle
           cx={cellSize / 2}
           cy={cellSize / 2}
           r={radius}
-          fill="blue"
+          fill={snakeColor}
+          filter={isGolden ? 'url(#golden-glow)' : 'none'} // 添加金色光晕效果
         />
         {isHead && (
           <>
@@ -438,10 +613,11 @@ const SnakeGame = () => {
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-start lg:space-x-8">
-        <div className="lg:w-4/5 flex flex-col items-center"
+        <div
+          className="lg:w-4/5 flex flex-col items-left"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
               e.preventDefault();
             }
           }}
@@ -453,13 +629,14 @@ const SnakeGame = () => {
                 className="game-container relative w-full bg-green-50 rounded-lg shadow-lg overflow-hidden"
                 style={{
                   height: containerHeight,
-                  touchAction: 'none'
+                  width: gridWidth * cellSize,
+                  touchAction: 'none',
                 }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
-                {snake.length > 0 && food && (
+                {snake.length > 0 && foods && (
                   <svg
                     width={gridWidth * cellSize}
                     height={gridHeight * cellSize}
@@ -468,24 +645,36 @@ const SnakeGame = () => {
                     preserveAspectRatio="xMidYMid meet"
                   >
                     {renderObstacles()}
-                    {snake.map((segment, index) =>
-                      renderSnakeSegment(segment, index, snake, direction, cellSize)
+                    {snake.map((segment, index) => renderSnakeSegment(segment, index, snake, direction, cellSize))}
+                    {foods.map((food, index) => (
+                      <text
+                        key={`food-${index}`}
+                        x={food.x * cellSize + cellSize / 2}
+                        y={food.y * cellSize + cellSize / 2}
+                        fontSize={cellSize}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                      >
+                        {food.type}
+                      </text>
+                    ))}
+                    {powerUp && (
+                      <text
+                        x={powerUp.x * cellSize + cellSize / 2}
+                        y={powerUp.y * cellSize + cellSize / 2}
+                        fontSize={cellSize}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                      >
+                        {powerUp.type}
+                      </text>
                     )}
-                    <text
-                      x={food.x * cellSize + cellSize / 2}
-                      y={food.y * cellSize + cellSize / 2}
-                      fontSize={cellSize}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                    >
-                      {food.type}
-                    </text>
                   </svg>
                 )}
                 {gameOver && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="text-white text-center">
-                      <p className="text-3xl font-bold mb-4">{t("game_over")}</p>
+                      <p className="text-3xl font-bold mb-4">{t('game_over')}</p>
                     </div>
                   </div>
                 )}
@@ -496,14 +685,29 @@ const SnakeGame = () => {
                     <span className="text-xl">⏱️</span>
                     <span className="text-xl min-w-[4ch]">{formatTime(gameTime)}</span>
                   </div>
-                  {FOOD_TYPES.map(type => (
+                  {FOOD_TYPES.map((type) => (
                     <div key={type} className="flex items-center space-x-2">
                       <span className="text-xl">{type}</span>
-                      <span className="text-xl min-w-[2ch]">
-                        {foodCounts[type].toString()}
-                      </span>
+                      <span className="text-xl min-w-[2ch]">{foodCounts[type].toString()}</span>
                     </div>
                   ))}
+                  {Object.values(POWER_UP_TYPES).map(
+                    (powerUp) =>
+                      enabledPowerUps.includes(powerUp.id) && (
+                        <div key={powerUp.id} className="flex items-center space-x-2">
+                          <span className="text-xl">{powerUp.icon}</span>
+                          <span className="text-xl min-w-[2ch]">
+                            {powerUp.id === 'GHOST'
+                              ? ghostPowerCount
+                              : powerUp.id === 'FOOD_RAIN'
+                              ? foodRainCount
+                              : powerUp.id === 'GOLDEN'
+                              ? goldenPowerCount
+                              : 0}
+                          </span>
+                        </div>
+                      )
+                  )}
                 </div>
               </div>
             </>
@@ -514,22 +718,44 @@ const SnakeGame = () => {
           <h2 className="text-xl font-bold mb-4">{t('game_settings')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('obstacles_difficulty')}
-              </label>
+              <label className="block font-medium text-gray-700 mb-2">{t('obstacles_difficulty')}</label>
               <CustomListbox
                 value={t(difficulty)}
                 onChange={(value) => {
                   const newDifficulty = Object.keys(DIFFICULTY_LEVELS).find(
-                    key => t(DIFFICULTY_LEVELS[key]) === value
+                    (key) => t(DIFFICULTY_LEVELS[key]) === value
                   );
                   setDifficulty(DIFFICULTY_LEVELS[newDifficulty]);
                   if (gameStatus !== GAME_STATUS.PLAYING) {
                     initializeGame();
                   }
                 }}
-                options={Object.values(DIFFICULTY_LEVELS).map(level => t(level))}
+                options={Object.values(DIFFICULTY_LEVELS).map((level) => t(level))}
               />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-2">{t('power_ups')}</label>
+              <div className="space-y-2">
+                {Object.values(POWER_UP_TYPES).map((powerUp) => (
+                  <label key={powerUp.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={enabledPowerUps.includes(powerUp.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEnabledPowerUps((prev) => [...prev, powerUp.id]);
+                        } else {
+                          setEnabledPowerUps((prev) => prev.filter((id) => id !== powerUp.id));
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span>
+                      {powerUp.icon} {t(powerUp.name)}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
             <button
               className={`w-full px-4 py-2 rounded transition ${getButtonConfig().className}`}
