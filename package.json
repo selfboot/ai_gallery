@@ -67,7 +67,8 @@
     "tailwindcss": "^3.4.6"
   },
   "prettier": {
-    "singleQuote": true,
+    "singleQuote": false,
+    "quoteProps": "preserve",
     "printWidth": 120
   }
 }
