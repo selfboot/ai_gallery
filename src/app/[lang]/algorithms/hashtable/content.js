@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { useI18n } from "@/app/i18n/client";
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { useI18n } from '@/app/i18n/client';
 
 // MurmurHash3 implementation
 function murmurhash3_32_gc(key, seed = 0) {
@@ -23,16 +23,13 @@ function murmurhash3_32_gc(key, seed = 0) {
       ((key.charCodeAt(++i) & 0xff) << 24);
     ++i;
 
-    k1 =
-      ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
+    k1 = ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
     k1 = (k1 << 15) | (k1 >>> 17);
-    k1 =
-      ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
+    k1 = ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
 
     h1 ^= k1;
     h1 = (h1 << 13) | (h1 >>> 19);
-    h1b =
-      ((h1 & 0xffff) * 5 + ((((h1 >>> 16) * 5) & 0xffff) << 16)) & 0xffffffff;
+    h1b = ((h1 & 0xffff) * 5 + ((((h1 >>> 16) * 5) & 0xffff) << 16)) & 0xffffffff;
     h1 = (h1b & 0xffff) + 0x6b64 + ((((h1b >>> 16) + 0xe654) & 0xffff) << 16);
   }
 
@@ -45,27 +42,17 @@ function murmurhash3_32_gc(key, seed = 0) {
       k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
     case 1:
       k1 ^= key.charCodeAt(i) & 0xff;
-      k1 =
-        ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) &
-        0xffffffff;
+      k1 = ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
       k1 = (k1 << 15) | (k1 >>> 17);
-      k1 =
-        ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) &
-        0xffffffff;
+      k1 = ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
       h1 ^= k1;
   }
 
   h1 ^= key.length;
   h1 ^= h1 >>> 16;
-  h1 =
-    ((h1 & 0xffff) * 0x85ebca6b +
-      ((((h1 >>> 16) * 0x85ebca6b) & 0xffff) << 16)) &
-    0xffffffff;
+  h1 = ((h1 & 0xffff) * 0x85ebca6b + ((((h1 >>> 16) * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff;
   h1 ^= h1 >>> 13;
-  h1 =
-    ((h1 & 0xffff) * 0xc2b2ae35 +
-      ((((h1 >>> 16) * 0xc2b2ae35) & 0xffff) << 16)) &
-    0xffffffff;
+  h1 = ((h1 & 0xffff) * 0xc2b2ae35 + ((((h1 >>> 16) * 0xc2b2ae35) & 0xffff) << 16)) & 0xffffffff;
   h1 ^= h1 >>> 16;
 
   return h1 >>> 0;
@@ -89,9 +76,9 @@ function djb2Hash(key) {
   return Math.abs(hash);
 }
 
-const DEFAULT_BUCKET_SIZE = 500;
-const DEFAULT_HASH_FUNCTION = "murmur3";
-const DEFAULT_ADD_MODE = "random";
+const DEFAULT_HASH_FUNCTION = 'murmur3';
+const DEFAULT_ADD_MODE = 'random';
+const DEFAULT_CELL_SIZE = 50;
 
 const HASH_FUNCTIONS = {
   murmur3: murmurhash3_32_gc,
@@ -99,30 +86,27 @@ const HASH_FUNCTIONS = {
   djb2: djb2Hash,
 };
 
+const MAX_BUCKET_SIZE = 1000;
+
 const HashTable = () => {
-  const [bucketSize, setBucketSize] = useState(DEFAULT_BUCKET_SIZE);
-  const [table, setTable] = useState(() =>
-    Array(bucketSize)
-      .fill()
-      .map(() => [])
-  );
-  const [key, setKey] = useState("");
-  const [value, setValue] = useState("");
-  const [searchKey, setSearchKey] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
+  const [bucketSize, setBucketSize] = useState(0);
+  const [table, setTable] = useState([]);
+  const [key, setKey] = useState('');
+  const [value, setValue] = useState('');
+  const [searchKey, setSearchKey] = useState('');
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
   const [itemCount, setItemCount] = useState(0);
   const [searchSteps, setSearchSteps] = useState(null);
-  const [cellSize, setCellSize] = useState(40);
+  const [cellSize, setCellSize] = useState(DEFAULT_CELL_SIZE);
   const gridRef = useRef(null);
   const [highlightedBucket, setHighlightedBucket] = useState(null);
-  const [selectedHashFunction, setSelectedHashFunction] = useState(
-    DEFAULT_HASH_FUNCTION
-  );
+  const [selectedHashFunction, setSelectedHashFunction] = useState(DEFAULT_HASH_FUNCTION);
   const [addMode, setAddMode] = useState(DEFAULT_ADD_MODE); // "random" or "sequential"
-  const [deleteKey, setDeleteKey] = useState("");
+  const [deleteKey, setDeleteKey] = useState('');
   const { t } = useI18n();
-  const isValidInsert = key.trim() !== "" && value.trim() !== "";
+  const isValidInsert = key.trim() !== '' && value.trim() !== '';
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const hash = useCallback(
     (key) => {
@@ -132,32 +116,29 @@ const HashTable = () => {
   );
 
   const resetHashTable = useCallback(() => {
-    setBucketSize(DEFAULT_BUCKET_SIZE);
     setTable(
-      Array(DEFAULT_BUCKET_SIZE)
+      Array(bucketSize)
         .fill()
         .map(() => [])
     );
-    setKey("");
-    setValue("");
-    setSearchKey("");
-    setMessage("");
-    setMessageType("");
+    setKey('');
+    setValue('');
+    setSearchKey('');
+    setMessage('');
+    setMessageType('');
     setItemCount(0);
     setSearchSteps(null);
     setHighlightedBucket(null);
     setSelectedHashFunction(DEFAULT_HASH_FUNCTION);
     setAddMode(DEFAULT_ADD_MODE);
-  }, []);
+  }, [bucketSize]);
 
   const insert = useCallback(
     (key, value) => {
       const index = hash(key);
       setTable((prevTable) => {
         const newTable = [...prevTable];
-        const existingItemIndex = newTable[index].findIndex(
-          (item) => item.key === key
-        );
+        const existingItemIndex = newTable[index].findIndex((item) => item.key === key);
 
         if (existingItemIndex !== -1) {
           newTable[index][existingItemIndex] = { key, value };
@@ -200,9 +181,7 @@ const HashTable = () => {
     setSearchSteps(null);
     setTable((prevTable) => {
       const newTable = [...prevTable];
-      const bucketIndex = newTable[index].findIndex(
-        (item) => item.key === deleteKey
-      );
+      const bucketIndex = newTable[index].findIndex((item) => item.key === deleteKey);
       if (bucketIndex !== -1) {
         newTable[index].splice(bucketIndex, 1);
         setItemCount((prev) => prev - 1);
@@ -212,24 +191,15 @@ const HashTable = () => {
     });
 
     if (deleted) {
-      setMessage(t("deletedKey", { key: deleteKey }));
-      setMessageType("success");
+      setMessage(t('deletedKey', { key: deleteKey }));
+      setMessageType('success');
     } else {
-      setMessage(t("keyNotFoundForDelete", { key: deleteKey }));
-      setMessageType("error");
+      setMessage(t('keyNotFoundForDelete', { key: deleteKey }));
+      setMessageType('error');
     }
     setHighlightedBucket(index);
-    setDeleteKey("");
-  }, [
-    deleteKey,
-    hash,
-    setTable,
-    setItemCount,
-    setMessage,
-    setMessageType,
-    setHighlightedBucket,
-    t
-  ]);
+    setDeleteKey('');
+  }, [deleteKey, hash, setTable, setItemCount, setMessage, setMessageType, setHighlightedBucket, t]);
 
   const generateRandomData = useCallback(
     (count) => {
@@ -237,9 +207,9 @@ const HashTable = () => {
 
       for (let i = 0; i < count; i++) {
         let key;
-        if (addMode === "random") {
+        if (addMode === 'random') {
           do {
-            key = Math.random().toString(36).substr(2, 8);
+            key = Math.random().toString(36).slice(2, 8);
           } while (keys.has(key));
         } else {
           key = `key${itemCount + i}`;
@@ -255,16 +225,17 @@ const HashTable = () => {
 
   const changeBucketSize = useCallback(
     (newSize) => {
-      setBucketSize(newSize);
-      const newTable = Array(newSize)
+      const validSize = Math.min(Math.max(1, newSize), MAX_BUCKET_SIZE);
+
+      setBucketSize(validSize);
+      const newTable = Array(validSize)
         .fill()
         .map(() => []);
 
       // Rehash all existing items
       table.forEach((bucket) => {
         bucket.forEach((item) => {
-          const newIndex =
-            HASH_FUNCTIONS[selectedHashFunction](item.key) % newSize;
+          const newIndex = HASH_FUNCTIONS[selectedHashFunction](item.key) % validSize;
           newTable[newIndex].push(item);
         });
       });
@@ -284,8 +255,7 @@ const HashTable = () => {
       // Rehash all existing items
       table.forEach((bucket) => {
         bucket.forEach((item) => {
-          const newIndex =
-            HASH_FUNCTIONS[newHashFunction](item.key) % bucketSize;
+          const newIndex = HASH_FUNCTIONS[newHashFunction](item.key) % bucketSize;
           newTable[newIndex].push(item);
         });
       });
@@ -296,47 +266,63 @@ const HashTable = () => {
   );
 
   useEffect(() => {
+    if (!isInitialized && gridRef.current) {
+      const GRID_GAP = 4;
+      const CELL_WITH_GAP = DEFAULT_CELL_SIZE + GRID_GAP;
+
+      const containerWidth = gridRef.current.offsetWidth;
+      const availableHeight = Math.max(window.innerHeight * 0.6, 200);
+
+      const cellsPerRow = Math.floor(containerWidth / (CELL_WITH_GAP + GRID_GAP));
+      const numberOfRows = Math.floor(availableHeight / (CELL_WITH_GAP + GRID_GAP));
+
+      const newBucketSize = cellsPerRow * numberOfRows;
+      setBucketSize(newBucketSize);
+      setTable(
+        Array(newBucketSize)
+          .fill()
+          .map(() => [])
+      );
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
+
+  useEffect(() => {
     const updateCellSize = () => {
       if (gridRef.current) {
         const gridWidth = gridRef.current.offsetWidth;
-        const maxCells = Math.floor(gridWidth / 40);
+        const maxCells = Math.floor(gridWidth / DEFAULT_CELL_SIZE);
         const newCellSize = Math.floor(gridWidth / maxCells);
         setCellSize(newCellSize);
       }
     };
 
     updateCellSize();
-    window.addEventListener("resize", updateCellSize);
-    return () => window.removeEventListener("resize", updateCellSize);
+    window.addEventListener('resize', updateCellSize);
+    return () => window.removeEventListener('resize', updateCellSize);
   }, []);
 
   useEffect(() => {
     if (highlightedBucket !== null) {
       const element = document.getElementById(`bucket-${highlightedBucket}`);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }, [highlightedBucket]);
 
   const getBucketColor = (itemCount) => {
-    if (itemCount === 0) return "bg-gray-100";
-    if (itemCount < 5) return "bg-green-100";
-    if (itemCount < 10) return "bg-green-200";
-    if (itemCount < 15) return "bg-green-300";
-    if (itemCount < 20) return "bg-green-400";
-    if (itemCount < 25) return "bg-green-500";
-    if (itemCount < 30) return "bg-green-600";
-    return "bg-green-800";
+    if (itemCount === 0) return 'bg-gray-100';
+    if (itemCount < 5) return 'bg-green-100';
+    if (itemCount < 10) return 'bg-green-200';
+    if (itemCount < 15) return 'bg-green-300';
+    if (itemCount < 20) return 'bg-green-400';
+    if (itemCount < 25) return 'bg-green-500';
+    if (itemCount < 30) return 'bg-green-600';
+    return 'bg-green-800';
   };
 
-  const BucketDialog = ({
-    bucket,
-    index,
-    cellSize,
-    highlightedBucket,
-    getBucketColor,
-  }) => {
+  const BucketDialog = ({ bucket, index, cellSize, highlightedBucket, getBucketColor }) => {
     return (
       <Popover className="relative" id={`bucket-${index}`}>
         {({ open }) => (
@@ -345,19 +331,16 @@ const HashTable = () => {
               className={`w-full h-full cursor-pointer p-1 text-xs ${getBucketColor(
                 bucket.length
               )} hover:bg-blue-500 hover:text-white transition-colors duration-200 flex items-center justify-center ${
-                highlightedBucket === index ? "ring-2 ring-red-500" : ""
+                highlightedBucket === index ? 'ring-2 ring-red-500' : ''
               } border border-gray-300`}
               style={{ width: cellSize, height: cellSize }}
             >
               {index}
             </PopoverButton>
 
-            <PopoverPanel
-              className="absolute z-10 w-64 bg-white shadow-lg rounded-lg p-4"
-              anchor="bottom"
-            >
+            <PopoverPanel className="absolute z-10 w-64 bg-white shadow-lg rounded-lg p-4" anchor="bottom">
               <h3 className="text-lg font-semibold mb-2">
-                {t("bucket")} {index} ({bucket.length} {t("items")})
+                {t('bucket')} {index} ({bucket.length} {t('key')})
               </h3>
               <div className="max-h-60 overflow-auto">
                 {bucket.map((item, i) => (
@@ -380,16 +363,13 @@ const HashTable = () => {
         <div className="w-full lg:w-4/5 order-2 lg:order-1 lg:pr-10">
           <div>
             <p className="mb-2">
-              {t("totalItems")}: {itemCount}, {t("loadFactor")}:{" "}
-              {(itemCount / bucketSize).toFixed(2)}
+              {t('totalItems')}: {itemCount}, {t('loadFactor')}: {(itemCount / bucketSize).toFixed(2)}
             </p>
 
             {message && (
               <div
                 className={`p-2 mt-4 mb-4 rounded ${
-                  messageType === "success"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
+                  messageType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}
               >
                 {message}
@@ -397,19 +377,22 @@ const HashTable = () => {
             )}
             {searchSteps && (
               <div className="mt-4 mb-4 p-2 bg-blue-100 text-blue-800 rounded">
-                {t("searchCompleted", { steps: searchSteps.steps })}
+                {t('searchCompleted', { steps: searchSteps.steps })}
                 {searchSteps.found
-                  ? t("keyFoundInBucket", { index: searchSteps.index })
-                  : t("keyNotFound", { index: searchSteps.index })}
+                  ? t('keyFoundInBucket', { index: searchSteps.index })
+                  : t('keyNotFound', { index: searchSteps.index })}
               </div>
             )}
 
             <div
               ref={gridRef}
-              className="grid gap-1 overflow-auto"
+              className="grid gap-1"
               style={{
                 gridTemplateColumns: `repeat(auto-fill, minmax(${cellSize}px, 1fr))`,
                 gridAutoRows: `${cellSize}px`,
+                width: '100%',
+                height: '100%',
+                minHeight: '200px',
               }}
             >
               {table.map((bucket, index) => (
@@ -428,46 +411,43 @@ const HashTable = () => {
 
         {/* 控制面板 (大屏幕右侧，小屏幕上方) */}
         <div className="w-full lg:w-1/5 mb-4 mr-4 lg:mb-0 order-1 lg:order-2">
-          <h2 className="text-xl font-bold mb-4 mt-4">
-            {t("hashTableVisualization")}
-          </h2>
+          <h2 className="text-xl font-bold mb-4 mt-4">{t('hashTableVisualization')}</h2>
           <div className="space-y-4">
             <div className="flex items-center">
-              <label className="w-1/3 font-medium">{t("bucketSize")}:</label>
+              <label className="w-1/3 font-medium">{t('bucketSize')}:</label>
               <input
                 type="number"
                 value={bucketSize}
-                onChange={(e) =>
-                  changeBucketSize(Math.min(parseInt(e.target.value), 1000))
-                }
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value)) {
+                    changeBucketSize(value);
+                  }
+                }}
                 className="w-2/3 p-2 border rounded"
-                min={1}
-                max={1000}
+                min="1"
+                max={MAX_BUCKET_SIZE}
               />
             </div>
 
             <div className="flex items-center">
-              <label className="w-1/3 font-medium">{t("hashFunction")}:</label>
+              <label className="w-1/3 font-medium">{t('hashFunction')}:</label>
               <select
                 value={selectedHashFunction}
                 onChange={(e) => changeHashFunction(e.target.value)}
                 className="w-2/3 p-2 border rounded"
               >
                 <option value="murmur3">MurmurHash3</option>
-                <option value="simple">{t("simpleHash")}</option>
+                <option value="simple">{t('simpleHash')}</option>
                 <option value="djb2">DJB2 Hash</option>
               </select>
             </div>
 
             <div className="flex items-center">
-              <label className="w-1/3 font-medium">{t("addMode")}:</label>
-              <select
-                value={addMode}
-                onChange={(e) => setAddMode(e.target.value)}
-                className="w-2/3 p-2 border rounded"
-              >
-                <option value="random">{t("random")}</option>
-                <option value="sequential">{t("sequential")}</option>
+              <label className="w-1/3 font-medium">{t('addMode')}:</label>
+              <select value={addMode} onChange={(e) => setAddMode(e.target.value)} className="w-2/3 p-2 border rounded">
+                <option value="random">{t('random')}</option>
+                <option value="sequential">{t('sequential')}</option>
               </select>
             </div>
 
@@ -478,7 +458,7 @@ const HashTable = () => {
                   onClick={() => generateRandomData(count)}
                   className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 "
                 >
-                  {t("add")} {count}
+                  {t('add')} {count}
                 </button>
               ))}
             </div>
@@ -488,25 +468,21 @@ const HashTable = () => {
                 onClick={() => {
                   const { value, index } = search(searchKey);
                   setMessage(
-                    value !== null
-                      ? t("found", { key: searchKey, value })
-                      : t("notFound", { key: searchKey })
+                    value !== null ? t('found', { key: searchKey, value }) : t('notFound', { key: searchKey })
                   );
-                  setMessageType(value !== null ? "success" : "error");
+                  setMessageType(value !== null ? 'success' : 'error');
                   setHighlightedBucket(index);
                 }}
                 className={`w-1/3 px-4 py-2 text-white rounded ${
-                  searchKey.trim() !== ""
-                    ? "bg-green-500 hover:bg-green-600"
-                    : "bg-gray-400 cursor-not-allowed"
+                  searchKey.trim() !== '' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'
                 }`}
-                disabled={searchKey.trim() === ""}
+                disabled={searchKey.trim() === ''}
               >
-                {t("search")}
+                {t('search')}
               </button>
               <input
                 type="text"
-                placeholder={t("enterKeyToSearch")}
+                placeholder={t('enterKeyToSearch')}
                 value={searchKey}
                 onChange={(e) => setSearchKey(e.target.value)}
                 className="w-2/3 p-2 border rounded"
@@ -517,17 +493,15 @@ const HashTable = () => {
               <button
                 onClick={deleteItem}
                 className={`w-1/3 px-4 py-2 text-white rounded ${
-                  deleteKey.trim() !== ""
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-gray-400 cursor-not-allowed"
+                  deleteKey.trim() !== '' ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-400 cursor-not-allowed'
                 }`}
-                disabled={deleteKey.trim() === ""}
+                disabled={deleteKey.trim() === ''}
               >
-                {t("delete")}
+                {t('delete')}
               </button>
               <input
                 type="text"
-                placeholder={t("enterKeyToDelete")}
+                placeholder={t('enterKeyToDelete')}
                 value={deleteKey}
                 onChange={(e) => setDeleteKey(e.target.value)}
                 className="w-2/3 p-2 border rounded"
@@ -538,31 +512,29 @@ const HashTable = () => {
               <button
                 onClick={() => {
                   const index = insert(key, value);
-                  setMessage(t("inserted", { key, value, index }));
-                  setMessageType("success");
+                  setMessage(t('inserted', { key, value, index }));
+                  setMessageType('success');
                   setHighlightedBucket(index);
-                  setKey("");
-                  setValue("");
+                  setKey('');
+                  setValue('');
                 }}
                 className={`w-1/5 py-2 text-white rounded whitespace-nowrap flex-shrink-0 ${
-                  isValidInsert
-                    ? "bg-blue-500 hover:bg-blue-600"
-                    : "bg-gray-400 cursor-not-allowed"
+                  isValidInsert ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'
                 }`}
                 disabled={!isValidInsert}
               >
-                {t("insert")}
+                {t('insert')}
               </button>
               <input
                 type="text"
-                placeholder={t("key")}
+                placeholder={t('key')}
                 value={key}
                 onChange={(e) => setKey(e.target.value)}
                 className="w-2/5 p-2 border rounded min-w-0"
               />
               <input
                 type="text"
-                placeholder={t("value")}
+                placeholder={t('value')}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 className="w-2/5 p-2 border rounded min-w-0"
@@ -572,7 +544,7 @@ const HashTable = () => {
               onClick={resetHashTable}
               className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             >
-              {t("reset")}
+              {t('reset')}
             </button>
           </div>
         </div>

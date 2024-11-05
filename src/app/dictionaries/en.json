@@ -505,9 +505,9 @@
       "keywords": "linked list visualization, linked list operations, linked list animation"
     },
     "hashtable": {
-      "title": "Hashtable Visualization",
-      "description": "Explore our interactive hashtable visualization tool. Learn how hashtable works, visualize hashtable operations, and understand the concept of hashtable in a fun way.",
-      "keywords": "hash table visualization, hash table operations, hashtable data structure, visualize hashtable operations, hashtable insert, hashtable search, hashtable delete, real-time hashtable visualization, hashtable tutorial, learn hashtable, data structure visualization"
+      "title": "Visual Demonstration of Hash Table Operations",
+      "description": "Hash tables are used to efficiently store key-value pairs. This page uses a grid layout to simulate the internal structure of a hash table, visually demonstrating the basic operations of a hash table, including insertion, deletion, and search. It supports selecting different hash functions and setting the size of the hash table, helping to understand the working principle of hash tables.",
+      "keywords": "Hash table visualization, hash table operations, hash table data structure, visualizing hash table operations作"
     },
     "astar": {
       "title": "Astar Visualization",
