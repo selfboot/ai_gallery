@@ -16,7 +16,6 @@ class Trie {
     this.root = new TrieNode();
   }
 
-  // 添加新的同步插入方法
   insertSync(word) {
     let node = this.root;
     for (let char of word) {
@@ -62,11 +61,7 @@ class Trie {
       node.highlighted = true;
       await onHighlight();
 
-      const shouldDeleteChild = await deleteHelper(
-        node.children[char],
-        word,
-        index + 1
-      );
+      const shouldDeleteChild = await deleteHelper(node.children[char], word, index + 1);
 
       if (shouldDeleteChild) {
         delete node.children[char];
@@ -189,7 +184,13 @@ const TrieVisualization = () => {
   const handleDelete = useCallback(async () => {
     if (word && !isAnimating) {
       setIsAnimating(true);
-      await trie.delete(word, onHighlight); // 这里传递 onHighlight
+      const exists = await trie.search(word, onHighlight);
+      if (!exists) {
+        setSearchResult(false);
+        setIsAnimating(false);
+        return;
+      }
+      await trie.delete(word, onHighlight);
       updateWords(trie);
       setSearchResult(null);
       setWord("");
@@ -200,7 +201,7 @@ const TrieVisualization = () => {
   const handleSearch = useCallback(async () => {
     if (word && !isAnimating) {
       setIsAnimating(true);
-      const result = await trie.search(word, onHighlight); // 这里传递 onHighlight
+      const result = await trie.search(word, onHighlight);
       setSearchResult(result);
       setIsAnimating(false);
     }
@@ -211,11 +212,10 @@ const TrieVisualization = () => {
       const newTrie = new Trie();
       const selectedWords = [];
       while (selectedWords.length < 10) {
-        const randomWord =
-          randomWords[Math.floor(Math.random() * randomWords.length)];
+        const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
         if (!selectedWords.includes(randomWord)) {
           selectedWords.push(randomWord);
-          newTrie.insertSync(randomWord); // 使用同步插入方法
+          newTrie.insertSync(randomWord);
         }
       }
       setTrie(newTrie);
@@ -241,7 +241,7 @@ const TrieVisualization = () => {
       width: Math.max(totalWidth, HORIZONTAL_SPACING),
       height: maxHeight + VERTICAL_SPACING,
     };
-  }, []);  // 空依赖数组，因为函数不依赖于任何外部变量
+  }, []);
 
   const renderNode = (node, x, y, char = "") => {
     const children = Object.values(node.children);
@@ -254,25 +254,11 @@ const TrieVisualization = () => {
     // Render current node
     elements.push(
       <g key={`node-${x}-${y}`}>
-        <circle
-          cx={x}
-          cy={y}
-          r={NODE_RADIUS}
-          fill={node.highlighted ? "red" : "white"}
-          stroke="black"
-        />
-        <text
-          x={x}
-          y={y}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize="14"
-        >
+        <circle cx={x} cy={y} r={NODE_RADIUS} fill={node.highlighted ? "red" : "white"} stroke="black" />
+        <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize="14">
           {char}
         </text>
-        {node.isEndOfWord && (
-          <circle cx={x} cy={y + NODE_RADIUS + 5} r="3" fill="black" />
-        )}
+        {node.isEndOfWord && <circle cx={x} cy={y + NODE_RADIUS + 5} r="3" fill="black" />}
       </g>
     );
 
@@ -312,91 +298,81 @@ const TrieVisualization = () => {
     }
   }, [trie, calculateTreeDimensions]);
   return (
-    <div className="pt-4 max-w-full mx-auto">
-      <div className="flex mb-4 space-x-2">
-        <input
-          type="text"
-          value={word}
-          onChange={(e) => setWord(e.target.value.toLowerCase())}
-          className="border p-2 rounded"
-          placeholder={t("enter_word")}
-          disabled={isAnimating}
-        />
-        <button
-          onClick={handleInsert}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
-          disabled={isAnimating}
-        >
-          {t("insert")}
-        </button>
-        <button
-          onClick={handleDelete}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
-          disabled={isAnimating}
-        >
-          {t("delete")}
-        </button>
-        <button
-          onClick={handleSearch}
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 disabled:opacity-50"
-          disabled={isAnimating}
-        >
-          {t("search")}
-        </button>
-        <button
-          onClick={handleRandomInitialize}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-          disabled={isAnimating}
-        >
-          {t("random_initialize")}
-        </button>
-      </div>
-      {searchResult !== null && (
-        <div
-          className={`mb-4 p-2 rounded ${
-            searchResult ? "bg-green-100" : "bg-red-100"
-          }`}
-        >
-          {searchResult
-            ? t("find_word_in_trie", { word: word })
-            : t("no_word_in_trie", { word: word })}
-        </div>
-      )}
-      <div className="flex flex-row">
-        <div className="flex-grow pr-4" style={{ flex: "8" }}>
-          <div className="border p-4 rounded overflow-auto">
-            <svg
-              ref={svgRef}
-              width={dimensions.width}
-              height={dimensions.height}
-            >
-              <g transform={`translate(${dimensions.width / 2}, 40)`}>
-                {renderNode(trie.root, 0, 0, "Root")}
-              </g>
+    <div className="container mx-auto pt-4">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="lg:w-4/5 order-last lg:order-first bg-white rounded-lg shadow">
+          <div className="border rounded-lg overflow-auto">
+            <svg ref={svgRef} width={dimensions.width} height={dimensions.height} className="w-full">
+              <g transform={`translate(${dimensions.width / 2}, 40)`}>{renderNode(trie.root, 0, 0, "Root")}</g>
             </svg>
           </div>
         </div>
-        <div className="pl-4" style={{ flex: "2" }}>
-          <div className="border rounded overflow-auto max-h-[600px]">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 bg-gray-100 sticky top-0">
-                    {t("words_in_trie")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {words.map((word, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-gray-50" : ""}
-                  >
-                    <td className="px-4 py-2">{word}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+        <div className="lg:w-1/5 order-first lg:order-last">
+          <div className="flex flex-col gap-4">
+            <input
+              type="text"
+              value={word}
+              onChange={(e) => {
+                setWord(e.target.value.toLowerCase());
+                setSearchResult(null);
+              }}
+              className="w-full border p-2 rounded"
+              placeholder={t("enter_word")}
+              disabled={isAnimating}
+            />
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleInsert}
+                className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+                disabled={isAnimating}
+              >
+                {t("insert")}
+              </button>
+              <button
+                onClick={handleDelete}
+                className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+                disabled={isAnimating}
+              >
+                {t("delete")}
+              </button>
+              <button
+                onClick={handleSearch}
+                className="w-full bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 disabled:opacity-50"
+                disabled={isAnimating}
+              >
+                {t("search")}
+              </button>
+              <button
+                onClick={handleRandomInitialize}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                disabled={isAnimating}
+              >
+                {t("random_initialize")}
+              </button>
+            </div>
+
+            {searchResult !== null && (
+              <div className={`p-2 rounded ${searchResult ? "bg-green-100" : "bg-red-100"}`}>
+                {searchResult ? t("find_word_in_trie", { word: word }) : t("no_word_in_trie", { word: word })}
+              </div>
+            )}
+
+            {words.length > 0 && (
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-gray-100 px-4 py-2 font-semibold border-b">{t("words_in_trie")}</div>
+                <div className="max-h-[300px] overflow-auto">
+                  <div className="flex flex-col">
+                    {words.map((word, index) => (
+                      <div key={index} className="px-3 py-2 hover:bg-gray-100 border-b last:border-b-0">
+                        {word}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
