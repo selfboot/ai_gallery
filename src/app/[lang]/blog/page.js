@@ -3,6 +3,20 @@ import path from "path";
 import matter from "gray-matter";
 import { BlogIndex } from "@/app/components/BlogIndex";
 import { getDictionary } from '@/app/dictionaries';
+import { PageMeta } from "@/app/components/Meta";
+
+export async function generateMetadata({ params: { lang } }) {
+  const dict = await getDictionary(lang);
+
+  return PageMeta({
+    title: dict.seo.blog.title,
+    description: dict.seo.blog.description,
+    keywords: dict.seo.blog.keywords,
+    canonicalUrl: `https://gallery.selfboot.cn/${lang}/blog`,
+    publishedDate: "2024-08-01T00:00:00.000Z",
+    updatedDate: "2024-11-05T10:00:00.000Z",
+  });
+}
 
 async function getPostMetadata(lang) {
   const postsDirectory = path.join(process.cwd(), "src", "posts");
@@ -28,25 +42,6 @@ async function getPostMetadata(lang) {
   );
 
   return postsMetadata.filter(Boolean).sort((a, b) => new Date(b.date) - new Date(a.date));
-}
-
-export async function generateMetadata({ params: { lang } }) {
-  const dict = await getDictionary(lang);
-
-  return {
-    title: dict.seo.blog.title,
-    description: dict.seo.blog.description,
-    keywords: dict.seo.blog.keywords,
-    canonical: `https://gallery.selfboot.cn/${lang}/blog`,
-    openGraph: {
-      title: dict.seo.blog.title,
-      description: dict.seo.blog.description,
-      url: `https://gallery.selfboot.cn/${lang}/blog`,
-      type: 'website',
-      publishedTime: '2024-08-01T00:00:00.000Z',
-      modifiedTime: '2024-11-03T00:00:00.000Z',
-    }
-  };
 }
 
 export default async function BlogIndexPage({ params: { lang } }) {
