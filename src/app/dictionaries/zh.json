@@ -280,7 +280,7 @@
   "cannotRemoveLastNode": "无法移除最后一个剩余的节点。",
   "nodeRemoved": "已移除 {{nodeName}}。{{migratedCount}} 个键已迁移。",
 
-  "bloomfilter_title": "布隆过滤器",
+  "bloomfilter_title": "布隆过滤器原理与可视化",
   "bloomfilter_description": "布隆过滤器是一种空间高效的数据结构，用于快速检查一个元素是否在集合中。本页面可视化展示布隆过滤器的基本操作，包括插入、搜索等。",
   "predictedKeyCount": "预测key的个数 (n)",
   "hashFunctionCount": "哈希函数个数 (k)",
