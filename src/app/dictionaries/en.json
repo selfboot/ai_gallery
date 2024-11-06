@@ -298,8 +298,8 @@
   "numberOfBuckets": "Number of Buckets",
   "add10Keys": "Add 10 Keys",
 
-  "hanoitower_title": "Hanoi Tower",
-  "hanoitower_description": "Experience the classic Tower of Hanoi puzzle in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle.",
+  "hanoitower_title": "Play Tower of Hanoi Game Online",
+  "hanoitower_description": "Experience the classic Tower of Hanoi game in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle.",
   "numberOfDisks": "Number of Disks",
   "speed": "Speed (ms)",
   "mode": "Mode",
