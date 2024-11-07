@@ -275,12 +275,11 @@
   "cannotRemoveLastNode": "Cannot remove the last remaining node.",
   "nodeRemoved": "Removed {{nodeName}}. {{migratedCount}} keys migrated.",
 
-  "bloomfilter_title": "Bloom Filter",
+  "bloomfilter_title": "Bloom Filter Principle and Visualization",
   "bloomfilter_description": "Bloom filter is a space-efficient probabilistic data structure that is used to test whether an element is a member of a set. This page allows you to visualize the process of adding keys to the bloom filter and checking for key existence.",
   "predictedKeyCount": "Predicted key count (n)",
   "hashFunctionCount": "Number of hash functions (k)",
   "enterKey": "Enter key",
-  "check": "Check",
   "add10RandomKeys": "Add 10 random keys",
   "add100RandomKeys": "Add 100 random keys",
   "bitArraySize": "Bit array size (m): {{m}}",
@@ -631,8 +630,8 @@
     },
     "bloomfilter": {
       "title": "Bloom Filter Visualization",
-      "description": "Explore the Bloom filter algorithm through interactive visualization. Learn how Bloom filters work and understand their applications in real-time. Source code is available.",
-      "keywords": "Bloom filter, algorithm visualization, bloom filter operation, bloom filter visualization"
+      "description": "Dynamic and user-friendly Bloom filter demonstration page, intuitively displaying the insertion and search operations of the Bloom filter, helping to understand the working principle of the Bloom filter. Uses a grid to simulate a bit array, supports setting various hash functions, supports setting various key quantities, making it convenient to understand the working principle of the Bloom filter.",
+      "keywords": "Bloom filter, bloom filter operation, bloom filter visualization"
     },
     "jumphash": {
       "title": "JumpHash Visualization",

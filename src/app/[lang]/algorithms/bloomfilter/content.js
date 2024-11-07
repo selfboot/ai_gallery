@@ -433,7 +433,7 @@ const BloomFilterDemo = () => {
               onClick={() => check(inputKey)}
               className="w-full mb-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             >
-              {t("check")}
+              {t("search")}
             </button>
             <button
               onClick={() => addMultipleKeys(10)}
