@@ -2,7 +2,6 @@
 
 import React from "react";
 import Giscus from "@giscus/react";
-import { AdComponent } from "./AdComponent";
 
 function GiscusComments({ lang }) {
   return (
@@ -29,7 +28,6 @@ const langMap = {
 export default function CommonComments({ lang }) {
   return (
     <div className="mt-8">
-      <AdComponent />
       <GiscusComments lang={langMap[lang] || "en"} />
     </div>
   );
