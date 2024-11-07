@@ -59,13 +59,6 @@ const Projects = {
   ],
   algorithms: [
     {
-      id: "linkedlist",
-      title: "linkedlist_title",
-      description: "linkedlist_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240726_ai_gallery_linkedlist.webp",
-      link: "/algorithms/linkedlist/",
-    },
-    {
       id: "heap",
       title: "heap_title",
       description: "heap_description",
@@ -94,6 +87,13 @@ const Projects = {
       link: "/algorithms/dpcoin/",
     },
     {
+      id: "hanoitower",
+      title: "hanoitower_title",
+      description: "hanoitower_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240812_ai_gallery_hanoitower.webp",
+      link: "/algorithms/hanoitower/",
+    },
+    {
       id: "hashring",
       title: "hashring_title",
       description: "hashring_description",
@@ -106,13 +106,6 @@ const Projects = {
       description: "jumphash_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20240809_ai_gallery_jumphash.webp",
       link: "/algorithms/jumphash/",
-    },
-    {
-      id: "hanoitower",
-      title: "hanoitower_title",
-      description: "hanoitower_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240812_ai_gallery_hanoitower.webp",
-      link: "/algorithms/hanoitower/",
     },
     {
       id: "dijkstra",
@@ -143,13 +136,6 @@ const Projects = {
       link: "/algorithms/trie/",
     },
     {
-      id: "skiplist",
-      title: "skiplist_title",
-      description: "skiplist_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_skiplist.webp",
-      link: "/algorithms/skiplist/",
-    },
-    {
       id: "binarysearchtree",
       title: "binarysearchtree_title",
       description: "binarysearchtree_description",
@@ -162,6 +148,20 @@ const Projects = {
       description: "bloomfilter_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20240805_ai_gallery_bloomfilter.webp",
       link: "/algorithms/bloomfilter/",
+    },
+    {
+      id: "skiplist",
+      title: "skiplist_title",
+      description: "skiplist_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_skiplist.webp",
+      link: "/algorithms/skiplist/",
+    },
+    {
+      id: "linkedlist",
+      title: "linkedlist_title",
+      description: "linkedlist_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240726_ai_gallery_linkedlist.webp",
+      link: "/algorithms/linkedlist/",
     },
     {
       id: "ratelimit",
