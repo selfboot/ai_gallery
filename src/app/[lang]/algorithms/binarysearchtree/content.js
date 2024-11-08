@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
-import { Combobox } from "@headlessui/react";
+import { Combobox, ComboboxInput } from "@headlessui/react";
 import { useI18n } from "@/app/i18n/client";
+import { CustomListbox } from '@/app/components/ListBox';
 
 export class TreeNode {
   constructor(key) {
@@ -195,6 +196,10 @@ const BinarySearchTreeVisualization = () => {
     setMessage(t('initializedTree', { count: nodeCount, method: t(initMethod) }));
   }, [nodeCount, initMethod, t]);
 
+  useEffect(() => {
+    initializeTree();
+  }, []);
+
   const animateOperation = useCallback(
     async (operation, key) => {
       const newTree = new BinarySearchTree();
@@ -348,14 +353,14 @@ const BinarySearchTreeVisualization = () => {
   return (
     <>
       <div className="flex flex-col lg:flex-row">
-        <div className="lg:w-3/4 mb-4 lg:mb-0 lg:pr-4">
+        <div className="lg:w-4/5 mb-4 lg:mb-0 lg:pr-4">
           <div className="border rounded overflow-auto" style={{ maxHeight: "80vh" }}>
             <svg ref={svgRef} width={svgWidth} height={svgHeight} className="min-w-full">
               <g transform={`translate(${-treeDimensions.minX + 50}, 50)`}>{renderTree(tree.root)}</g>
             </svg>
           </div>
         </div>
-        <div className="lg:w-1/4">
+        <div className="lg:w-1/5">
           <div className="mb-4">
             <label htmlFor="nodeCount" className="block mb-2">{t('nodeCount')}:</label>
             <input
@@ -370,14 +375,12 @@ const BinarySearchTreeVisualization = () => {
           </div>
           <div className="mb-4">
             <label className="block mb-2">{t('initMethod')}:</label>
-            <select
-              value={initMethod}
-              onChange={(e) => setInitMethod(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="random">{t('random')}</option>
-              <option value="sequential">{t('sequential')}</option>
-            </select>
+            <CustomListbox
+              value={t(initMethod)}
+              onChange={(value) => setInitMethod(value === t('random') ? 'random' : 'sequential')}
+              options={[t('random'), t('sequential')]}
+              className="w-full"
+            />
           </div>
           <button
             onClick={initializeTree}
@@ -387,7 +390,7 @@ const BinarySearchTreeVisualization = () => {
           </button>
           <div className="mb-4">
             <Combobox value={inputValue} onChange={setInputValue}>
-              <Combobox.Input
+              <ComboboxInput
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(event) => setInputValue(event.target.value)}
                 placeholder={t('enterNumber')}
