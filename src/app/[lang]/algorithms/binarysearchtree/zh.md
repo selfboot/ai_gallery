@@ -54,7 +54,7 @@
 
 下图演示了删除有 1 个子节点的节点的动画过程。
 
-![二叉搜索树删除有1个子节点的节点](https://slefboot-1251736664.file.myqcloud.20241108_ai_gallery_bst_delete.webp)
+![二叉搜索树删除有1个子节点的节点](https://slefboot-1251736664.file.myqcloud.com/20241108_ai_gallery_bst_delete.webp)
 
 ## 时间复杂度分析
 
