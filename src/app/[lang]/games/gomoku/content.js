@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
 import { checkWin, checkDoubleThree, checkOverline, checkDoubleFours, boardSize } from "./move";
+import { useGomokuAI } from './GomokuAI';
 
 const GomokuGame = () => {
   const { t } = useI18n();
@@ -19,6 +20,43 @@ const GomokuGame = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [forbiddenPositions, setForbiddenPositions] = useState([]);
   const [forbiddenRules, setForbiddenRules] = useState(["noRestriction"]);
+  const { isReady, getNextMove } = useGomokuAI();
+  const [gameMode, setGameMode] = useState("pvp");
+  const [aiColor, setAiColor] = useState("white");
+
+  useEffect(() => {
+    if (gameMode === "ai" && currentPlayer === aiColor && !gameOver) {
+      handleAIMove();
+    }
+  }, [currentPlayer, gameMode, aiColor, gameOver]);
+
+  const handleAIMove = async () => {
+    if (!isReady || gameOver) return;
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const { move } = await getNextMove(gameBoard);
+      if (move.row !== -1 && move.col !== -1) {
+        placePiece(move.row, move.col);
+      }
+    } catch (err) {
+      console.error('AI移动失败:', err);
+      setModalMessage(t("ai_move_failed"));
+      setShowModal(true);
+    }
+  };
+
+  const handleGameModeChange = (e) => {
+    const newMode = e.target.value;
+    setGameMode(newMode);
+    resetGame();
+  };
+
+  const handleAiColorChange = (e) => {
+    const newColor = e.target.value;
+    setAiColor(newColor);
+    resetGame();
+  };
 
   const resetGame = useCallback(() => {
     setGameBoard(Array(boardSize).fill().map(() => Array(boardSize).fill("")));
@@ -304,6 +342,39 @@ const GomokuGame = () => {
           >
             {t("restart_game")}
           </button>
+          <div className="mb-4">
+            <label className="text-gray-700 block mb-2">
+              {t("game_mode")}:
+            </label>
+            <select
+              value={gameMode}
+              onChange={handleGameModeChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="pvp">{t("player_vs_player")}</option>
+              <option value="ai">{t("player_vs_ai")}</option>
+            </select>
+          </div>
+          {gameMode === "ai" && (
+            <div className="mb-4">
+              <label className="text-gray-700 block mb-2">
+                {t("ai_color")}:
+              </label>
+              <select
+                value={aiColor}
+                onChange={handleAiColorChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="black">{t("black")}</option>
+                <option value="white">{t("white")}</option>
+              </select>
+            </div>
+          )}
+          {gameMode === "ai" && !isReady && (
+            <div className="mb-4 text-yellow-600">
+              {t("ai_loading")}...
+            </div>
+          )}
         </div>
       </div>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
