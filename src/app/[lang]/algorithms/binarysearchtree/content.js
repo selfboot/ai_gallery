@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { Combobox, ComboboxInput } from "@headlessui/react";
 import { useI18n } from "@/app/i18n/client";
-import { CustomListbox } from '@/app/components/ListBox';
+import { CustomListbox } from "@/app/components/ListBox";
 
 export class TreeNode {
   constructor(key) {
@@ -170,20 +170,23 @@ export class BinarySearchTree {
 
 const BinarySearchTreeVisualization = () => {
   const { t } = useI18n();
+  const svgRef = useRef(null);
+  const nodeSize = 40;
+
   const [tree, setTree] = useState(new BinarySearchTree());
-  const [inputValue, setInputValue] = useState("");
-  const [message, setMessage] = useState("");
   const [nodeCount, setNodeCount] = useState(10);
   const [initMethod, setInitMethod] = useState("random");
+  const [inputValue, setInputValue] = useState("");
+  const [message, setMessage] = useState("");
   const [highlightedNodes, setHighlightedNodes] = useState([]);
-  const svgRef = useRef(null);
   const [specialNode, setSpecialNode] = useState(null);
-
-  // 添加一个新的状态来控制动画中的临时节点和连接线
   const [animationState, setAnimationState] = useState({
     tempNode: null,
     showLine: false,
-    parentNode: null
+    parentNode: null,
+    lineOpacity: 1,
+    nodeToAnimate: null,
+    nodeOpacity: 1,
   });
 
   const initializeTree = useCallback(() => {
@@ -202,7 +205,7 @@ const BinarySearchTreeVisualization = () => {
 
     keys.forEach((key) => newTree.insert(key));
     setTree(newTree);
-    setMessage(t('initializedTree', { count: nodeCount, method: t(initMethod) }));
+    setMessage(t("initializedTree", { count: nodeCount, method: t(initMethod) }));
   }, [nodeCount, initMethod, t]);
 
   useEffect(() => {
@@ -228,7 +231,7 @@ const BinarySearchTreeVisualization = () => {
           path.push(current);
           parent = current;
           if (insertKey === current.key) {
-            break;  // 找到相等节点就停止
+            break; // 找到相等节点就停止
           } else if (insertKey < current.key) {
             current = current.left;
           } else {
@@ -238,46 +241,21 @@ const BinarySearchTreeVisualization = () => {
 
         // 2. 高亮搜索路径
         for (let i = 0; i < path.length; i++) {
-          setHighlightedNodes(path.slice(0, i + 1).map(node => node.key));
-          await new Promise(resolve => setTimeout(resolve, 500));
+          setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
         // 检查是否找到相等的节点
         if (path.length > 0 && path[path.length - 1].key === insertKey) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
           setHighlightedNodes([]);
-          setMessage(t('nodeExists', { value: key }));
+          setMessage(t("nodeExists", { value: key }));
           return null;
         }
 
-        // 3. 创建新节点并显示动画
+        // 3. 创建新节点并建立连接
         const newNode = new TreeNode(insertKey);
-        if (parent === null) {
-          newNode.x = 400; // 居中位置
-          newNode.y = 50;  // 顶部位置
-        } else {
-          // 计算新节点的位置
-          const isLeft = insertKey < parent.key;
-          newNode.x = parent.x + (isLeft ? -100 : 100);
-          newNode.y = parent.y + 60;
-        }
-
-        // 显示新节点（淡入效果）
-        setAnimationState({
-          tempNode: newNode,
-          showLine: false,
-          parentNode: parent
-        });
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // 显示连接线
-        setAnimationState(prev => ({
-          ...prev,
-          showLine: true
-        }));
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // 4. 完成插入操作
+        // 先建立连接
         if (parent === null) {
           newTree.root = newNode;
         } else if (insertKey < parent.key) {
@@ -285,49 +263,375 @@ const BinarySearchTreeVisualization = () => {
         } else {
           parent.right = newNode;
         }
+
+        // 更新布局，获取正确的位置
         newTree._updateLayout();
 
-        // 清除动画状态和高亮
+        // 设置动画状态，新节点和连接线初始都是不可见的
+        setTree(newTree); // 先更新树，这样新节点就会被渲染
         setAnimationState({
-          tempNode: null,
-          showLine: false,
-          parentNode: null
+          showLine: true,
+          parentNode: parent,
+          lineOpacity: 0,
+          nodeToAnimate: newNode.key,
+          nodeOpacity: 0,
         });
-        setHighlightedNodes([]);
-        setTree(newTree);
-        return newNode;
 
+        // 等待一帧以确保新状态被渲染
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        // 使用 Promise 包装动画过程
+        await new Promise((resolve) => {
+          let startTime = null;
+          const duration = 1000;
+
+          const animate = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            if (progress <= 0.5) {
+              // 前半段：节点淡入
+              const opacity = progress * 2;
+              setAnimationState((prev) => ({
+                ...prev,
+                nodeOpacity: opacity,
+                lineOpacity: 0,
+              }));
+            } else {
+              // 后半段：连接线淡入
+              const lineOpacity = (progress - 0.5) * 2;
+              setAnimationState((prev) => ({
+                ...prev,
+                nodeOpacity: 1,
+                lineOpacity,
+              }));
+            }
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              // 动画结束，清除状态
+              setAnimationState({
+                showLine: false,
+                parentNode: null,
+                lineOpacity: 1,
+                nodeToAnimate: null,
+                nodeOpacity: 1,
+              });
+              resolve();
+              setHighlightedNodes([]);
+            }
+          };
+
+          requestAnimationFrame(animate);
+        });
+
+        // 不需要再次设置树，因为已经在动画开始前设置过了
+        return newNode;
       } else if (operation === "delete") {
-        const deleteResult = newTree.delete(parseInt(key));
-        path = deleteResult.path;
-        result = deleteResult.deleted;
-        
-        // 高亮路径
+        // 1. 先找到要删除的节点
+        let current = newTree.root;
+        let parent = null;
+        path = [];
+        const deleteKey = parseInt(key);
+
+        while (current !== null && current.key !== deleteKey) {
+          path.push(current);
+          parent = current;
+          if (deleteKey < current.key) {
+            current = current.left;
+          } else {
+            current = current.right;
+          }
+        }
+
+        if (!current) {
+          // 节点不存在
+          setMessage(t("notFound_value", { value: key }));
+          return false;
+        }
+
+        path.push(current);
+
+        // 2. 高亮搜索路径
         for (let i = 0; i < path.length; i++) {
           setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
-        if (result) {
-          setSpecialNode({
-            key: path[path.length - 1].key,
-            color: "red",
+        // 3. 根据不同情况执行删除动画
+        if (current.left === null && current.right === null) {
+          // 情况1: 叶子节点
+          // 直接使用原始节点，只控制连接线的消失
+          setAnimationState({
+            showLine: true,
+            parentNode: parent,
+            lineOpacity: 1,
+            nodeToAnimate: current.key, // 只记录需要动画的节点的key
           });
+
+          // 使用 requestAnimationFrame 实现平滑画
+          const animate = async (startTime, duration = 1000) => {
+            const animation = (currentTime) => {
+              const elapsed = currentTime - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+
+              // 前半段动画：连接线消失
+              if (progress <= 0.5) {
+                const lineOpacity = 1 - progress * 2;
+                setAnimationState((prev) => ({
+                  ...prev,
+                  lineOpacity,
+                }));
+              }
+              // 后半段动画：节点消失
+              else {
+                const nodeOpacity = 1 - (progress - 0.5) * 2;
+                setAnimationState((prev) => ({
+                  ...prev,
+                  showLine: false,
+                  nodeOpacity, // 新增节点透明度状态
+                }));
+              }
+
+              if (progress < 1) {
+                requestAnimationFrame(animation);
+              } else {
+                // 动画结束，清除状态
+                setAnimationState({
+                  showLine: false,
+                  parentNode: null,
+                  lineOpacity: 0,
+                  nodeToAnimate: null,
+                  nodeOpacity: 0,
+                });
+              }
+            };
+
+            requestAnimationFrame(animation);
+          };
+
+          // 开始动画
+          const startTime = performance.now();
+          await animate(startTime);
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // 等待动画完成
+        } else if (current.left === null || current.right === null) {
+          // 情况2: 只有一个子节点
+          const child = current.left || current.right;
+          const isLeftChild = parent ? parent.left === current : false; // 记录被删节点是否是左子节点
+
+          // 设置初始动画状态
+          setAnimationState({
+            showLine: true,
+            parentNode: parent,
+            lineOpacity: 1,
+            nodeToAnimate: current.key,
+            nodeOpacity: 1,
+            isLeftChild, // 添加标记
+          });
+
+          // 使用 Promise 包装动画过程
+          await new Promise((resolve) => {
+            let startTime = null;
+            const duration = 1500;
+
+            const animate = (timestamp) => {
+              if (!startTime) startTime = timestamp;
+              const elapsed = timestamp - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+
+              // 第一阶段(0-0.33)：父节点到当前节点的连线消失
+              if (progress <= 0.33) {
+                const lineOpacity = 1 - progress * 3;
+                setAnimationState((prev) => ({
+                  ...prev,
+                  lineOpacity,
+                  isLeftChild,
+                }));
+              }
+              // 第二阶段(0.33-0.66)：当前节点消失
+              else if (progress <= 0.66) {
+                const nodeOpacity = 1 - (progress - 0.33) * 3;
+                setAnimationState((prev) => ({
+                  ...prev,
+                  nodeOpacity,
+                  lineOpacity: 0,
+                  isLeftChild,
+                }));
+              }
+              // 第三阶段(0.66-1)：子节点连线出现
+              else {
+                const newLineOpacity = (progress - 0.66) * 3;
+                // 更新树结构，保持原有的左右关系
+                if (parent === null) {
+                  newTree.root = child;
+                } else if (isLeftChild) {
+                  parent.left = child;
+                } else {
+                  parent.right = child;
+                }
+                newTree._updateLayout();
+                setTree(newTree);
+
+                setAnimationState((prev) => ({
+                  ...prev,
+                  nodeOpacity: 0,
+                  lineOpacity: newLineOpacity,
+                  parentNode: parent,
+                  nodeToAnimate: current.key,
+                  childNode: child.key,
+                  isLeftChild,
+                }));
+              }
+
+              if (progress < 1) {
+                requestAnimationFrame(animate);
+              } else {
+                // 动画结束，清除状态
+                setAnimationState({
+                  showLine: false,
+                  parentNode: null,
+                  lineOpacity: 1,
+                  nodeToAnimate: null,
+                  nodeOpacity: 1,
+                  isLeftChild: null,
+                });
+                resolve();
+              }
+            };
+
+            requestAnimationFrame(animate);
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 500)); // 等待最后的状态稳定
+        } else {
+          // 情况3: 有两个子节点
+          let successor = current.right;
+          let successorParent = current;
+          let successorPath = [current, current.right];
+
+          // 1. 高亮显示从当前节点到右子节点
+          setHighlightedNodes([current.key]);
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          setHighlightedNodes([current.key, current.right.key]);
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          // 2. 逐步显示寻找后继节点的过程
+          while (successor.left !== null) {
+            successorParent = successor;
+            successor = successor.left;
+            successorPath.push(successor);
+
+            // 动态显示搜索路径
+            setHighlightedNodes(successorPath.map((node) => node.key));
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          }
+
+          // 3. 找到后继节点后，特殊标记
+          setSpecialNode({
+            key: successor.key,
+            color: "green",
+          });
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          // 3. 显示后继节点值替换当前节点的动画
+          await new Promise((resolve) => {
+            let startTime = null;
+            const duration = 1500;
+
+            const animate = (timestamp) => {
+              if (!startTime) startTime = timestamp;
+              const elapsed = timestamp - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+
+              // 第一阶段(0-0.33)：后继节点淡出
+              if (progress <= 0.33) {
+                setAnimationState({
+                  nodeToAnimate: successor.key,
+                  nodeOpacity: 1 - progress * 3,
+                  showLine: true,
+                  parentNode: successorParent,
+                  lineOpacity: 1,
+                });
+              }
+              // 第二阶段(0.33-0.66)：后继节点移动到当前节点位置
+              else if (progress <= 0.66) {
+                const moveProgress = (progress - 0.33) * 3;
+                const x = successor.x + (current.x - successor.x) * moveProgress;
+                const y = successor.y + (current.y - successor.y) * moveProgress;
+                setAnimationState({
+                  tempNode: { ...successor, x, y, opacity: 0.8 },
+                  showLine: true,
+                  parentNode: successorParent,
+                  lineOpacity: 1 - moveProgress,
+                });
+              }
+              // 第三阶段(0.66-1)：后继节点替换当前节点
+              else {
+                const replaceProgress = (progress - 0.66) * 3;
+                // 更新树结构
+                current.key = successor.key;
+                if (successorParent === current) {
+                  current.right = successor.right;
+                } else {
+                  successorParent.left = successor.right;
+                }
+                newTree._updateLayout();
+                setTree(newTree);
+
+                setAnimationState({
+                  nodeToAnimate: current.key,
+                  nodeOpacity: replaceProgress,
+                  showLine: true,
+                  parentNode: successorParent,
+                  lineOpacity: 0,
+                });
+              }
+
+              if (progress < 1) {
+                requestAnimationFrame(animate);
+              } else {
+                setAnimationState({
+                  showLine: false,
+                  parentNode: null,
+                  lineOpacity: 1,
+                  nodeToAnimate: null,
+                  nodeOpacity: 1,
+                  tempNode: null,
+                });
+                resolve();
+              }
+            };
+
+            requestAnimationFrame(animate);
+          });
+
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
+        // 4. 执行实际的删除操作
+        const deleteResult = newTree.delete(deleteKey);
+        newTree._updateLayout();
+
+        // 5. 清除动画状态
+        setAnimationState({
+          tempNode: null,
+          showLine: false,
+          parentNode: null,
+        });
         setHighlightedNodes([]);
         setSpecialNode(null);
         setTree(newTree);
-        return result;
 
+        return true;
       } else {
         // search
         const searchResult = newTree.search(parseInt(key));
         path = searchResult.path;
         result = searchResult.found;
 
-        // 高亮路径
         for (let i = 0; i < path.length; i++) {
           setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
           await new Promise((resolve) => setTimeout(resolve, 500));
@@ -355,7 +659,7 @@ const BinarySearchTreeVisualization = () => {
       setMessage("");
       const result = await animateOperation("insert", inputValue);
       if (result) {
-        setMessage(t('inserted_value', { value: inputValue }));
+        setMessage(t("inserted_value", { value: inputValue }));
       }
       setInputValue("");
     }
@@ -363,91 +667,86 @@ const BinarySearchTreeVisualization = () => {
 
   const handleDelete = useCallback(async () => {
     if (inputValue) {
+      setMessage("");
       const deleted = await animateOperation("delete", inputValue);
-      setMessage(deleted ? t('deleted_value', { value: inputValue }) : t('notFound_value', { value: inputValue }));
+      setMessage(deleted ? t("deleted_value", { value: inputValue }) : t("notFound_value", { value: inputValue }));
       setInputValue("");
     }
   }, [inputValue, animateOperation, t]);
 
-  const handleSearch = useCallback(() => {
+  const handleSearch = useCallback(async () => {
     if (inputValue) {
-      animateOperation("search", inputValue);
-      const searchResult = tree.search(parseInt(inputValue));
-      setMessage(searchResult.found ? t('found_value', { value: inputValue }) : t('notFound_value', { value: inputValue }));
+      setMessage("");
+      const found = await animateOperation("search", inputValue);
+      setMessage(found ? t("found_value", { value: inputValue }) : t("notFound_value", { value: inputValue }));
       setInputValue("");
     }
-  }, [inputValue, tree, t]);
+  }, [inputValue, animateOperation, t]);
 
   const renderTree = useCallback(
     (node) => {
       if (!node) return null;
-      const nodeSize = 40;
-      const isHighlighted = highlightedNodes.includes(node.key);
-      const isSpecial = specialNode && specialNode.key === node.key;
-
-      let fillColor = isSpecial ? specialNode.color : 
-                     isHighlighted ? "#f6e05e" : "#4299e1";
 
       return (
         <g key={node.key}>
-          <circle cx={node.x} cy={node.y} r={nodeSize / 2} fill={fillColor} />
-          <text x={node.x} y={node.y} textAnchor="middle" dy=".3em" fill="white">
-            {node.key}
-          </text>
+          {/* 连接线 */}
           {node.left && (
-            <Line start={node} end={node.left} nodeSize={nodeSize} />
+            <Line
+              start={node}
+              end={node.left}
+              nodeSize={nodeSize}
+              opacity={animationState.nodeToAnimate === node.left.key ? animationState.lineOpacity : 1}
+            />
           )}
           {node.right && (
-            <Line start={node} end={node.right} nodeSize={nodeSize} />
+            <Line
+              start={node}
+              end={node.right}
+              nodeSize={nodeSize}
+              opacity={animationState.nodeToAnimate === node.right.key ? animationState.lineOpacity : 1}
+            />
           )}
+          <circle
+            cx={node.x}
+            cy={node.y}
+            r={nodeSize / 2}
+            fill={
+              specialNode?.key === node.key
+                ? specialNode.color
+                : highlightedNodes.includes(node.key)
+                ? "#f6e05e"
+                : "#4299e1"
+            }
+            opacity={animationState.nodeToAnimate === node.key ? animationState.nodeOpacity ?? 1 : 1}
+          />
+          <text
+            x={node.x}
+            y={node.y}
+            textAnchor="middle"
+            dy=".3em"
+            fill="white"
+            opacity={animationState.nodeToAnimate === node.key ? animationState.nodeOpacity ?? 1 : 1}
+          >
+            {node.key}
+          </text>
+
+          {/* Recursive rendering of child nodes */}
           {node.left && renderTree(node.left)}
           {node.right && renderTree(node.right)}
-
-          {/* 渲染动画中的临时节点和连接线 */}
-          {animationState.tempNode && (
-            <>
-              <circle 
-                cx={animationState.tempNode.x} 
-                cy={animationState.tempNode.y} 
-                r={nodeSize / 2} 
-                fill="#f6e05e"
-                opacity="0.8"
-              />
-              <text 
-                x={animationState.tempNode.x} 
-                y={animationState.tempNode.y} 
-                textAnchor="middle" 
-                dy=".3em" 
-                fill="white"
-              >
-                {animationState.tempNode.key}
-              </text>
-              {animationState.showLine && animationState.parentNode && (
-                <line
-                  x1={animationState.parentNode.x}
-                  y1={animationState.parentNode.y + nodeSize / 2}
-                  x2={animationState.tempNode.x}
-                  y2={animationState.tempNode.y - nodeSize / 2}
-                  stroke="#4299e1"
-                  strokeDasharray="5,5"
-                  opacity="0.8"
-                />
-              )}
-            </>
-          )}
         </g>
       );
     },
-    [highlightedNodes, specialNode, animationState]
+    [highlightedNodes, specialNode, animationState, nodeSize]
   );
 
-  const Line = memo(({ start, end, nodeSize }) => (
+  const Line = memo(({ start, end, nodeSize, opacity = 1 }) => (
     <line
       x1={start.x}
       y1={start.y + nodeSize / 2}
       x2={end.x}
       y2={end.y - nodeSize / 2}
       stroke="#4299e1"
+      opacity={opacity}
     />
   ));
 
@@ -484,7 +783,9 @@ const BinarySearchTreeVisualization = () => {
         </div>
         <div className="lg:w-1/5">
           <div className="mb-4">
-            <label htmlFor="nodeCount" className="block mb-2">{t('nodeCount')}:</label>
+            <label htmlFor="nodeCount" className="block mb-2">
+              {t("nodeCount")}:
+            </label>
             <input
               id="nodeCount"
               type="number"
@@ -496,11 +797,11 @@ const BinarySearchTreeVisualization = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-2">{t('initMethod')}:</label>
+            <label className="block mb-2">{t("initMethod")}:</label>
             <CustomListbox
               value={t(initMethod)}
-              onChange={(value) => setInitMethod(value === t('random') ? 'random' : 'sequential')}
-              options={[t('random'), t('sequential')]}
+              onChange={(value) => setInitMethod(value === t("random") ? "random" : "sequential")}
+              options={[t("random"), t("sequential")]}
               className="w-full"
             />
           </div>
@@ -508,14 +809,14 @@ const BinarySearchTreeVisualization = () => {
             onClick={initializeTree}
             className="w-full mb-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {t('initializeTree')}
+            {t("initializeTree")}
           </button>
           <div className="mb-4">
             <Combobox value={inputValue} onChange={setInputValue}>
               <ComboboxInput
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(event) => setInputValue(event.target.value)}
-                placeholder={t('enterNumber')}
+                placeholder={t("enterNumber")}
               />
             </Combobox>
           </div>
@@ -523,19 +824,19 @@ const BinarySearchTreeVisualization = () => {
             onClick={handleInsert}
             className="w-full mb-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            {t('insert')}
+            {t("insert")}
           </button>
           <button
             onClick={handleDelete}
             className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            {t('delete')}
+            {t("delete")}
           </button>
           <button
             onClick={handleSearch}
             className="w-full mb-4 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
-            {t('search')}
+            {t("search")}
           </button>
           <div className="mb-4">{message}</div>
         </div>
