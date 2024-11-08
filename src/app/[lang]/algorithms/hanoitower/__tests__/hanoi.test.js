@@ -3,15 +3,6 @@ import { render, screen, fireEvent, waitFor} from '@/app/test_utils';
 import '@testing-library/jest-dom';
 import HanoiTower from '../content';
 
-// 添加这个模拟的 ResizeObserver
-class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-
-window.ResizeObserver = ResizeObserver;
-
 describe('HanoiTower Component', () => {
   test('renders component with correct initial settings', () => {
     render(<HanoiTower />);

@@ -324,6 +324,7 @@
   "deleted_value": "Deleted {{value}}",
   "found_value": "Found {{value}}",
   "notFound_value": "{{value}} not found",
+  "nodeExists": "Node {{value}} already exists",
 
   "chartrace_title": "Online BarChartRace Generation Tool",  
   "chartrace_description": "This page provides a handy dynamic racing chart maker that allows you to easily upload data, customize the time, type, and data columns, and then generate beautiful dynamic racing bars, which can also be exported as GIFs.",
@@ -645,7 +646,7 @@
     },
     "binarysearchtree": {
       "title": "Binary Search Tree Visualization",
-      "description": "Explore the Binary Search Tree algorithm through interactive visualization. Learn how Binary Search Tree works and understand its applications in real-time. Source code is available.",
+      "description": "Explore the binary search tree algorithm with interactive visualizations. You can set the number of nodes and initialization methods, and then visually see the process of inserting, searching, and deleting nodes, which can deepen your understanding of the working principle of the binary search tree.",
       "keywords": "Binary Search Tree, algorithm visualization, binary search tree operation, binary search tree visualization"
     },
     "cube": {

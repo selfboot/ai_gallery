@@ -314,7 +314,7 @@ const AStarPathFind = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="lg:w-1/5 w-full lg:mt-0 mt-8">
         <div className="w-full mb-4 space-y-4">
           <div className="flex flex-col mb-4">
@@ -341,9 +341,7 @@ const AStarPathFind = () => {
               />
             </div>
             <div className="flex items-center">
-              <span className="text-lg mr-4 flex-shrink-0 whitespace-nowrap w-1/3">
-                {t("search_speed")}
-              </span>
+              <span className="text-lg mr-4 flex-shrink-0 whitespace-nowrap w-1/3">{t("search_speed")}</span>
               <input
                 type="range"
                 min="1"
@@ -373,9 +371,7 @@ const AStarPathFind = () => {
                 key={gridMode.id}
                 onClick={() => setMode(gridMode)}
                 className={`px-4 py-2 text-white rounded w-full ${gridMode.color} ${
-                  mode.id === gridMode.id
-                    ? "ring-2 ring-offset-2 ring-blue-500"
-                    : ""
+                  mode.id === gridMode.id ? "ring-2 ring-offset-2 ring-blue-500" : ""
                 }`}
                 disabled={isSearching}
               >
@@ -395,7 +391,7 @@ const AStarPathFind = () => {
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <p className="text-lg">{modalContent}</p>
+        {modalContent}
       </Modal>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@/app/test_utils'; // 使用自定义的 render
-import '@testing-library/jest-dom'; // 添加这行
+import { render, screen } from '@/app/test_utils'; 
+import '@testing-library/jest-dom'; 
 import BinarySearchTreeVisualization from '../content';
 
 describe('BinarySearchTreeVisualization', () => {

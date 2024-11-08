@@ -35,9 +35,11 @@ export class BinarySearchTree {
       return newNode;
     }
     this.operationPath.push(root);
-    if (key < root.key) {
+    if (key === root.key) {
+      return root;
+    } else if (key < root.key) {
       root.left = this._insertRec(root.left, key, [...path, root]);
-    } else if (key > root.key) {
+    } else {
       root.right = this._insertRec(root.right, key, [...path, root]);
     }
     return root;
@@ -177,6 +179,13 @@ const BinarySearchTreeVisualization = () => {
   const svgRef = useRef(null);
   const [specialNode, setSpecialNode] = useState(null);
 
+  // 添加一个新的状态来控制动画中的临时节点和连接线
+  const [animationState, setAnimationState] = useState({
+    tempNode: null,
+    showLine: false,
+    parentNode: null
+  });
+
   const initializeTree = useCallback(() => {
     const newTree = new BinarySearchTree();
     const keys = [];
@@ -209,68 +218,148 @@ const BinarySearchTreeVisualization = () => {
       let result;
 
       if (operation === "insert") {
-        const insertResult = newTree.insert(parseInt(key));
-        path = insertResult.path;
-        result = insertResult.newNode;
+        // 1. 先找到插入位置
+        let current = newTree.root;
+        let parent = null;
+        path = [];
+        const insertKey = parseInt(key);
+
+        while (current !== null) {
+          path.push(current);
+          parent = current;
+          if (insertKey === current.key) {
+            break;  // 找到相等节点就停止
+          } else if (insertKey < current.key) {
+            current = current.left;
+          } else {
+            current = current.right;
+          }
+        }
+
+        // 2. 高亮搜索路径
+        for (let i = 0; i < path.length; i++) {
+          setHighlightedNodes(path.slice(0, i + 1).map(node => node.key));
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // 检查是否找到相等的节点
+        if (path.length > 0 && path[path.length - 1].key === insertKey) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setHighlightedNodes([]);
+          setMessage(t('nodeExists', { value: key }));
+          return null;
+        }
+
+        // 3. 创建新节点并显示动画
+        const newNode = new TreeNode(insertKey);
+        if (parent === null) {
+          newNode.x = 400; // 居中位置
+          newNode.y = 50;  // 顶部位置
+        } else {
+          // 计算新节点的位置
+          const isLeft = insertKey < parent.key;
+          newNode.x = parent.x + (isLeft ? -100 : 100);
+          newNode.y = parent.y + 60;
+        }
+
+        // 显示新节点（淡入效果）
+        setAnimationState({
+          tempNode: newNode,
+          showLine: false,
+          parentNode: parent
+        });
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 显示连接线
+        setAnimationState(prev => ({
+          ...prev,
+          showLine: true
+        }));
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 4. 完成插入操作
+        if (parent === null) {
+          newTree.root = newNode;
+        } else if (insertKey < parent.key) {
+          parent.left = newNode;
+        } else {
+          parent.right = newNode;
+        }
+        newTree._updateLayout();
+
+        // 清除动画状态和高亮
+        setAnimationState({
+          tempNode: null,
+          showLine: false,
+          parentNode: null
+        });
+        setHighlightedNodes([]);
+        setTree(newTree);
+        return newNode;
+
       } else if (operation === "delete") {
         const deleteResult = newTree.delete(parseInt(key));
         path = deleteResult.path;
         result = deleteResult.deleted;
+        
+        // 高亮路径
+        for (let i = 0; i < path.length; i++) {
+          setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        if (result) {
+          setSpecialNode({
+            key: path[path.length - 1].key,
+            color: "red",
+          });
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        setHighlightedNodes([]);
+        setSpecialNode(null);
+        setTree(newTree);
+        return result;
+
       } else {
         // search
         const searchResult = newTree.search(parseInt(key));
         path = searchResult.path;
         result = searchResult.found;
-      }
 
-      // 高亮路径
-      for (let i = 0; i < path.length; i++) {
-        setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-
-      // 处理特殊节点（插入的新节点、删除结果或搜索结果）
-      if (operation === "insert" || operation === "search" || operation === "delete") {
-        const lastNode = path[path.length - 1];
-        if (lastNode) {
-          let color;
-          if (operation === "insert") {
-            color = "yellow";
-          } else if (operation === "delete") {
-            color = result ? "red" : "gray";
-          } else {
-            // search
-            color = result ? "green" : "red";
-          }
-          setSpecialNode({
-            key: lastNode.key,
-            color: color,
-          });
-          setHighlightedNodes(path.map((node) => node.key)); // 确保路径保持高亮
+        // 高亮路径
+        for (let i = 0; i < path.length; i++) {
+          setHighlightedNodes(path.slice(0, i + 1).map((node) => node.key));
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
+
+        if (path.length > 0) {
+          setSpecialNode({
+            key: path[path.length - 1].key,
+            color: result ? "green" : "red",
+          });
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        setHighlightedNodes([]);
+        setSpecialNode(null);
+        setTree(newTree);
+        return result;
       }
-
-      // 取消所有高亮
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setHighlightedNodes([]);
-      setSpecialNode(null);
-
-      setTree(newTree);
-
-      // 返回操作结果
-      return result;
     },
     [tree]
   );
 
-  const handleInsert = useCallback(() => {
+  const handleInsert = useCallback(async () => {
     if (inputValue) {
-      animateOperation("insert", inputValue);
-      setMessage(t('inserted_value', { value: inputValue }));
+      setMessage("");
+      const result = await animateOperation("insert", inputValue);
+      if (result) {
+        setMessage(t('inserted_value', { value: inputValue }));
+      }
       setInputValue("");
     }
-  }, [inputValue, tree, t]);
+  }, [inputValue, animateOperation, t]);
 
   const handleDelete = useCallback(async () => {
     if (inputValue) {
@@ -297,7 +386,7 @@ const BinarySearchTreeVisualization = () => {
       const isSpecial = specialNode && specialNode.key === node.key;
 
       let fillColor = isSpecial ? specialNode.color : 
-                      isHighlighted ? "#f6e05e" : "#4299e1";
+                     isHighlighted ? "#f6e05e" : "#4299e1";
 
       return (
         <g key={node.key}>
@@ -313,10 +402,43 @@ const BinarySearchTreeVisualization = () => {
           )}
           {node.left && renderTree(node.left)}
           {node.right && renderTree(node.right)}
+
+          {/* 渲染动画中的临时节点和连接线 */}
+          {animationState.tempNode && (
+            <>
+              <circle 
+                cx={animationState.tempNode.x} 
+                cy={animationState.tempNode.y} 
+                r={nodeSize / 2} 
+                fill="#f6e05e"
+                opacity="0.8"
+              />
+              <text 
+                x={animationState.tempNode.x} 
+                y={animationState.tempNode.y} 
+                textAnchor="middle" 
+                dy=".3em" 
+                fill="white"
+              >
+                {animationState.tempNode.key}
+              </text>
+              {animationState.showLine && animationState.parentNode && (
+                <line
+                  x1={animationState.parentNode.x}
+                  y1={animationState.parentNode.y + nodeSize / 2}
+                  x2={animationState.tempNode.x}
+                  y2={animationState.tempNode.y - nodeSize / 2}
+                  stroke="#4299e1"
+                  strokeDasharray="5,5"
+                  opacity="0.8"
+                />
+              )}
+            </>
+          )}
         </g>
       );
     },
-    [highlightedNodes, specialNode]
+    [highlightedNodes, specialNode, animationState]
   );
 
   const Line = memo(({ start, end, nodeSize }) => (
