@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.binarysearchtree.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/binarysearchtree`,
     publishedDate: "2024-08-22T02:00:00.000Z",
-    updatedDate: "2024-11-07T12:00:00.000Z",
+    updatedDate: "2024-11-08T02:00:00.000Z",
   });
 }
 
