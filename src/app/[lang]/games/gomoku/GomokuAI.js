@@ -20,38 +20,46 @@ export class GomokuAIService {
   }
 
   // 将棋盘转换为模型输入格式
-  prepareBoardInput(gameBoard) {
+  prepareBoardInput(gameBoard, lastMove = null, isFirstPlayer = false) {
     const input = new Float32Array(1 * 4 * 15 * 15);
-    
+
     // 创建4个平面：
-    // 1. 黑子位置 (1表示有黑子，0表示无)
-    // 2. 白子位置 (1表示有白子，0表示无)
-    // 3. 最后一手位置 (1表示最后一手，0表示其他)
-    // 4. 当前玩家颜色 (全1表示轮到黑棋，全0表示轮到白棋)
-    
+    // 1. 当前玩家的棋子位置
+    // 2. 对手的棋子位置
+    // 3. 最后一手位置
+    // 4. 当前玩家是否是先手 (如果是先手则整个平面都是1，否则都是0)
+
+    const currentColor = 'white'; // AI是白棋
+    const opponentColor = 'black';
+
     for (let i = 0; i < 15; i++) {
       for (let j = 0; j < 15; j++) {
         const idx = i * 15 + j;
-        // 黑子平面
-        input[idx] = gameBoard[i][j] === 'black' ? 1 : 0;
-        // 白子平面
-        input[idx + 15 * 15] = gameBoard[i][j] === 'white' ? 1 : 0;
-        // 最后一手平面暂时留空
-        input[idx + 2 * 15 * 15] = 0;
-        // 当前玩家颜色平面
-        input[idx + 3 * 15 * 15] = 1; // 假设AI始终为黑棋
+        // 当前玩家的棋子位置
+        input[idx] = gameBoard[i][j] === currentColor ? 1 : 0;
+        // 对手的棋子位置
+        input[idx + 15 * 15] = gameBoard[i][j] === opponentColor ? 1 : 0;
+        // 最后一手位置
+        if (lastMove && lastMove.row === i && lastMove.col === j) {
+          input[idx + 2 * 15 * 15] = 1;
+        } else {
+          input[idx + 2 * 15 * 15] = 0;
+        }
+        // 当前玩家是否是先手
+        input[idx + 3 * 15 * 15] = isFirstPlayer ? 1 : 0;
       }
     }
-    
+
     return input;
   }
 
-  async getNextMove(gameBoard) {
+  async getNextMove(gameBoard, lastMove, isFirstPlayer = false) {
     if (!this.session) {
       throw new Error('AI模型未初始化');
     }
 
-    const input = this.prepareBoardInput(gameBoard);
+    console.log("lastMove:", lastMove, "isFirstPlayer:", isFirstPlayer);
+    const input = this.prepareBoardInput(gameBoard, lastMove, isFirstPlayer);
     const tensor = new ort.Tensor('float32', input, [1, 4, 15, 15]);
 
     try {
@@ -63,17 +71,26 @@ export class GomokuAIService {
       const value = results.value_output.data;
 
       // 找出最高概率的位置
-      let maxProb = -1;
+      let maxProb = Number.NEGATIVE_INFINITY;
       let bestMove = { row: -1, col: -1 };
+      let availableMoves = [];
 
+      // 收集所有可用的移动
       for (let i = 0; i < 15; i++) {
         for (let j = 0; j < 15; j++) {
           const idx = i * 15 + j;
-          if (policy[idx] > maxProb && gameBoard[i][j] === '') {
-            maxProb = policy[idx];
-            bestMove = { row: i, col: j };
+          if (gameBoard[i][j] === '') {
+            availableMoves.push({ row: i, col: j, prob: policy[idx] });
+            if (policy[idx] > maxProb) {
+              maxProb = policy[idx];
+              bestMove = { row: i, col: j };
+            }
           }
         }
+      }
+
+      if (bestMove.row === -1 || bestMove.col === -1) {
+        throw new Error(`AI无法找到有效移动。可用位置: ${availableMoves.length}, 最大概率: ${maxProb}`);
       }
 
       return {
@@ -105,6 +122,6 @@ export function useGomokuAI() {
   return {
     isReady,
     error,
-    getNextMove: (gameBoard) => ai.getNextMove(gameBoard)
+    getNextMove: (gameBoard, lastMove, isFirstPlayer = false) => ai.getNextMove(gameBoard, lastMove, isFirstPlayer)
   };
 }

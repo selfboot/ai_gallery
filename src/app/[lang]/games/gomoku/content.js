@@ -23,6 +23,7 @@ const GomokuGame = () => {
   const { isReady, getNextMove } = useGomokuAI();
   const [gameMode, setGameMode] = useState("pvp");
   const [aiColor, setAiColor] = useState("white");
+  const [lastMove, setLastMove] = useState(null);
 
   useEffect(() => {
     if (gameMode === "ai" && currentPlayer === aiColor && !gameOver) {
@@ -31,12 +32,18 @@ const GomokuGame = () => {
   }, [currentPlayer, gameMode, aiColor, gameOver]);
 
   const handleAIMove = async () => {
-    if (!isReady || gameOver) return;
+    if (!isReady || gameOver) {
+      return;
+    }
     
     try {
+      if (currentPlayer !== aiColor) return;
+
       await new Promise(resolve => setTimeout(resolve, 500));
-      const { move } = await getNextMove(gameBoard);
-      if (move.row !== -1 && move.col !== -1) {
+      const isFirstPlayer = aiColor === firstMove;
+      const { move } = await getNextMove(gameBoard, lastMove, isFirstPlayer);
+
+      if (currentPlayer === aiColor && !gameOver && move.row !== -1 && move.col !== -1) {
         placePiece(move.row, move.col);
       }
     } catch (err) {
@@ -65,6 +72,7 @@ const GomokuGame = () => {
     setGameOver(false);
     setMoveHistory([]);
     setUndoCount({ black: 3, white: 3 });
+    setLastMove(null);
   }, [t, boardSize, firstMove]);
 
   useEffect(() => {
@@ -118,6 +126,7 @@ const GomokuGame = () => {
 
     setGameBoard(newBoard);
     setMoveHistory([...moveHistory, { row, col, player: currentPlayer }]);
+    setLastMove({ row, col });
     setForbiddenPositions([]);
 
     if (checkWin(gameBoard, row, col, currentPlayer)) {
@@ -378,7 +387,7 @@ const GomokuGame = () => {
         </div>
       </div>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <p>{modalMessage}</p>
+        {modalMessage}
       </Modal>
     </div>
   );
