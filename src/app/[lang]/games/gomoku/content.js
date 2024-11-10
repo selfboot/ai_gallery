@@ -11,7 +11,7 @@ const GomokuGame = () => {
   const [currentPlayer, setCurrentPlayer] = useState("black");
   const [status, setStatus] = useState(() => t("black_turn"));
   const [gameOver, setGameOver] = useState(false);
-  const [firstMove, setFirstMove] = useState("black");
+  const [playerColor, setPlayerColor] = useState("black");
   const [hoverPosition, setHoverPosition] = useState(null);
   const [moveHistory, setMoveHistory] = useState([]);
   const [undoCount, setUndoCount] = useState({ black: 3, white: 3 });
@@ -23,19 +23,19 @@ const GomokuGame = () => {
 
   const resetGame = useCallback(() => {
     setGameBoard(Array(boardSize).fill().map(() => Array(boardSize).fill("")));
-    setCurrentPlayer(firstMove);
-    setStatus(firstMove === "black" ? t("black_turn") : t("white_turn"));
+    setCurrentPlayer("black");
+    setStatus(t("black_turn"));
     setGameOver(false);
     setMoveHistory([]);
     setUndoCount({ black: 3, white: 3 });
-  }, [t, boardSize, firstMove]);
+  }, [t, boardSize]);
 
   useEffect(() => {
     resetGame();
   }, [resetGame]);
 
-  const handleFirstMoveChange = (e) => {
-    setFirstMove(e.target.value);
+  const handlePlayerColorChange = (e) => {
+    setPlayerColor(e.target.value);
   };
 
   const placePiece = (row, col) => {
@@ -44,7 +44,7 @@ const GomokuGame = () => {
     const newBoard = [...gameBoard];
     newBoard[row][col] = currentPlayer;
 
-    if (currentPlayer === firstMove && forbiddenRules.length > 0 && !forbiddenRules.includes("noRestriction")) {
+    if (currentPlayer === playerColor && forbiddenRules.length > 0 && !forbiddenRules.includes("noRestriction")) {
       if (forbiddenRules.includes("threeThree")) {
         const { isForbidden, forbiddenPositions } = checkDoubleThree(newBoard, row, col, currentPlayer);
         if (isForbidden) {
@@ -242,11 +242,11 @@ const GomokuGame = () => {
           <h2 className="text-xl font-bold mb-4">{t("settings")}</h2>
           <div className="mb-4 flex items-center">
             <label className="text-gray-700 mr-2">
-              {t("first_move")} :
+              {t("player_color")} :
             </label>
             <select
-              value={firstMove}
-              onChange={handleFirstMoveChange}
+              value={playerColor}
+              onChange={handlePlayerColorChange}
               className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="black">{t("black")}</option>

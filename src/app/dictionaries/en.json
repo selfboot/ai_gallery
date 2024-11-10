@@ -19,7 +19,6 @@
   "restart_game": "Restart Game",
   "game_over": "Game Over!",
   "congratulations": "Congratulations!",
-  "first_move": "First Move",
   "white": "White",
   "undo_black": "Undo Black",
   "undo_white": "Undo White",
@@ -35,6 +34,7 @@
   "no_restriction": "No Restriction",
   "forbidden_rules": "Select Forbidden Rules",
   "show_move_numbers": "Show Move Numbers",
+  "player_color": "Player Color",
   
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",
