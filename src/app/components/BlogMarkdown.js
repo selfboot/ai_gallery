@@ -59,9 +59,9 @@ export default async function BlogMarkdown({ lang, directory }) {
           <div className="w-full lg:w-4/5 lg:mr-8">
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: markdownContent.contentHtml }} />
           </div>
-          <div className="w-full lg:w-1/5 mt-8 lg:mt-0 lg:sticky lg:top-8">
+          {/* <div className="w-full lg:w-1/5 mt-8 lg:mt-0 lg:sticky lg:top-8">
             <SideAdComponent />
-          </div>
+          </div> */}
         </div>
       </div>
     );
