@@ -19,6 +19,7 @@ const GomokuGame = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [forbiddenPositions, setForbiddenPositions] = useState([]);
   const [forbiddenRules, setForbiddenRules] = useState(["noRestriction"]);
+  const [showMoveNumbers, setShowMoveNumbers] = useState(false);
 
   const resetGame = useCallback(() => {
     setGameBoard(Array(boardSize).fill().map(() => Array(boardSize).fill("")));
@@ -102,6 +103,9 @@ const GomokuGame = () => {
                            (row === 11 && col === 11);
     const isHovered = hoverPosition && hoverPosition.row === row && hoverPosition.col === col;
     const isForbidden = forbiddenPositions.some(([r, c]) => r === row && c === col);
+    const moveNumber = showMoveNumbers ? moveHistory.findIndex(
+      move => move.row === row && move.col === col
+    ) + 1 : null;
 
     return (
       <div
@@ -122,6 +126,12 @@ const GomokuGame = () => {
               stone === "black" ? "bg-black" : "bg-white border border-black"
             } ${isForbidden ? "ring-2 ring-red-500" : ""}`}
           >
+            {showMoveNumbers && moveNumber > 0 && (
+              <span className={`absolute inset-0 flex items-center justify-center text-xs font-bold
+                ${stone === "black" ? "text-white" : "text-black"}`}>
+                {moveNumber}
+              </span>
+            )}
             {isForbidden && (
               <div className="absolute inset-0 flex items-center justify-center text-red-500 w-full h-full">
                 <svg viewBox="0 0 24 24" className="w-3/4 h-3/4 fill-current">
@@ -304,10 +314,22 @@ const GomokuGame = () => {
           >
             {t("restart_game")}
           </button>
+          <div className="mb-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={showMoveNumbers}
+                onChange={() => setShowMoveNumbers(!showMoveNumbers)}
+                className="mr-2"
+              />
+              {t("show_move_numbers")}
+            </label>
+          </div>
         </div>
+
       </div>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <p>{modalMessage}</p>
+        {modalMessage}
       </Modal>
     </div>
   );
