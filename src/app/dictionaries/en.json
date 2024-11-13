@@ -35,7 +35,12 @@
   "forbidden_rules": "Select Forbidden Rules",
   "show_move_numbers": "Show Move Numbers",
   "player_color": "Player Color",
-  
+  "game_mode": "Game Mode",
+  "pvp_mode": "PVP Mode",
+  "pve_mode": "AI Mode",
+  "player_turn": "Player Turn",
+  "ai_turn": "AI Turn",
+
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",
   "chess_description": "Chinese Chess game with a minimalist board layout, complete rules, alternating turns between black and red players, checks, and endgame determination. Undo feature is also supported.",

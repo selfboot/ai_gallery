@@ -36,6 +36,11 @@
   "forbidden_rules": "选择先手禁手",
   "show_move_numbers": "显示落子顺序",
   "player_color": "执子颜色",
+  "game_mode": "游戏模式",
+  "pvp_mode": "单机双人",
+  "pve_mode": "人机对战",
+  "player_turn": "玩家回合",
+  "ai_turn": "AI 回合",
 
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",

@@ -8,39 +8,38 @@ export const directions = [
 ];
 
 function isValidPosition(x, y) {
-  return x >= 0 && x < 15 && y >= 0 && y < 15;
+  return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
 }
 
 export const checkWin = (gameBoard, row, col, currentPlayer) => {
-  for (const [dx, dy] of directions) {
-    let count = 1;
-    count += countDirection(gameBoard, row, col, dx, dy, currentPlayer);
-    count += countDirection(gameBoard, row, col, -dx, -dy, currentPlayer);
+  const positions = [];
 
-    if (count >= 5) return true;
+  for (const [dx, dy] of directions) {
+    const linePositions = [[row, col]];
+    let [x1, y1] = [row + dx, col + dy];
+    while (x1 >= 0 && x1 < boardSize && y1 >= 0 && y1 < boardSize && gameBoard[x1][y1] === currentPlayer) {
+      linePositions.push([x1, y1]);
+      x1 += dx;
+      y1 += dy;
+    }
+    let [x2, y2] = [row - dx, col - dy];
+    while (x2 >= 0 && x2 < boardSize && y2 >= 0 && y2 < boardSize && gameBoard[x2][y2] === currentPlayer) {
+      linePositions.unshift([x2, y2]);
+      x2 -= dx;
+      y2 -= dy;
+    }
+
+    if (linePositions.length >= 5) {
+      for (let i = 0; i <= linePositions.length - 5; i++) {
+        positions.push(linePositions.slice(i, i + 5));
+      }
+    }
   }
 
-  return false;
-};
-
-export const countDirection = (gameBoard, row, col, dx, dy, currentPlayer) => {
-  let count = 0;
-  let x = row + dx;
-  let y = col + dy;
-
-  while (
-    x >= 0 &&
-      x < boardSize &&
-      y >= 0 &&
-      y < boardSize &&
-      gameBoard[x][y] === currentPlayer
-    ) {
-      count++;
-      x += dx;
-    y += dy;
-   }
-
-  return count;
+  return {
+    hasWin: positions.length > 0,
+    fivePositions: positions,
+  };
 };
 
 // function visualizeBoard(board) {
@@ -300,6 +299,120 @@ export function checkFourInRow(board, row, col, player) {
   }
 
   return { rushFours, liveFours };
+}
+
+// 通用的棋形检测函数
+function findPattern(board, row, col, player, config) {
+  const patterns = [];
+  const usedKeys = new Set();
+  
+  for (const [dx, dy] of directions) {
+    const playerPositions = [[row, col]]; // 只记录玩家的棋子位置
+    let count = 1;
+    let emptyCount = 0;
+    let isBlocked = false;
+    
+    // 向一个方向查找
+    let [x1, y1] = [row + dx, col + dy];
+    while (isValidPosition(x1, y1)) {
+      if (board[x1][y1] === player) {
+        playerPositions.push([x1, y1]);
+        count++;
+      } else if (board[x1][y1] === '') {
+        emptyCount++;
+        break;
+      } else {
+        isBlocked = true;
+        break;
+      }
+      
+      // 如果已经找到足够的棋子，就停止搜索
+      if (count > config.count) break;
+      x1 += dx;
+      y1 += dy;
+    }
+    
+    // 向相反方向查找
+    let [x2, y2] = [row - dx, col - dy];
+    let emptyCount2 = 0;
+    while (isValidPosition(x2, y2)) {
+      if (board[x2][y2] === player) {
+        playerPositions.unshift([x2, y2]);
+        count++;
+      } else if (board[x2][y2] === '') {
+        emptyCount2++;
+        break;
+      } else {
+        isBlocked = true;
+        break;
+      }
+      
+      // 如果已经找到足够的棋子，就停止搜索
+      if (count > config.count) break;
+      x2 -= dx;
+      y2 -= dy;
+    }
+
+    // 根据配置检查是否匹配棋形
+    const totalEmpty = emptyCount + emptyCount2;
+    if (count === config.count) {
+      // 生成唯一键，按照棋子位置排序以确保相同棋形生成相同的键
+      const patternKey = playerPositions
+        .map(([x, y]) => `${x},${y}`)
+        .sort()
+        .join('|');
+      
+      if (!usedKeys.has(patternKey)) {
+        if (config.type === 'blocked' && isBlocked && totalEmpty >= config.minEmpty) {
+          patterns.push({
+            positions: playerPositions, // 只返回玩家棋子的位置
+            direction: [dx, dy],
+            emptyCount: totalEmpty
+          });
+          usedKeys.add(patternKey);
+        } else if (config.type === 'live' && !isBlocked && totalEmpty >= config.minEmpty) {
+          patterns.push({
+            positions: playerPositions, // 只返回玩家棋子的位置
+            direction: [dx, dy],
+            emptyCount: totalEmpty
+          });
+          usedKeys.add(patternKey);
+        }
+      }
+    }
+  }
+  
+  return patterns;
+}
+
+// 眠三检测
+export function findBlockedThrees(board, row, col, player) {
+  return findPattern(board, row, col, player, {
+    count: 3,
+    type: 'blocked',
+    maxEmpty: 1,
+    minEmpty: 1
+  });
+}
+
+// 活二检测
+export function findLiveTwos(board, row, col, player) {
+  return findPattern(board, row, col, player, {
+    count: 2,
+    type: 'live',
+    maxEmpty: 2,
+    minEmpty: 2
+  });
+}
+
+// 眠二检测
+export function findBlockedTwos(board, row, col, player) {
+  return findPattern(board, row, col, player, {
+    count: 2,
+    type: 'blocked',
+    maxEmpty: 1,
+    minEmpty: 1
+  });
 }
 
 // Helper function to find 'X' in the board and replace it with the player's stone
