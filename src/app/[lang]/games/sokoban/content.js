@@ -19,6 +19,7 @@ const SokobanGame = () => {
   const [rightMoveFrame, setRightMoveFrame] = useState(0);
   const [upMoveFrame, setUpMoveFrame] = useState(0);
   const [downMoveFrame, setDownMoveFrame] = useState(0);
+  const [cellSize, setCellSize] = useState(SPRITE_CONFIG.SPRITE_SIZE);
 
   useEffect(() => {
     resetGame();
@@ -108,35 +109,94 @@ const SokobanGame = () => {
   };
 
   const renderCell = (value, x, y, map) => {
-    const getSpriteCss = (position, size = SPRITE_CONFIG.SPRITE_SIZE) => ({
-      width: typeof size === "number" ? `${size}px` : `${size.width}px`,
-      height: typeof size === "number" ? `${size}px` : `${size.height}px`,
-      background: `url(${SPRITE_CONFIG.SPRITE_SHEET})`,
-      backgroundPosition: `-${position.x}px -${position.y}px`,
-      backgroundSize: "auto",
-    });
+    const scale = cellSize / SPRITE_CONFIG.SPRITE_SIZE;
 
-    const baseCell = <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />;
+    const getSpriteCss = (position, size = SPRITE_CONFIG.SPRITE_SIZE) => {
+      const originalWidth = typeof size === "number" ? size : size.width;
+      const originalHeight = typeof size === "number" ? size : size.height;
+
+      return {
+        width: `${originalWidth}px`,
+        height: `${originalHeight}px`,
+        background: `url(${SPRITE_CONFIG.SPRITE_SHEET})`,
+        backgroundPosition: `-${position.x}px -${position.y}px`,
+        backgroundSize: "auto",
+        transform: `scale(${scale})`, // 使用 transform 进行整体缩放
+        transformOrigin: "top left",
+        imageRendering: "pixelated", // 保持像素风格清晰
+      };
+    };
+
+    const renderEndpoint = (container) => {
+      return (
+        <div className="relative">
+          {container}
+          <div
+            className="absolute"
+            style={{
+              ...getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE),
+              left: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+              top: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+            }}
+          />
+        </div>
+      );
+    };
+
+    const renderBox = (isOnTarget, container) => {
+      return (
+        <div className="relative">
+          {container}
+          <div
+            className={`absolute top-0 left-0 ${isOnTarget ? "animate-pulse" : ""}`}
+            style={{
+              ...getSpriteCss(getBoxStyle(isOnTarget), SPRITE_CONFIG.SPRITE_SIZE),
+            }}
+          />
+        </div>
+      );
+    };
+
+    const baseCell = (
+      <div
+        style={{
+          width: `${cellSize}px`,
+          height: `${cellSize}px`,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />
+      </div>
+    );
 
     const renderPlayer = (isOnTarget, baseCell) => {
       const sprite = getPlayerSprite(playerDirection);
       const characterSize = {
-        width: sprite.width || SPRITE_CONFIG.CHARACTER_SIZE.width,
-        height: sprite.height || SPRITE_CONFIG.CHARACTER_SIZE.height,
+        width: sprite.width,
+        height: sprite.height,
       };
 
       return (
-        <div className="relative">
+        <div style={{ width: `${cellSize}px`, height: `${cellSize}px`, position: "relative" }}>
           {baseCell}
           {isOnTarget && (
             <div
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
+              className="absolute"
+              style={{
+                ...getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE),
+                left: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+                top: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+              }}
             />
           )}
           <div
-            className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
-            style={getSpriteCss(sprite, characterSize)}
+            className="absolute"
+            style={{
+              ...getSpriteCss(sprite, characterSize),
+              top: `${(cellSize - characterSize.height * scale) / 2}px`,
+              left: `${(cellSize - characterSize.width * scale) / 2}px`,
+            }}
           />
         </div>
       );
@@ -147,40 +207,19 @@ const SokobanGame = () => {
         return <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.WALL["BLACK"])} />;
 
       case ELEMENTS.BOX:
-        return (
-          <div className="relative">
-            {baseCell}
-            <div className="absolute top-0 left-0" style={getSpriteCss(getBoxStyle(false))} />
-          </div>
-        );
+        return renderBox(false, baseCell);
 
       case ELEMENTS.TARGET:
-        return (
-          <div className="relative">
-            {baseCell}
-            <div
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
-            />
-          </div>
-        );
+        return renderEndpoint(baseCell);
 
       case ELEMENTS.PLAYER:
         return renderPlayer(false, baseCell);
+
       case ELEMENTS.PLAYER_ON_TARGET:
         return renderPlayer(true, baseCell);
 
       case ELEMENTS.BOX_ON_TARGET:
-        return (
-          <div className="relative">
-            {baseCell}
-            <div
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
-            />
-            <div className="absolute top-0 left-0 animate-pulse" style={getSpriteCss(getBoxStyle(true))} />
-          </div>
-        );
+        return renderBox(true, renderEndpoint(baseCell));
 
       default:
         return baseCell;
@@ -216,14 +255,44 @@ const SokobanGame = () => {
     };
   }, [gameState.isWon, movePlayer]);
 
+  useEffect(() => {
+    const updateCellSize = () => {
+      const containerWidth = window.innerWidth;
+      const maxGridSize = gameState.map.length;
+      const targetWidth = containerWidth >= 1024 ? containerWidth * 0.8 : containerWidth - 32;
+      const newCellSize = Math.floor(targetWidth / maxGridSize);
+      const boundedCellSize = Math.min(Math.max(newCellSize, 32), SPRITE_CONFIG.SPRITE_SIZE);
+      setCellSize(boundedCellSize);
+    };
+
+    updateCellSize();
+    window.addEventListener("resize", updateCellSize);
+    return () => window.removeEventListener("resize", updateCellSize);
+  }, [gameState.map.length]);
+
   return (
     <div className="flex flex-col lg:flex-row w-full gap-4 p-4">
       <div className="w-full lg:w-4/5 flex flex-col items-center gap-4">
-        <div className="grid bg-gray-300 p-0.5 rounded">
+        <div
+          className="grid bg-gray-300 rounded"
+          style={{
+            display: "grid",
+            backgroundColor: "rgb(209 213 219)",
+            padding: "2px",
+            borderRadius: "4px",
+          }}
+        >
           {gameState.map.map((row, y) => (
-            <div key={y} className="flex">
+            <div key={y} className="flex" style={{ display: "flex" }}>
               {row.map((cell, x) => (
-                <div key={`${x}-${y}`} className="relative">
+                <div
+                  key={`${x}-${y}`}
+                  style={{
+                    width: `${cellSize}px`,
+                    height: `${cellSize}px`,
+                    position: "relative",
+                  }}
+                >
                   {renderCell(cell, x, y, gameState.map)}
                 </div>
               ))}

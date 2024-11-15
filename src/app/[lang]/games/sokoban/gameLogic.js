@@ -12,7 +12,6 @@ export const SPRITE_CONFIG = {
   SPRITE_SHEET: "https://slefboot-1251736664.file.myqcloud.com/20241114_ai_gallery_sokoban_sprites.png",
   SPRITE_SIZE: 64,
   ENDPOINT_SIZE: 32,
-  CHARACTER_SIZE: { width: 42, height: 59 },
   SPRITE_POSITIONS: {
     GROUND: {
       CONCRETE: { x: 128, y: 192 },
