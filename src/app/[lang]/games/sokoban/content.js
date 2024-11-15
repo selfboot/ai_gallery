@@ -14,6 +14,11 @@ const SokobanGame = () => {
     isWon: false,
   });
   const [playerDirection, setPlayerDirection] = useState("FRONT");
+  const [isMoving, setIsMoving] = useState(false);
+  const [leftMoveFrame, setLeftMoveFrame] = useState(0);
+  const [rightMoveFrame, setRightMoveFrame] = useState(0);
+  const [upMoveFrame, setUpMoveFrame] = useState(0);
+  const [downMoveFrame, setDownMoveFrame] = useState(0);
 
   useEffect(() => {
     resetGame();
@@ -29,9 +34,34 @@ const SokobanGame = () => {
     (direction) => {
       if (!gameInstance || gameState.isWon) return;
 
-      setPlayerDirection(direction === "UP" ? "BACK" : 
-                        direction === "DOWN" ? "FRONT" : 
-                        direction);
+      setPlayerDirection(direction);
+      setIsMoving(true);
+
+      const animate = () => {
+        switch (direction) {
+          case "LEFT":
+            setLeftMoveFrame((prev) => (prev === 0 ? 1 : 0));
+            break;
+          case "RIGHT":
+            setRightMoveFrame((prev) => (prev === 0 ? 1 : 0));
+            break;
+          case "UP":
+            setUpMoveFrame((prev) => (prev === 2 ? 0 : prev + 1));
+            break;
+          case "DOWN":
+            setDownMoveFrame((prev) => (prev === 2 ? 0 : prev + 1));
+            break;
+        }
+      };
+      animate();
+
+      setTimeout(() => {
+        setIsMoving(false);
+        setLeftMoveFrame(0);
+        setRightMoveFrame(0);
+        setUpMoveFrame(0);
+        setDownMoveFrame(0);
+      }, 300);
 
       const newMap = gameInstance.movePlayer(direction);
       if (newMap) {
@@ -42,12 +72,39 @@ const SokobanGame = () => {
   );
 
   const getBoxStyle = (isOnTarget) => {
-    const boxColors = ['BROWN', 'RED', 'BLUE', 'PURPLE', 'YELLOW'];
+    const boxColors = ["BROWN", "RED", "BLUE", "PURPLE", "YELLOW"];
     const colorIndex = 2;
-    
-    return isOnTarget 
+
+    return isOnTarget
       ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK[boxColors[colorIndex]]
       : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE[boxColors[colorIndex]];
+  };
+
+  const getPlayerSprite = (direction) => {
+    switch (direction) {
+      case "LEFT":
+        return isMoving
+          ? leftMoveFrame === 0
+            ? SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.LEFT
+            : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.LEFT_MOVE
+          : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.LEFT;
+      case "RIGHT":
+        return isMoving
+          ? rightMoveFrame === 0
+            ? SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.RIGHT
+            : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.RIGHT_MOVE
+          : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.RIGHT;
+      case "UP":
+        return isMoving
+          ? SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER[`UP_${upMoveFrame}`]
+          : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.UP_0;
+      case "DOWN":
+        return isMoving
+          ? SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER[`DOWN_${downMoveFrame}`]
+          : SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.DOWN_0;
+      default:
+        return SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER.FRONT;
+    }
   };
 
   const renderCell = (value, x, y, map) => {
@@ -59,13 +116,35 @@ const SokobanGame = () => {
       backgroundSize: "auto",
     });
 
-    const baseCell = (
-      <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />
-    );
+    const baseCell = <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />;
+
+    const renderPlayer = (isOnTarget, baseCell) => {
+      const sprite = getPlayerSprite(playerDirection);
+      const characterSize = {
+        width: sprite.width || SPRITE_CONFIG.CHARACTER_SIZE.width,
+        height: sprite.height || SPRITE_CONFIG.CHARACTER_SIZE.height,
+      };
+
+      return (
+        <div className="relative">
+          {baseCell}
+          {isOnTarget && (
+            <div
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
+            />
+          )}
+          <div
+            className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
+            style={getSpriteCss(sprite, characterSize)}
+          />
+        </div>
+      );
+    };
 
     switch (value) {
       case ELEMENTS.WALL:
-        return <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.WALL['BLACK'])} />;
+        return <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.WALL["BLACK"])} />;
 
       case ELEMENTS.BOX:
         return (
@@ -79,43 +158,27 @@ const SokobanGame = () => {
         return (
           <div className="relative">
             {baseCell}
-            <div 
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)} 
+            <div
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
             />
           </div>
         );
 
       case ELEMENTS.PLAYER:
+        return renderPlayer(false, baseCell);
       case ELEMENTS.PLAYER_ON_TARGET:
-        return (
-          <div className="relative">
-            {baseCell}
-            {value === ELEMENTS.PLAYER_ON_TARGET && (
-              <div 
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
-                style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)} 
-              />
-            )}
-            <div 
-              className="absolute bottom-0 left-1/2 transform -translate-x-1/2" 
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.PLAYER[playerDirection], SPRITE_CONFIG.CHARACTER_SIZE)} 
-            />
-          </div>
-        );
+        return renderPlayer(true, baseCell);
 
       case ELEMENTS.BOX_ON_TARGET:
         return (
           <div className="relative">
             {baseCell}
-            <div 
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
-              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)} 
+            <div
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE)}
             />
-            <div 
-              className="absolute top-0 left-0 animate-pulse" 
-              style={getSpriteCss(getBoxStyle(true))} 
-            />
+            <div className="absolute top-0 left-0 animate-pulse" style={getSpriteCss(getBoxStyle(true))} />
           </div>
         );
 

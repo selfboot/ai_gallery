@@ -9,63 +9,45 @@ export const ELEMENTS = {
 };
 
 export const SPRITE_CONFIG = {
-  SPRITE_SHEET: "https://slefboot-1251736664.file.myqcloud.com/20241114_ai_gallery_sokoban_sprites.png", // Path to the sprite sheet
-  SPRITE_SIZE: 64, // 大多数元素是 64x64
-  ENDPOINT_SIZE: 32, // 终点大小是 32x32
-  CHARACTER_SIZE: { width: 42, height: 59 }, // 角色大小不一样
+  SPRITE_SHEET: "https://slefboot-1251736664.file.myqcloud.com/20241114_ai_gallery_sokoban_sprites.png",
+  SPRITE_SIZE: 64,
+  ENDPOINT_SIZE: 32,
+  CHARACTER_SIZE: { width: 42, height: 59 },
   SPRITE_POSITIONS: {
-    WALL: {
-      BEIGE: { x: 64, y: 64 }, // Wall_Beige
-      BLACK: { x: 64, y: 0 }, // Wall_Black
-      BROWN: { x: 0, y: 320 }, // Wall_Brown
-      GRAY: { x: 0, y: 256 }, // Wall_Gray
-    },
-
-    CRATE: {
-      BEIGE: { x: 192, y: 64 }, // Crate_Beige
-      BLACK: { x: 192, y: 128 }, // Crate_Black
-      BLUE: { x: 192, y: 192 }, // Crate_Blue
-      BROWN: { x: 192, y: 256 }, // Crate_Brown
-      GRAY: { x: 192, y: 320 }, // Crate_Gray
-      PURPLE: { x: 256, y: 128 }, // Crate_Purple
-      RED: { x: 128, y: 320 }, // Crate_Red
-      YELLOW: { x: 192, y: 0 }, // Crate_Yellow
-    },
-
-    CRATE_DARK: {
-      BEIGE: { x: 320, y: 64 }, // CrateDark_Beige
-      BLACK: { x: 320, y: 0 }, // CrateDark_Black
-      BLUE: { x: 256, y: 320 }, // CrateDark_Blue
-      BROWN: { x: 256, y: 256 }, // CrateDark_Brown
-      GRAY: { x: 256, y: 192 }, // CrateDark_Gray
-      PURPLE: { x: 256, y: 0 }, // CrateDark_Purple
-      RED: { x: 256, y: 64 }, // CrateDark_Red
-      YELLOW: { x: 128, y: 256 }, // CrateDark_Yellow
-    },
-
-    ENDPOINT: {
-      BEIGE: { x: 32, y: 384 }, // EndPoint_Beige
-      BLACK: { x: 160, y: 384 }, // EndPoint_Black
-      BLUE: { x: 128, y: 384 }, // EndPoint_Blue
-      BROWN: { x: 0, y: 384 }, // EndPoint_Brown
-      GRAY: { x: 64, y: 384 }, // EndPoint_Gray
-      PURPLE: { x: 96, y: 384 }, // EndPoint_Purple
-      RED: { x: 192, y: 384 }, // EndPoint_Red
-      YELLOW: { x: 224, y: 384 }, // EndPoint_Yellow
-    },
-
     GROUND: {
-      CONCRETE: { x: 128, y: 192 }, // Ground_Concrete
-      DIRT: { x: 128, y: 128 }, // Ground_Dirt
-      GRASS: { x: 128, y: 64 }, // Ground_Grass
-      SAND: { x: 128, y: 0 }, // Ground_Sand
+      CONCRETE: { x: 128, y: 192 },
+      DIRT: { x: 128, y: 128 },
+      SAND: { x: 128, y: 0 },
     },
-
+    WALL: {
+      BEIGE: { x: 64, y: 64 },
+      BLACK: { x: 64, y: 0 },
+      BROWN: { x: 0, y: 320 },
+      GRAY: { x: 0, y: 256 },
+    },
     PLAYER: {
-      FRONT: { x: 320, y: 186 },
-      BACK: { x: 320, y: 245 },
-      LEFT: { x: 362, y: 248 },
-      RIGHT: { x: 320, y: 128 },
+      FRONT: { x: 320, y: 186, width: 42, height: 59 },
+      LEFT: { x: 320, y: 186, width: 42, height: 59 },
+      LEFT_MOVE: { x: 320, y: 304, width: 42, height: 58 },
+      RIGHT: { x: 320, y: 128, width: 42, height: 58 },
+      RIGHT_MOVE: { x: 320, y: 245, width: 42, height: 59 },
+      DOWN_0: { x: 362, y: 248, width: 37, height: 59 },
+      DOWN_1: { x: 320, y: 362, width: 37, height: 59 },
+      DOWN_2: { x: 357, y: 362, width: 37, height: 59 },
+      UP_0: { x: 384, y: 0, width: 37, height: 60 },
+      UP_1: { x: 362, y: 188, width: 37, height: 60 },
+      UP_2: { x: 362, y: 128, width: 37, height: 60 },
+    },
+    ENDPOINT: {
+      RED: { x: 192, y: 384 },
+      BLUE: { x: 128, y: 384 },
+      YELLOW: { x: 224, y: 384 },
+    },
+    CRATE: {
+      BLUE: { x: 192, y: 192 },
+    },
+    CRATE_DARK: {
+      BLUE: { x: 256, y: 320 },
     },
   },
 };
@@ -285,11 +267,14 @@ export class SokobanLogic {
 
     for (let y = 0; y < this.map.length; y++) {
       for (let x = 0; x < this.map[y].length; x++) {
-        if (this.map[y][x] === ELEMENTS.TARGET) {
+        if (this.map[y][x] === ELEMENTS.TARGET || 
+            this.map[y][x] === ELEMENTS.BOX_ON_TARGET || 
+            this.map[y][x] === ELEMENTS.PLAYER_ON_TARGET) {
           targetCount++;
-        } else if (this.map[y][x] === ELEMENTS.BOX_ON_TARGET) {
+        }
+        
+        if (this.map[y][x] === ELEMENTS.BOX_ON_TARGET) {
           boxOnTargetCount++;
-          targetCount++;
         }
       }
     }
