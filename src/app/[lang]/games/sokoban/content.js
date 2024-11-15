@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
-import { SokobanLogic, ELEMENTS, SPRITE_CONFIG } from "./gameLogic";
+import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, LEVEL_MAPS } from "./gameLogic";
+import { CustomListbox } from "@/app/components/ListBox";
 
 const SokobanGame = () => {
-  const [difficulty, setDifficulty] = useState(100);
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [gameInstance, setGameInstance] = useState(null);
   const [gameState, setGameState] = useState({
     map: [],
     moves: 0,
-    estimatedSteps: 0,
     isWon: false,
   });
   const [playerDirection, setPlayerDirection] = useState("FRONT");
@@ -21,12 +21,14 @@ const SokobanGame = () => {
   const [downMoveFrame, setDownMoveFrame] = useState(0);
   const [cellSize, setCellSize] = useState(SPRITE_CONFIG.SPRITE_SIZE);
 
+  const levelOptions = LEVEL_MAPS.map((_, index) => `第 ${index + 1} 关`);
+
   useEffect(() => {
     resetGame();
-  }, [difficulty]);
+  }, [currentLevel]);
 
   const resetGame = () => {
-    const newGame = new SokobanLogic(difficulty);
+    const newGame = new SokobanLogic(currentLevel);
     setGameInstance(newGame);
     setGameState(newGame.getState());
   };
@@ -166,7 +168,7 @@ const SokobanGame = () => {
           overflow: "hidden",
         }}
       >
-        <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />
+        {value !== ELEMENTS.EMPTY && <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />}
       </div>
     );
 
@@ -203,24 +205,22 @@ const SokobanGame = () => {
     };
 
     switch (value) {
+      case ELEMENTS.EMPTY:
+        return baseCell;
       case ELEMENTS.WALL:
         return <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.WALL["BLACK"])} />;
-
+      case ELEMENTS.FLOOR:
+        return baseCell;
       case ELEMENTS.BOX:
         return renderBox(false, baseCell);
-
       case ELEMENTS.TARGET:
         return renderEndpoint(baseCell);
-
       case ELEMENTS.PLAYER:
         return renderPlayer(false, baseCell);
-
       case ELEMENTS.PLAYER_ON_TARGET:
         return renderPlayer(true, baseCell);
-
       case ELEMENTS.BOX_ON_TARGET:
         return renderBox(true, renderEndpoint(baseCell));
-
       default:
         return baseCell;
     }
@@ -258,46 +258,61 @@ const SokobanGame = () => {
   useEffect(() => {
     const updateCellSize = () => {
       const containerWidth = window.innerWidth;
-      const maxGridSize = gameState.map.length;
-      const targetWidth = containerWidth >= 1024 ? containerWidth * 0.8 : containerWidth - 32;
-      const newCellSize = Math.floor(targetWidth / maxGridSize);
-      const boundedCellSize = Math.min(Math.max(newCellSize, 32), SPRITE_CONFIG.SPRITE_SIZE);
+      const containerHeight = window.innerHeight;
+
+      // Get the width and height of the map
+      const mapWidth = gameState.map[0]?.length || 1;
+      const mapHeight = gameState.map.length || 1;
+
+      // Calculate the available game area size (considering the layout)
+      const maxGameWidth =
+        containerWidth >= 1024
+          ? containerWidth * 0.6
+          : containerWidth - 32; // Leave space on small screens
+      const maxGameHeight = containerHeight - 200; // Leave space for top and bottom
+
+      // Calculate the appropriate cell size based on the map's width and height ratio
+      const widthBasedSize = Math.floor(maxGameWidth / mapWidth);
+      const heightBasedSize = Math.floor(maxGameHeight / mapHeight);
+
+      // Choose the smaller size to ensure full screen fit
+      const newCellSize = Math.min(widthBasedSize, heightBasedSize);
+
+      const boundedCellSize = Math.min(
+        newCellSize,
+        SPRITE_CONFIG.SPRITE_SIZE // Maximum not exceeding the original size
+      );
+
       setCellSize(boundedCellSize);
     };
 
     updateCellSize();
     window.addEventListener("resize", updateCellSize);
     return () => window.removeEventListener("resize", updateCellSize);
-  }, [gameState.map.length]);
+  }, [gameState.map.length, gameState.map[0]?.length]);
 
   return (
     <div className="flex flex-col lg:flex-row w-full gap-4 p-4">
       <div className="w-full lg:w-4/5 flex flex-col items-center gap-4">
-        <div
-          className="grid bg-gray-300 rounded"
-          style={{
-            display: "grid",
-            backgroundColor: "rgb(209 213 219)",
-            padding: "2px",
-            borderRadius: "4px",
-          }}
-        >
-          {gameState.map.map((row, y) => (
-            <div key={y} className="flex" style={{ display: "flex" }}>
-              {row.map((cell, x) => (
-                <div
-                  key={`${x}-${y}`}
-                  style={{
-                    width: `${cellSize}px`,
-                    height: `${cellSize}px`,
-                    position: "relative",
-                  }}
-                >
-                  {renderCell(cell, x, y, gameState.map)}
-                </div>
-              ))}
-            </div>
-          ))}
+        <div className="overflow-auto max-w-full max-h-[70vh] p-2">
+          <div className="grid">
+            {gameState.map.map((row, y) => (
+              <div key={y} className="flex" style={{ display: "flex" }}>
+                {row.map((cell, x) => (
+                  <div
+                    key={`${x}-${y}`}
+                    style={{
+                      width: `${cellSize}px`,
+                      height: `${cellSize}px`,
+                      position: "relative",
+                    }}
+                  >
+                    {renderCell(cell, x, y, gameState.map)}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-2 mt-4 lg:hidden">
@@ -318,29 +333,26 @@ const SokobanGame = () => {
         </div>
 
         {gameState.isWon && (
-          <div className="mt-4 text-2xl font-bold text-green-500">
-            恭喜你赢了! 总共移动 {gameState.moves} 步，预期步数 {gameState.estimatedSteps} 步
-          </div>
+          <div className="mt-4 text-2xl font-bold text-green-500">恭喜你赢了! 总共移动 {gameState.moves} 步</div>
         )}
       </div>
 
       {/* 设置区域 */}
       <div className="w-full lg:w-1/5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">难度系数: {difficulty}</label>
-          <input
-            type="range"
-            min="1"
-            max="1000"
-            value={difficulty}
-            onChange={(e) => setDifficulty(Number(e.target.value))}
-            className="w-full"
+          <label className="text-sm font-medium">选择关卡</label>
+          <CustomListbox
+            value={levelOptions[currentLevel]}
+            onChange={(newValue) => {
+              const newLevel = levelOptions.indexOf(newValue);
+              setCurrentLevel(newLevel);
+            }}
+            options={levelOptions}
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="text-lg">步数: {gameState.moves}</div>
-          <div className="text-lg">预计最优步数: {gameState.estimatedSteps}</div>
         </div>
 
         <button
