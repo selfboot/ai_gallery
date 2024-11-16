@@ -4,16 +4,17 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from '@/app/components/BlogMarkdown';
+import levelsData from './levels.json';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return PageMeta({
-    title: dict.seo.sudoku.title,
-    description: dict.seo.sudoku.description,
-    keywords: dict.seo.sudoku.keywords,
+    title: dict.seo.sokoban.title,
+    description: dict.seo.sokoban.description,
+    keywords: dict.seo.sokoban.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sokoban`,
-    publishedDate: "2024-11-14T02:00:00.000Z",
-    updatedDate: "2024-11-14T18:00:00.000Z",
+    publishedDate: "2024-11-13T02:00:00.000Z",
+    updatedDate: "2024-11-18T06:00:00.000Z",
   });
 }
 
@@ -21,7 +22,7 @@ export default function SokobanPage({ params: { lang } }) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/sokoban`} />
-      <SokobanGame lang={lang} />
+      <SokobanGame lang={lang} levels={levelsData.levels} />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/games/sokoban" />
       <CommonComments lang={lang} />
     </>

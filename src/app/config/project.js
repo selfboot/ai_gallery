@@ -22,6 +22,20 @@ const Projects = {
       link: "/games/snake",
     },
     {
+      id: "sudoku",
+      title: "sudoku_title",
+      description: "sudoku_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sudoku_small.png",
+      link: "/games/sudoku",
+    },
+    {
+      id: "sokoban",
+      title: "sokoban_title",
+      description: "sokoban_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241116_ai_gallery_sokoban_small.png",
+      link: "/games/sokoban",
+    },
+    {
       id: "cube",
       title: "cube_title",
       description: "cube_description",
@@ -34,13 +48,6 @@ const Projects = {
       description: "tetris_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_tetris_small.png",
       link: "/games/tetris",
-    },
-    {
-      id: "sudoku",
-      title: "sudoku_title",
-      description: "sudoku_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sudoku_small.png",
-      link: "/games/sudoku",
     },
     {
       id: "2048",

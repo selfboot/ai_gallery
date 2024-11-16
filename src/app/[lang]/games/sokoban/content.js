@@ -2,11 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
-import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, LEVEL_MAPS } from "./gameLogic";
-import { CustomListbox } from "@/app/components/ListBox";
+import { SokobanLogic, ELEMENTS, SPRITE_CONFIG } from "./gameLogic";
+import { useI18n } from "@/app/i18n/client";
+import Modal from "@/app/components/Modal";
 
-const SokobanGame = () => {
-  const [currentLevel, setCurrentLevel] = useState(0);
+const STORAGE_KEY = 'sokoban-progress';
+
+const SokobanGame = ({ lang, levels }) => {
+  const { t } = useI18n();
+  const [currentLevel, setCurrentLevel] = useState(null);
+  const [completedLevels, setCompletedLevels] = useState({});
   const [gameInstance, setGameInstance] = useState(null);
   const [gameState, setGameState] = useState({
     map: [],
@@ -19,19 +24,34 @@ const SokobanGame = () => {
   const [rightMoveFrame, setRightMoveFrame] = useState(0);
   const [upMoveFrame, setUpMoveFrame] = useState(0);
   const [downMoveFrame, setDownMoveFrame] = useState(0);
-  const [cellSize, setCellSize] = useState(SPRITE_CONFIG.SPRITE_SIZE);
+  const [cellSize, setCellSize] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
-  const levelOptions = LEVEL_MAPS.map((_, index) => `第 ${index + 1} 关`);
+  const resetGame = useCallback(() => {
+    if (currentLevel === null) return;
+
+    const newGame = new SokobanLogic(currentLevel, levels);
+    setGameInstance(newGame);
+    setGameState(newGame.getState());
+  }, [currentLevel, levels]);
+
+  useEffect(() => {
+    const savedProgress = localStorage.getItem(STORAGE_KEY);
+    if (savedProgress) {
+      const savedLevels = JSON.parse(savedProgress);
+      setCompletedLevels(savedLevels);
+
+      const firstUncompletedLevel = levels.findIndex((_, index) => !savedLevels[index]);
+      setCurrentLevel(firstUncompletedLevel === -1 ? 0 : firstUncompletedLevel);
+    } else {
+      setCurrentLevel(0);
+    }
+  }, []);
 
   useEffect(() => {
     resetGame();
   }, [currentLevel]);
-
-  const resetGame = () => {
-    const newGame = new SokobanLogic(currentLevel);
-    setGameInstance(newGame);
-    setGameState(newGame.getState());
-  };
 
   const movePlayer = useCallback(
     (direction) => {
@@ -257,6 +277,8 @@ const SokobanGame = () => {
 
   useEffect(() => {
     const updateCellSize = () => {
+      if (!gameState.map.length) return;
+
       const containerWidth = window.innerWidth;
       const containerHeight = window.innerHeight;
 
@@ -289,31 +311,124 @@ const SokobanGame = () => {
     updateCellSize();
     window.addEventListener("resize", updateCellSize);
     return () => window.removeEventListener("resize", updateCellSize);
-  }, [gameState.map.length, gameState.map[0]?.length]);
+  }, [gameState.map]);
+
+  useEffect(() => {
+    if (gameState.isWon) {
+      saveProgress(currentLevel, gameState.moves);
+      setModalMessage(t("sokoban_succmsg", {
+        level: currentLevel + 1,
+        moves: gameState.moves
+      }));
+      setShowModal(true);
+    }
+  }, [gameState.isWon]);
+
+  const saveProgress = (levelIndex, moves) => {
+    const newCompletedLevels = {
+      ...completedLevels,
+      [levelIndex]: {
+        completedAt: new Date().toISOString(),
+        moves: moves
+      }
+    };
+    setCompletedLevels(newCompletedLevels);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newCompletedLevels));
+  };
+
+  const canUndo = useCallback(() => {
+    return gameInstance && gameInstance.history.length > 1;
+  }, [gameInstance]);
+
+  const handleUndo = () => {
+    if (!gameInstance || !canUndo()) return;
+    const newMap = gameInstance.undo();
+    if (newMap) {
+      setGameState(gameInstance.getState());
+    }
+  };
+
+  const LevelSelector = () => {
+    return (
+      <div className="mb-4">
+        <h2 className="font-bold mb-2">{t("select_level")}</h2>
+        <div className="h-[200px] overflow-y-auto pr-2">
+          <div className="pl-1 pt-1 grid grid-cols-[repeat(auto-fill,minmax(32px,1fr))] gap-[2px]">
+            {levels.map((_, index) => {
+              const isCompleted = completedLevels[index];
+              const isCurrentLevel = currentLevel === index;
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => setCurrentLevel(index)}
+                  className={`
+                    aspect-square text-center text-sm transition-all
+                    ${isCurrentLevel ? 'ring-1 ring-blue-500' : ''}
+                    ${isCompleted
+                      ? 'bg-green-100 hover:bg-green-200 text-green-700'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}
+                  `}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const CurrentLevelInfo = () => {
+    const levelInfo = completedLevels[currentLevel];
+
+    return (
+      <div className="mb-4">
+        <h2 className="fond-bold mb-2">
+          {t("level")}: {currentLevel + 1}
+        </h2>
+        {levelInfo && (
+          <div className="text-sm text-green-600">
+            <div>{t("best_record")}: {levelInfo.moves} {t("steps")}</div>
+            <div>{t("completed_at")}: {
+              new Date(levelInfo.completedAt).toLocaleDateString()
+            }</div>
+          </div>
+        )}
+        <div className="mt-1">
+          <h2 className="fond-bold mb-2"></h2>
+          {t("current_steps")}: {gameState.moves}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col lg:flex-row w-full gap-4 p-4">
       <div className="w-full lg:w-4/5 flex flex-col items-center gap-4">
-        <div className="overflow-auto max-w-full max-h-[70vh] p-2">
-          <div className="grid">
-            {gameState.map.map((row, y) => (
-              <div key={y} className="flex" style={{ display: "flex" }}>
-                {row.map((cell, x) => (
-                  <div
-                    key={`${x}-${y}`}
-                    style={{
-                      width: `${cellSize}px`,
-                      height: `${cellSize}px`,
-                      position: "relative",
-                    }}
-                  >
-                    {renderCell(cell, x, y, gameState.map)}
-                  </div>
-                ))}
-              </div>
-            ))}
+        {cellSize && (
+          <div className="overflow-x-auto max-w-full p-2">
+            <div className="grid">
+              {gameState.map.map((row, y) => (
+                <div key={y} className="flex" style={{ display: "flex" }}>
+                  {row.map((cell, x) => (
+                    <div
+                      key={`${x}-${y}`}
+                      style={{
+                        width: `${cellSize}px`,
+                        height: `${cellSize}px`,
+                        position: "relative",
+                      }}
+                    >
+                      {renderCell(cell, x, y, gameState.map)}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col items-center gap-2 mt-4 lg:hidden">
           <button className="p-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => movePlayer("UP")}>
@@ -331,38 +446,43 @@ const SokobanGame = () => {
             </button>
           </div>
         </div>
-
-        {gameState.isWon && (
-          <div className="mt-4 text-2xl font-bold text-green-500">恭喜你赢了! 总共移动 {gameState.moves} 步</div>
-        )}
       </div>
 
-      {/* 设置区域 */}
       <div className="w-full lg:w-1/5 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">选择关卡</label>
-          <CustomListbox
-            value={levelOptions[currentLevel]}
-            onChange={(newValue) => {
-              const newLevel = levelOptions.indexOf(newValue);
-              setCurrentLevel(newLevel);
-            }}
-            options={levelOptions}
-          />
-        </div>
+        <CurrentLevelInfo />
+        <LevelSelector />
 
         <div className="flex flex-col gap-2">
-          <div className="text-lg">步数: {gameState.moves}</div>
-        </div>
+          <button
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={resetGame}
+          >
+            <RotateCcw size={16} />
+            {t("restart_game")}
+          </button>
 
-        <button
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={resetGame}
-        >
-          <RotateCcw size={16} />
-          重置
-        </button>
+          <button
+            className={`
+              w-full flex items-center justify-center gap-2 px-4 py-2 rounded
+              ${canUndo()
+                ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+            `}
+            onClick={handleUndo}
+            disabled={!canUndo()}
+          >
+            <ArrowLeft size={16} />
+            {t("undo")}
+          </button>
+        </div>
       </div>
+
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      >
+        {modalMessage}
+      </Modal>
     </div>
   );
 };
