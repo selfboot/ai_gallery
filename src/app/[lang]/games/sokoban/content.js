@@ -8,6 +8,30 @@ import Modal from "@/app/components/Modal";
 
 const STORAGE_KEY = 'sokoban-progress';
 
+// RLE (Run Length Encoding) save map identifier
+const calculateMapHash = (map) => {
+  const width = map[0].length;
+  const height = map.length;
+  const flatMap = map.flat();
+  let rle = '';
+  let count = 1;
+  let prev = flatMap[0];
+  
+  for (let i = 1; i < flatMap.length; i++) {
+    const current = flatMap[i];
+    if (current === prev) {
+      count++;
+    } else {
+      rle += count > 1 ? `${count}${prev}` : prev;
+      count = 1;
+      prev = current;
+    }
+  }
+  rle += count > 1 ? `${count}${prev}` : prev;
+  const mapData = `${width},${height};${rle}`;
+  return btoa(mapData);
+};
+
 const SokobanGame = ({ lang, levels }) => {
   const { t } = useI18n();
   const [currentLevel, setCurrentLevel] = useState(null);
@@ -29,7 +53,7 @@ const SokobanGame = ({ lang, levels }) => {
   const [modalMessage, setModalMessage] = useState('');
 
   const resetGame = useCallback(() => {
-    if (currentLevel === null) return;
+    if (currentLevel === null || !levels[currentLevel]) return;
 
     const newGame = new SokobanLogic(currentLevel, levels);
     setGameInstance(newGame);
@@ -42,7 +66,9 @@ const SokobanGame = ({ lang, levels }) => {
       const savedLevels = JSON.parse(savedProgress);
       setCompletedLevels(savedLevels);
 
-      const firstUncompletedLevel = levels.findIndex((_, index) => !savedLevels[index]);
+      const levelHashes = levels.map(calculateMapHash);
+      // Find the first uncompleted level
+      const firstUncompletedLevel = levelHashes.findIndex(hash => !savedLevels[hash]);
       setCurrentLevel(firstUncompletedLevel === -1 ? 0 : firstUncompletedLevel);
     } else {
       setCurrentLevel(0);
@@ -143,9 +169,9 @@ const SokobanGame = ({ lang, levels }) => {
         background: `url(${SPRITE_CONFIG.SPRITE_SHEET})`,
         backgroundPosition: `-${position.x}px -${position.y}px`,
         backgroundSize: "auto",
-        transform: `scale(${scale})`, // 使用 transform 进行整体缩放
+        transform: `scale(${scale})`, // Use transform for overall scaling
         transformOrigin: "top left",
-        imageRendering: "pixelated", // 保持像素风格清晰
+        imageRendering: "pixelated",  // Keep pixelated style clear
       };
     };
 
@@ -325,9 +351,12 @@ const SokobanGame = ({ lang, levels }) => {
   }, [gameState.isWon]);
 
   const saveProgress = (levelIndex, moves) => {
+    if (levelIndex === null || !levels[levelIndex]) return;
+
+    const mapHash = calculateMapHash(levels[levelIndex]);
     const newCompletedLevels = {
       ...completedLevels,
-      [levelIndex]: {
+      [mapHash]: {
         completedAt: new Date().toISOString(),
         moves: moves
       }
@@ -354,8 +383,9 @@ const SokobanGame = ({ lang, levels }) => {
         <h2 className="font-bold mb-2">{t("select_level")}</h2>
         <div className="h-[200px] overflow-y-auto pr-2">
           <div className="pl-1 pt-1 grid grid-cols-[repeat(auto-fill,minmax(32px,1fr))] gap-[2px]">
-            {levels.map((_, index) => {
-              const isCompleted = completedLevels[index];
+            {levels.map((level, index) => {
+              const mapHash = calculateMapHash(level);
+              const isCompleted = completedLevels[mapHash];
               const isCurrentLevel = currentLevel === index;
 
               return (
@@ -381,7 +411,12 @@ const SokobanGame = ({ lang, levels }) => {
   };
 
   const CurrentLevelInfo = () => {
-    const levelInfo = completedLevels[currentLevel];
+    if (currentLevel === null || !levels[currentLevel]) {
+      return null;
+    }
+
+    const mapHash = calculateMapHash(levels[currentLevel]);
+    const levelInfo = completedLevels[mapHash];
 
     return (
       <div className="mb-4">
