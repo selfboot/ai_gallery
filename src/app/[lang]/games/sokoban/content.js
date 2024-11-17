@@ -61,8 +61,14 @@ const SokobanGame = ({ lang, levels }) => {
   }, [currentLevel, levels]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const levelParam = params.get('level');
+    const requestedLevel = levelParam ? parseInt(levelParam) - 1 : null;
     const savedProgress = localStorage.getItem(STORAGE_KEY);
-    if (savedProgress) {
+    
+    if (requestedLevel !== null && requestedLevel >= 0 && requestedLevel < levels.length) {
+      setCurrentLevel(requestedLevel);
+    } else if (savedProgress) {
       const savedLevels = JSON.parse(savedProgress);
       setCompletedLevels(savedLevels);
 
@@ -73,7 +79,7 @@ const SokobanGame = ({ lang, levels }) => {
     } else {
       setCurrentLevel(0);
     }
-  }, []);
+  }, [levels]);
 
   useEffect(() => {
     resetGame();
