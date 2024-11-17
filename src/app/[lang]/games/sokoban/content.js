@@ -65,13 +65,12 @@ const SokobanGame = ({ lang, levels }) => {
     const levelParam = params.get('level');
     const requestedLevel = levelParam ? parseInt(levelParam) - 1 : null;
     const savedProgress = localStorage.getItem(STORAGE_KEY);
-    
+    const savedLevels = JSON.parse(savedProgress);
+    setCompletedLevels(savedLevels);
+
     if (requestedLevel !== null && requestedLevel >= 0 && requestedLevel < levels.length) {
       setCurrentLevel(requestedLevel);
     } else if (savedProgress) {
-      const savedLevels = JSON.parse(savedProgress);
-      setCompletedLevels(savedLevels);
-
       const levelHashes = levels.map(calculateMapHash);
       // Find the first uncompleted level
       const firstUncompletedLevel = levelHashes.findIndex(hash => !savedLevels[hash]);
