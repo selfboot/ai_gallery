@@ -28,6 +28,24 @@ If you're stuck on a level, don't get discouraged. Sometimes changing your persp
 
 Finally, enjoying the puzzle-solving process is most important. Don't worry too much about the number of moves; taking it slow often leads to better results. When you finally find the perfect solution, you'll feel a great sense of achievement.
 
-## Custom Maps and Sharing?
+## Design Your Own Sokoban Levels
 
-If you'd like to create custom maps, set up levels, and share them with friends, please leave a comment. I'll work on developing a custom gameplay mode with sharing functionality as soon as possible.
+This Sokoban game features a powerful **game editor** that allows you to create, edit, and share your own puzzles. To start creating your own level, simply click the "**Create Game**" button on the right panel to enter edit mode.
+
+![Sokoban Game Editor: Create Your Own Sokoban Game](https://slefboot-1251736664.file.myqcloud.com/20241117_ai_gallery_sokoban_editmode.png)
+
+In the editor, you can freely adjust the map's width and height, supporting sizes from 3x3 to 50x50. The editing interface provides all necessary map elements, which can be placed on the grid with simple clicks. If you're not satisfied with your current design, you can use the clear button to start over. Once you've completed your design, click the save button to immediately experience your creation.
+
+When creating levels, you need to make good use of various map elements. The floor is a passable area, with empty spaces mainly used for map aesthetics. **Walls** serve as impassable obstacles, used to define the player's movement range and increase game difficulty. The **player's** starting position is essential for each map, and only one player can be placed per map. **Boxes** are the core elements of the game, which need to be pushed to **target** (shown as red dots). If you want some boxes to start on target points in the initial state, you can directly use the **Box on Target** element.
+
+To create a valid Sokoban level, you must ensure the map contains these essential elements: **one player starting position, at least one box, and corresponding target points**. Without any of these elements, the map won't be playable.
+
+Furthermore, **a good Sokoban level must be solvable**, so it's recommended to mentally work through the solution while designing. Difficulty balance is also important - avoid making it too easy for boxes to get stuck in corners, but also don't make the level overwhelmingly challenging.
+
+For first-time level designers, it's recommended to start with smaller maps around 8x8. Small maps are not only easier to design but also make it easier for players to understand the puzzle's concept. During design, pay special attention to leaving enough operating space, allowing players to move freely and think through solutions.
+
+## Share Your Unique Sokoban Levels
+
+After editing your map, you can click save, and the browser's address bar will automatically update, **generating a new link containing a unique map ID**. You can copy this link and share it with friends, allowing them to play your custom-designed level.
+
+Go ahead and design your unique level, share it with friends, and challenge them!

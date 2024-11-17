@@ -52,6 +52,78 @@ export const SPRITE_CONFIG = {
   },
 };
 
+// RLE (Run Length Encoding) save map identifier
+export const calculateMapId = (map) => {
+  const width = map[0].length;
+  const height = map.length;
+  const flatMap = map.flat();
+  let rle = '';
+  let count = 1;
+  let prev = flatMap[0];
+
+  for (let i = 1; i < flatMap.length; i++) {
+    const current = flatMap[i];
+    if (current === prev) {
+      count++;
+    } else {
+      rle += count > 1 ? `${count}x${prev},` : `${prev},`;
+      count = 1;
+      prev = current;
+    }
+  }
+  rle += count > 1 ? `${count}x${prev}` : prev;
+
+  const mapData = `${width},${height};${rle}`;
+  return btoa(mapData);
+};
+
+export const decodeMapFromId = (id) => {
+  try {
+    const decodedId = decodeURIComponent(id);
+    const mapData = atob(decodedId);
+    const [dimensions, rle] = mapData.split(';');
+    const [width, height] = dimensions.split(',').map(Number);
+
+    if (!width || !height || width < 3 || height < 3 || width > 20 || height > 20) {
+      throw new Error(`Invalid dimensions: ${width}x${height}`);
+    }
+
+    const flatMap = [];
+    const groups = rle.split(',');
+
+    for (const group of groups) {
+      if (group.includes('x')) {
+        const [count, element] = group.split('x');
+        const num = Number(element);
+        if (isNaN(num) || !Object.values(ELEMENTS).includes(num)) {
+          throw new Error(`Invalid element: ${element}`);
+        }
+        flatMap.push(...Array(Number(count)).fill(num));
+      } else {
+        const num = Number(group);
+        if (isNaN(num) || !Object.values(ELEMENTS).includes(num)) {
+          throw new Error(`Invalid element: ${group}`);
+        }
+        flatMap.push(num);
+      }
+    }
+
+    if (flatMap.length !== width * height) {
+      throw new Error(`Invalid map size: expected ${width * height}, got ${flatMap.length}`);
+    }
+
+    const map = [];
+    for (let y = 0; y < height; y++) {
+      map.push(flatMap.slice(y * width, (y + 1) * width));
+    }
+
+    return map;
+  } catch (error) {
+    console.error('Error decoding map:', error);
+    throw error;
+  }
+};
+
 export class SokobanLogic {
   constructor(level = 1, levelMaps) {
     this.level = level;
@@ -84,8 +156,8 @@ export class SokobanLogic {
   }
 
   undo() {
-    if (this.history.length <= 1) return null; // 没有可撤销的步骤
-  
+    if (this.history.length <= 1) return null; // No undo steps
+
     this.history.pop();
     const lastState = this.history[this.history.length - 1];
     this.map = lastState.map.map(row => [...row]);
@@ -130,14 +202,14 @@ export class SokobanLogic {
   }
 
   isValidMove(map, newPos, boxNewPos) {
-    // 检查新位置是否是墙或空地
+    // Check if the new position is a wall or empty
     if (map[newPos.y][newPos.x] === ELEMENTS.WALL || map[newPos.y][newPos.x] === ELEMENTS.EMPTY) {
       return false;
     }
 
-    // 如果新位置是箱子或箱子在目标点上
+    // Check If the new position is a box or a box on target
     if (map[newPos.y][newPos.x] === ELEMENTS.BOX || map[newPos.y][newPos.x] === ELEMENTS.BOX_ON_TARGET) {
-      // 检查箱子的新位置是否有效
+      // Check if the new position of the box is valid
       if (
         map[boxNewPos.y][boxNewPos.x] === ELEMENTS.WALL ||
         map[boxNewPos.y][boxNewPos.x] === ELEMENTS.EMPTY ||
@@ -152,8 +224,6 @@ export class SokobanLogic {
   }
 
   updateMapState(map, playerPos, newPos, boxNewPos) {
-    // console.log("updateMapState", playerPos.y, playerPos.x, newPos.y, newPos.x, boxNewPos.y, boxNewPos.x);
-
     if (map[newPos.y][newPos.x] === ELEMENTS.BOX || map[newPos.y][newPos.x] === ELEMENTS.BOX_ON_TARGET) {
       // Process box new position
       map[boxNewPos.y][boxNewPos.x] =

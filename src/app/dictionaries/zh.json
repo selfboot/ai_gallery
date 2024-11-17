@@ -451,6 +451,21 @@
   "best_record": "最佳记录",
   "completed_at": "完成时间",
   "steps": "步",
+  "exit_edit_mode": "退出编辑",
+  "save_map": "保存地图",
+  "create_level": "创建关卡",
+  "width": "宽度",
+  "height": "高度",
+  "empty": "空白",
+  "player": "玩家",
+  "box": "箱子",
+  "target": "目标",
+  "wall": "墙",
+  "floor": "地板",
+  "box on target": "目标上的箱子",
+  "clear_map": "清空地图",
+  "invalid_map": "地图无效，请检查地图链接是否正确",
+  "invalid_custom_map": "不是一个有效的自定义地图，请检查地图链接是否正确。接下来为你提供一个默认的关卡，你可以在此基础上进行修改。",
 
   "chartrace": {
       "population-growth": {
