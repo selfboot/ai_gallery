@@ -60,25 +60,42 @@ const SokobanGame = ({ lang, levels }) => {
     setGameState(newGame.getState());
   }, [currentLevel, levels]);
 
+  // 添加更新URL的函数
+  const updateLevelURL = useCallback((levelIndex) => {
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('level', levelIndex + 1);
+    window.history.replaceState({}, '', newUrl);
+  }, []);
+
+  // 修改setCurrentLevel的调用方式
+  const handleLevelChange = useCallback((levelIndex) => {
+    setCurrentLevel(levelIndex);
+    updateLevelURL(levelIndex);
+  }, [updateLevelURL]);
+
+  // 修改初始化useEffect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const levelParam = params.get('level');
     const requestedLevel = levelParam ? parseInt(levelParam) - 1 : null;
     const savedProgress = localStorage.getItem(STORAGE_KEY);
-    const savedLevels = JSON.parse(savedProgress);
+    const savedLevels = savedProgress ? JSON.parse(savedProgress) : {};
     setCompletedLevels(savedLevels);
 
+    let newLevel;
     if (requestedLevel !== null && requestedLevel >= 0 && requestedLevel < levels.length) {
-      setCurrentLevel(requestedLevel);
+      newLevel = requestedLevel;
     } else if (savedProgress) {
       const levelHashes = levels.map(calculateMapHash);
       // Find the first uncompleted level
       const firstUncompletedLevel = levelHashes.findIndex(hash => !savedLevels[hash]);
-      setCurrentLevel(firstUncompletedLevel === -1 ? 0 : firstUncompletedLevel);
+      newLevel = firstUncompletedLevel === -1 ? 0 : firstUncompletedLevel;
     } else {
-      setCurrentLevel(0);
+      newLevel = 0;
     }
-  }, [levels]);
+
+    handleLevelChange(newLevel);
+  }, [levels, handleLevelChange]);
 
   useEffect(() => {
     resetGame();
@@ -396,7 +413,7 @@ const SokobanGame = ({ lang, levels }) => {
               return (
                 <button
                   key={index}
-                  onClick={() => setCurrentLevel(index)}
+                  onClick={() => handleLevelChange(index)}
                   className={`
                     aspect-square text-center text-sm transition-all
                     ${isCurrentLevel ? 'ring-1 ring-blue-500' : ''}
