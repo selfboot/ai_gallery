@@ -437,7 +437,7 @@
   "sliding_title": "Free Online Sliding Puzzle",
   "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, supports customizing the number layout of each cell, and supports obtaining intelligent solution plans! Code is open source, free to play online!",
 
-  "sokoban_title": "Online Free Sokoban Game",
+  "sokoban_title": "Free Online Sokoban Game",
   "sokoban_description": "High difficulty Sokoban game, with various levels built-in, good operation experience, supports undo operation, see how far you can play?",
   "select_level": "Select Level",
   "current_level": "Current Level",
@@ -691,9 +691,9 @@
       "keywords": "Digital sliding puzzle, Online digital sliding puzzle, Free digital sliding puzzle"
     },
     "sokoban": {
-      "title": "Online Free Sokoban Game",
-      "description": "A high-difficulty Sokoban game with levels of various difficulties. Use your brain to push the box around the obstacle and to the designated location. Puzzle games, suitable for all ages, exercise thinking skills.",
-      "keywords": "Online Sokoban, Free Sokoban, Sokoban Hardest Level"
+      "title": "Free Online Sokoban Game",
+      "description": "A high-difficulty Sokoban game with levels of various difficulties, also supports customizing game levels and sharing with friends to play together. Use your brain to push the box around the obstacle and to the designated location. Puzzle games, suitable for all ages, exercise thinking skills.",
+      "keywords": "Free Online Sokoban, Customize Sokoban, Sokoban Hardest Level"
     }
   }
 }
