@@ -62,6 +62,11 @@ const SokobanGame = ({ lang, levels }) => {
   const handleLevelChange = useCallback((levelIndex) => {
     setCurrentLevel(levelIndex);
     updateLevelURL(levelIndex);
+    if (window.umami) {
+      window.umami.track("Sokoban Change Level", {
+        level: levelIndex + 1,
+      });
+    }
   }, [updateLevelURL]);
 
   const initializeEditMap = useCallback(() => {
@@ -95,9 +100,11 @@ const SokobanGame = ({ lang, levels }) => {
   const saveCustomMap = () => {
     // Validate the map (at least one player, one box, and one target)
     const flatMap = customMap.flat();
-    const hasPlayer = flatMap.some(cell => [ELEMENTS.PLAYER, ELEMENTS.PLAYER_ON_TARGET].includes(cell));
-    const hasBox = flatMap.some(cell => [ELEMENTS.BOX, ELEMENTS.BOX_ON_TARGET].includes(cell));
-    const hasTarget = flatMap.some(cell => [ELEMENTS.TARGET, ELEMENTS.BOX_ON_TARGET, ELEMENTS.PLAYER_ON_TARGET].includes(cell));
+    const hasPlayer = flatMap.some((cell) => [ELEMENTS.PLAYER, ELEMENTS.PLAYER_ON_TARGET].includes(cell));
+    const hasBox = flatMap.some((cell) => [ELEMENTS.BOX, ELEMENTS.BOX_ON_TARGET].includes(cell));
+    const hasTarget = flatMap.some((cell) =>
+      [ELEMENTS.TARGET, ELEMENTS.BOX_ON_TARGET, ELEMENTS.PLAYER_ON_TARGET].includes(cell)
+    );
 
     if (!hasPlayer || !hasBox || !hasTarget) {
       setModalMessage(t("invalid_map"));
@@ -107,12 +114,18 @@ const SokobanGame = ({ lang, levels }) => {
 
     const mapHash = calculateMapId(customMap);
     const newUrl = new URL(window.location.pathname, window.location.origin);
-    newUrl.searchParams.set('id', mapHash);
-    window.history.replaceState({}, '', newUrl);
+    newUrl.searchParams.set("id", mapHash);
+    window.history.replaceState({}, "", newUrl);
 
     setIsEditMode(false);
     setGameInstance(new SokobanLogic(0, [customMap]));
     setGameState(new SokobanLogic(0, [customMap]).getState());
+
+    if (window.umami) {
+      window.umami.track("Sokoban Save Custom Map", {
+        mapHash: mapHash,
+      });
+    }
   };
 
   useEffect(() => {
@@ -432,11 +445,20 @@ const SokobanGame = ({ lang, levels }) => {
   useEffect(() => {
     if (gameState.isWon) {
       saveProgress(currentLevel, gameState.moves);
-      setModalMessage(t("sokoban_succmsg", {
-        level: currentLevel + 1,
-        moves: gameState.moves
-      }));
+      setModalMessage(
+        t("sokoban_succmsg", {
+          level: currentLevel + 1,
+          moves: gameState.moves,
+        })
+      );
       setShowModal(true);
+
+      if (window.umami) {
+        window.umami.track("Sokoban Game Succ", {
+          level: currentLevel + 1,
+          moves: gameState.moves,
+        });
+      }
     }
   }, [gameState.isWon]);
 
