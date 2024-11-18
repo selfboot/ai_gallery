@@ -84,7 +84,7 @@ export const decodeMapFromId = (id) => {
     const [dimensions, rle] = mapData.split(';');
     const [width, height] = dimensions.split(',').map(Number);
 
-    if (!width || !height || width < 3 || height < 3 || width > 20 || height > 20) {
+    if (!width || !height || width < 3 || height < 3) {
       throw new Error(`Invalid dimensions: ${width}x${height}`);
     }
 
