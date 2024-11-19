@@ -6,14 +6,23 @@ import CommonComments from "@/app/components/GiscusComments";
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.game2048.title,
-    description: dict.seo.game2048.description,
-    keywords: dict.seo.game2048.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/2048`,
-    publishedDate: "2024-07-15T02:00:00.000Z",
-    updatedDate: "2024-07-15T09:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.game2048.title,
+      description: dict.seo.game2048.description,
+      keywords: dict.seo.game2048.keywords,
+      publishedDate: "2024-07-15T02:00:00.000Z",
+      updatedDate: "2024-11-19T09:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/2048`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/2048",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/2048",
+        "x-default": "https://gallery.selfboot.cn/en/games/2048",
+      },
+    },
+  };
 }
 
 export default function Game2048Page({ params: { lang } }) {

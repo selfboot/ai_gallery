@@ -6,14 +6,23 @@ import CommonComments from "@/app/components/GiscusComments";
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.tetris.title,
-    description: dict.seo.tetris.description,
-    keywords: dict.seo.tetris.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/tetris`,
-    publishedDate: "2024-07-01T02:00:00.000Z",
-    updatedDate: "2024-07-01T09:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.tetris.title,
+      description: dict.seo.tetris.description,
+      keywords: dict.seo.tetris.keywords,
+      publishedDate: "2024-07-01T02:00:00.000Z",
+      updatedDate: "2024-11-19T02:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/tetris`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/tetris",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/tetris",
+        "x-default": "https://gallery.selfboot.cn/en/games/tetris",
+      },
+    },
+  };
 }
 
 export default function TetrisPage({ params: { lang } }) {

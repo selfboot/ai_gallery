@@ -7,14 +7,23 @@ import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.gomoku.title,
-    description: dict.seo.gomoku.description,
-    keywords: dict.seo.gomoku.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/gomoku`,
-    publishedDate: "2024-07-01T02:00:00.000Z",
-    updatedDate: "2024-10-26T09:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.gomoku.title,
+      description: dict.seo.gomoku.description,
+      keywords: dict.seo.gomoku.keywords,
+      publishedDate: "2024-07-01T02:00:00.000Z",
+      updatedDate: "2024-11-19T09:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/gomoku`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/gomoku",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/gomoku",
+        "x-default": "https://gallery.selfboot.cn/en/games/gomoku",
+      },
+    },
+  };
 }
 
 export default function GomokuPage({ params: { lang } }) {

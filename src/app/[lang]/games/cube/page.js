@@ -7,14 +7,23 @@ import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.cube.title,
-    description: dict.seo.cube.description,
-    keywords: dict.seo.cube.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/cube`,
-    publishedDate: "2024-10-25T02:00:00.000Z",
-    updatedDate: "2024-10-25T09:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.cube.title,
+      description: dict.seo.cube.description,
+      keywords: dict.seo.cube.keywords,
+      publishedDate: "2024-10-25T02:00:00.000Z",
+      updatedDate: "2024-11-19T09:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/cube`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/cube",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/cube",
+        "x-default": "https://gallery.selfboot.cn/en/games/cube",
+      },
+    },
+  };
 }
 
 export default function CubePage({ params: { lang } }) {

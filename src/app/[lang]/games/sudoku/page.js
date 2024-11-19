@@ -7,14 +7,23 @@ import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.sudoku.title,
-    description: dict.seo.sudoku.description,
-    keywords: dict.seo.sudoku.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sudoku`,
-    publishedDate: "2024-10-11T02:00:00.000Z",
-    updatedDate: "2024-10-31T09:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.sudoku.title,
+      description: dict.seo.sudoku.description,
+      keywords: dict.seo.sudoku.keywords,
+      publishedDate: "2024-10-11T02:00:00.000Z",
+      updatedDate: "2024-11-19T09:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/sudoku`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/sudoku",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/sudoku",
+        "x-default": "https://gallery.selfboot.cn/en/games/sudoku",
+      },
+    },
+  };
 }
 
 export default function SudokuPage({ params: { lang } }) {

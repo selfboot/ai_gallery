@@ -3,19 +3,28 @@ import SokobanGame from "./content";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
-import BlogMarkdown from '@/app/components/BlogMarkdown';
-import levelsData from './levels.json';
+import BlogMarkdown from "@/app/components/BlogMarkdown";
+import levelsData from "./levels.json";
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.sokoban.title,
-    description: dict.seo.sokoban.description,
-    keywords: dict.seo.sokoban.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sokoban`,
-    publishedDate: "2024-11-17T03:00:00.000Z",
-    updatedDate: "2024-11-17T03:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.sokoban.title,
+      description: dict.seo.sokoban.description,
+      keywords: dict.seo.sokoban.keywords,
+      publishedDate: "2024-11-17T03:00:00.000Z",
+      updatedDate: "2024-11-17T03:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/games/sokoban`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/games/sokoban",
+        "zh-CN": "https://gallery.selfboot.cn/zh/games/sokoban",
+        "x-default": "https://gallery.selfboot.cn/en/games/sokoban",
+      },
+    },
+  };
 }
 
 export default function SokobanPage({ params: { lang } }) {
