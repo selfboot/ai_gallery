@@ -459,7 +459,7 @@
   "floor": "Floor",
   "box on target": "Box on Target",
   "clear_map": "Clear Map",
-  "invalid_map": "Invalid map, please check if the map link is correct",
+  "invalid_map": "Invalid map, please make sure to create a valid map",
   "invalid_custom_map": "Not a valid custom map, please check if the map link is correct. A default level will be provided for you to modify.",
   
   "chartrace": {

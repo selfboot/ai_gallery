@@ -240,3 +240,136 @@ describe('Map Encoding/Decoding Tests', () => {
     });
   });
 });
+
+describe('Map Validation Tests', () => {
+  const testCases = [
+    {
+      name: "Valid simple map",
+      map: 
+`#####
+#@$.#
+#####`,
+      expected: { isValid: true }
+    },
+    {
+      name: "Valid complex map",
+      map:
+`#######
+#  .  #
+# #$# #
+#  @  #
+#######`,
+      expected: { isValid: true }
+    },
+    {
+      name: "Empty map",
+      map: ``,
+      expected: { isValid: false, error: "empty_map" }
+    },
+    {
+      name: "No player",
+      map:
+`####
+# $.#
+#####`,
+      expected: { isValid: false, error: "no_player" }
+    },
+    {
+      name: "No box",
+      map:
+`#####
+#@. #
+#####`,
+      expected: { isValid: false, error: "no_box" }
+    },
+    {
+      name: "No target",
+      map:
+`#####
+#@$ #
+#####`,
+      expected: { isValid: false, error: "no_target" }
+    },
+    {
+      name: "Too many targets",
+      map:
+`######
+#@$..#
+######`,
+      expected: { isValid: false, error: "too_many_targets" }
+    },
+    {
+      name: "Wall incomplete - gap on edge",
+      map:
+`#####
+#@$. 
+#####`,
+      expected: { isValid: false, error: "wall_incomplete" }
+    },
+    {
+      name: "Unreachable elements",
+      map:
+`#######
+#@$.# #
+##### #
+#   $.#
+#######`,
+      expected: { isValid: false, error: "unreachable_elements" }
+    },
+    {
+      name: "Valid map with multiple boxes and targets",
+      map:
+`#########
+#  .$.  #
+# #@# # #
+#  $.$  #
+#########`,
+      expected: { isValid: true }
+    },
+    {
+      name: "Valid map with player on target",
+      map:
+`#####
+#+$ #
+#  $#
+#####`,
+      expected: { isValid: true }
+    },
+    {
+      name: "Valid map with box on target",
+      map:
+`#####
+#@* #
+#  $#
+#####`,
+      expected: { isValid: true }
+    },
+    {
+      name: "Invalid - box trapped in corner",
+      map:
+`#####
+#@$.#
+## ##
+#   #
+#####`,
+      expected: { isValid: true } 
+    },
+    {
+      name: "Invalid - elements outside main area",
+      map:
+`#######
+#@$. ##
+#####$.`,
+      expected: { isValid: false, error: "unreachable_elements" }
+    }
+  ];
+
+  testCases.forEach((testCase) => {
+    test(testCase.name, () => {
+      const game = new SokobanLogic();
+      const map = parseMap(testCase.map);
+      const result = game.validateMap(map);
+      expect(result).toEqual(testCase.expected);
+    });
+  });
+});

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Pencil, Save, Trash2 } from "lucide-react";
-import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, decodeMapFromId, calculateMapId } from "./gameLogic";
+import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, decodeMapFromId, calculateMapId, validateMap } from "./gameLogic";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
 
@@ -98,15 +98,8 @@ const SokobanGame = ({ lang, levels }) => {
 
   // Save custom map
   const saveCustomMap = () => {
-    // Validate the map (at least one player, one box, and one target)
-    const flatMap = customMap.flat();
-    const hasPlayer = flatMap.some((cell) => [ELEMENTS.PLAYER, ELEMENTS.PLAYER_ON_TARGET].includes(cell));
-    const hasBox = flatMap.some((cell) => [ELEMENTS.BOX, ELEMENTS.BOX_ON_TARGET].includes(cell));
-    const hasTarget = flatMap.some((cell) =>
-      [ELEMENTS.TARGET, ELEMENTS.BOX_ON_TARGET, ELEMENTS.PLAYER_ON_TARGET].includes(cell)
-    );
-
-    if (!hasPlayer || !hasBox || !hasTarget) {
+    const validation = validateMap(customMap);
+    if (!validation.isValid) {
       setModalMessage(t("invalid_map"));
       setShowModal(true);
       return;

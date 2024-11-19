@@ -125,15 +125,19 @@ export const decodeMapFromId = (id) => {
 };
 
 export class SokobanLogic {
-  constructor(level = 1, levelMaps) {
-    this.level = level;
-    this.levelMaps = levelMaps;
-    this.map = this.levelMaps[level];
-    this.moves = 0;
-    this.history = [{
-      map: this.map.map(row => [...row]),
-      moves: this.moves
-    }];
+  constructor(level = 1, levelMaps = null) {
+    if (levelMaps) {
+      this.level = level;
+      this.levelMaps = levelMaps;
+      this.map = this.levelMaps[level];
+      this.moves = 0;
+      this.history = [
+        {
+          map: this.map.map((row) => [...row]),
+          moves: this.moves,
+        },
+      ];
+    }
   }
 
   movePlayer(direction) {
@@ -149,8 +153,8 @@ export class SokobanLogic {
     this.map = newMap;
     this.moves++;
     this.history.push({
-      map: this.map.map(row => [...row]),
-      moves: this.moves
+      map: this.map.map((row) => [...row]),
+      moves: this.moves,
     });
     if (this.moves >= 50 && window.umami) {
       window.umami.track("Sokoban Game Moves", {
@@ -165,7 +169,7 @@ export class SokobanLogic {
 
     this.history.pop();
     const lastState = this.history[this.history.length - 1];
-    this.map = lastState.map.map(row => [...row]);
+    this.map = lastState.map.map((row) => [...row]);
     this.moves = lastState.moves;
 
     return this.map;
@@ -195,10 +199,11 @@ export class SokobanLogic {
     return { playerPos, newPos, boxNewPos };
   }
 
-  findPlayer() {
-    for (let y = 0; y < this.map.length; y++) {
-      for (let x = 0; x < this.map[y].length; x++) {
-        if (this.map[y][x] === ELEMENTS.PLAYER || this.map[y][x] === ELEMENTS.PLAYER_ON_TARGET) {
+  findPlayer(mapToSearch = null) {
+    const map = mapToSearch || this.map;
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[y].length; x++) {
+        if (map[y][x] === ELEMENTS.PLAYER || map[y][x] === ELEMENTS.PLAYER_ON_TARGET) {
           return { x, y };
         }
       }
@@ -240,16 +245,16 @@ export class SokobanLogic {
       this.map[playerPos.y][playerPos.x] === ELEMENTS.PLAYER_ON_TARGET
         ? ELEMENTS.TARGET
         : this.map[playerPos.y][playerPos.x] === ELEMENTS.PLAYER
-          ? ELEMENTS.FLOOR
-          : ELEMENTS.TARGET;
+        ? ELEMENTS.FLOOR
+        : ELEMENTS.TARGET;
 
     // Process player new position(box old position)
     map[newPos.y][newPos.x] =
       map[newPos.y][newPos.x] === ELEMENTS.TARGET
         ? ELEMENTS.PLAYER_ON_TARGET
         : map[newPos.y][newPos.x] === ELEMENTS.BOX_ON_TARGET
-          ? ELEMENTS.PLAYER_ON_TARGET
-          : ELEMENTS.PLAYER;
+        ? ELEMENTS.PLAYER_ON_TARGET
+        : ELEMENTS.PLAYER;
   }
 
   isGameWon() {
@@ -279,10 +284,12 @@ export class SokobanLogic {
   reset() {
     this.map = this.levelMaps[this.level];
     this.moves = 0;
-    this.history = [{
-      map: this.map.map(row => [...row]),
-      moves: this.moves
-    }];
+    this.history = [
+      {
+        map: this.map.map((row) => [...row]),
+        moves: this.moves,
+      },
+    ];
   }
 
   getState() {
@@ -292,4 +299,78 @@ export class SokobanLogic {
       isWon: this.isGameWon(),
     };
   }
+
+  floodFill(map, y, x, visited) {
+    if (
+      y < 0 ||
+      y >= map.length ||
+      x < 0 ||
+      x >= map[0].length ||
+      visited[y][x] ||
+      map[y][x] === ELEMENTS.WALL ||
+      map[y][x] === ELEMENTS.EMPTY
+    ) {
+      return;
+    }
+
+    visited[y][x] = true;
+
+    this.floodFill(map, y - 1, x, visited);
+    this.floodFill(map, y + 1, x, visited);
+    this.floodFill(map, y, x - 1, visited);
+    this.floodFill(map, y, x + 1, visited);
+  }
+
+  validateMap(map) {
+    if (!map || !map.length || !map[0].length) {
+      return { isValid: false, error: "empty_map" };
+    }
+    const playerPos = this.findPlayer(map);
+    if (!playerPos) return { isValid: false, error: "no_player" };
+
+    const height = map.length;
+    const width = map[0].length;
+    const visited = Array(height)
+      .fill()
+      .map(() => Array(width).fill(false));
+    this.floodFill(map, playerPos.y, playerPos.x, visited);
+
+    // Check if the map is closed and reachable
+    const reachableElements = [];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (visited[y][x]) {
+          // If the reachable point is on the boundary, the map is not closed
+          if (y === 0 || y === height - 1 || x === 0 || x === width - 1) {
+            return { isValid: false, error: "wall_incomplete" };
+          }
+          // Collect elements in the reachable area
+          reachableElements.push(map[y][x]);
+        } else {
+          // Check if there are non-blank elements in the unvisited area
+          if (map[y][x] !== ELEMENTS.WALL && map[y][x] !== ELEMENTS.EMPTY) {
+            return { isValid: false, error: "unreachable_elements" };
+          }
+        }
+      }
+    }
+
+    // Check game element constraints in the reachable area
+    const boxes = reachableElements.filter((cell) => [ELEMENTS.BOX, ELEMENTS.BOX_ON_TARGET].includes(cell)).length;
+    const targets = reachableElements.filter((cell) =>
+      [ELEMENTS.TARGET, ELEMENTS.BOX_ON_TARGET, ELEMENTS.PLAYER_ON_TARGET].includes(cell)
+    ).length;
+
+    // Check basic game elements
+    if (boxes === 0) return { isValid: false, error: "no_box" };
+    if (targets === 0) return { isValid: false, error: "no_target" };
+    if (boxes < targets) return { isValid: false, error: "too_many_targets" };
+
+    return { isValid: true };
+  }
 }
+
+export const validateMap = (map) => {
+  const logic = new SokobanLogic();
+  return logic.validateMap(map);
+};
