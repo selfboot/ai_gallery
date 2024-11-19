@@ -438,6 +438,7 @@
   "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, supports customizing the number layout of each cell, and supports obtaining intelligent solution plans! Code is open source, free to play online!",
 
   "sokoban_title": "Free Online Sokoban Game",
+  "sokoban_more_title": "Free Online Sokoban Levels Collection",
   "sokoban_description": "High difficulty Sokoban game, with various levels built-in, good operation experience, supports undo operation, see how far you can play?",
   "select_level": "Select Level",
   "current_level": "Current Level",
@@ -461,6 +462,14 @@
   "clear_map": "Clear Map",
   "invalid_map": "Invalid map, please make sure to create a valid map",
   "invalid_custom_map": "Not a valid custom map, please check if the map link is correct. A default level will be provided for you to modify.",
+  "all": "All",
+  "completed_levels": "Completed",
+  "uncompleted_levels": "Uncompleted",
+  "completion_status": "Status",
+  "map_width": "Map Width",
+  "map_height": "Map Height",
+  "target_count": "Target Count",
+  "all_levels": "All Game Maps",
   
   "chartrace": {
     "population-growth": {
@@ -694,6 +703,11 @@
       "title": "Free Online Sokoban Game",
       "description": "A high-difficulty Sokoban game with levels of various difficulties, also supports customizing game levels and sharing with friends to play together. Use your brain to push the box around the obstacle and to the designated location. Puzzle games, suitable for all ages, exercise thinking skills.",
       "keywords": "Free Online Sokoban, Customize Sokoban, Sokoban Hardest Level"
+    },
+    "sokoban_more": {
+      "title": "Many Online Sokoban Game Levels",
+      "description": "Sokoban Game Levels, contains various levels, with preview images, can quickly select different levels. Supports filtering uncompleted levels, filtering different map sizes",
+      "keywords": "Online Sokoban Game Levels, Sokoban Preview, Select Sokoban Level"
     }
   }
 }

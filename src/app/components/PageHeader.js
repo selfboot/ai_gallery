@@ -7,10 +7,13 @@ import Link from "next/link";
 import { getDictionary } from "@/app/dictionaries";
 import ShareButtons from "./ShareButtons";
 
-async function PageHeader({ lang, pathname }) {
+async function PageHeader({ lang, pathname, title }) {
   const dict = await getDictionary(lang);
 
   const getTitle = () => {
+    if (title) {
+      return dict[title] || title;
+    }
     const pathSegments = pathname.split("/").filter(Boolean);
     const currentPage = pathSegments[pathSegments.length - 1];
     return dict[`${currentPage}_title`] || currentPage;
@@ -31,14 +34,14 @@ async function PageHeader({ lang, pathname }) {
     return `/${pathSegments.join("/")}` || "/";
   };
 
-  const title = getTitle();
+  const pageTitle = getTitle();
   const codeLink = getCodeLink();
   const backLink = getBackLink();
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full mb-6">
       <div className="flex flex-wrap items-center gap-4">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <h1 className="text-2xl font-bold">{pageTitle}</h1>
         <div className="flex items-center gap-4">
           {codeLink && (
             <Link

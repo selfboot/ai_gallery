@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Pencil, Save, Tra
 import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, decodeMapFromId, calculateMapId, validateMap } from "./gameLogic";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 const STORAGE_KEY = 'sokoban-progress';
 
@@ -512,7 +514,16 @@ const SokobanGame = ({ lang, levels }) => {
   const LevelSelector = () => {
     return (
       <div className="mb-4">
-        <h2 className="font-bold mb-2">{t("select_level")}</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="font-bold">{t("select_level")}</h2>
+          <Link 
+            href={`/${lang}/games/sokoban/more`}
+            className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+          >
+            {t("all_levels")}
+            <ChevronRight size={16} />
+          </Link>
+        </div>
         <div className="h-[200px] overflow-y-auto pr-2">
           <div className="pl-1 pt-1 grid grid-cols-[repeat(auto-fill,minmax(32px,1fr))] gap-[2px]">
             {levels.map((level, index) => {

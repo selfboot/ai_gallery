@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState, memo, useCallback } from "react";
 import { calculateMapId } from "../gameLogic";
 import { Check } from "lucide-react";
 import { useI18n } from "@/app/i18n/client";
+import { CustomListbox } from "@/app/components/ListBox";
 
 const CELL_SIZE = 6;
 const STORAGE_KEY = "sokoban-progress";
@@ -56,17 +57,20 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
         const posY = y * CELL_SIZE;
 
         switch (cell) {
+          case 0: // EMPTY
+            // ctx.fillStyle = "#ffffff";
+            break;
           case 1: // WALL
-            ctx.fillStyle = "#D4AF37";
+            ctx.fillStyle = "#2C282B";
             break;
           case 2: // FLOOR
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = "#f5eedf";
             break;
           case 3: // TARGET
             ctx.fillStyle = "#ff6b6b";
             break;
           case 4: // BOX
-            ctx.fillStyle = "#8B4513";
+            ctx.fillStyle = "#556589";
             break;
           case 5: // BOX_ON_TARGET
             ctx.fillStyle = "#ff8787";
@@ -78,10 +82,11 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
             ctx.fillStyle = "#5c7cfa";
             break;
         }
-
-        ctx.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-        ctx.strokeStyle = "#e9ecef";
-        ctx.strokeRect(posX, posY, CELL_SIZE, CELL_SIZE);
+        if (cell !== 0) {
+          ctx.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+          ctx.strokeStyle = "#e9ecef";
+          ctx.strokeRect(posX, posY, CELL_SIZE, CELL_SIZE);
+        }
       });
     });
   }, [mapData, width, height]);
@@ -139,10 +144,133 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
   );
 });
 
+const FilterBar = memo(({ onFilterChange, completedLevels }) => {
+  const { t } = useI18n();
+  const [filters, setFilters] = useState({
+    completion: t("all"),
+    width: t("all"),
+    height: t("all"),
+    targets: t("all"),
+  });
+
+  const completionOptions = [t("all"), t("completed_levels"), t("uncompleted_levels")];
+  const sizeOptions = [t("all"), "≤ 8", "9-12", "> 12"];
+  const targetOptions = [t("all"), "1-3", "4-6", "≥ 7"];
+
+  const getCompletionValue = useCallback(
+    (option) => {
+      switch (option) {
+        case t("completed_levels"):
+          return "completed";
+        case t("uncompleted_levels"):
+          return "uncompleted";
+        default:
+          return "all";
+      }
+    },
+    [t]
+  );
+
+  const getSizeValue = useCallback((option) => {
+    switch (option) {
+      case "≤ 8":
+        return "small";
+      case "9-12":
+        return "medium";
+      case "> 12":
+        return "large";
+      default:
+        return "all";
+    }
+  }, []);
+
+  const getTargetValue = useCallback((option) => {
+    switch (option) {
+      case "1-3":
+        return "1-3";
+      case "4-6":
+        return "4-6";
+      case "≥ 7":
+        return "7+";
+      default:
+        return "all";
+    }
+  }, []);
+
+  const handleFilterChange = useCallback(
+    (key, value) => {
+      const newFilters = { ...filters, [key]: value };
+      setFilters(newFilters);
+
+      const filterValues = {
+        completion: getCompletionValue(newFilters.completion),
+        width: getSizeValue(newFilters.width),
+        height: getSizeValue(newFilters.height),
+        targets: getTargetValue(newFilters.targets),
+      };
+
+      onFilterChange(filterValues);
+    },
+    [filters, getCompletionValue, getSizeValue, getTargetValue, onFilterChange]
+  );
+
+  return (
+    <div className="mb-6 relative z-50">
+      <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <label className="font-medium text-gray-700 whitespace-nowrap">{t("completion_status")}:</label>
+          <div className="w-32">
+            <CustomListbox
+              value={filters.completion}
+              onChange={(value) => handleFilterChange("completion", value)}
+              options={completionOptions}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="font-medium text-gray-700 whitespace-nowrap">{t("map_width")}:</label>
+          <div className="w-32">
+            <CustomListbox
+              value={filters.width}
+              onChange={(value) => handleFilterChange("width", value)}
+              options={sizeOptions}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="font-medium text-gray-700 whitespace-nowrap">{t("map_height")}:</label>
+          <div className="w-32">
+            <CustomListbox
+              value={filters.height}
+              onChange={(value) => handleFilterChange("height", value)}
+              options={sizeOptions}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="font-medium text-gray-700 whitespace-nowrap">{t("target_count")}:</label>
+          <div className="w-32">
+            <CustomListbox
+              value={filters.targets}
+              onChange={(value) => handleFilterChange("targets", value)}
+              options={targetOptions}
+              className="min-w-[150px]"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const SokobanGallery = ({ levels }) => {
   const containerRef = useRef(null);
   const [completedLevels, setCompletedLevels] = useState({});
   const [containerWidth, setContainerWidth] = useState(null);
+  const [filteredLevels, setFilteredLevels] = useState(levels);
 
   useEffect(() => {
     const savedProgress = localStorage.getItem(STORAGE_KEY);
@@ -169,6 +297,46 @@ const SokobanGallery = ({ levels }) => {
     };
   }, []);
 
+  const handleFilter = useCallback(
+    (filters) => {
+      const filtered = levels.filter((mapData) => {
+        const mapId = calculateMapId(mapData);
+        const isCompleted = completedLevels[mapId] !== undefined;
+        const rows = mapData.length;
+        const cols = mapData[0].length;
+        const targetCount = mapData.flat().filter((cell) => cell === 3 || cell === 7).length;
+
+        if (filters.completion !== "all") {
+          if (filters.completion === "completed" && !isCompleted) return false;
+          if (filters.completion === "uncompleted" && isCompleted) return false;
+        }
+
+        if (filters.width !== "all") {
+          if (filters.width === "small" && cols > 8) return false;
+          if (filters.width === "medium" && (cols <= 8 || cols > 12)) return false;
+          if (filters.width === "large" && cols <= 12) return false;
+        }
+
+        if (filters.height !== "all") {
+          if (filters.height === "small" && rows > 8) return false;
+          if (filters.height === "medium" && (rows <= 8 || rows > 12)) return false;
+          if (filters.height === "large" && rows <= 12) return false;
+        }
+
+        if (filters.targets !== "all") {
+          if (filters.targets === "1-3" && (targetCount < 1 || targetCount > 3)) return false;
+          if (filters.targets === "4-6" && (targetCount < 4 || targetCount > 6)) return false;
+          if (filters.targets === "7+" && targetCount < 7) return false;
+        }
+
+        return true;
+      });
+
+      setFilteredLevels(filtered);
+    },
+    [levels, completedLevels]
+  );
+
   if (containerWidth === null) {
     return <div ref={containerRef} className="w-full" />;
   }
@@ -176,14 +344,15 @@ const SokobanGallery = ({ levels }) => {
   const itemsPerRow = Math.max(1, Math.floor((containerWidth - 40) / 200));
 
   return (
-    <div ref={containerRef} className="w-full">
+    <div ref={containerRef} className="w-full space-y-6">
+      <FilterBar onFilterChange={handleFilter} completedLevels={completedLevels} />
       <div
         className="grid gap-4"
         style={{
           gridTemplateColumns: `repeat(${itemsPerRow}, minmax(0, 1fr))`,
         }}
       >
-        {levels.map((mapData, index) => {
+        {filteredLevels.map((mapData, index) => {
           const mapId = calculateMapId(mapData);
           return <MapThumbnail key={index} mapData={mapData} completedInfo={completedLevels[mapId]} />;
         })}
