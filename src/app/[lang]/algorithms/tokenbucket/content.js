@@ -26,29 +26,14 @@ const TokenBucketVisualization = () => {
           const newTokensToAdd = Math.floor(tokenFractionRef.current);
           tokenFractionRef.current -= newTokensToAdd;
 
-          const tokensAfterGeneration = Math.min(
-            prevTokens + newTokensToAdd,
-            bucketCapacity
-          );
-          const successfulRequests = Math.min(
-            requestRate,
-            tokensAfterGeneration
-          );
+          const tokensAfterGeneration = Math.min(prevTokens + newTokensToAdd, bucketCapacity);
+          const successfulRequests = Math.min(requestRate, tokensAfterGeneration);
           const failedRequests = Math.max(0, requestRate - successfulRequests);
-          const remainingTokens = Math.max(
-            0,
-            tokensAfterGeneration - successfulRequests
-          );
+          const remainingTokens = Math.max(0, tokensAfterGeneration - successfulRequests);
 
           setData((prevData) => [
             ...prevData,
-            [
-              elapsedTime,
-              requestRate,
-              successfulRequests,
-              failedRequests,
-              remainingTokens,
-            ],
+            [elapsedTime, requestRate, successfulRequests, failedRequests, remainingTokens],
           ]);
           //   console.log("Data: ", data);
           return remainingTokens;
@@ -88,12 +73,7 @@ const TokenBucketVisualization = () => {
     },
 
     legend: {
-      data: [
-        t("total_request"),
-        t("success_request"),
-        t("fail_request"),
-        t("remain_tokens"),
-      ],
+      data: [t("total_request"), t("success_request"), t("fail_request"), t("remain_tokens")],
       bottom: 0,
     },
     xAxis: {
@@ -137,55 +117,67 @@ const TokenBucketVisualization = () => {
   };
 
   return (
-    <div className="w-full m-4 mx-auto p-4 border rounded-lg shadow-lg">
-      <div className="mb-4 flex space-x-4">
-        <div>
-          <label className="block">{t("bucket_capacity")}</label>
-          <input
-            type="number"
-            value={bucketCapacity}
-            onChange={(e) => setBucketCapacity(Number(e.target.value))}
-            className="border rounded p-1"
-          />
+    <div className="w-full p-4">
+      <div className="lg:flex lg:gap-6">
+        <div className="lg:w-4/5 w-full mb-6 lg:mb-0">
+          <div className="border rounded-lg shadow-lg p-4">
+            <ReactECharts option={option} style={{ height: "600px" }} />
+          </div>
         </div>
-        <div>
-          <label className="block">{t("token_rate")}</label>
-          <input
-            type="number"
-            value={tokenRate}
-            onChange={(e) => setTokenRate(Number(e.target.value))}
-            className="border rounded p-1"
-          />
-        </div>
-        <div>
-          <label className="block">{t("request_rate")}</label>
-          <input
-            type="number"
-            value={requestRate}
-            onChange={(e) => setRequestRate(Number(e.target.value))}
-            className="border rounded p-1"
-          />
+
+        <div className="lg:w-1/5 w-full">
+          <h3 className="text-lg font-semibold mb-4">{t("settings")}</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block mb-2">{t("bucket_capacity")}</label>
+              <input
+                type="number"
+                value={bucketCapacity}
+                onChange={(e) => setBucketCapacity(Number(e.target.value))}
+                className="w-full border rounded p-2"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2">{t("token_rate")}</label>
+              <input
+                type="number"
+                value={tokenRate}
+                onChange={(e) => setTokenRate(Number(e.target.value))}
+                className="w-full border rounded p-2"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2">{t("request_rate")}</label>
+              <input
+                type="number"
+                value={requestRate}
+                onChange={(e) => setRequestRate(Number(e.target.value))}
+                className="w-full border rounded p-2"
+              />
+            </div>
+
+            <div className="space-y-3 pt-4">
+              <button
+                onClick={isRunning ? handlePause : handleStart}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
+              >
+                {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
+                {isRunning ? t("pause") : t("start")}
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="w-full bg-gray-500 text-white px-4 py-2 rounded flex items-center justify-center"
+              >
+                <RefreshCw className="mr-2" />
+                {t("reset")}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="mb-4 flex space-x-4">
-        <button
-          onClick={isRunning ? handlePause : handleStart}
-          className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
-        >
-          {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
-          {isRunning ? t("pause") : t("start")}
-        </button>
-        <button
-          onClick={handleReset}
-          className="bg-gray-500 text-white px-4 py-2 rounded flex items-center"
-        >
-          <RefreshCw className="mr-2" />
-          {t("reset")}
-        </button>
-      </div>
-      <br />
-      <br />
-      <ReactECharts option={option} style={{ height: "400px" }} />
     </div>
   );
 };
