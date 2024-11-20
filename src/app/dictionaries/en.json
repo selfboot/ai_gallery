@@ -470,6 +470,8 @@
   "map_height": "Map Height",
   "target_count": "Target Count",
   "all_levels": "All Game Maps",
+  "previous": "Prev",
+  "next": "Next",
   
   "chartrace": {
     "population-growth": {

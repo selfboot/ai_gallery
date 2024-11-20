@@ -475,6 +475,8 @@
   "map_width": "地图宽度",
   "map_height": "地图高度",
   "target_count": "目标数量",
+  "previous": "上一页",
+  "next": "下一页",
 
   "chartrace": {
       "population-growth": {

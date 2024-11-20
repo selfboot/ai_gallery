@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, memo, useCallback } from "react";
 import { calculateMapId } from "../gameLogic";
-import { Check } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18n } from "@/app/i18n/client";
 import { CustomListbox } from "@/app/components/ListBox";
 
@@ -95,12 +95,9 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
     <div
       ref={containerRef}
       onClick={handleClick}
-      className={`flex flex-col items-center p-4 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all relative
+      className={`flex flex-col items-center p-2 sm:p-4 shadow-sm cursor-pointer hover:shadow-md transition-all relative
+        w-[180px] h-[180px]
         ${isCompleted ? "bg-green-50 border-green-200" : "bg-white border-gray-200"} border`}
-      style={{
-        width: "180px",
-        height: "180px",
-      }}
     >
       {isCompleted && (
         <div
@@ -116,7 +113,6 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
           ref={canvasRef}
           width={width}
           height={height}
-          className="border border-gray-200"
           style={{
             transform: `scale(${scale})`,
             transformOrigin: "center",
@@ -219,7 +215,7 @@ const FilterBar = memo(({ onFilterChange, completedLevels }) => {
       <div className="flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
           <label className="font-medium text-gray-700 whitespace-nowrap">{t("completion_status")}:</label>
-          <div className="w-32">
+          <div className="w-24 sm:w-32">
             <CustomListbox
               value={filters.completion}
               onChange={(value) => handleFilterChange("completion", value)}
@@ -230,7 +226,7 @@ const FilterBar = memo(({ onFilterChange, completedLevels }) => {
 
         <div className="flex items-center gap-2">
           <label className="font-medium text-gray-700 whitespace-nowrap">{t("map_width")}:</label>
-          <div className="w-32">
+          <div className="w-24 sm:w-32">
             <CustomListbox
               value={filters.width}
               onChange={(value) => handleFilterChange("width", value)}
@@ -241,7 +237,7 @@ const FilterBar = memo(({ onFilterChange, completedLevels }) => {
 
         <div className="flex items-center gap-2">
           <label className="font-medium text-gray-700 whitespace-nowrap">{t("map_height")}:</label>
-          <div className="w-32">
+          <div className="w-24 sm:w-32">
             <CustomListbox
               value={filters.height}
               onChange={(value) => handleFilterChange("height", value)}
@@ -252,7 +248,7 @@ const FilterBar = memo(({ onFilterChange, completedLevels }) => {
 
         <div className="flex items-center gap-2">
           <label className="font-medium text-gray-700 whitespace-nowrap">{t("target_count")}:</label>
-          <div className="w-32">
+          <div className="w-24 sm:w-32">
             <CustomListbox
               value={filters.targets}
               onChange={(value) => handleFilterChange("targets", value)}
@@ -266,11 +262,95 @@ const FilterBar = memo(({ onFilterChange, completedLevels }) => {
   );
 });
 
+const Pagination = memo(({ currentPage, totalPages, onPageChange }) => {
+  const { t } = useI18n();
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const showPages = windowWidth < 640 ? 3 : 7;
+    let start = Math.max(1, currentPage - Math.floor(showPages / 2));
+    let end = Math.min(totalPages, start + showPages - 1);
+
+    if (end - start + 1 < showPages) {
+      start = Math.max(1, end - showPages + 1);
+    }
+
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push("...");
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) pages.push("...");
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  return (
+    <div className="flex items-center justify-end gap-1 mt-8">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="flex items-center gap-1 px-2 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed
+          hover:bg-gray-100 transition-colors sm:px-3"
+      >
+        <ChevronLeft size={16} />
+        <span className="hidden sm:inline">{t("previous")}</span>
+      </button>
+
+      {/* Page numbers */}
+      <div className="flex items-center gap-1">
+        {getPageNumbers().map((page, index) => (
+          <React.Fragment key={index}>
+            {page === "..." ? (
+              <span className="px-1 sm:px-2">...</span>
+            ) : (
+              <button
+                onClick={() => page !== currentPage && onPageChange(page)}
+                className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md transition-colors
+                  ${page === currentPage ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`}
+              >
+                {page}
+              </button>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="flex items-center gap-1 px-2 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed
+          hover:bg-gray-100 transition-colors sm:px-3"
+      >
+        <span className="hidden sm:inline">{t("next")}</span>
+        <ChevronRight size={16} />
+      </button>
+    </div>
+  );
+});
+
 const SokobanGallery = ({ levels }) => {
   const containerRef = useRef(null);
   const [completedLevels, setCompletedLevels] = useState({});
   const [containerWidth, setContainerWidth] = useState(null);
   const [filteredLevels, setFilteredLevels] = useState(levels);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(24);
+  const { t } = useI18n();
 
   useEffect(() => {
     const savedProgress = localStorage.getItem(STORAGE_KEY);
@@ -295,6 +375,75 @@ const SokobanGallery = ({ levels }) => {
     return () => {
       resizeObserver.disconnect();
     };
+  }, []);
+
+  // Determine the number of items per row based on screen width
+  const getItemsPerRow = useCallback((width) => {
+    if (width < 640) return 2; // Display 2 items on mobile screens
+    if (width < 1024) return 3; // Display 3 items on tablets
+    return Math.max(1, Math.floor((width - 40) / 200)); // Desktop adaptive
+  }, []);
+
+  // Cal page show numbers
+  const getItemsPerPage = useCallback(
+    (width) => {
+      const itemsPerRow = getItemsPerRow(width);
+      const viewportHeight = window.innerHeight - 200;
+      const itemHeight = width < 640 ? 140 : 180;
+      const rowsPerPage = Math.max(2, Math.floor(viewportHeight / itemHeight));
+      return itemsPerRow * rowsPerPage;
+    },
+    [getItemsPerRow]
+  );
+
+  useEffect(() => {
+    if (containerWidth) {
+      setItemsPerPage(getItemsPerPage(containerWidth));
+    }
+  }, [containerWidth, getItemsPerPage]);
+
+  const itemsPerRow = getItemsPerRow(containerWidth);
+  const totalPages = Math.ceil(filteredLevels.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentLevels = filteredLevels.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageParam = urlParams.get("page");
+    if (pageParam) {
+      const page = parseInt(pageParam, 10);
+      if (!isNaN(page) && page > 0) {
+        setCurrentPage(page);
+      }
+    }
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    setCurrentPage(newPage);
+
+    const newUrl = new URL(window.location.href);
+    if (newPage === 1) {
+      newUrl.searchParams.delete("page");
+    } else {
+      newUrl.searchParams.set("page", newPage);
+    }
+
+    window.history.pushState({}, "", newUrl.toString());
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const pageParam = urlParams.get("page");
+      const page = pageParam ? parseInt(pageParam, 10) : 1;
+      if (!isNaN(page) && page > 0) {
+        setCurrentPage(page);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const handleFilter = useCallback(
@@ -333,6 +482,7 @@ const SokobanGallery = ({ levels }) => {
       });
 
       setFilteredLevels(filtered);
+      setCurrentPage(1);
     },
     [levels, completedLevels]
   );
@@ -341,22 +491,25 @@ const SokobanGallery = ({ levels }) => {
     return <div ref={containerRef} className="w-full" />;
   }
 
-  const itemsPerRow = Math.max(1, Math.floor((containerWidth - 40) / 200));
-
   return (
     <div ref={containerRef} className="w-full space-y-6">
       <FilterBar onFilterChange={handleFilter} completedLevels={completedLevels} />
+
       <div
-        className="grid gap-4"
+        className="grid gap-2 sm:gap-4"
         style={{
           gridTemplateColumns: `repeat(${itemsPerRow}, minmax(0, 1fr))`,
         }}
       >
-        {filteredLevels.map((mapData, index) => {
+        {currentLevels.map((mapData) => {
           const mapId = calculateMapId(mapData);
-          return <MapThumbnail key={index} mapData={mapData} completedInfo={completedLevels[mapId]} />;
+          return <MapThumbnail key={mapId} mapData={mapData} completedInfo={completedLevels[mapId]} />;
         })}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+      )}
     </div>
   );
 };
