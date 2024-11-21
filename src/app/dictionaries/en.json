@@ -656,10 +656,10 @@
       "description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
       "keywords": "Image subtitle tool, Online subtitle maker, video subtitle stitching generator"
     },
-    "dpcoin": {
+    "dpcoin":{
       "title": "Dynamic Programming Coin Change Visualization",
-      "description": "Explore the coin change problem using dynamic programming. This interactive visualization tool helps you understand optimal substructure and overlapping subproblems, ideal for learning algorithms and computer science.",
-      "keywords": "dynamic programming,coin change,algorithm visualization,optimization problem,algorithm learning"
+      "description": "Explore the coin change problem of dynamic programming algorithms. The idea of dynamic programming can disassemble molecular problems and use the solutions of sub-problems to solve complex problems. This page describes the ideas and solutions of dynamic programming, and uses visual tools to help you understand the process of solving the coin change problem.",
+      "keywords": "Dynamic programming detailed explanation, coin change visualization, dynamic programming coin change"
     },
     "hashring": {
       "title": "Interactive Consistent HashRing Visualization",
