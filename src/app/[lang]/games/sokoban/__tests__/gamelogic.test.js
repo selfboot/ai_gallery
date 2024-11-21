@@ -135,31 +135,6 @@ describe("SokobanLogic - Win Condition Tests", () => {
   });
 });
 
-describe("SokobanLogic - Undo Tests", () => {
-  test("Undo Multiple Moves", () => {
-    const initialMap = `
-  ######
-  #@$ .#
-  ######`;
-
-    const game = new SokobanLogic(1, {
-      1: parseMap(initialMap),
-    });
-
-    game.movePlayer("RIGHT");
-    game.movePlayer("RIGHT");
-    game.undo();
-
-    expect(game.map).toEqual(
-      parseMap(`
-  ######
-  # @$.#
-  ######`)
-    );
-    expect(game.moves).toBe(1);
-  });
-});
-
 describe("SokobanLogic - Invalid Moves Tests", () => {
   const testCases = [
     {

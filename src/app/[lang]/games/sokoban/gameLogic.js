@@ -45,9 +45,11 @@ export const SPRITE_CONFIG = {
     },
     CRATE: {
       BLUE: { x: 192, y: 192 },
+      YELLOW: {x: 192, y: 0},
     },
     CRATE_DARK: {
       BLUE: { x: 256, y: 320 },
+      YELLOW: { x: 128, y: 256 },
     },
   },
 };
@@ -126,18 +128,39 @@ export const decodeMapFromId = (id) => {
 
 export class SokobanLogic {
   constructor(level = 1, levelMaps = null) {
+    this.moves = 0;
+    this.history = [
+      {
+        map: [],
+        moves: 0,
+        groupId: 0,
+      },
+    ];
+    this.currentGroupId = 0;
+
     if (levelMaps) {
       this.level = level;
       this.levelMaps = levelMaps;
       this.map = this.levelMaps[level];
-      this.moves = 0;
-      this.history = [
-        {
-          map: this.map.map((row) => [...row]),
-          moves: this.moves,
-        },
-      ];
+      this.history[0].map = this.map.map((row) => [...row]);
     }
+  }
+
+  setMap(map) {
+    this.map = map;
+    this.moves = 0;
+    this.currentGroupId = 0;
+    this.history = [
+      {
+        map: this.map.map((row) => [...row]),
+        moves: 0,
+        groupId: 0,
+      },
+    ];
+  }
+
+  startNewMoveGroup() {
+    this.currentGroupId++;
   }
 
   movePlayer(direction) {
@@ -155,7 +178,9 @@ export class SokobanLogic {
     this.history.push({
       map: this.map.map((row) => [...row]),
       moves: this.moves,
+      groupId: this.currentGroupId,
     });
+
     if (this.moves >= 50 && window.umami) {
       window.umami.track("Sokoban Game Moves", {
         moves: this.moves,
@@ -167,10 +192,22 @@ export class SokobanLogic {
   undo() {
     if (this.history.length <= 1) return null; // No undo steps
 
-    this.history.pop();
+    const currentState = this.history[this.history.length - 1];
+    const currentGroupId = currentState.groupId;
+
+    let targetIndex = this.history.length - 2;
+    if (currentGroupId === this.history[targetIndex].groupId) {
+      while (targetIndex > 0 && this.history[targetIndex].groupId === currentGroupId) {
+        targetIndex--;
+      }
+    }
+
+    this.history = this.history.slice(0, targetIndex + 1);
     const lastState = this.history[this.history.length - 1];
+
     this.map = lastState.map.map((row) => [...row]);
     this.moves = lastState.moves;
+    this.currentGroupId = lastState.groupId;
 
     return this.map;
   }
@@ -288,8 +325,10 @@ export class SokobanLogic {
       {
         map: this.map.map((row) => [...row]),
         moves: this.moves,
+        groupId: 0,
       },
     ];
+    this.currentGroupId = 0;
   }
 
   getState() {
@@ -367,6 +406,129 @@ export class SokobanLogic {
     if (boxes < targets) return { isValid: false, error: "too_many_targets" };
 
     return { isValid: true };
+  }
+
+  // Check if a location is passable
+  isWalkable(pos, ignoreBoxes = false) {
+    // Check boundaries
+    if (pos.x < 0 || pos.x >= this.map[0].length || pos.y < 0 || pos.y >= this.map.length) {
+      return false;
+    }
+
+    const cell = this.map[pos.y][pos.x];
+    // Walls and empty positions are not passable
+    if (cell === ELEMENTS.WALL || cell === ELEMENTS.EMPTY) {
+      return false;
+    }
+    // If ignoring boxes, then boxes are not passable
+    if (!ignoreBoxes && (cell === ELEMENTS.BOX || cell === ELEMENTS.BOX_ON_TARGET)) {
+      return false;
+    }
+    return true;
+  }
+
+  // Find the shortest path from start to end
+  findPath(start, end, ignoreBoxes = false) {
+    const queue = [[start]];
+    const visited = new Set([`${start.x},${start.y}`]);
+
+    while (queue.length > 0) {
+      const path = queue.shift();
+      const current = path[path.length - 1];
+
+      if (current.x === end.x && current.y === end.y) {
+        return path;
+      }
+
+      const directions = [
+        { x: 0, y: -1, dir: "UP" },
+        { x: 0, y: 1, dir: "DOWN" },
+        { x: -1, y: 0, dir: "LEFT" },
+        { x: 1, y: 0, dir: "RIGHT" },
+      ];
+
+      for (const { x, y, dir } of directions) {
+        const next = {
+          x: current.x + x,
+          y: current.y + y,
+          dir,
+        };
+
+        const key = `${next.x},${next.y}`;
+        if (!visited.has(key) && this.isWalkable(next, ignoreBoxes)) {
+          visited.add(key);
+          queue.push([...path, next]);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // Auto move player to target position
+  async autoMoveTo(targetPos) {
+    const playerPos = this.findPlayer();
+    const path = this.findPath(playerPos, targetPos);
+
+    if (!path || path.length < 2) return false;
+
+    // Return move direction sequence
+    return path.slice(1).map((pos) => pos.dir);
+  }
+
+  // Check if three points are on the same line and return the direction
+  checkStraightLine(playerPos, boxPos, targetPos) {
+    if (playerPos.x === boxPos.x && boxPos.x === targetPos.x) {
+      if (Math.abs(playerPos.y - boxPos.y) !== 1) return null;
+      const direction = targetPos.y > boxPos.y ? "DOWN" : "UP";
+      return {
+        direction,
+        distance: Math.abs(targetPos.y - boxPos.y),
+      };
+    }
+    if (playerPos.y === boxPos.y && boxPos.y === targetPos.y) {
+      if (Math.abs(playerPos.x - boxPos.x) !== 1) return null;
+      const direction = targetPos.x > boxPos.x ? "RIGHT" : "LEFT";
+      return {
+        direction,
+        distance: Math.abs(targetPos.x - boxPos.x),
+      };
+    }
+    return null;
+  }
+
+  checkPathClear(boxPos, targetPos) {
+    const dx = Math.sign(targetPos.x - boxPos.x);
+    const dy = Math.sign(targetPos.y - boxPos.y);
+    let x = boxPos.x + dx;
+    let y = boxPos.y + dy;
+
+    while (x !== targetPos.x || y !== targetPos.y) {
+      const cell = this.map[y][x];
+      if (cell === ELEMENTS.WALL || cell === ELEMENTS.BOX || cell === ELEMENTS.BOX_ON_TARGET) {
+        return false;
+      }
+      x += dx;
+      y += dy;
+    }
+    return true;
+  }
+
+  findPushPath(boxPos, targetPos) {
+    const playerPos = this.findPlayer();
+    const lineCheck = this.checkStraightLine(playerPos, boxPos, targetPos);
+    if (!lineCheck) return null;
+    if (!this.checkPathClear(boxPos, targetPos)) return null;
+
+    const moves = [];
+    for (let i = 0; i < lineCheck.distance; i++) {
+      moves.push({
+        type: "push",
+        direction: lineCheck.direction,
+      });
+    }
+
+    return moves;
   }
 }
 

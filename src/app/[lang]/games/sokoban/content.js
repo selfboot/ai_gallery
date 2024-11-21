@@ -36,6 +36,7 @@ const SokobanGame = ({ lang, levels }) => {
     selectedElement: ELEMENTS.FLOOR
   });
   const [customMap, setCustomMap] = useState(null);
+  const [selectedBox, setSelectedBox] = useState(null);
 
   const elementTypes = [
     { type: ELEMENTS.EMPTY, name: "Empty" },
@@ -77,25 +78,60 @@ const SokobanGame = ({ lang, levels }) => {
     setCustomMap(newMap);
   }, [editConfig.width, editConfig.height]);
 
-  const handleCellClick = (x, y) => {
-    if (!isEditMode || !customMap) return;
+  const handleCellClick = async (x, y) => {
+    if (isEditMode) {
+      if (!customMap) return;
 
-    const newMap = customMap.map(row => [...row]);
-    if (editConfig.selectedElement === ELEMENTS.PLAYER) {
-      for (let i = 0; i < newMap.length; i++) {
-        for (let j = 0; j < newMap[i].length; j++) {
-          if ([ELEMENTS.PLAYER, ELEMENTS.PLAYER_ON_TARGET].includes(newMap[i][j])) {
-            newMap[i][j] = newMap[i][j] === ELEMENTS.PLAYER_ON_TARGET ? ELEMENTS.TARGET : ELEMENTS.FLOOR;
+      const newMap = customMap.map((row) => [...row]);
+      if (editConfig.selectedElement === ELEMENTS.PLAYER) {
+        for (let i = 0; i < newMap.length; i++) {
+          for (let j = 0; j < newMap[i].length; j++) {
+            if ([ELEMENTS.PLAYER, ELEMENTS.PLAYER_ON_TARGET].includes(newMap[i][j])) {
+              newMap[i][j] = newMap[i][j] === ELEMENTS.PLAYER_ON_TARGET ? ELEMENTS.TARGET : ELEMENTS.FLOOR;
+            }
           }
         }
+
+        newMap[y][x] = newMap[y][x] === ELEMENTS.TARGET ? ELEMENTS.PLAYER_ON_TARGET : ELEMENTS.PLAYER;
+      } else {
+        newMap[y][x] = editConfig.selectedElement;
       }
 
-      newMap[y][x] = newMap[y][x] === ELEMENTS.TARGET ? ELEMENTS.PLAYER_ON_TARGET : ELEMENTS.PLAYER;
-    } else {
-      newMap[y][x] = editConfig.selectedElement;
+      setCustomMap(newMap);
+      return;
+    }
+    const clickedCell = gameState.map[y][x];
+    if (selectedBox) {
+      const moves = gameInstance.findPushPath(selectedBox, { x, y });
+      if (moves) {
+        gameInstance.startNewMoveGroup();
+        for (const move of moves) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          movePlayer(move.direction);
+        }
+      }
+      setSelectedBox(null);
+      return;
     }
 
-    setCustomMap(newMap);
+    if ([ELEMENTS.BOX, ELEMENTS.BOX_ON_TARGET].includes(clickedCell)) {
+      const playerPos = gameInstance.findPlayer();
+      const isAdjacent = Math.abs(playerPos.x - x) + Math.abs(playerPos.y - y) === 1;
+
+      if (isAdjacent) {
+        setSelectedBox({ x, y });
+      }
+      return;
+    }
+
+    const directions = await gameInstance.autoMoveTo({ x, y });
+    if (directions) {
+      gameInstance.startNewMoveGroup();
+      for (const direction of directions) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        movePlayer(direction);
+      }
+    }
   };
 
   // Save custom map
@@ -149,7 +185,6 @@ const SokobanGame = ({ lang, levels }) => {
         const firstUncompletedLevel = levelHashes.findIndex(hash => !savedLevels[hash]);
         newLevel = firstUncompletedLevel === -1 ? 0 : firstUncompletedLevel;
 
-        // 设置 level 参数
         newUrl.searchParams.set('level', newLevel + 1);
         window.history.replaceState({}, '', newUrl);
       }
@@ -180,7 +215,7 @@ const SokobanGame = ({ lang, levels }) => {
   const movePlayer = useCallback(
     (direction) => {
       if (!gameInstance || gameState.isWon) return;
-
+      
       setPlayerDirection(direction);
       setIsMoving(true);
 
@@ -218,13 +253,13 @@ const SokobanGame = ({ lang, levels }) => {
     [gameInstance, gameState.isWon]
   );
 
-  const getBoxStyle = (isOnTarget) => {
-    const boxColors = ["BROWN", "RED", "BLUE", "PURPLE", "YELLOW"];
-    const colorIndex = 2;
-
-    return isOnTarget
-      ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK[boxColors[colorIndex]]
-      : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE[boxColors[colorIndex]];
+  const getBoxStyle = (isOnTarget, isSelected) => {
+    if (isSelected) {
+      return isOnTarget
+        ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK.YELLOW
+        : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.YELLOW;
+    }
+    return isOnTarget ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK.BLUE : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.BLUE;
   };
 
   const getPlayerSprite = (direction) => {
@@ -254,7 +289,7 @@ const SokobanGame = ({ lang, levels }) => {
     }
   };
 
-  const renderCell = (value) => {
+  const renderCell = (value, x, y) => {
     const scale = cellSize / SPRITE_CONFIG.SPRITE_SIZE;
 
     const getSpriteCss = (position, size = SPRITE_CONFIG.SPRITE_SIZE) => {
@@ -284,20 +319,23 @@ const SokobanGame = ({ lang, levels }) => {
               left: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
               top: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
             }}
+            onClick={() => handleCellClick(x, y)}
           />
         </div>
       );
     };
 
     const renderBox = (isOnTarget, container) => {
+      const isSelected = selectedBox && selectedBox.x === x && selectedBox.y === y;
       return (
         <div className="relative">
           {container}
           <div
             className={`absolute top-0 left-0 ${isOnTarget ? "animate-pulse" : ""}`}
             style={{
-              ...getSpriteCss(getBoxStyle(isOnTarget), SPRITE_CONFIG.SPRITE_SIZE),
+              ...getSpriteCss(getBoxStyle(isOnTarget, isSelected), SPRITE_CONFIG.SPRITE_SIZE),
             }}
+            onClick={() => handleCellClick(x, y)}
           />
         </div>
       );
@@ -311,6 +349,7 @@ const SokobanGame = ({ lang, levels }) => {
           position: "relative",
           overflow: "hidden",
         }}
+        onClick={() => handleCellClick(x, y)}
       >
         {value !== ELEMENTS.EMPTY && <div style={getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.GROUND.SAND)} />}
       </div>
@@ -373,24 +412,22 @@ const SokobanGame = ({ lang, levels }) => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (gameState.isWon) return;
-
-      switch (event.key) {
-        case "ArrowUp":
-          event.preventDefault();
-          movePlayer("UP");
-          break;
-        case "ArrowDown":
-          event.preventDefault();
-          movePlayer("DOWN");
-          break;
-        case "ArrowLeft":
-          event.preventDefault();
-          movePlayer("LEFT");
-          break;
-        case "ArrowRight":
-          event.preventDefault();
-          movePlayer("RIGHT");
-          break;
+      const key = event.key.toLowerCase();
+      const keyMap = {
+        'arrowup': 'UP',
+        'arrowdown': 'DOWN',
+        'arrowleft': 'LEFT',
+        'arrowright': 'RIGHT',
+        'w': 'UP',
+        's': 'DOWN',
+        'a': 'LEFT',
+        'd': 'RIGHT',
+      };
+  
+      if (keyMap[key]) {
+        event.preventDefault();
+        gameInstance.startNewMoveGroup();
+        movePlayer(keyMap[key]);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -601,7 +638,7 @@ const SokobanGame = ({ lang, levels }) => {
                         position: "relative",
                       }}
                     >
-                      {cell !== ELEMENTS.EMPTY && renderCell(cell)}
+                      {cell !== ELEMENTS.EMPTY && renderCell(cell, x, y)}
                     </div>
                   ))}
                 </div>
@@ -624,7 +661,7 @@ const SokobanGame = ({ lang, levels }) => {
                             position: "relative",
                           }}
                         >
-                          {renderCell(cell)}
+                          {renderCell(cell, x, y)}
                         </div>
                       ))}
                     </div>
@@ -634,17 +671,41 @@ const SokobanGame = ({ lang, levels }) => {
             )}
 
             <div className="flex flex-col items-center gap-2 mt-4 lg:hidden">
-              <button className="p-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => movePlayer("UP")}>
+              <button 
+                className="p-2 bg-gray-200 rounded hover:bg-gray-300" 
+                onClick={() => {
+                  gameInstance.startNewMoveGroup();
+                  movePlayer("UP");
+                }}
+              >
                 <ArrowUp />
               </button>
               <div className="flex gap-2">
-                <button className="p-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => movePlayer("LEFT")}>
+                <button 
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300" 
+                  onClick={() => {
+                    gameInstance.startNewMoveGroup();
+                    movePlayer("LEFT");
+                  }}
+                >
                   <ArrowLeft />
                 </button>
-                <button className="p-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => movePlayer("DOWN")}>
+                <button 
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300" 
+                  onClick={() => {
+                    gameInstance.startNewMoveGroup();
+                    movePlayer("DOWN");
+                  }}
+                >
                   <ArrowDown />
                 </button>
-                <button className="p-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => movePlayer("RIGHT")}>
+                <button 
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300" 
+                  onClick={() => {
+                    gameInstance.startNewMoveGroup();
+                    movePlayer("RIGHT");
+                  }}
+                >
                   <ArrowRight />
                 </button>
               </div>
