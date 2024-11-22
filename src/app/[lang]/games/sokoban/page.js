@@ -14,7 +14,7 @@ export async function generateMetadata({ params: { lang } }) {
       description: dict.seo.sokoban.description,
       keywords: dict.seo.sokoban.keywords,
       publishedDate: "2024-11-17T03:00:00.000Z",
-      updatedDate: "2024-11-17T03:00:00.000Z",
+      updatedDate: "2024-11-22T10:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/sokoban`,

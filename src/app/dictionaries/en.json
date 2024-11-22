@@ -446,7 +446,7 @@
   "select_level": "Select Level",
   "current_level": "Current Level",
   "level": "Level",
-  "sokoban_succmsg": "Congratulations on completing level {{level}}! Total moves: {{moves}}!",
+  "sokoban_succmsg": "Congratulations on completing this level! Total moves: {{moves}}!",
   "best_record": "Best Record",
   "completed_at": "Completed At",
   "steps": "Steps",

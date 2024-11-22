@@ -451,7 +451,7 @@
   "select_level": "选择关卡",
   "current_steps": "移动步数",
   "level": "关卡",
-  "sokoban_succmsg": "恭喜你完成第 {{level}} 关！总共移动 {{moves}} 步！",
+  "sokoban_succmsg": "恭喜你完成本关！总共移动 {{moves}} 步！",
   "best_record": "最佳记录",
   "completed_at": "完成时间",
   "steps": "步",

@@ -37,6 +37,7 @@ const SokobanGame = ({ lang, levels }) => {
   });
   const [customMap, setCustomMap] = useState(null);
   const [selectedBox, setSelectedBox] = useState(null);
+  const [customLevelInfo, setCustomLevelInfo] = useState(null);
 
   const elementTypes = [
     { type: ELEMENTS.EMPTY, name: "Empty" },
@@ -49,12 +50,20 @@ const SokobanGame = ({ lang, levels }) => {
   ];
 
   const resetGame = useCallback(() => {
-    if (currentLevel === null || !levels[currentLevel]) return;
+    if (customLevelInfo) {
+      const newGame = new SokobanLogic(0, [customLevelInfo.map]);
+      setGameInstance(newGame);
+      setGameState(newGame.getState());
+      return;
+    }
+
+    if (currentLevel === null) return;
+    if (!levels[currentLevel]) return;
 
     const newGame = new SokobanLogic(currentLevel, levels);
     setGameInstance(newGame);
     setGameState(newGame.getState());
-  }, [currentLevel, levels]);
+  }, [currentLevel, levels, customLevelInfo]);
 
   const updateLevelURL = useCallback((levelIndex) => {
     const newUrl = new URL(window.location.pathname, window.location.origin);
@@ -175,6 +184,10 @@ const SokobanGame = ({ lang, levels }) => {
         const gameInstance = new SokobanLogic(0, [customMap]);
         setGameInstance(gameInstance);
         setGameState(gameInstance.getState());
+        setCustomLevelInfo({
+          id: customId,
+          map: customMap
+        });
         return;
       } catch (error) {
         console.error(error);
@@ -253,13 +266,11 @@ const SokobanGame = ({ lang, levels }) => {
     [gameInstance, gameState.isWon]
   );
 
-  const getBoxStyle = (isOnTarget, isSelected) => {
+  const getBoxStyle = (isSelected) => {
     if (isSelected) {
-      return isOnTarget
-        ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK.YELLOW
-        : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.YELLOW;
+      return SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.YELLOW;
     }
-    return isOnTarget ? SPRITE_CONFIG.SPRITE_POSITIONS.CRATE_DARK.BLUE : SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.BLUE;
+    return SPRITE_CONFIG.SPRITE_POSITIONS.CRATE.BLUE;
   };
 
   const getPlayerSprite = (direction) => {
@@ -331,12 +342,22 @@ const SokobanGame = ({ lang, levels }) => {
         <div className="relative">
           {container}
           <div
-            className={`absolute top-0 left-0 ${isOnTarget ? "animate-pulse" : ""}`}
+            className="absolute top-0 left-0"
             style={{
-              ...getSpriteCss(getBoxStyle(isOnTarget, isSelected), SPRITE_CONFIG.SPRITE_SIZE),
+              ...getSpriteCss(getBoxStyle(isSelected), SPRITE_CONFIG.SPRITE_SIZE),
             }}
             onClick={() => handleCellClick(x, y)}
           />
+          {isOnTarget && (
+            <div
+              className="absolute"
+              style={{
+                ...getSpriteCss(SPRITE_CONFIG.SPRITE_POSITIONS.ENDPOINT.RED, SPRITE_CONFIG.ENDPOINT_SIZE),
+                left: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+                top: `${(cellSize - SPRITE_CONFIG.ENDPOINT_SIZE * scale) / 2}px`,
+              }}
+            />
+          )}
         </div>
       );
     };
@@ -479,7 +500,6 @@ const SokobanGame = ({ lang, levels }) => {
       saveProgress(currentLevel, gameState.moves);
       setModalMessage(
         t("sokoban_succmsg", {
-          level: currentLevel + 1,
           moves: gameState.moves,
         })
       );
@@ -495,9 +515,15 @@ const SokobanGame = ({ lang, levels }) => {
   }, [gameState.isWon]);
 
   const saveProgress = (levelIndex, moves) => {
-    if (levelIndex === null || !levels[levelIndex]) return;
+    let mapHash;
+    
+    if (customLevelInfo) {
+      mapHash = customLevelInfo.id;
+    } else {
+      if (levelIndex === null || !levels[levelIndex]) return;
+      mapHash = calculateMapId(levels[levelIndex]);
+    }
 
-    const mapHash = calculateMapId(levels[levelIndex]);
     const newCompletedLevels = {
       ...completedLevels,
       [mapHash]: {
@@ -591,24 +617,35 @@ const SokobanGame = ({ lang, levels }) => {
   };
 
   const CurrentLevelInfo = () => {
-    if (currentLevel === null || !levels[currentLevel]) {
+    let mapId;
+    let isCustom = false;
+
+    if (customLevelInfo) {
+      mapId = customLevelInfo.id;
+      isCustom = true;
+    } else if (currentLevel === null) {
       return null;
+    } else if (!levels[currentLevel]) {
+      return null;
+    } else {
+      mapId = calculateMapId(levels[currentLevel]);
     }
 
-    const mapHash = calculateMapId(levels[currentLevel]);
-    const levelInfo = completedLevels[mapHash];
-
+    const levelInfo = completedLevels[mapId];
+    
     return (
       <div className="mb-4">
         <h2 className="fond-bold mb-2">
-          {t("level")}: {currentLevel + 1}
+          {!isCustom && `${t("level")}: ${currentLevel + 1}`}
         </h2>
         {levelInfo && (
           <div className="text-sm text-green-600">
-            <div>{t("best_record")}: {levelInfo.moves} {t("steps")}</div>
-            <div>{t("completed_at")}: {
-              new Date(levelInfo.completedAt).toLocaleDateString()
-            }</div>
+            <div>
+              {t("best_record")}: {levelInfo.moves} {t("steps")}
+            </div>
+            <div>
+              {t("completed_at")}: {new Date(levelInfo.completedAt).toLocaleDateString()}
+            </div>
           </div>
         )}
         <div className="mt-1">

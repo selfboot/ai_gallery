@@ -45,11 +45,7 @@ export const SPRITE_CONFIG = {
     },
     CRATE: {
       BLUE: { x: 192, y: 192 },
-      YELLOW: {x: 192, y: 0},
-    },
-    CRATE_DARK: {
-      BLUE: { x: 256, y: 320 },
-      YELLOW: { x: 128, y: 256 },
+      YELLOW: { x: 192, y: 0 },
     },
   },
 };
