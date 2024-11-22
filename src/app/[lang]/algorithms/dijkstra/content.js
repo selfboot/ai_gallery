@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -115,32 +109,14 @@ const nodeTypes = {
   customNode: CustomNode,
 };
 
-const CustomEdge = ({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  label,
-  style = {},
-}) => {
+const CustomEdge = ({ id, sourceX, sourceY, targetX, targetY, label, style = {} }) => {
   const edgePath = `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
 
   return (
     <>
-      <path
-        id={id}
-        style={style}
-        className="react-flow__edge-path stroke-current text-gray-500"
-        d={edgePath}
-      />
+      <path id={id} style={style} className="react-flow__edge-path stroke-current text-gray-500" d={edgePath} />
       <text className="text-xs">
-        <textPath
-          href={`#${id}`}
-          className="text-gray-700"
-          startOffset="50%"
-          textAnchor="middle"
-        >
+        <textPath href={`#${id}`} className="text-gray-700" startOffset="50%" textAnchor="middle">
           {label}
         </textPath>
       </text>
@@ -159,7 +135,6 @@ class Dijkstra {
     this.matrix = matrix;
     this.steps = [];
 
-    // 初始化距离矩阵
     this.nodes.forEach((node, index) => {
       this.distances[node] = {};
 
@@ -180,7 +155,6 @@ class Dijkstra {
     let visited = new Set();
     let unvisited = new Set(this.nodes);
 
-    // 初始化距离和父节点
     for (let node in this.distances) {
       distances[node] = Infinity;
       parents[node] = null;
@@ -188,21 +162,19 @@ class Dijkstra {
     distances[startNode] = 0;
 
     while (unvisited.size > 0) {
-      // 从未访问过的节点中找到距离最小的节点
+      // Find the node with the smallest distance from the unvisited set
       let currentNode = Array.from(unvisited).reduce(
-        (minNode, node) =>
-          distances[node] < distances[minNode] ? node : minNode,
+        (minNode, node) => (distances[node] < distances[minNode] ? node : minNode),
         Array.from(unvisited)[0]
       );
 
       unvisited.delete(currentNode);
       visited.add(currentNode);
 
-      // 更新当前节点的所有邻接节点的距离
+      // Update the distances of all adjacent nodes of the current node
       for (let neighbor in this.distances[currentNode]) {
         if (visited.has(neighbor)) continue;
-        let newDistance =
-          distances[currentNode] + this.distances[currentNode][neighbor];
+        let newDistance = distances[currentNode] + this.distances[currentNode][neighbor];
         if (newDistance < distances[neighbor]) {
           distances[neighbor] = newDistance;
           parents[neighbor] = currentNode;
@@ -222,7 +194,7 @@ class Dijkstra {
 }
 
 const StepsTable = ({ steps, nodes }) => {
-  const { t }  = useI18n();
+  const { t } = useI18n();
   return (
     <table className="w-full text-sm text-left text-gray-500">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50 text-center">
@@ -245,14 +217,10 @@ const StepsTable = ({ steps, nodes }) => {
               <td
                 key={node.id}
                 className={`text-center px-3 py-3 ${
-                  step.visited.some((v) => v === node.id)
-                    ? "text-green-500 bg-gray-100 font-bold"
-                    : ""
+                  step.visited.some((v) => v === node.id) ? "text-green-500 bg-gray-100 font-bold" : ""
                 }`}
               >
-                {step.distances[node.data.label] === Infinity
-                  ? "∞"
-                  : step.distances[node.data.label]}
+                {step.distances[node.data.label] === Infinity ? "∞" : step.distances[node.data.label]}
               </td>
             ))}
           </tr>
@@ -333,16 +301,17 @@ const DijkstraVisualization = () => {
   const [highlight, setHighlight] = useState({ cells: [] });
   const [showSteps, setShowSteps] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
 
   const updateEdgeStyles = (path, edges) => {
-    // 构建连线标识，形式为 "start-end"
+    // Build edge identifiers, in the form "start-end"
     const pathEdges = new Set();
     for (let i = 1; i < path.length; i++) {
       pathEdges.add(`${path[i - 1]}-${path[i]}`);
       pathEdges.add(`${path[i]}-${path[i - 1]}`);
     }
 
-    // 更新边的样式
+    // Update the styles of the edges
     return edges.map((edge) => {
       if (pathEdges.has(`${edge.source}-${edge.target}`)) {
         return { ...edge, style: { stroke: "#32CD32", strokeWidth: 3 } }; // 用绿色高亮路径上的边
@@ -361,26 +330,28 @@ const DijkstraVisualization = () => {
     return path.reverse(); // reverse the path to get the correct order
   };
 
+  const handleStepForward = () => {
+    if (!result || currentStepIndex >= result.steps.length - 1) return;
+    
+    setCurrentStepIndex(currentStepIndex + 1);
+    const path = calculatePath(result.steps[currentStepIndex + 1].currentNode, result.parents);
+    const updatedEdges = updateEdgeStyles(path, edges);
+    setEdges(updatedEdges);
+  };
+
   useEffect(() => {
-    if (!result) return;
+    if (!result || !isAutoPlay) return;
 
     const intervalId = setInterval(() => {
       if (currentStepIndex < result.steps.length - 1) {
-        setCurrentStepIndex(currentStepIndex + 1);
-        // calculate the path from the current node to the start node
-        const path = calculatePath(
-          result.steps[currentStepIndex + 1].currentNode,
-          result.parents
-        );
-        const updatedEdges = updateEdgeStyles(path, edges);
-        setEdges(updatedEdges);
+        handleStepForward();
       } else {
-        clearInterval(intervalId); // clear the interval when the last step is reached
+        setIsAutoPlay(false);
       }
     }, 1000);
 
-    return () => clearInterval(intervalId); // clear the interval when the component is unmounted
-  }, [currentStepIndex, result, edges, setEdges]);
+    return () => clearInterval(intervalId);
+  }, [currentStepIndex, result, isAutoPlay]);
 
   const updateMatrix = (nodes, edges) => {
     const size = nodes.length;
@@ -426,9 +397,9 @@ const DijkstraVisualization = () => {
     setShowSteps(false);
     setEdges(resetEdgeStyles(edges));
     const result = graph.findShortestPath(startNode);
-    // console.log(result);
     setResult(result);
     setShowSteps(true);
+    setIsAutoPlay(false);
   };
 
   const resetEdgeStyles = useCallback(
@@ -468,12 +439,8 @@ const DijkstraVisualization = () => {
 
   const handleWeightSubmit = (weight) => {
     if (modalParams.edge) {
-      const sourceIndex = nodes.findIndex(
-        (n) => n.id === modalParams.edge.source
-      );
-      const targetIndex = nodes.findIndex(
-        (n) => n.id === modalParams.edge.target
-      );
+      const sourceIndex = nodes.findIndex((n) => n.id === modalParams.edge.source);
+      const targetIndex = nodes.findIndex((n) => n.id === modalParams.edge.target);
       // highlight the edge
       setHighlight({
         cells: [
@@ -483,9 +450,7 @@ const DijkstraVisualization = () => {
       });
 
       // change the weight of the edge
-      const newEdges = edges.map((e) =>
-        e.id === modalParams.edge.id ? { ...e, label: weight } : e
-      );
+      const newEdges = edges.map((e) => (e.id === modalParams.edge.id ? { ...e, label: weight } : e));
       const resetEdges = resetEdgeStyles(newEdges);
       setEdges(resetEdges);
       setTimeout(() => {
@@ -512,11 +477,7 @@ const DijkstraVisualization = () => {
             <label htmlFor="startNodeSelect" className="mr-2 flex-none">
               {t("select_start")}
             </label>
-            <select
-              value={startNode}
-              onChange={handleStartNodeChange}
-              className="px-4 py-2 mr-2 rounded-md w-full"
-            >
+            <select value={startNode} onChange={handleStartNodeChange} className="px-4 py-2 mr-2 rounded-md w-full">
               {matrix[0] &&
                 matrix[0].slice(1).map((node) => (
                   <option key={node} value={node}>
@@ -526,12 +487,32 @@ const DijkstraVisualization = () => {
                 ))}
             </select>
           </div>
-          <button
-            onClick={handleCalculate}
-            className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 focus:outline-none transition-colors duration-200"
-          >
-            {t("find_path")}
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleCalculate}
+              className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 focus:outline-none transition-colors duration-200"
+            >
+              {t("find_path")}
+            </button>
+            {result && (
+              <>
+                <button
+                  onClick={handleStepForward}
+                  disabled={currentStepIndex >= result.steps.length - 1 || isAutoPlay}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t("next_step")}
+                </button>
+                <button
+                  onClick={() => setIsAutoPlay(!isAutoPlay)}
+                  disabled={currentStepIndex >= result.steps.length - 1}
+                  className="px-4 py-2 bg-purple-500 text-white rounded-md shadow-md hover:bg-purple-600 focus:outline-none transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAutoPlay ? t("pause") : t("auto_play")}
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <div className="h-[calc(100vh-20rem)] w-full min-h-[50rem]">
           <ReactFlow
@@ -569,18 +550,12 @@ const DijkstraVisualization = () => {
             {matrix.slice(1).map((row, i) => (
               <tr key={i} className="bg-white border-b">
                 {row.map((cell, j) => {
-                  // 检查当前单元格是否需要高亮
-                  const isHighlighted = highlight.cells.some(
-                    (h) => h.row === i + 1 && h.col === j
-                  );
+                  // Check if the current cell needs to be highlighted
+                  const isHighlighted = highlight.cells.some((h) => h.row === i + 1 && h.col === j);
                   return (
                     <td
                       key={j}
-                      className={`text-center px-3 py-3 ${
-                        isHighlighted
-                          ? "bg-gray-100 text-green-500 font-bold"
-                          : ""
-                      }`}
+                      className={`text-center px-3 py-3 ${isHighlighted ? "bg-gray-100 text-green-500 font-bold" : ""}`}
                     >
                       {cell}
                     </td>
@@ -593,10 +568,7 @@ const DijkstraVisualization = () => {
         {showSteps && result && (
           <div>
             <h2 className="text-2xl pt-5 pb-5">{t("search_process")}</h2>
-            <StepsTable
-              steps={result.steps.slice(0, currentStepIndex + 1)}
-              nodes={nodes}
-            />
+            <StepsTable steps={result.steps.slice(0, currentStepIndex + 1)} nodes={nodes} />
           </div>
         )}
       </div>
@@ -604,7 +576,7 @@ const DijkstraVisualization = () => {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setModalParams({ params: null, edge: null }); // 关闭模态框时清理参数
+          setModalParams({ params: null, edge: null });
         }}
         onSubmit={handleWeightSubmit}
         initialWeight={modalParams.edge ? modalParams.edge.label : ""}

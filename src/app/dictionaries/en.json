@@ -75,14 +75,17 @@
   "path_found": "Path Found",
   "no_path_found": "No Path Found",
   "set_start_end_points": "Please set start and end points",
-  "dijkstra_title": "Dijkstra Shortest Path",
-  "dijkstra_description": "Given a network, you can set the weights between different nodes, and after selecting the starting point, you can calculate the shortest path to other nodes.",
+  "dijkstra_title": "Dijkstra Algorithm Find Shortest Path",
+  "dijkstra_description": "Visualize the Dijkstra algorithm to find the shortest path. You can customize an undirected graph, set the weight of the line, and then click Find Path to view the algorithm execution steps",
   "submit": "Submit",
   "weight": "Weight",
   "weight_matrix": "Weight Matrix",
   "select_start": "Select Start",
   "search_process": "Search Process",
   "round": "Round",
+  "next_step": "Next Step",
+  "auto_play": "Auto Play",
+
   "bar_chart_race_title": "BarChartRace(Developing)",
   "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
   "2048_title": "Game 2048",
@@ -552,9 +555,9 @@
       "keywords": "stack visualization, stack data structure, visualize stack operations, stack push, stack pop, stack peek, real-time stack visualization, stack tutorial, learn stack, data structure visualization"
     },
     "dijkstra": {
-      "title": "Dijkstra Visualization",
-      "description": "Learn and understand Dijkstra's shortest path algorithm through interactive visualization. Explore how Dijkstra's algorithm works and enhance your algorithm knowledge. Source code is available.",
-      "keywords": "Dijkstra's algorithm, shortest path algorithm, pathfinding algorithm, algorithm visualization, learn Dijkstra's algorithm, algorithm education"
+      "title": "Dijkstra Shortest Path Algorithm Visualization",
+      "description": "Dijkstra's algorithm is a classic algorithm for computing the shortest path from a single source in a weighted graph. This page describes the algorithm's principles and implementation steps, and provides interactive tools that allow you to set the graph's vertices and edges, weights, and visually observe the algorithm's execution process.",
+      "keywords": "Dijkstra Algorithm Visualization, Shortest Path Algorithm"
     },
     "trie": {
       "title": "Trie Visualization",

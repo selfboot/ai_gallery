@@ -74,14 +74,17 @@
   "path_found": "找到了最短路径",
   "no_path_found": "找不到路径。",
   "set_start_end_points": "请设置起点和终点",
-  "dijkstra_title": "Dijkstra 寻路",
-  "dijkstra_description": "可视化展示 Dijkstra 寻路算法，给定一个网络，可以设置不同节点之间的权重，选择起点后，就可以计算到其他节点的最短路径",
+  "dijkstra_title": "Dijkstra(迪杰斯特拉)最短路径算法",
+  "dijkstra_description": "可视化展示 Dijkstra(迪杰斯特拉)算法查找最短路径。支持自定义一个无向图，设置连线的权重，然后点击查找路径，查看算法执行步骤",
   "submit": "提交",
   "weight": "权重",
   "weight_matrix": "权重矩阵",
   "select_start": "选择起点",
   "search_process": "搜索过程",
   "round": "轮次",
+  "next_step": "下一步",
+  "auto_play": "自动执行",
+
   "bar_chart_race_title": "动态条形图(开发中)",
   "bar_chart_race_description": "动态条形图通常用来展示数据随时间变化的情况，通过本页面可以自定义数据和时间，生成动态条形图，并且支持大量的自定义设置。",
 
@@ -557,9 +560,9 @@
       "keywords": "栈可视化,栈数据结构,可视化栈操作,栈压入,栈弹出,栈顶元素,实时栈可视化,栈教程,学习栈,数据结构可视化"
     },
     "dijkstra": {
-      "title": "Dijkstra 算法可视化",
-      "description": "通过交互式可视化学习和理解 Dijkstra 最短路径算法。探索 Dijkstra 算法的工作原理,提升你的算法知识。源代码可用。",
-      "keywords": "Dijkstra 算法,最短路径算法,寻路算法,算法可视化"
+      "title": "Dijkstra(迪杰斯特拉)最短路径算法可视化",
+      "description": "Dijkstra 算法是一种用于计算加权图中单源最短路径的经典算法。本页面描述算法的原理和实现步骤，提供了交互式工具，可以设置图的顶点和边，权重，直观观察该算法的执行过程。",
+      "keywords": "Dijkstra 算法可视化,最短路径算法,迪杰斯特拉算法可视化"
     },
     "trie": {
       "title": "字典树算法可视化",
