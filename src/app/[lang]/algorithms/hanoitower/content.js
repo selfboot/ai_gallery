@@ -84,6 +84,11 @@ const HanoiTower = () => {
       setMessage(
         t("hintMessage", { from: String.fromCharCode(65 + move.from), to: String.fromCharCode(65 + move.to) })
       );
+      if (window.umami) {
+        window.umami.track("Hanoi Tower GetHint", {
+          disks: disks,
+        });
+      }
     } else {
       setHintMove(null);
       setMessage(t("noHintAvailable"));
@@ -126,6 +131,11 @@ const HanoiTower = () => {
         }
       }, speed);
 
+      if (window.umami) {
+        window.umami.track("Hanoi Tower AutoMove", {
+          disks: disks,
+        });
+      }
       return () => clearTimeout(timer);
     }
   }, [mode, isPlaying, towers, speed, disks, findNextMove, towersToConf]);
@@ -161,11 +171,24 @@ const HanoiTower = () => {
         return newTowers;
       });
       setTotalMoves((prev) => prev + 1);
+
+      if (window.umami && totalMoves === 50) {
+        window.umami.track("Hanoi Tower Move50", {
+          disks: disks,
+        });
+      }
+
       setMessage(t("moveSuccess"));
       setHintMove(null);
 
       // Check if the game is completed
       if (towers[2].length === disks - 1 && toTower === 2) {
+        if (window.umami) {
+          window.umami.track("Hanoi Tower Succ", {
+            moves: totalMoves,
+            disks: disks,
+          });
+        }
         setMessage(t("gameCompleted"));
       }
     } else {

@@ -181,7 +181,7 @@ export class SokobanLogic {
       groupId: this.currentGroupId,
     });
 
-    if (this.moves >= 50 && window.umami) {
+    if (this.moves === 50 && window.umami) {
       window.umami.track("Sokoban Game Moves", {
         moves: this.moves,
       });
