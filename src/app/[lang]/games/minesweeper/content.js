@@ -5,12 +5,13 @@ import MinesweeperGame from "./gameLogic";
 import { CanvasRenderer, FACE_SVGS } from "./CanvasRenderer";
 import { CustomListbox } from "@/app/components/ListBox";
 import LEDDigit from './LEDDigit';
+import { useI18n } from "@/app/i18n/client";
 
 const DIFFICULTY_LEVELS = {
-  "初级": { rows: 9, cols: 9, mines: 10 },
-  "中级": { rows: 16, cols: 16, mines: 40 },
-  "高级": { rows: 16, cols: 30, mines: 99 },
-  "自定义": "custom",
+  easy: { rows: 9, cols: 9, mines: 10 },
+  medium: { rows: 16, cols: 16, mines: 40 },
+  expert: { rows: 16, cols: 30, mines: 99 },
+  custom: "custom",
 };
 
 const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time }) => {
@@ -225,52 +226,53 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 };
 
 const Settings = ({ settings, onSettingsChange, onReset }) => {
+  const { t } = useI18n();
+  
+  const levelToTranslation = {
+    'easy': t('easy'),
+    'medium': t('medium'),
+    'expert': t('expert'),
+    'custom': t('custom')
+  };
+
+  const translationToLevel = Object.fromEntries(
+    Object.entries(levelToTranslation).map(([k, v]) => [v, k])
+  );
+
   const [selectedLevel, setSelectedLevel] = useState(() => {
-    // 根据当前设置判断难度级别
     const currentSettings = `${settings.rows},${settings.cols},${settings.mines}`;
-    const matchedLevel = Object.entries(DIFFICULTY_LEVELS).find(([_, config]) => {
-      if (config === "custom") return false;
+    const matchedLevel = Object.entries(DIFFICULTY_LEVELS).find(([key, config]) => {
+      if (key === "custom") return false;
       return `${config.rows},${config.cols},${config.mines}` === currentSettings;
     });
-    return matchedLevel ? matchedLevel[0] : "自定义";
+    const level = matchedLevel ? matchedLevel[0] : "custom";
+    return levelToTranslation[level];
   });
 
-  const handleLevelChange = (level) => {
-    setSelectedLevel(level);
-    if (level !== "自定义") {
+  const handleLevelChange = (translatedValue) => {
+    const level = translationToLevel[translatedValue];
+    setSelectedLevel(translatedValue);
+    if (level !== "custom") {
       onSettingsChange(DIFFICULTY_LEVELS[level], true);
     }
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <h2 className="text-xl font-bold">扫雷设置</h2>
+    <div className="flex flex-col gap-4">
+      <h2 className="text-xl font-bold">{t('settings')}</h2>
       <div className="space-y-3">
         <div>
-          <label className="block mb-1">难度级别</label>
+          <label className="block mb-1">{t('difficulty')}</label>
           <CustomListbox
             value={selectedLevel}
             onChange={handleLevelChange}
-            options={Object.keys(DIFFICULTY_LEVELS)}
+            options={Object.values(levelToTranslation)}
           />
         </div>
-
-        <button
-          className="w-full px-4 py-2 bg-[#C0C0C0] text-black rounded 
-                     border-t-2 border-l-2 border-[#ffffff] 
-                     border-r-2 border-b-2 border-[#808080] 
-                     hover:bg-[#d4d4d4] active:border-[#808080] 
-                     active:border-t-2 active:border-l-2 
-                     active:border-r-2 active:border-b-2"
-          onClick={onReset}
-        >
-          重新开始
-        </button>
-
-        {selectedLevel === "自定义" && (
+        {translationToLevel[selectedLevel] === "custom" && (
           <>
             <div>
-              <label className="block text-sm mb-1">行数</label>
+              <label className="block text-sm mb-1">{t('rows')}</label>
               <input
                 type="number"
                 value={settings.rows}
@@ -285,7 +287,7 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">列数</label>
+              <label className="block text-sm mb-1">{t('columns')}</label>
               <input
                 type="number"
                 value={settings.cols}
@@ -300,7 +302,7 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">地雷数</label>
+              <label className="block text-sm mb-1">{t('mines_count')}</label>
               <input
                 type="number"
                 value={settings.mines}
@@ -314,11 +316,24 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
               />
             </div>
 
-            <button className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={onReset}>
-              应用设置并重新开始
+            <button
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={onReset}
+            >
+              {t('apply_changes')}
             </button>
           </>
         )}
+
+        <button
+          className="w-full px-4 py-2 bg-[#C0C0C0] text-black rounded 
+                     border-t-2 border-l-2 border-[#ffffff] 
+                     border-r-2 border-b-2 border-[#808080] 
+                     hover:bg-[#d4d4d4] active:border-[#808080]"
+          onClick={onReset}
+        >
+          {t('restart_game')}
+        </button>
       </div>
     </div>
   );

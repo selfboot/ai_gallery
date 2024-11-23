@@ -9,11 +9,11 @@ export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
-      title: dict.seo.sokoban.title,
-      description: dict.seo.sokoban.description,
-      keywords: dict.seo.sokoban.keywords,
+      title: dict.seo.minesweeper.title,
+      description: dict.seo.minesweeper.description,
+      keywords: dict.seo.minesweeper.keywords,
       publishedDate: "2024-11-17T03:00:00.000Z",
-      updatedDate: "2024-11-22T10:00:00.000Z",
+      updatedDate: "2024-11-24T10:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/minesweeper`,
@@ -30,7 +30,7 @@ export default function MinesweeperPage({ params: { lang } }) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/minesweeper`} />
-      <Minesweeper lang={lang}/>
+      <Minesweeper lang={lang} />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/games/minesweeper" />
       <CommonComments lang={lang} />
     </>
