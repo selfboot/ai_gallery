@@ -175,4 +175,39 @@ class CanvasRenderer {
   }
 }
 
-export default CanvasRenderer;
+const FACE_SVGS = {
+  normal: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <circle cx="12" cy="12" r="10" fill="#FFE87C" />
+      <circle cx="8" cy="9" r="1.5" fill="#000" />
+      <circle cx="16" cy="9" r="1.5" fill="#000" />
+      <path d="M7.5 14.5a4.5 4.5 0 0 0 9 0" stroke="#000" strokeWidth="1.5" fill="none" />
+    </svg>
+  ),
+  pressed: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <circle cx="12" cy="12" r="10" fill="#FFE87C" />
+      <path d="M7.5 8h2v2h-2zM14.5 8h2v2h-2z" fill="#000" />
+      <path d="M7.5 14.5a4.5 4.5 0 0 0 9 0" stroke="#000" strokeWidth="1.5" fill="none" />
+    </svg>
+  ),
+  dead: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <circle cx="12" cy="12" r="10" fill="#FFE87C" />
+      <path d="M6.5 7.5l3 3M9.5 7.5l-3 3" stroke="#000" strokeWidth="1.5" />
+      <path d="M14.5 7.5l3 3M17.5 7.5l-3 3" stroke="#000" strokeWidth="1.5" />
+      <path d="M7.5 15.5c2.25-0.8 6.75-0.8 9 0" stroke="#000" strokeWidth="1.5" fill="none" />
+    </svg>
+  ),
+  win: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <circle cx="12" cy="12" r="10" fill="#FFE87C" />
+      <path d="M8 9a0.8 0.8 0 1 0 0-1.6 0.8 0.8 0 0 0 0 1.6z" fill="#000" />
+      <path d="M16 9a0.8 0.8 0 1 0 0-1.6 0.8 0.8 0 0 0 0 1.6z" fill="#000" />
+      <path d="M7.5 13a4.5 4.5 0 0 0 9 0" stroke="#000" strokeWidth="1.5" fill="none" />
+      <path d="M4.5 4.5l1.5 1.5M19.5 4.5l-1.5 1.5" stroke="#000" strokeWidth="1" />
+    </svg>
+  ),
+};
+
+export { CanvasRenderer, FACE_SVGS };

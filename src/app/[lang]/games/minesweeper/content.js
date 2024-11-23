@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import MinesweeperGame from "./gameLogic";
-import CanvasRenderer from "./CanvasRenderer";
+import { CanvasRenderer, FACE_SVGS } from "./CanvasRenderer";
 import { CustomListbox } from "@/app/components/ListBox";
+import LEDDigit from './LEDDigit';
 
 const DIFFICULTY_LEVELS = {
   "初级": { rows: 9, cols: 9, mines: 10 },
@@ -12,21 +13,12 @@ const DIFFICULTY_LEVELS = {
   "自定义": "custom",
 };
 
-// 首先定义表情图片映射（移到组件外部）
-const FACE_IMAGES = {
-  normal: "https://minesweeper.online/img/skins/hd/face_unpressed.svg?v=15",
-  pressed: "https://minesweeper.online/img/skins/hd/face_pressed.svg?v=15",
-  dead: "https://minesweeper.online/img/skins/hd/face_lose.svg?v=15",
-  win: "https://minesweeper.online/img/skins/hd/face_win.svg?v=15",
-};
-
 const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time }) => {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const containerRef = useRef(null);
-  const [isPressed, setIsPressed] = useState(false);
+  const [isFacePressed, setIsFacePressed] = useState(false);
 
-  // 使用函数初始化状态，避免服务端渲染不匹配
   const getInitialWindowSize = () => ({
     width: typeof window !== "undefined" ? window.innerWidth : 800,
     height: typeof window !== "undefined" ? window.innerHeight : 600,
@@ -34,7 +26,6 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
   const [windowSize, setWindowSize] = useState(getInitialWindowSize);
 
-  // 使用 useLayoutEffect 替代 useEffect 来避免闪烁
   useLayoutEffect(() => {
     const updateWindowSize = () => {
       setWindowSize({
@@ -43,22 +34,18 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
       });
     };
 
-    // 监听窗口大小变化
     window.addEventListener("resize", updateWindowSize);
     return () => window.removeEventListener("resize", updateWindowSize);
   }, []);
 
-  // 修改动态计算单元格大小的逻辑
+  // Dynamic calculation of cell size
   const calculateCellSize = useCallback(() => {
     const maxHeight = windowSize.height * 0.8;
-    const maxWidth = windowSize.width * 0.7;
-    const statusBarHeight = 40; // 状态栏高度
-    const padding = 32; // 外边距总和
+    const maxWidth = windowSize.width * 0.6;
+    const padding = 32;
     const minCellSize = 20;
     const maxCellSize = 40;
-
-    // 计算可用高度（减去状态栏和边距）
-    const availableHeight = maxHeight - statusBarHeight - padding;
+    const availableHeight = maxHeight - padding;
     const availableWidth = maxWidth - padding;
 
     const heightBasedSize = Math.floor(availableHeight / game.rows);
@@ -69,27 +56,25 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     return cellSize;
   }, [game.rows, game.cols, windowSize]);
 
-  // 使用函数初始化 cellSize
   const [cellSize, setCellSize] = useState(() => calculateCellSize());
 
-  // 使用 useLayoutEffect 处理尺寸变化
+  // Use useLayoutEffect to handle size changes
   useLayoutEffect(() => {
     setCellSize(calculateCellSize());
-  }, [calculateCellSize, windowSize]);
+  }, [calculateCellSize, windowSize, game.rows, game.cols]);
 
-  // 计算 canvas 尺寸
-  const canvasWidth = game.cols * cellSize + 12;
-  const canvasHeight = game.rows * cellSize + 12;
+  // Calculate canvas dimensions
+  const statusBarBottomPadding = 16;
+  const canvasWidth = game.cols * cellSize;
+  const canvasHeight = game.rows * cellSize;
 
-  // 计算游戏区域总宽度
-  const totalWidth = game.cols * cellSize + 12;
+  const statusLEDHeight = Math.max(44, cellSize);
+  const statusBarHeight = statusLEDHeight + statusBarBottomPadding;
+  const gameAreaHeight = game.rows * cellSize;
 
-  // 计算总高度（状态栏 + 游戏区域）
-  const statusBarHeight = cellSize + 6;
-  const gameAreaHeight = game.rows * cellSize + 12;
-  const totalHeight = statusBarHeight + gameAreaHeight + 4; // 4px 为状态栏和游戏区域之间的间距
+  const totalWidth = canvasWidth;
+  const totalHeight = statusBarHeight + gameAreaHeight;
 
-  // 使用 useLayoutEffect 处理渲染
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -105,7 +90,6 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     renderer.setCellSize(cellSize);
     renderer.setSize(game.rows, game.cols);
 
-    // 渲染所有格子
     for (let row = 0; row < game.rows; row++) {
       for (let col = 0; col < game.cols; col++) {
         renderer.drawCell(
@@ -127,23 +111,23 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor((x - 3) / cellSize);
-    const row = Math.floor((y - 3) / cellSize);
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
 
     if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
       onCellClick(row, col);
     }
   };
 
-  // 修改其他事件处理器中的坐标计算
+  // Process right-click events
   const handleContextMenu = (e) => {
     e.preventDefault();
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor((x - 3) / cellSize);
-    const row = Math.floor((y - 3) / cellSize);
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
 
     if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
       onCellRightClick(e, row, col);
@@ -155,35 +139,21 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor((x - 3) / cellSize);
-    const row = Math.floor((y - 3) / cellSize);
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
 
     if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
       onCellDoubleClick(row, col);
     }
   };
 
-  // 添加表情状态获取函数
-  const getFaceImage = () => {
+  // Get face content
+  const getFaceContent = () => {
     if (game.gameOver) {
-      return game.won ? FACE_IMAGES.win : FACE_IMAGES.dead;
+      return game.won ? FACE_SVGS.win : FACE_SVGS.dead;
     }
-    return isPressed ? FACE_IMAGES.pressed : FACE_IMAGES.normal;
+    return isFacePressed ? FACE_SVGS.pressed : FACE_SVGS.normal;
   };
-
-  // 添加鼠标事件处理
-  useEffect(() => {
-    const handleMouseDown = () => setIsPressed(true);
-    const handleMouseUp = () => setIsPressed(false);
-
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []);
 
   return (
     <div
@@ -193,32 +163,51 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
         height: `${totalHeight}px`,
       }}
     >
-      {/* 状态栏 */}
+      {/* Status bar */}
       <div
-        className="flex justify-between items-center mb-1 bg-[#C0C0C0] "
+        className="flex justify-between items-center mb-2 bg-[#C0C0C0] "
         style={{
           height: `${statusBarHeight}px`,
-          width: `${totalWidth}px`
+          width: `${totalWidth}px`,
+          paddingBottom: `${statusBarBottomPadding}px`,
         }}
       >
         <LEDDisplay value={game.minesLeft} />
 
-        <button onClick={onReset}>
-          <img
-            src={getFaceImage()}
-            alt="game face"
-            style={{
-              width: `${cellSize}px`,
-              height: `${cellSize}px`,
-            }}
-            draggable="false"
-          />
+        <button
+          onClick={onReset}
+          onMouseDown={(e) => {
+            if (e.button === 0) {
+              setIsFacePressed(true);
+            }
+          }}
+          onMouseUp={() => setIsFacePressed(false)}
+          onMouseLeave={() => setIsFacePressed(false)}
+          style={{
+            width: `${statusLEDHeight}px`,
+            height: `${statusLEDHeight}px`,
+            backgroundColor: '#C0C0C0',
+            border: '3px solid',
+            borderColor: isFacePressed
+              ? '#808080 #ffffff #ffffff #808080'
+              : '#ffffff #808080 #808080 #ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2px',
+          }}
+        >
+          <div style={{
+            width: `${Math.floor(cellSize * 0.85)}px`,
+            height: `${Math.floor(cellSize * 0.85)}px`
+          }}>
+            {getFaceContent()}
+          </div>
         </button>
 
         <LEDDisplay value={Math.floor(time)} />
       </div>
 
-      {/* Canvas 部分 */}
       <canvas
         ref={canvasRef}
         onClick={handleClick}
@@ -249,7 +238,6 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
   const handleLevelChange = (level) => {
     setSelectedLevel(level);
     if (level !== "自定义") {
-      // 直接传递新设置和重置指令
       onSettingsChange(DIFFICULTY_LEVELS[level], true);
     }
   };
@@ -260,7 +248,11 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
       <div className="space-y-3">
         <div>
           <label className="block mb-1">难度级别</label>
-          <CustomListbox value={selectedLevel} onChange={handleLevelChange} options={Object.keys(DIFFICULTY_LEVELS)} />
+          <CustomListbox
+            value={selectedLevel}
+            onChange={handleLevelChange}
+            options={Object.keys(DIFFICULTY_LEVELS)}
+          />
         </div>
 
         <button
@@ -332,18 +324,29 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
   );
 };
 
-const LEDDisplay = ({ value }) => (
-  <div 
-    className="font-['Digital-7'] text-[#FF0000] text-2xl tracking-wider px-2 min-w-[80px] text-center h-full flex items-center justify-center"
+const LEDDisplay = ({ value, width = 90, height = 44 }) => (
+  <div
+    className="px-2 flex items-center justify-center gap-1"
     style={{
+      minWidth: `${width}px`,
+      height: `${height}px`,
       backgroundColor: '#300',
       boxShadow: 'inset 0 0 10px rgba(0,0,0,0.8)',
       border: '2px solid #808080',
       borderStyle: 'inset',
-      textShadow: '0 0 5px rgba(255,0,0,0.8)',
     }}
   >
-    {String(value).padStart(3, "0")}
+    {String(value)
+      .padStart(3, "0")
+      .split("")
+      .map((digit, i) => (
+        <LEDDigit
+          key={i}
+          value={parseInt(digit)}
+          width={Math.floor(width * 0.25)}
+          height={Math.floor(height * 0.85)}
+        />
+      ))}
   </div>
 );
 
@@ -410,20 +413,39 @@ export default function Minesweeper() {
     };
   }, [handleMouseDown, handleMouseUp]);
 
+  const handleSettingsChange = useCallback((newSettings, shouldReset) => {
+    setSettings(newSettings);
+    if (shouldReset) {
+      setGame(new MinesweeperGame(newSettings.rows, newSettings.cols, newSettings.mines));
+      setTime(0);
+      setStartTime(null);
+      setTimerActive(false);
+    }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setGame(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
+    setTime(0);
+    setStartTime(null);
+    setTimerActive(false);
+  }, [settings]);
+
   useEffect(() => {
     let animationFrameId;
+
+    const updateTimer = () => {
+      if (timerActive && !game.gameOver) {
+        const now = Date.now();
+        const elapsed = (now - startTime) / 1000;
+        setTime(Math.min(999, Math.floor(elapsed)));
+        animationFrameId = requestAnimationFrame(updateTimer);
+      }
+    };
 
     if (timerActive && !game.gameOver) {
       if (!startTime) {
         setStartTime(Date.now());
       }
-
-      const updateTimer = () => {
-        const now = Date.now();
-        setTime((now - startTime) / 1000); // 转换为秒
-        animationFrameId = requestAnimationFrame(updateTimer);
-      };
-
       animationFrameId = requestAnimationFrame(updateTimer);
     }
 
@@ -434,25 +456,12 @@ export default function Minesweeper() {
     };
   }, [timerActive, game.gameOver, startTime]);
 
-  // 修改设置处理函数
-  const handleSettingsChange = useCallback((newSettings, shouldReset) => {
-    setSettings(newSettings);
-    if (shouldReset) {
-      // 在设置更新后立即重置游戏
-      setTimeout(() => {
-        setGame(new MinesweeperGame(newSettings.rows, newSettings.cols, newSettings.mines));
-        setTime(0);
-        setStartTime(null);
-        setTimerActive(false);
-      }, 0);
-    }
-  }, []);
-
   const handleCellClick = (row, col) => {
     if (game.gameOver) return;
 
     if (!timerActive) {
       setTimerActive(true);
+      setStartTime(Date.now());
     }
 
     const newGame = MinesweeperGame.copyState(game);
@@ -488,23 +497,17 @@ export default function Minesweeper() {
     [game, timerActive]
   );
 
-  const resetGame = useCallback(() => {
-    setGame(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
-    setTime(0);
-    setTimerActive(false);
-  }, [settings]);
-
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4">
-        <div className="flex flex-col items-center p-4 overflow-y-auto">
-          <div className="bg-[#C0C0C0] p-4 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
+        <div className="flex flex-col items-center overflow-y-auto">
+          <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
             <GameBoard
               game={game}
               onCellClick={handleCellClick}
               onCellRightClick={handleCellRightClick}
               onCellDoubleClick={handleCellDoubleClick}
-              onReset={resetGame}
+              onReset={handleReset}
               time={time}
             />
           </div>
@@ -512,7 +515,11 @@ export default function Minesweeper() {
       </div>
 
       <div className="w-full lg:w-1/5">
-        <Settings settings={settings} onSettingsChange={handleSettingsChange} onReset={resetGame} />
+        <Settings
+          settings={settings}
+          onSettingsChange={handleSettingsChange}
+          onReset={handleReset}
+        />
       </div>
     </div>
   );
