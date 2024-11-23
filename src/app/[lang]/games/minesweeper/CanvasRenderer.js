@@ -25,9 +25,9 @@ class CanvasRenderer {
 
   // Draw a single cell
   drawCell(row, col, state, value) {
-    const x = col * this.cellSize + this.borderSize;
-    const y = row * this.cellSize + this.borderSize;
-    const size = this.cellSize - this.borderSize;
+    const x = col * this.cellSize;
+    const y = row * this.cellSize;
+    const size = this.cellSize;
 
     // Clear cell area
     this.ctx.clearRect(x, y, size, size);
@@ -50,24 +50,29 @@ class CanvasRenderer {
     this.ctx.fillStyle = "#C0C0C0";
     this.ctx.fillRect(x, y, size, size);
 
+    const borderWidth = Math.max(1, Math.floor(size * 0.1));
+
+    // Left and top bright border (white)
     this.ctx.beginPath();
-    // Left and top bright border
-    this.ctx.fillStyle = "#FFFFFF";
-    this.ctx.moveTo(x, y + size);
-    this.ctx.lineTo(x, y);
-    this.ctx.lineTo(x + size, y);
-    this.ctx.lineWidth = this.innerBorder;
+    this.ctx.moveTo(x + size - borderWidth, y + borderWidth);
+    this.ctx.lineTo(x + borderWidth, y + borderWidth);
+    this.ctx.lineTo(x + borderWidth, y + size - borderWidth);
+    this.ctx.lineWidth = borderWidth;
     this.ctx.strokeStyle = "#FFFFFF";
     this.ctx.stroke();
 
-    // Right and bottom dark border
+    // Right and bottom dark border (gray)
     this.ctx.beginPath();
-    this.ctx.moveTo(x + size, y);
-    this.ctx.lineTo(x + size, y + size);
-    this.ctx.lineTo(x, y + size);
-    this.ctx.lineWidth = this.innerBorder;
+    this.ctx.moveTo(x + borderWidth, y + size - borderWidth);
+    this.ctx.lineTo(x + size - borderWidth, y + size - borderWidth);
+    this.ctx.lineTo(x + size - borderWidth, y + borderWidth);
+    this.ctx.lineWidth = borderWidth;
     this.ctx.strokeStyle = "#808080";
     this.ctx.stroke();
+
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x, y, size, size);
   }
 
   // Draw revealed cell
