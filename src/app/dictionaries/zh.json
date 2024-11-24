@@ -481,8 +481,8 @@
   "previous": "上一页",
   "next": "下一页",
 
-  "minesweeper_title": "在线免费扫雷游戏",
-  "minesweeper_description": "功能强大的经典扫雷游戏，自定义程度高，方便快捷。支持自定义棋盘大小和雷的数量，支持右键标雷，双击自动排雷等操作。",
+  "minesweeper_title": "免费扫雷游戏网页版",
+  "minesweeper_description": "功能强大的经典扫雷游戏网页版，自定义程度高，方便快捷。支持自定义棋盘大小和雷的数量，支持右键标雷，双击自动排雷等操作。",
   "continue_game": "继续本局",
   "custom": "自定义",
   "restart": "重新开始",
