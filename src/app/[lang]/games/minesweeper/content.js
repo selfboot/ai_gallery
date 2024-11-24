@@ -93,6 +93,10 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
     for (let row = 0; row < game.rows; row++) {
       for (let col = 0; col < game.cols; col++) {
+        const isPressed = game.pressedCells.some(
+          ([r, c]) => r === row && c === col
+        );
+        
         renderer.drawCell(
           row,
           col,
@@ -100,6 +104,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
             revealed: game.revealed[row][col],
             flagged: game.flagged[row][col],
             exploded: game.gameOver && game.board[row][col] === -1 && game.revealed[row][col],
+            pressed: isPressed,
           },
           game.board[row][col]
         );
@@ -508,6 +513,15 @@ export default function Minesweeper() {
       const newGame = MinesweeperGame.copyState(game);
       newGame.handleDoubleClick(row, col);
       setGame(newGame);
+
+      // 如果有按压效果，设置定时器清除
+      if (newGame.pressedCells.length > 0) {
+        setTimeout(() => {
+          const clearedGame = MinesweeperGame.copyState(newGame);
+          clearedGame.clearPressedCells();
+          setGame(clearedGame);
+        }, 300);
+      }
     },
     [game, timerActive]
   );

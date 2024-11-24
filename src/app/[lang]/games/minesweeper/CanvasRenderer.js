@@ -33,8 +33,12 @@ class CanvasRenderer {
     this.ctx.clearRect(x, y, size, size);
 
     if (!state.revealed) {
-      // Unrevealed cell
-      this.drawUnrevealedCell(x, y, size);
+      if (state.pressed) {
+        this.drawPressedCell(x, y, size);
+      } else {
+        // Unrevealed cell
+        this.drawUnrevealedCell(x, y, size);
+      }
       if (state.flagged) {
         this.drawFlag(x, y, size);
       }
@@ -75,6 +79,37 @@ class CanvasRenderer {
     this.ctx.strokeRect(x, y, size, size);
   }
 
+  drawPressedCell(x, y, size) {
+    // 绘制基础背景
+    this.ctx.fillStyle = "#C0C0C0";
+    this.ctx.fillRect(x, y, size, size);
+
+    const borderWidth = Math.max(1, Math.floor(size * 0.1));
+
+    // 右和下边框使用亮色（与未按下状态相反）
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + size - borderWidth, y + borderWidth);
+    this.ctx.lineTo(x + size - borderWidth, y + size - borderWidth);
+    this.ctx.lineTo(x + borderWidth, y + size - borderWidth);
+    this.ctx.lineWidth = borderWidth;
+    this.ctx.strokeStyle = "#FFFFFF";
+    this.ctx.stroke();
+
+    // 左和上边框使用暗色（与未按下状态相反）
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + borderWidth, y + size - borderWidth);
+    this.ctx.lineTo(x + borderWidth, y + borderWidth);
+    this.ctx.lineTo(x + size - borderWidth, y + borderWidth);
+    this.ctx.lineWidth = borderWidth;
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.stroke();
+
+    // 外边框
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x, y, size, size);
+  }
+  
   // Draw revealed cell
   drawRevealedCell(x, y, size, value, exploded) {
     this.ctx.fillStyle = "#C0C0C0";

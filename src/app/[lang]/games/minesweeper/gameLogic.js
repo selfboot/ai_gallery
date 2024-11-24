@@ -7,6 +7,7 @@ class MinesweeperGame {
     this.won = false;
     this.firstMove = true;
     this.minesLeft = mines;
+    this.pressedCells = [];
 
     // 初始化空板
     this.board = Array(rows)
@@ -64,6 +65,7 @@ class MinesweeperGame {
     newGame.won = this.won;
     newGame.firstMove = this.firstMove;
     newGame.minesLeft = this.minesLeft;
+    newGame.pressedCells = [...this.pressedCells];
     return newGame;
   }
 
@@ -173,7 +175,30 @@ class MinesweeperGame {
           }
         }
       }
+    } else {
+      // 设置需要显示按压效果的格子
+      this.pressedCells = this.getAdjacentUnrevealedCells(row, col);
     }
+  }
+
+  getAdjacentUnrevealedCells(row, col) {
+    const cells = [];
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        const newRow = row + i;
+        const newCol = col + j;
+        if (this.isValidCell(newRow, newCol) && 
+            !this.revealed[newRow][newCol] && 
+            !this.flagged[newRow][newCol]) {
+          cells.push([newRow, newCol]);
+        }
+      }
+    }
+    return cells;
+  }
+
+  clearPressedCells() {
+    this.pressedCells = [];
   }
 
   static copyState(oldGame) {
@@ -185,6 +210,7 @@ class MinesweeperGame {
     newGame.won = oldGame.won;
     newGame.firstMove = oldGame.firstMove;
     newGame.minesLeft = oldGame.minesLeft;
+    newGame.pressedCells = [...oldGame.pressedCells];
     return newGame;
   }
 }
