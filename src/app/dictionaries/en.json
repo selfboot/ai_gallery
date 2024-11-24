@@ -438,7 +438,7 @@
   "direction_left": "left",
   "direction_right": "right",
   "sliding_title": "Free Online Sliding Puzzle",
-  "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, supports customizing the number layout of each cell, and supports obtaining intelligent solution plans! Code is open source, free to play online!",
+  "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, and supports obtaining intelligent solution plans!",
 
   "sokoban_title": "Free Online Sokoban Game",
   "sokoban_more_title": "Free Online Sokoban Levels Collection",
@@ -475,6 +475,15 @@
   "all_levels": "All Game Maps",
   "previous": "Prev",
   "next": "Next",
+  "minesweeper_title": "Free Online Minesweeper Game",
+  "minesweeper_description": "Classic Minesweeper game, supports custom board size, custom mine count, undo operation. Supports marking mines and automatic mine clearing, so have a try?",
+  "custom": "Custom",
+  "restart": "Restart",
+  "rows": "Rows",
+  "columns": "Columns",
+  "mines_count": "Mines Count",
+  "apply_changes": "Apply Changes",
+  "continue_game": "Continue Game",
   
   "chartrace": {
     "population-growth": {
@@ -713,6 +722,11 @@
       "title": "Many Online Sokoban Game Levels",
       "description": "Sokoban Game Levels, contains various levels, with preview images, can quickly select different levels. Supports filtering uncompleted levels, filtering different map sizes",
       "keywords": "Online Sokoban Game Levels, Sokoban Preview, Select Sokoban Level"
+    },
+    "minesweeper": {
+      "title": "Free Online Minesweeper Game",
+      "description": "Powerful classic minesweeper game with a high degree of customization, convenience and speed. Support custom checkerboard size and number of mines, support right-click to mark mines, double-click automatic demining and other operations.",
+      "keywords": "Minesweeper, Free Minesweeper Game, Online Minesweeper"
     }
   }
 }
