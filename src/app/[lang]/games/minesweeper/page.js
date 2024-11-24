@@ -12,8 +12,8 @@ export async function generateMetadata({ params: { lang } }) {
       title: dict.seo.minesweeper.title,
       description: dict.seo.minesweeper.description,
       keywords: dict.seo.minesweeper.keywords,
-      publishedDate: "2024-11-17T03:00:00.000Z",
-      updatedDate: "2024-11-24T10:00:00.000Z",
+      publishedDate: "2024-11-24T11:00:00.000Z",
+      updatedDate: "2024-11-24T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/minesweeper`,
