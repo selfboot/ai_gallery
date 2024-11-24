@@ -230,7 +230,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   );
 };
 
-const Settings = ({ settings, onSettingsChange, onReset }) => {
+const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue }) => {
   const { t } = useI18n();
   
   const levelToTranslation = {
@@ -338,6 +338,17 @@ const Settings = ({ settings, onSettingsChange, onReset }) => {
           onClick={onReset}
         >
           {t('restart_game')}
+        </button>
+
+        <button
+          className={`w-full px-4 py-2 text-black rounded 
+                     ${canContinue 
+                       ? 'bg-[#C0C0C0] border-t-2 border-l-2 border-[#ffffff] border-r-2 border-b-2 border-[#808080] hover:bg-[#d4d4d4] active:border-[#808080]' 
+                       : 'bg-[#e0e0e0] text-[#a0a0a0] border-2 border-[#d0d0d0] cursor-not-allowed opacity-50'}`}
+          onClick={onContinue}
+          disabled={!canContinue}
+        >
+          {t('continue_game')}
         </button>
       </div>
     </div>
@@ -521,6 +532,13 @@ export default function Minesweeper() {
     [game, timerActive]
   );
 
+  const handleContinue = useCallback(() => {
+    const newGame = MinesweeperGame.copyState(game);
+    if (newGame.continueGame()) {
+      setGame(newGame);
+    }
+  }, [game]);
+
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4">
@@ -543,6 +561,8 @@ export default function Minesweeper() {
           settings={settings}
           onSettingsChange={handleSettingsChange}
           onReset={handleReset}
+          onContinue={handleContinue}
+          canContinue={game.gameOver && !game.won && game.lastRevealedMine !== null}
         />
       </div>
     </div>

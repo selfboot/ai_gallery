@@ -8,6 +8,7 @@ class MinesweeperGame {
     this.firstMove = true;
     this.minesLeft = mines;
     this.pressedCells = [];
+    this.lastRevealedMine = null;
 
     // Initialize empty board
     this.board = Array(rows)
@@ -65,6 +66,7 @@ class MinesweeperGame {
     newGame.firstMove = this.firstMove;
     newGame.minesLeft = this.minesLeft;
     newGame.pressedCells = [...this.pressedCells];
+    newGame.lastRevealedMine = this.lastRevealedMine ? [...this.lastRevealedMine] : null;
     return newGame;
   }
 
@@ -100,6 +102,7 @@ class MinesweeperGame {
 
     if (this.board[row][col] === -1) {
       this.gameOver = true;
+      this.lastRevealedMine = [row, col];
       return;
     }
 
@@ -213,7 +216,19 @@ class MinesweeperGame {
     newGame.firstMove = oldGame.firstMove;
     newGame.minesLeft = oldGame.minesLeft;
     newGame.pressedCells = [...oldGame.pressedCells];
+    newGame.lastRevealedMine = oldGame.lastRevealedMine ? [...oldGame.lastRevealedMine] : null;
     return newGame;
+  }
+
+  continueGame() {
+    if (this.lastRevealedMine && this.gameOver && !this.won) {
+      const [row, col] = this.lastRevealedMine;
+      this.revealed[row][col] = false;
+      this.gameOver = false;
+      this.lastRevealedMine = null;
+      return true;
+    }
+    return false;
   }
 }
 
