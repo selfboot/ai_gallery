@@ -131,11 +131,6 @@ const HanoiTower = () => {
         }
       }, speed);
 
-      if (window.umami) {
-        window.umami.track("Hanoi Tower AutoMove", {
-          disks: disks,
-        });
-      }
       return () => clearTimeout(timer);
     }
   }, [mode, isPlaying, towers, speed, disks, findNextMove, towersToConf]);
