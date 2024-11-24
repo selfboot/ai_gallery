@@ -43,6 +43,13 @@ const Projects = {
       link: "/games/cube",
     },
     {
+      id: "minesweeper",
+      title: "minesweeper_title",
+      description: "minesweeper_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241124_ai_gallery_minesweeper_small.png",
+      link: "/games/minesweeper",
+    },
+    {
       id: "tetris",
       title: "tetris_title",
       description: "tetris_description",

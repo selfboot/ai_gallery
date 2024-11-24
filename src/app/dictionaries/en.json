@@ -438,7 +438,7 @@
   "direction_left": "left",
   "direction_right": "right",
   "sliding_title": "Free Online Sliding Puzzle",
-  "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, supports customizing the number layout of each cell, and supports obtaining intelligent solution plans! Code is open source, free to play online!",
+  "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, and supports obtaining intelligent solution plans!",
 
   "sokoban_title": "Free Online Sokoban Game",
   "sokoban_more_title": "Free Online Sokoban Levels Collection",
