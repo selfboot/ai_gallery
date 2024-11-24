@@ -80,13 +80,13 @@ class CanvasRenderer {
   }
 
   drawPressedCell(x, y, size) {
-    // 绘制基础背景
+    // Draw base background
     this.ctx.fillStyle = "#C0C0C0";
     this.ctx.fillRect(x, y, size, size);
 
     const borderWidth = Math.max(1, Math.floor(size * 0.1));
 
-    // 右和下边框使用亮色（与未按下状态相反）
+    // Right and bottom borders use light color (opposite to the unpressed state)
     this.ctx.beginPath();
     this.ctx.moveTo(x + size - borderWidth, y + borderWidth);
     this.ctx.lineTo(x + size - borderWidth, y + size - borderWidth);
@@ -95,7 +95,7 @@ class CanvasRenderer {
     this.ctx.strokeStyle = "#FFFFFF";
     this.ctx.stroke();
 
-    // 左和上边框使用暗色（与未按下状态相反）
+    // Left and top borders use dark color (opposite to the unpressed state)
     this.ctx.beginPath();
     this.ctx.moveTo(x + borderWidth, y + size - borderWidth);
     this.ctx.lineTo(x + borderWidth, y + borderWidth);
@@ -104,12 +104,12 @@ class CanvasRenderer {
     this.ctx.strokeStyle = "#808080";
     this.ctx.stroke();
 
-    // 外边框
+    // Outer border
     this.ctx.strokeStyle = "#808080";
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x, y, size, size);
   }
-  
+
   // Draw revealed cell
   drawRevealedCell(x, y, size, value, exploded) {
     this.ctx.fillStyle = "#C0C0C0";

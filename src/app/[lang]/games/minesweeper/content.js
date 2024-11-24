@@ -383,7 +383,7 @@ export default function Minesweeper() {
   const emojiCanvasRef = useRef(null);
   const emojiRendererRef = useRef(null);
 
-  // 添加表情渲染逻辑
+  // Add emoji rendering logic
   useLayoutEffect(() => {
     const canvas = emojiCanvasRef.current;
     if (!canvas) return;
@@ -394,26 +394,22 @@ export default function Minesweeper() {
 
     const renderer = emojiRendererRef.current;
 
-    // 确定表情状态
     let emojiState = "normal";
     if (game.gameOver) {
       emojiState = game.won ? "win" : "dead";
     }
 
-    // 绘制表情
     renderer.drawEmoji(0, 0, 40, emojiState);
   }, [game.gameOver, game.won]);
 
-  // 添加鼠标按下状态
   const handleMouseDown = useCallback(() => {
     const canvas = emojiCanvasRef.current;
     if (!canvas || game.gameOver) return;
 
     const renderer = emojiRendererRef.current;
-    renderer.drawEmoji(0, 0, 40, "worried"); // 添加担心表情
+    renderer.drawEmoji(0, 0, 40, "worried");
   }, [game.gameOver]);
 
-  // 添加鼠标抬起状态
   const handleMouseUp = useCallback(() => {
     const canvas = emojiCanvasRef.current;
     if (!canvas || game.gameOver) return;
@@ -422,7 +418,6 @@ export default function Minesweeper() {
     renderer.drawEmoji(0, 0, 40, "normal");
   }, [game.gameOver]);
 
-  // 在组件挂载时添加鼠标事件监听
   useEffect(() => {
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mouseup", handleMouseUp);
@@ -514,7 +509,7 @@ export default function Minesweeper() {
       newGame.handleDoubleClick(row, col);
       setGame(newGame);
 
-      // 如果有按压效果，设置定时器清除
+      // If there is a pressed effect, set a timer to clear it
       if (newGame.pressedCells.length > 0) {
         setTimeout(() => {
           const clearedGame = MinesweeperGame.copyState(newGame);

@@ -9,7 +9,7 @@ class MinesweeperGame {
     this.minesLeft = mines;
     this.pressedCells = [];
 
-    // 初始化空板
+    // Initialize empty board
     this.board = Array(rows)
       .fill()
       .map(() => Array(cols).fill(0));
@@ -22,7 +22,7 @@ class MinesweeperGame {
   }
 
   initializeBoard(firstClickRow, firstClickCol) {
-    // 重置所有数组
+    // Reset all arrays
     this.board = Array(this.rows)
       .fill()
       .map(() => Array(this.cols).fill(0));
@@ -33,7 +33,7 @@ class MinesweeperGame {
       .fill()
       .map(() => Array(this.cols).fill(false));
 
-    // 放置地雷，避开第一次点击的位置
+    // Place mines, avoiding the first click position
     let minesPlaced = 0;
     while (minesPlaced < this.mines) {
       const row = Math.floor(Math.random() * this.rows);
@@ -45,7 +45,7 @@ class MinesweeperGame {
       }
     }
 
-    // 计算每个格子周围的地雷数
+    // Calculate the number of mines around each cell
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
         if (this.board[row][col] !== -1) {
@@ -55,7 +55,6 @@ class MinesweeperGame {
     }
   }
 
-  // 创建一个克隆方法
   clone() {
     const newGame = new MinesweeperGame(this.rows, this.cols, this.mines);
     newGame.board = this.board.map((row) => [...row]);
@@ -125,6 +124,10 @@ class MinesweeperGame {
 
   toggleFlag(row, col) {
     if (!this.revealed[row][col]) {
+      if (!this.flagged[row][col] && this.minesLeft <= 0) {
+        return;
+      }
+      
       this.flagged[row][col] = !this.flagged[row][col];
       this.minesLeft += this.flagged[row][col] ? -1 : 1;
     }
@@ -162,10 +165,9 @@ class MinesweeperGame {
     const cellValue = this.board[row][col];
     if (cellValue === 0 || cellValue === -1) return;
 
-    // 检查周围的旗子数量是否等于当前格子的数字
     const flagCount = this.countAdjacentFlags(row, col);
     if (flagCount === cellValue) {
-      // 打开所有未打开且未标记的相邻格子
+      // Open all adjacent cells that are not flagged or revealed
       for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
           const newRow = row + i;
@@ -176,7 +178,7 @@ class MinesweeperGame {
         }
       }
     } else {
-      // 设置需要显示按压效果的格子
+      // Set the cells that need to display the pressed effect
       this.pressedCells = this.getAdjacentUnrevealedCells(row, col);
     }
   }
@@ -187,9 +189,9 @@ class MinesweeperGame {
       for (let j = -1; j <= 1; j++) {
         const newRow = row + i;
         const newCol = col + j;
-        if (this.isValidCell(newRow, newCol) && 
-            !this.revealed[newRow][newCol] && 
-            !this.flagged[newRow][newCol]) {
+        if (this.isValidCell(newRow, newCol) &&
+          !this.revealed[newRow][newCol] &&
+          !this.flagged[newRow][newCol]) {
           cells.push([newRow, newCol]);
         }
       }
