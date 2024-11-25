@@ -41,8 +41,12 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
   // Dynamic calculation of cell size
   const calculateCellSize = useCallback(() => {
-    const maxHeight = windowSize.height * 0.8;
-    const maxWidth = windowSize.width * 0.6;
+    const isMobile = windowSize.width < 768;
+    
+    const widthRatio = isMobile ? 0.8 : 0.7;
+    const heightRatio = 0.8;
+    const maxHeight = windowSize.height * heightRatio;
+    const maxWidth = windowSize.width * widthRatio;
     const padding = 32;
     const minCellSize = 20;
     const maxCellSize = 40;
@@ -541,8 +545,8 @@ export default function Minesweeper() {
 
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
-      <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4">
-        <div className="flex flex-col items-center overflow-y-auto">
+      <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
+        <div className="flex flex-col items-center min-w-fit">
           <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
             <GameBoard
               game={game}
