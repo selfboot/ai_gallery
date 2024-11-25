@@ -46,9 +46,16 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
     setScale(newScale);
   }, [width, height]);
 
+  // Add device pixel ratio
+  const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
     mapData.forEach((row, y) => {
@@ -89,7 +96,7 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
         }
       });
     });
-  }, [mapData, width, height]);
+  }, [mapData, width, height, dpr]);
 
   return (
     <div
@@ -111,11 +118,11 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
       <div className="flex-1 flex items-center justify-center">
         <canvas
           ref={canvasRef}
-          width={width}
-          height={height}
           style={{
             transform: `scale(${scale})`,
             transformOrigin: "center",
+            width: `${width}px`,
+            height: `${height}px`,
           }}
         />
       </div>
