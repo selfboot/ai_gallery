@@ -484,6 +484,7 @@
   "mines_count": "Mines Count",
   "apply_changes": "Apply Changes",
   "continue_game": "Continue Game",
+  "auto_flag_mines": "Auto Flag Mines",
   
   "chartrace": {
     "population-growth": {

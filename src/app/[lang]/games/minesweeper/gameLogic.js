@@ -9,6 +9,7 @@ class MinesweeperGame {
     this.minesLeft = mines;
     this.pressedCells = [];
     this.lastRevealedMine = null;
+    this.autoFlag = false;
 
     // Initialize empty board
     this.board = Array(rows)
@@ -67,6 +68,7 @@ class MinesweeperGame {
     newGame.minesLeft = this.minesLeft;
     newGame.pressedCells = [...this.pressedCells];
     newGame.lastRevealedMine = this.lastRevealedMine ? [...this.lastRevealedMine] : null;
+    newGame.autoFlag = this.autoFlag;
     return newGame;
   }
 
@@ -108,6 +110,10 @@ class MinesweeperGame {
 
     if (this.board[row][col] === 0) {
       this.revealAdjacentCells(row, col);
+    }
+
+    if (this.autoFlag && !this.gameOver) {
+      this.autoFlagMines();
     }
 
     this.checkWin();
@@ -217,6 +223,7 @@ class MinesweeperGame {
     newGame.minesLeft = oldGame.minesLeft;
     newGame.pressedCells = [...oldGame.pressedCells];
     newGame.lastRevealedMine = oldGame.lastRevealedMine ? [...oldGame.lastRevealedMine] : null;
+    newGame.autoFlag = oldGame.autoFlag;
     return newGame;
   }
 
@@ -229,6 +236,42 @@ class MinesweeperGame {
       return true;
     }
     return false;
+  }
+
+  autoFlagMines() {
+    let flagged = false;
+
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        if (this.revealed[row][col] && this.board[row][col] > 0) {
+          const unrevealedCells = this.getAdjacentUnrevealedCells(row, col);
+          const flagCount = this.countAdjacentFlags(row, col);
+
+          // If the number of unrevealed cells is equal to the number of mines left, then these cells are mines
+          if (unrevealedCells.length > 0 && unrevealedCells.length === this.board[row][col] - flagCount) {
+            unrevealedCells.forEach(([r, c]) => {
+              if (!this.flagged[r][c]) {
+                this.flagged[r][c] = true;
+                this.minesLeft--;
+                flagged = true;
+              }
+            });
+          }
+        }
+      }
+    }
+
+    // If there are new flags, continue checking if there are any more to flag
+    if (flagged) {
+      this.autoFlagMines();
+    }
+  }
+
+  setAutoFlag(enabled) {
+    this.autoFlag = enabled;
+    if (enabled) {
+      this.autoFlagMines();
+    }
   }
 }
 

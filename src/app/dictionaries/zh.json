@@ -490,6 +490,7 @@
   "columns": "列数",
   "mines_count": "地雷数",
   "apply_changes": "应用设置",
+  "auto_flag_mines": "自动标记地雷",
 
   "chartrace": {
       "population-growth": {

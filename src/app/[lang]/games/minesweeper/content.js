@@ -354,6 +354,18 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
         >
           {t('continue_game')}
         </button>
+
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={settings.autoFlag}
+              onChange={(e) => onSettingsChange({ autoFlag: e.target.checked })}
+              className="mr-2"
+            />
+            <span>{t('auto_flag_mines')}</span>
+          </label>
+        </div>
       </div>
     </div>
   );
@@ -390,6 +402,7 @@ export default function Minesweeper() {
     rows: 9,
     cols: 9,
     mines: 10,
+    autoFlag: false
   });
   const [game, setGame] = useState(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
   const [startTime, setStartTime] = useState(null);
@@ -444,17 +457,26 @@ export default function Minesweeper() {
   }, [handleMouseDown, handleMouseUp]);
 
   const handleSettingsChange = useCallback((newSettings, shouldReset) => {
-    setSettings(newSettings);
-    if (shouldReset) {
-      setGame(new MinesweeperGame(newSettings.rows, newSettings.cols, newSettings.mines));
-      setTime(0);
-      setStartTime(null);
-      setTimerActive(false);
+    if ('autoFlag' in newSettings) {
+      setSettings(prev => ({ ...prev, autoFlag: newSettings.autoFlag }));
+      const newGame = MinesweeperGame.copyState(game);
+      newGame.setAutoFlag(newSettings.autoFlag);
+      setGame(newGame);
+    } else {
+      setSettings(prev => ({ ...prev, ...newSettings }));
+      if (shouldReset) {
+        setGame(new MinesweeperGame(newSettings.rows, newSettings.cols, newSettings.mines));
+        setTime(0);
+        setStartTime(null);
+        setTimerActive(false);
+      }
     }
-  }, []);
+  }, [game]);
 
   const handleReset = useCallback(() => {
-    setGame(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
+    const newGame = new MinesweeperGame(settings.rows, settings.cols, settings.mines);
+    newGame.setAutoFlag(settings.autoFlag);
+    setGame(newGame);
     setTime(0);
     setStartTime(null);
     setTimerActive(false);
