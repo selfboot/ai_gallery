@@ -10,7 +10,6 @@ const STORAGE_KEY = "sokoban-progress";
 
 const MapThumbnail = memo(({ mapData, completedInfo }) => {
   const { t } = useI18n();
-  const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [scale, setScale] = useState(1);
 
@@ -46,58 +45,6 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
     setScale(newScale);
   }, [width, height]);
 
-  // Add device pixel ratio
-  const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, width, height);
-
-    mapData.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        const posX = x * CELL_SIZE;
-        const posY = y * CELL_SIZE;
-
-        switch (cell) {
-          case 0: // EMPTY
-            // ctx.fillStyle = "#ffffff";
-            break;
-          case 1: // WALL
-            ctx.fillStyle = "#2C282B";
-            break;
-          case 2: // FLOOR
-            ctx.fillStyle = "#f5eedf";
-            break;
-          case 3: // TARGET
-            ctx.fillStyle = "#ff6b6b";
-            break;
-          case 4: // BOX
-            ctx.fillStyle = "#556589";
-            break;
-          case 5: // BOX_ON_TARGET
-            ctx.fillStyle = "#ff8787";
-            break;
-          case 6: // PLAYER
-            ctx.fillStyle = "#4169E1";
-            break;
-          case 7: // PLAYER_ON_TARGET
-            ctx.fillStyle = "#5c7cfa";
-            break;
-        }
-        if (cell !== 0) {
-          ctx.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-          ctx.strokeStyle = "#e9ecef";
-          ctx.strokeRect(posX, posY, CELL_SIZE, CELL_SIZE);
-        }
-      });
-    });
-  }, [mapData, width, height, dpr]);
-
   return (
     <div
       ref={containerRef}
@@ -116,15 +63,65 @@ const MapThumbnail = memo(({ mapData, completedInfo }) => {
       )}
 
       <div className="flex-1 flex items-center justify-center">
-        <canvas
-          ref={canvasRef}
+        <svg
+          width={width}
+          height={height}
           style={{
             transform: `scale(${scale})`,
             transformOrigin: "center",
-            width: `${width}px`,
-            height: `${height}px`,
           }}
-        />
+        >
+          {mapData.map((row, y) =>
+            row.map((cell, x) => {
+              const posX = x * CELL_SIZE;
+              const posY = y * CELL_SIZE;
+              
+              // 跳过空白格子
+              if (cell === 0) return null;
+
+              let fillColor;
+              switch (cell) {
+                case 1: // WALL
+                  fillColor = "#2C282B";
+                  break;
+                case 2: // FLOOR
+                  fillColor = "#f5eedf";
+                  break;
+                case 3: // TARGET
+                  fillColor = "#ff6b6b";
+                  break;
+                case 4: // BOX
+                  fillColor = "#556589";
+                  break;
+                case 5: // BOX_ON_TARGET
+                  fillColor = "#ff8787";
+                  break;
+                case 6: // PLAYER
+                  fillColor = "#4169E1";
+                  break;
+                case 7: // PLAYER_ON_TARGET
+                  fillColor = "#5c7cfa";
+                  break;
+                default:
+                  return null;
+              }
+
+              return (
+                <g key={`${x}-${y}`}>
+                  <rect
+                    x={posX}
+                    y={posY}
+                    width={CELL_SIZE}
+                    height={CELL_SIZE}
+                    fill={fillColor}
+                    stroke="#e9ecef"
+                    strokeWidth="0.5"
+                  />
+                </g>
+              );
+            })
+          )}
+        </svg>
       </div>
       <div className="mt-2 text-sm text-gray-600 text-center">
         {!isCompleted && (
