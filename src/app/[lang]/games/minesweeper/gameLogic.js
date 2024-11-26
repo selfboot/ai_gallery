@@ -57,21 +57,6 @@ class MinesweeperGame {
     }
   }
 
-  clone() {
-    const newGame = new MinesweeperGame(this.rows, this.cols, this.mines);
-    newGame.board = this.board.map((row) => [...row]);
-    newGame.revealed = this.revealed.map((row) => [...row]);
-    newGame.flagged = this.flagged.map((row) => [...row]);
-    newGame.gameOver = this.gameOver;
-    newGame.won = this.won;
-    newGame.firstMove = this.firstMove;
-    newGame.minesLeft = this.minesLeft;
-    newGame.pressedCells = [...this.pressedCells];
-    newGame.lastRevealedMine = this.lastRevealedMine ? [...this.lastRevealedMine] : null;
-    newGame.autoFlag = this.autoFlag;
-    return newGame;
-  }
-
   countAdjacentMines(row, col) {
     let count = 0;
     for (let i = -1; i <= 1; i++) {
