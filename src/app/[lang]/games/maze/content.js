@@ -28,25 +28,25 @@ const MAX_CELL_SIZE = 40; // 最大格子尺寸（像素）
 
 // 计算初始画布大小的函数
 const calculateInitialCanvasSize = (settings) => {
+  // 确保在客户端环境下运行
+  if (typeof window === 'undefined') {
+    return { width: 0, height: 0 };
+  }
+
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  // 考虑页面其他元素（如导航栏）的空间，留出更多余量
   const maxSize = Math.min(viewportWidth * 0.8, viewportHeight * 0.5);
 
-  // 根据当前设置计算需要的格子数
-  const gridWidth = parseInt(settings.width) + 2; // +2 为边距
+  const gridWidth = parseInt(settings.width) + 2;
   const gridHeight = parseInt(settings.height) + 2;
 
-  // 计算理想的格子大小
   let cellSize = Math.min(
     maxSize / gridWidth,
     maxSize / gridHeight
   );
 
-  // 限制格子大小在最小和最大值之间
   cellSize = Math.max(MIN_CELL_SIZE, Math.min(cellSize, MAX_CELL_SIZE));
 
-  // 计算实际画布大小（确保不超过最大尺寸）
   const size = Math.min(
     cellSize * Math.max(gridWidth, gridHeight),
     maxSize
@@ -74,8 +74,9 @@ const MazeGame = ({ lang }) => {
   const updateCanvasSize = () => {
     if (canvasRef.current) {
       const newSize = calculateInitialCanvasSize(settings);
-      canvasRef.current.width = newSize.width;
-      canvasRef.current.height = newSize.height;
+      canvasRef.current.setAttribute('width', newSize.width);
+      canvasRef.current.setAttribute('height', newSize.height);
+      canvasRef.current.setAttribute('viewBox', `0 0 ${newSize.width} ${newSize.height}`);
       setCanvasSize(newSize);
     }
   };
@@ -83,8 +84,10 @@ const MazeGame = ({ lang }) => {
   const generateMaze = () => {
     console.log("Generating maze with settings:", settings);
     if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      // Clear existing SVG content
+      while (canvasRef.current.firstChild) {
+        canvasRef.current.removeChild(canvasRef.current.firstChild);
+      }
 
       let numericSeed;
       if (settings.seed) {
@@ -121,6 +124,7 @@ const MazeGame = ({ lang }) => {
           wall: "#000000",
           start: "#00ff00",
           end: "#ff0000",
+          renderer: 'svg'
         },
       };
 
@@ -133,15 +137,14 @@ const MazeGame = ({ lang }) => {
           console.log("Running maze algorithm...");
           newMaze.runAlgorithm.toCompletion();
 
-          // 先绘制背景
-          ctx.fillStyle = config.display.background;
-          ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          // Add background rectangle
+          const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          background.setAttribute("width", "100%");
+          background.setAttribute("height", "100%");
+          background.setAttribute("fill", config.display.background);
+          canvasRef.current.appendChild(background);
 
-          // 设置线条样式
-          ctx.strokeStyle = config.display.wall;
-          ctx.lineWidth = config.display.lineWidth;
-
-          // 查找并调用渲染方法
+          // Render maze using SVG
           const renderMethod = newMaze.display || newMaze.render || newMaze.draw || newMaze.paint;
           if (renderMethod) {
             console.log("Rendering maze...");
@@ -161,8 +164,7 @@ const MazeGame = ({ lang }) => {
   useEffect(() => {
     const initializeMaze = () => {
       updateCanvasSize();
-      // 给canvas一点时间来初始化
-      setTimeout(generateMaze, 100);
+      generateMaze();
     };
 
     initializeMaze();
@@ -186,7 +188,7 @@ const MazeGame = ({ lang }) => {
         {/* 迷宫区域 */}
         <div className="lg:w-4/5 mb-4 lg:mb-0 lg:mr-8">
           <div className="w-full aspect-square relative">
-            <canvas
+            <svg
               ref={canvasRef}
               className="w-full h-full absolute inset-0"
               style={{
@@ -196,6 +198,7 @@ const MazeGame = ({ lang }) => {
               }}
               width={canvasSize.width}
               height={canvasSize.height}
+              viewBox={`0 0 ${canvasSize.width} ${canvasSize.height}`}
             />
           </div>
           {currentSeed && <div className="mt-2 text-sm text-gray-600">当前种子: {currentSeed}</div>}
