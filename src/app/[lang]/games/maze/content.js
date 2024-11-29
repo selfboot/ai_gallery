@@ -72,96 +72,76 @@ const MazeGame = ({ lang }) => {
     seed: "",
   });
   const [maze, setMaze] = useState(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-  const [seedError, setSeedError] = useState("");
+  const [windowSize, setWindowSize] = useState({
+    width: window.visualViewport?.width || window.innerWidth,
+    height: window.visualViewport?.height || window.innerHeight,
+  });
   const [showingSolution, setShowingSolution] = useState(false);
   const [playState, setPlayState] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
 
-  // 更新画布大小
-  const updateCanvasSize = () => {
-    const container = canvasRef.current?.parentElement;
-    if (container) {
-      const { width, height } = container.getBoundingClientRect();
-      setCanvasSize({
-        width: Math.floor(width),
-        height: Math.floor(height),
+  // 监听窗口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.visualViewport?.width || window.innerWidth,
+        height: window.visualViewport?.height || window.innerHeight,
       });
-    }
-  };
-
-  const generateMaze = useCallback(() => {
-    if (canvasRef.current && canvasSize.width > 0 && canvasSize.height > 0) {
-      let numericSeed;
-      if (settings.seed) {
-        numericSeed = Number(settings.seed);
-      } else if (currentSeed) {
-        numericSeed = Number(currentSeed);
-      } else {
-        numericSeed = Math.floor(Math.random() * 1e9);
-        // 将新生成的随机种子保存到 settings 中
-        setSettings(prev => ({
-          ...prev,
-          seed: numericSeed.toString()
-        }));
-      }
-      setCurrentSeed(numericSeed.toString());
-
-      const config = {
-        element: canvasRef.current,
-        grid: {
-          cellShape: settings.shape,
-          width: parseInt(settings.width),
-          height: parseInt(settings.height),
-          layers: parseInt(settings.layers),
-        },
-        algorithm: settings.algorithm,
-        exitConfig: settings.exitConfig || EXITS_HARDEST,
-        randomSeed: numericSeed,
-        lineWidth: 2,
-      };
-
-      try {
-        const newMaze = buildMaze(config);
-        if (newMaze && newMaze.runAlgorithm) {
-          newMaze.runAlgorithm.toCompletion();
-          newMaze.render();
-          setMaze(newMaze);
-          setShowingSolution(false);
-          setPlayState(null);
-        }
-      } catch (error) {
-        console.error("Error generating maze:", error);
-      }
-    }
-  }, [canvasSize, settings, currentSeed]);
-
-  // 当画布尺寸改变时重新渲染
-  useEffect(() => {
-    if (canvasSize.width > 0 && canvasSize.height > 0 && maze) {
-      maze.render();
-    }
-  }, [canvasSize, maze]);
-
-  // 当画布尺寸首次设置或更新时生成迷宫
-  useEffect(() => {
-    if (canvasSize.width > 0 && canvasSize.height > 0) {
-      generateMaze();
-    }
-  }, [canvasSize]);
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      updateCanvasSize();
-    });
-
-    window.addEventListener("resize", updateCanvasSize);
-
-    return () => {
-      window.removeEventListener("resize", updateCanvasSize);
     };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // 当窗口大小变化时重新生成迷宫
+  useEffect(() => {
+    generateMaze();
+  }, [windowSize]); // 依赖于 windowSize
+
+  const generateMaze = useCallback(
+    (isManual = false) => {
+      if (canvasRef.current && windowSize.width > 0 && windowSize.height > 0) {
+        let numericSeed;
+        if (settings.seed) {
+          numericSeed = Number(settings.seed);
+        } else if (!isManual && currentSeed) {
+          numericSeed = Number(currentSeed);
+        } else {
+          numericSeed = Math.floor(Math.random() * 1e9);
+        }
+        setCurrentSeed(numericSeed.toString());
+
+        const config = {
+          element: canvasRef.current,
+          grid: {
+            cellShape: settings.shape,
+            width: parseInt(settings.width),
+            height: parseInt(settings.height),
+            layers: parseInt(settings.layers),
+          },
+          algorithm: settings.algorithm,
+          exitConfig: settings.exitConfig || EXITS_HARDEST,
+          randomSeed: numericSeed,
+          lineWidth: 2,
+        };
+
+        try {
+          const newMaze = buildMaze(config);
+          if (newMaze && newMaze.runAlgorithm) {
+            newMaze.runAlgorithm.toCompletion();
+            newMaze.render();
+            setMaze(newMaze);
+            setShowingSolution(false);
+            setPlayState(null);
+          }
+        } catch (error) {
+          console.error("Error generating maze:", error);
+        }
+      }
+    },
+    [windowSize, settings, canvasRef, currentSeed]
+  );
 
   const findStartAndEndCells = (maze) => {
     let startCell, endCell;
@@ -391,9 +371,9 @@ const MazeGame = ({ lang }) => {
                 margin: "auto",
                 display: "block",
               }}
-              width={canvasSize.width}
-              height={canvasSize.height}
-              viewBox={`0 0 ${canvasSize.width} ${canvasSize.height}`}
+              width={calculateInitialCanvasSize().width}
+              height={calculateInitialCanvasSize().height}
+              viewBox={`0 0 ${calculateInitialCanvasSize().width} ${calculateInitialCanvasSize().height}`}
             />
           </div>
           {currentSeed && <div className="mt-2 text-sm text-gray-600">当前种子: {currentSeed}</div>}
@@ -403,13 +383,12 @@ const MazeGame = ({ lang }) => {
           <MazeSettings
             settings={settings}
             onSettingsChange={setSettings}
-            onGenerate={generateMaze}
+            onGenerate={() => generateMaze(true)}
             onSolve={solveMaze}
             onPlay={startPlaying}
             onStop={stopPlaying}
             showingSolution={showingSolution}
             isPlaying={!!playState}
-            seedError={seedError}
           />
         </div>
       </div>
@@ -429,7 +408,6 @@ const MazeSettings = ({
   onStop,
   showingSolution,
   isPlaying,
-  seedError,
 }) => {
   const shapes = [
     { value: SHAPE_SQUARE, label: "方形" },
@@ -564,10 +542,9 @@ const MazeSettings = ({
           type="text"
           value={settings.seed}
           onChange={(e) => handleSeedChange(e.target.value)}
-          className={`w-full border rounded-md p-2 ${seedError ? "border-red-500" : ""}`}
+          className="w-full border rounded-md p-2"
           placeholder="留空使用随机种子"
         />
-        {seedError && <p className="mt-1 text-sm text-red-500">{seedError}</p>}
       </div>
 
       <div className="space-y-2">
