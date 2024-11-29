@@ -339,16 +339,23 @@ const MazeGame = ({ lang }) => {
     return `${padNum(hours)}:${padNum(minutes)}:${padNum(seconds)}`;
   };
 
+  // 添加事件触发器
   useEffect(() => {
-    const handleKeyPress = (event) => {
+    const handleKeyDown = (event) => {
       if (playState && !playState.finished) {
-        const direction = keyCodeToDirection[event.keyCode];
-        navigate(direction, event.shiftKey, event.altKey);
+        if (keyCodeToDirection[event.keyCode]) {
+          event.preventDefault();
+          const direction = keyCodeToDirection[event.keyCode];
+          navigate(direction, event.shiftKey, event.altKey);
+          maze.render();
+        }
       }
     };
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
+    window.onkeydown = handleKeyDown;
+    return () => {
+      window.onkeydown = null;
+    };
   }, [playState, maze]);
 
   return (
