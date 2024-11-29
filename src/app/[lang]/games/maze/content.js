@@ -21,6 +21,9 @@ import {
   EXITS_HARDEST,
   EXITS_HORIZONTAL,
   EXITS_VERTICAL,
+  METADATA_START_CELL,
+  METADATA_END_CELL,
+  METADATA_PATH,
 } from "./core/constants";
 
 const MIN_CELL_SIZE = 1; // 最小格子尺寸（像素）
@@ -28,31 +31,19 @@ const MAX_CELL_SIZE = 40; // 最大格子尺寸（像素）
 
 // 计算初始画布大小的函数
 const calculateInitialCanvasSize = (settings) => {
-  // 确保在客户端环境下运行
-  if (typeof window === 'undefined') {
-    return { width: 0, height: 0 };
-  }
-
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+  // 考虑页面其他元素的空间，留出更多余量
   const maxSize = Math.min(viewportWidth * 0.8, viewportHeight * 0.5);
 
-  const gridWidth = parseInt(settings.width) + 2;
-  const gridHeight = parseInt(settings.height) + 2;
+  return { width: maxSize, height: maxSize };
+};
 
-  let cellSize = Math.min(
-    maxSize / gridWidth,
-    maxSize / gridHeight
-  );
-
-  cellSize = Math.max(MIN_CELL_SIZE, Math.min(cellSize, MAX_CELL_SIZE));
-
-  const size = Math.min(
-    cellSize * Math.max(gridWidth, gridHeight),
-    maxSize
-  );
-
-  return { width: size, height: size };
+const COLORS = {
+  WALL: "#2563eb", // 蓝色墙壁
+  START: "#22c55e", // 绿色起点
+  END: "#ef4444", // 红色终点
+  PATH: "#f59e0b", // 橙色路径
 };
 
 const MazeGame = ({ lang }) => {
@@ -70,13 +61,14 @@ const MazeGame = ({ lang }) => {
   const [maze, setMaze] = useState(null);
   const [canvasSize, setCanvasSize] = useState(calculateInitialCanvasSize(settings));
   const [seedError, setSeedError] = useState("");
+  const [showingSolution, setShowingSolution] = useState(false);
 
   const updateCanvasSize = () => {
     if (canvasRef.current) {
       const newSize = calculateInitialCanvasSize(settings);
-      canvasRef.current.setAttribute('width', newSize.width);
-      canvasRef.current.setAttribute('height', newSize.height);
-      canvasRef.current.setAttribute('viewBox', `0 0 ${newSize.width} ${newSize.height}`);
+      canvasRef.current.setAttribute("width", newSize.width);
+      canvasRef.current.setAttribute("height", newSize.height);
+      canvasRef.current.setAttribute("viewBox", `0 0 ${newSize.width} ${newSize.height}`);
       setCanvasSize(newSize);
     }
   };
@@ -114,49 +106,72 @@ const MazeGame = ({ lang }) => {
         algorithm: settings.algorithm,
         exitConfig: settings.exitConfig,
         randomSeed: numericSeed,
-        display: {
-          cellSize: Math.min(
-            canvasSize.width / (parseInt(settings.width) + 2),
-            canvasSize.height / (parseInt(settings.height) + 2)
-          ),
-          lineWidth: 2,
-          background: "#ffffff",
-          wall: "#000000",
-          start: "#00ff00",
-          end: "#ff0000",
-          renderer: 'svg'
-        },
+        lineWidth: 2,
       };
 
       try {
-        console.log("Using numeric seed:", numericSeed);
         const newMaze = buildMaze(config);
-        console.log("Maze object created:", newMaze);
-
         if (newMaze && newMaze.runAlgorithm) {
           console.log("Running maze algorithm...");
           newMaze.runAlgorithm.toCompletion();
-
-          // Add background rectangle
-          const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-          background.setAttribute("width", "100%");
-          background.setAttribute("height", "100%");
-          background.setAttribute("fill", config.display.background);
-          canvasRef.current.appendChild(background);
-
-          // Render maze using SVG
-          const renderMethod = newMaze.display || newMaze.render || newMaze.draw || newMaze.paint;
-          if (renderMethod) {
-            console.log("Rendering maze...");
-            renderMethod.call(newMaze);
-          }
+          newMaze.render();
         }
-
         setMaze(newMaze);
       } catch (error) {
-        console.error("Error generating maze:", error);
         console.error(error.stack);
       }
+    }
+  };
+
+  // 查找起点和终点的函数
+  const findStartAndEndCells = (maze) => {
+    let startCell, endCell;
+
+    maze.forEachCell((cell) => {
+      if (cell.metadata?.[METADATA_START_CELL]) {
+        startCell = cell;
+      }
+      if (cell.metadata?.[METADATA_END_CELL]) {
+        endCell = cell;
+      }
+    });
+
+    return [startCell, endCell];
+  };
+
+  // 解决迷宫的函数
+  const solveMaze = () => {
+    if (maze) {
+      try {
+        // 获取起点和终点
+        const [startCell, endCell] = findStartAndEndCells(maze);
+        if (!(startCell && endCell)) {
+          console.error('No start/end cells found');
+          return;
+        }
+
+        // 如果已经有路径，清除它
+        if (maze.metadata?.[METADATA_PATH]) {
+          maze.clearPathAndSolution();
+          setShowingSolution(false);
+        } else {
+          // 确保起点和终点存在
+          console.assert(startCell);
+          console.assert(endCell);
+          // 查找路径
+          maze.findPathBetween(startCell.coords, endCell.coords);
+          setShowingSolution(true);
+        }
+
+        // 重新渲染迷宫
+        maze.render();
+
+      } catch (error) {
+        console.error("Error solving maze:", error);
+        console.error(error.stack);
+      }
+    } else {
+      console.error('No maze available');
     }
   };
 
@@ -210,6 +225,8 @@ const MazeGame = ({ lang }) => {
             settings={settings}
             onSettingsChange={setSettings}
             onGenerate={generateMaze}
+            onSolve={solveMaze}
+            showingSolution={showingSolution}
             seedError={seedError}
           />
         </div>
@@ -218,7 +235,7 @@ const MazeGame = ({ lang }) => {
   );
 };
 
-const MazeSettings = ({ settings, onSettingsChange, onGenerate, seedError }) => {
+const MazeSettings = ({ settings, onSettingsChange, onGenerate, onSolve, showingSolution, seedError }) => {
   const shapes = [
     { value: SHAPE_SQUARE, label: "方形" },
     { value: SHAPE_TRIANGLE, label: "三角形" },
@@ -361,9 +378,16 @@ const MazeSettings = ({ settings, onSettingsChange, onGenerate, seedError }) => 
       <div>
         <button
           onClick={onGenerate}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors mb-2"
         >
           生成迷宫
+        </button>
+
+        <button
+          onClick={onSolve}
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+        >
+          {showingSolution ? '隐藏路径' : '显示路径'}
         </button>
       </div>
     </div>
