@@ -41,7 +41,9 @@ import {
 } from "./lib/constants";
 import Modal from "@/app/components/Modal";
 
-const MazeGame = ({ lang }) => {
+import { useI18n } from "@/app/i18n/client";
+const MazeGame = () => {
+  const { t } = useI18n();
   const canvasRef = useRef(null);
   const [currentSeed, setCurrentSeed] = useState("");
   const [settings, setSettings] = useState({
@@ -153,7 +155,7 @@ const MazeGame = ({ lang }) => {
         const [startCell, endCell] = findStartAndEndCells(maze);
 
         if (!(startCell && endCell)) {
-          setModalContent("你必须先生成一个带有出入口的迷宫");
+          setModalContent(t("maze_no_exits_hint"));
           setModalOpen(true);
           return;
         }
@@ -182,7 +184,7 @@ const MazeGame = ({ lang }) => {
     if (maze) {
       const [startCell, endCell] = findStartAndEndCells(maze);
       if (!(startCell && endCell)) {
-        setModalContent("你必须先生成一个带有出入口的迷宫");
+        setModalContent(t("maze_no_exits_hint"));
         setModalOpen(true);
         return;
       }
@@ -239,7 +241,7 @@ const MazeGame = ({ lang }) => {
         delete currentCell.metadata[METADATA_PLAYER_CURRENT];
         targetCell.metadata[METADATA_PLAYER_VISITED] = true;
         targetCell.metadata[METADATA_PLAYER_CURRENT] = true;
-        
+
         setPlayState((prev) => ({
           ...prev,
           previousCell: currentCell,
@@ -293,14 +295,13 @@ const MazeGame = ({ lang }) => {
     const cellsPerSecond = visitedCells / (timeMs / 1000);
     maze.render();
 
-    setModalContent(`
-      恭喜找到出口了！
-      完成时间: ${time}
-      访问格子数: ${visitedCells}
-      最优路径长度: ${optimalPathLength}
-      最优率: ${Math.floor((100 * optimalPathLength) / visitedCells)}%
-      每秒移动格子数: ${Math.round(cellsPerSecond)}
-    `);
+    setModalContent(t("maze_completion", {
+      time,
+      visitedCells,
+      optimalPathLength,
+      optimality: Math.floor((100 * optimalPathLength) / visitedCells),
+      cellsPerSecond: Math.round(cellsPerSecond)
+    }));
     setModalOpen(true);
   };
 
@@ -344,20 +345,20 @@ const MazeGame = ({ lang }) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    
+
     const clickEvent = {
       rawCoords: [x, y]
     };
 
     const direction = maze.getClosestDirectionForClick(playState.currentCell, clickEvent);
 
-    if (direction && 
-        playState.currentCell.neighbours[direction] && 
-        playState.currentCell.isLinkedTo(playState.currentCell.neighbours[direction])) {
+    if (direction &&
+      playState.currentCell.neighbours[direction] &&
+      playState.currentCell.isLinkedTo(playState.currentCell.neighbours[direction])) {
       maze.forEachCell(cell => {
         delete cell.metadata[METADATA_PLAYER_CURRENT];
       });
-      
+
       navigate(direction, false, false);
       maze.render();
       setLastMoveTime(now);
@@ -416,7 +417,7 @@ const MazeGame = ({ lang }) => {
               viewBox={`0 0 ${calculateCanvasSize().width} ${calculateCanvasSize().height}`}
             />
           </div>
-          {currentSeed && <div className="mt-2 text-sm text-gray-600">当前种子: {currentSeed}</div>}
+          {currentSeed && <div className="mt-2 text-sm text-gray-600">{t("current_seed")}: {currentSeed}</div>}
         </div>
 
         <div className="lg:w-1/5">
@@ -449,31 +450,32 @@ const MazeSettings = ({
   showingSolution,
   isPlaying,
 }) => {
+  const { t } = useI18n();
+
   const shapes = [
-    { value: SHAPE_SQUARE, label: "方形" },
-    { value: SHAPE_TRIANGLE, label: "三角形" },
-    { value: SHAPE_HEXAGON, label: "六边形" },
-    { value: SHAPE_CIRCLE, label: "圆形" },
+    { value: SHAPE_SQUARE, label: t("shapes_square") },
+    { value: SHAPE_TRIANGLE, label: t("shapes_triangle") },
+    { value: SHAPE_HEXAGON, label: t("shapes_hexagon") },
+    { value: SHAPE_CIRCLE, label: t("shapes_circle") },
   ];
 
   const algorithms = [
-    { value: ALGORITHM_BINARY_TREE, label: "二叉树" },
-    { value: ALGORITHM_SIDEWINDER, label: "Sidewinder" },
-    { value: ALGORITHM_ALDOUS_BRODER, label: "Aldous-Broder" },
-    { value: ALGORITHM_WILSON, label: "Wilson" },
-    { value: ALGORITHM_HUNT_AND_KILL, label: "Hunt and Kill" },
-    { value: ALGORITHM_RECURSIVE_BACKTRACK, label: "递归回溯" },
-    { value: ALGORITHM_KRUSKAL, label: "Kruskal" },
-    { value: ALGORITHM_SIMPLIFIED_PRIMS, label: "简化Prim" },
-    { value: ALGORITHM_TRUE_PRIMS, label: "True Prim" },
-    { value: ALGORITHM_ELLERS, label: "Eller" },
+    { value: ALGORITHM_BINARY_TREE, label: t("binaryTree") },
+    { value: ALGORITHM_SIDEWINDER, label: t("sidewinder") },
+    { value: ALGORITHM_ALDOUS_BRODER, label: t("aldousBroder") },
+    { value: ALGORITHM_WILSON, label: t("wilson") },
+    { value: ALGORITHM_HUNT_AND_KILL, label: t("huntAndKill") },
+    { value: ALGORITHM_RECURSIVE_BACKTRACK, label: t("recursiveBacktrack") },
+    { value: ALGORITHM_KRUSKAL, label: t("kruskal") },
+    { value: ALGORITHM_SIMPLIFIED_PRIMS, label: t("simplifiedPrims") },
+    { value: ALGORITHM_TRUE_PRIMS, label: t("truePrims") },
+    { value: ALGORITHM_ELLERS, label: t("ellers") },
   ];
 
   const exits = [
-    { value: EXITS_NONE, label: "无出口" },
-    { value: EXITS_HARDEST, label: "最难路径" },
-    { value: EXITS_HORIZONTAL, label: "水平出口" },
-    { value: EXITS_VERTICAL, label: "垂直出口" },
+    { value: EXITS_HARDEST, label: t("exits_hardest") },
+    { value: EXITS_HORIZONTAL, label: t("exits_horizontal") },
+    { value: EXITS_VERTICAL, label: t("exits_vertical") },
   ];
 
   const handleChange = (key, value) => {
@@ -492,7 +494,7 @@ const MazeSettings = ({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">形状</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_shape")}</label>
         <select
           value={settings.shape}
           onChange={(e) => handleChange("shape", e.target.value)}
@@ -507,7 +509,7 @@ const MazeSettings = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">算法</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_algorithm")}</label>
         <select
           value={settings.algorithm}
           onChange={(e) => handleChange("algorithm", e.target.value)}
@@ -522,7 +524,7 @@ const MazeSettings = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">出口设置</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_exit_config")}</label>
         <select
           value={settings.exitConfig}
           onChange={(e) => handleChange("exitConfig", e.target.value)}
@@ -539,7 +541,7 @@ const MazeSettings = ({
       {settings.shape !== SHAPE_CIRCLE ? (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">宽度</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("width")}</label>
             <input
               type="number"
               value={settings.width}
@@ -551,7 +553,7 @@ const MazeSettings = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">高度</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("height")}</label>
             <input
               type="number"
               value={settings.height}
@@ -564,7 +566,7 @@ const MazeSettings = ({
         </>
       ) : (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">层数</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("layers")}</label>
           <input
             type="number"
             value={settings.layers}
@@ -577,13 +579,13 @@ const MazeSettings = ({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">随机种子 (仅限数字)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t("seed")}</label>
         <input
           type="text"
           value={settings.seed}
           onChange={(e) => handleSeedChange(e.target.value)}
           className="w-full border rounded-md p-2"
-          placeholder="留空使用随机种子"
+          placeholder={t("input_seed_hint")}
         />
       </div>
 
@@ -592,21 +594,21 @@ const MazeSettings = ({
           onClick={onGenerate}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          生成迷宫
+          {t("generate_maze")}
         </button>
 
         <button
           onClick={onSolve}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          {showingSolution ? "隐藏路径" : "显示路径"}
+          {showingSolution ? t("hide_path") : t("show_path")}
         </button>
 
         <button
           onClick={isPlaying ? onStop : onPlay}
           className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          {isPlaying ? "停止游戏" : "开始游戏"}
+          {isPlaying ? t("stop_game") : t("start_game")}
         </button>
       </div>
     </div>
