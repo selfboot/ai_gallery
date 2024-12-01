@@ -49,10 +49,10 @@ const MazeGame = () => {
   const [settings, setSettings] = useState({
     shape: SHAPE_SQUARE,
     algorithm: ALGORITHM_RECURSIVE_BACKTRACK,
-    width: 20,
-    height: 20,
-    layers: 5,
-    exitConfig: EXITS_HARDEST,
+    width: 10,
+    height: 10,
+    layers: 7,
+    exitConfig: EXITS_HORIZONTAL,
     seed: "",
   });
   const [maze, setMaze] = useState(null);
@@ -66,6 +66,10 @@ const MazeGame = () => {
   const [modalContent, setModalContent] = useState("");
   const [lastMoveTime, setLastMoveTime] = useState(0);
   const MOVE_DELAY = 200;
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const timerRef = useRef(null);
+  const [showingDistances, setShowingDistances] = useState(false);
+  const [distanceMapStart, setDistanceMapStart] = useState(null);
 
   useEffect(() => {
     setWindowSize({
@@ -134,9 +138,9 @@ const MazeGame = () => {
     [windowSize, settings, canvasRef, currentSeed]
   );
 
-  const findStartAndEndCells = (maze) => {
+  const findStartAndEndCells = useCallback((maze) => {
     let startCell, endCell;
-
+    
     maze.forEachCell((cell) => {
       if (cell.metadata?.[METADATA_START_CELL]) {
         startCell = cell;
@@ -147,7 +151,7 @@ const MazeGame = () => {
     });
 
     return [startCell, endCell];
-  };
+  }, []);
 
   const solveMaze = () => {
     if (maze) {
@@ -161,7 +165,7 @@ const MazeGame = () => {
         }
 
         if (maze.metadata?.[METADATA_PATH]) {
-          maze.clearPathAndSolution();
+          maze.clearSolution();
           setShowingSolution(false);
         } else {
           console.assert(startCell);
@@ -199,7 +203,6 @@ const MazeGame = () => {
 
       startCell.metadata[METADATA_PLAYER_CURRENT] = true;
       startCell.metadata[METADATA_PLAYER_VISITED] = true;
-
       setPlayState(newPlayState);
       maze.render();
     }
@@ -392,6 +395,53 @@ const MazeGame = () => {
     }
   }, [windowSize]);
 
+  const startTimer = useCallback(() => {
+    if (playState) {
+      timerRef.current = setInterval(() => {
+        setElapsedTime(Date.now() - playState.startTime);
+      }, 100);
+    }
+  }, [playState]);
+
+  const stopTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (playState) {
+      startTimer();
+    } else {
+      stopTimer();
+      setElapsedTime(0);
+    }
+    return () => stopTimer();
+  }, [playState, startTimer, stopTimer]);
+
+  const showDistanceMap = useCallback(() => {
+    if (!maze) return;
+    
+    if (showingDistances) {
+      maze.clearDistances();
+      setShowingDistances(false);
+      setDistanceMapStart(null);
+      maze.render();
+    } else {
+      const [startCell, endCell] = findStartAndEndCells(maze);
+      if (startCell) {
+        maze.findDistancesFrom(...startCell.coords);
+        setShowingDistances(true);
+        setDistanceMapStart(startCell.coords);
+        maze.render();
+      } else {
+        setModalContent(t("maze.errors.no_start_cell"));
+        setModalOpen(true);
+      }
+    }
+  }, [maze, showingDistances]);
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex gap-4">
@@ -417,7 +467,20 @@ const MazeGame = () => {
               viewBox={`0 0 ${calculateCanvasSize().width} ${calculateCanvasSize().height}`}
             />
           </div>
-          {currentSeed && <div className="mt-2 text-sm text-gray-600">{t("current_seed")}: {currentSeed}</div>}
+          <div className="mt-2 text-center">
+            <div className="flex justify-center items-center gap-4 flex-wrap text-sm text-gray-600">
+              {currentSeed && (
+                <div>
+                  {t("current_seed")}: {currentSeed}
+                </div>
+              )}
+              {playState && (
+                <div>
+                  {t("elapsed_time")}: {formatTime(elapsedTime)}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="lg:w-1/5">
@@ -428,7 +491,9 @@ const MazeGame = () => {
             onSolve={solveMaze}
             onPlay={startPlaying}
             onStop={stopPlaying}
+            onShowDistances={showDistanceMap}
             showingSolution={showingSolution}
+            showingDistances={showingDistances}
             isPlaying={!!playState}
           />
         </div>
@@ -447,7 +512,9 @@ const MazeSettings = ({
   onSolve,
   onPlay,
   onStop,
+  onShowDistances,
   showingSolution,
+  showingDistances,
   isPlaying,
 }) => {
   const { t } = useI18n();
@@ -602,6 +669,14 @@ const MazeSettings = ({
           className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           {showingSolution ? t("hide_path") : t("show_path")}
+        </button>
+
+        <button
+          onClick={onShowDistances}
+          className="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          disabled={isPlaying}
+        >
+          {showingDistances ? t("hide_distances") : t("show_distances")}
         </button>
 
         <button

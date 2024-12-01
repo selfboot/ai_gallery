@@ -486,6 +486,9 @@
   "continue_game": "Continue Game",
   "auto_flag_mines": "Auto Flag Mines",
 
+  "maze_title": "Online Various Types of Maze Generation and Pathfinding", 
+  "maze_description": "Online maze generation, supports generating maze maps of square, circular, triangular, and hexagonal shapes. Follow the mouse to find the maze path, and can get the optimal path, download the maze, etc.",
+
   "maze_completion": "Congratulations on finding the exit!\nCompletion time: {{time}}\nVisited cells: {{visitedCells}}\nOptimal path length: {{optimalPathLength}}\nOptimal rate: {{optimality}}%\nCells per second: {{cellsPerSecond}}",
   "maze_shape": "Maze Shape",
   "shapes_square": "Square",
@@ -516,6 +519,9 @@
   "maze_no_exits_hint": "Must generate a maze with exits",
   "current_seed": "Current Seed",
   "input_seed_hint": "No input for random seed",
+  "elapsed_time": "Elapsed Time",
+  "show_distances": "Show Distance Map",
+  "hide_distances": "Hide Distance Map",
 
   "chartrace": {
     "population-growth": {
@@ -759,6 +765,11 @@
       "title": "Free Online Minesweeper Game",
       "description": "Powerful classic minesweeper game with a high degree of customization, convenience and speed. Support custom checkerboard size and number of mines, support right-click to mark mines, double-click automatic demining and other operations.",
       "keywords": "Minesweeper, Free Minesweeper Game, Online Minesweeper"
+    },
+    "maze": {
+      "title": "Various types of mazes are generated online for free, and the maze is supported to find paths",
+      "description": "This page supports various types of online maze generation, and supports the generation of square, circle, triangle, and honeycomb maze maps. It also supports playing mazes online and finding maze paths, which can be found by just moving the mouse. It also supports hinting at the optimal path of the maze, downloading the maze, etc.",
+      "keywords": "Online Maze Generator, Maze Path Finding, Maze Game Online, Online Maze Download"
     }
   }
 }

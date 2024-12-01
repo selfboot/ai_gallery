@@ -9,11 +9,11 @@ export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
-      title: dict.seo.gomoku.title,
-      description: dict.seo.gomoku.description,
-      keywords: dict.seo.gomoku.keywords,
-      publishedDate: "2024-07-01T02:00:00.000Z",
-      updatedDate: "2024-11-19T09:00:00.000Z",
+      title: dict.seo.maze.title,
+      description: dict.seo.maze.description,
+      keywords: dict.seo.maze.keywords,
+      publishedDate: "2024-12-01T12:00:00.000Z",
+      updatedDate: "2024-12-01T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/maze`,
@@ -26,7 +26,7 @@ export async function generateMetadata({ params: { lang } }) {
   };
 }
 
-export default function GomokuPage({ params: { lang } }) {
+export default function MazePage({ params: { lang } }) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/maze`} />

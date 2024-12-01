@@ -8,7 +8,8 @@ import {
     DIRECTION_CLOCKWISE, DIRECTION_ANTICLOCKWISE,
     DIRECTION_INWARDS, DIRECTION_OUTWARDS,
     CELL_BACKGROUND_COLOUR, WALL_COLOUR, PATH_COLOUR, CELL_MASKED_COLOUR, CELL_CURRENT_CELL_COLOUR, CELL_UNPROCESSED_CELL_COLOUR,
-    CELL_PLAYER_CURRENT_COLOUR, CELL_PLAYER_VISITED_COLOUR,
+    CELL_PLAYER_CURRENT_COLOUR, CELL_PLAYER_VISITED_COLOUR, 
+    CELL_EXIST_COLOUR, CELL_START_COLOUR,
     EXITS_NONE, EXITS_HORIZONTAL, EXITS_VERTICAL, EXITS_HARDEST
 } from './constants.js';
 
@@ -33,7 +34,14 @@ function getCellBackgroundColour(cell, grid) {
     } else if (cell.metadata[METADATA_PLAYER_VISITED]) {
         return CELL_PLAYER_VISITED_COLOUR;
 
-    } else {
+    } else if (cell.metadata[METADATA_START_CELL]) {    
+        return CELL_START_COLOUR;
+
+    } else if (cell.metadata[METADATA_END_CELL]) {
+        return CELL_EXIST_COLOUR;
+    }
+
+    else {
         return CELL_BACKGROUND_COLOUR;
     }
 }
@@ -223,6 +231,9 @@ function buildBaseGrid(config) {
         },
         clearPathAndSolution() {
             this.clearMetadata(METADATA_PATH, METADATA_PLAYER_CURRENT, METADATA_PLAYER_VISITED);
+        },
+        clearSolution() {
+            this.clearMetadata(METADATA_PATH);
         },
         clearMetadata(...keys) {
             keys.forEach(key => {
@@ -585,7 +596,6 @@ export function buildTriangularGrid(config) {
                     currentCellCoords = path[i],
                     nextCellCoords = path[i+1],
                     [p1x, p1y, p2x, p2y, p3x, p3y] = getCornerCoords(...currentCellCoords);
-
                 if (nextCellCoords) {
                     const [currentCellX, currentCellY] = currentCellCoords,
                         [nextCellX, nextCellY] = nextCellCoords;
@@ -603,7 +613,9 @@ export function buildTriangularGrid(config) {
                         currentX = midPoint(p3x, p1x);
                         currentY = midPoint(p3y, p1y);
                     }
-                    drawingSurface.line(previousX, previousY, currentX, currentY);
+                    if (!isNaN(previousX) && !isNaN(previousY)) {
+                        drawingSurface.line(previousX, previousY, currentX, currentY);
+                    }
                     [previousX, previousY] = [currentX, currentY];
                 }
 

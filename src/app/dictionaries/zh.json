@@ -481,7 +481,7 @@
   "previous": "上一页",
   "next": "下一页",
 
-  "minesweeper_title": "免费扫雷游戏网页版",
+  "minesweeper_title": "在线免费扫雷游戏网页版",
   "minesweeper_description": "功能强大的经典扫雷游戏网页版，自定义程度高，方便快捷。支持自定义棋盘大小和雷的数量，支持右键标雷，双击自动排雷等操作。",
   "continue_game": "继续本局",
   "custom": "自定义",
@@ -491,6 +491,9 @@
   "mines_count": "地雷数",
   "apply_changes": "应用设置",
   "auto_flag_mines": "自动标记地雷",
+
+  "maze_title": "在线各种类型迷宫生成和路径查找", 
+  "maze_description": "在线迷宫生成，支持生成方形、圆形、三角形、蜂窝形的迷宫地图。跟随鼠标移动查找迷宫路径，可以提示最优路径，下载迷宫等。",
 
   "maze_completion": "恭喜找到出口了！\n完成时间: {{time}}\n访问格子数: {{visitedCells}}\n最优路径长度: {{optimalPathLength}}\n最优率: {{optimality}}%\n每秒移动格子数: {{cellsPerSecond}}",
   "maze_shape": "迷宫形状",
@@ -522,6 +525,9 @@
   "maze_no_exits_hint": "必须生成一个带有出口的迷宫",
   "current_seed": "当前种子",
   "input_seed_hint": "留空使用随机种子",
+  "elapsed_time": "已用时间",
+  "show_distances": "显示距离",
+  "hide_distances": "隐藏距离",
 
   "chartrace": {
       "population-growth": {
@@ -762,9 +768,14 @@
       "keywords": "推箱子游戏关卡大全, 推箱子关卡, 推箱子预览图"
     },
     "minesweeper": {
-      "title": "在线免费扫雷游戏",
+      "title": "在线免费扫雷游戏网页版",
       "description": "功能强大的经典扫雷游戏，自定义程度高，方便快捷。支持自定义棋盘大小和雷的数量，支持右键标雷，双击自动排雷等操作。",
       "keywords": "经典扫雷游戏, 在线扫雷游戏, 免费扫雷游戏"
+    },
+    "maze": {
+      "title": "各种类型的迷宫在线免费生成，支持迷宫查找路径",
+      "description": "本页面支持各种类型的在线迷宫生成，支持生成方形、圆形、三角形、蜂窝形的迷宫地图。也支持在线玩迷宫，查找迷宫路径，只用移动鼠标，就能进行查找。也支持提示迷宫的最优路径，支持下载迷宫等。",
+      "keywords": "在线迷宫生成, 迷宫路径查找, 在线免费迷宫游戏, 在线迷宫下载"
     }
   }
 }
