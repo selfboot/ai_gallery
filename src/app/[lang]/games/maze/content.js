@@ -580,100 +580,102 @@ const MazeSettings = ({
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_shape")}</label>
-        <select
-          value={settings.shape}
-          onChange={(e) => handleChange("shape", e.target.value)}
-          className="w-full border rounded-md p-2"
-        >
-          {shapes.map((shape) => (
-            <option key={shape.value} value={shape.value}>
-              {shape.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <div className="space-y-3">
+        <div className="flex items-center">
+          <label className="w-24 text-sm font-medium text-gray-700">{t("maze_shape")}:</label>
+          <select
+            value={settings.shape}
+            onChange={(e) => handleChange("shape", e.target.value)}
+            className="flex-1 border rounded-md p-2"
+          >
+            {shapes.map((shape) => (
+              <option key={shape.value} value={shape.value}>
+                {shape.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_algorithm")}</label>
-        <select
-          value={settings.algorithm}
-          onChange={(e) => handleChange("algorithm", e.target.value)}
-          className="w-full border rounded-md p-2"
-        >
-          {algorithms.map((algo) => (
-            <option key={algo.value} value={algo.value}>
-              {algo.label}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="flex items-center">
+          <label className="w-24 text-sm font-medium text-gray-700">{t("maze_algorithm")}:</label>
+          <select
+            value={settings.algorithm}
+            onChange={(e) => handleChange("algorithm", e.target.value)}
+            className="flex-1 border rounded-md p-2"
+          >
+            {algorithms.map((algo) => (
+              <option key={algo.value} value={algo.value}>
+                {algo.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t("maze_exit_config")}</label>
-        <select
-          value={settings.exitConfig}
-          onChange={(e) => handleChange("exitConfig", e.target.value)}
-          className="w-full border rounded-md p-2"
-        >
-          {exits.map((exit) => (
-            <option key={exit.value} value={exit.value}>
-              {exit.label}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="flex items-center">
+          <label className="w-24 text-sm font-medium text-gray-700">{t("maze_exit_config")}:</label>
+          <select
+            value={settings.exitConfig}
+            onChange={(e) => handleChange("exitConfig", e.target.value)}
+            className="flex-1 border rounded-md p-2"
+          >
+            {exits.map((exit) => (
+              <option key={exit.value} value={exit.value}>
+                {exit.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {settings.shape !== SHAPE_CIRCLE ? (
-        <>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("width")}</label>
+        {settings.shape !== SHAPE_CIRCLE ? (
+          <>
+            <div className="flex items-center">
+              <label className="w-24 text-sm font-medium text-gray-700">{t("width")}:</label>
+              <input
+                type="number"
+                value={settings.width}
+                onChange={(e) => handleChange("width", parseInt(e.target.value))}
+                className="flex-1 border rounded-md p-2"
+                min="5"
+                max="50"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-24 text-sm font-medium text-gray-700">{t("height")}:</label>
+              <input
+                type="number"
+                value={settings.height}
+                onChange={(e) => handleChange("height", parseInt(e.target.value))}
+                className="flex-1 border rounded-md p-2"
+                min="5"
+                max="50"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center">
+            <label className="w-24 text-sm font-medium text-gray-700">{t("layers")}:</label>
             <input
               type="number"
-              value={settings.width}
-              onChange={(e) => handleChange("width", parseInt(e.target.value))}
-              className="w-full border rounded-md p-2"
-              min="5"
-              max="50"
+              value={settings.layers}
+              onChange={(e) => handleChange("layers", parseInt(e.target.value))}
+              className="flex-1 border rounded-md p-2"
+              min="2"
+              max="10"
             />
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("height")}</label>
-            <input
-              type="number"
-              value={settings.height}
-              onChange={(e) => handleChange("height", parseInt(e.target.value))}
-              className="w-full border rounded-md p-2"
-              min="5"
-              max="50"
-            />
-          </div>
-        </>
-      ) : (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t("layers")}</label>
+        <div className="flex items-center">
+          <label className="w-24 text-sm font-medium text-gray-700">{t("seed")}:</label>
           <input
-            type="number"
-            value={settings.layers}
-            onChange={(e) => handleChange("layers", parseInt(e.target.value))}
-            className="w-full border rounded-md p-2"
-            min="2"
-            max="10"
+            type="text"
+            value={settings.seed}
+            onChange={(e) => handleSeedChange(e.target.value)}
+            className="flex-1 border rounded-md p-2"
+            placeholder={t("input_seed_hint")}
           />
         </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">{t("seed")}</label>
-        <input
-          type="text"
-          value={settings.seed}
-          onChange={(e) => handleSeedChange(e.target.value)}
-          className="w-full border rounded-md p-2"
-          placeholder={t("input_seed_hint")}
-        />
       </div>
 
       <div className="flex items-center gap-2">
