@@ -531,6 +531,7 @@
   "show_distances": "显示距离",
   "hide_distances": "隐藏距离",
   "no_start_cell": "迷宫没有起点",
+  "download_maze": "下载迷宫",
 
   "chartrace": {
       "population-growth": {

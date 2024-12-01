@@ -41,6 +41,7 @@ import {
 import Modal from "@/app/components/Modal";
 
 import { useI18n } from "@/app/i18n/client";
+import { drawingSurfaces } from "./lib/drawingSurfaces";
 const MazeGame = () => {
   const { t } = useI18n();
   const canvasRef = useRef(null);
@@ -456,6 +457,34 @@ const MazeGame = () => {
     }
   }, [maze, showingDistances]);
 
+  const downloadMaze = useCallback(() => {
+    if (!maze) return;
+
+    function saveSvg(svgEl, name) {
+      const svgData = svgEl.outerHTML;
+      const prolog = '<?xml version="1.0" standalone="no"?>';
+      const blob = new Blob([prolog, svgData], {type: 'image/svg+xml;charset=utf-8'});
+      const blobAsUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = blobAsUrl;
+      downloadLink.download = name;
+      downloadLink.click();
+      URL.revokeObjectURL(blobAsUrl); // 清理 URL
+    }
+
+    const SVG_SIZE = 500;
+    const elSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    elSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    elSvg.setAttribute('width', SVG_SIZE);
+    elSvg.setAttribute('height', SVG_SIZE);
+
+    const svgDrawingSurface = drawingSurfaces.svg({el: elSvg});
+    const fileName = `maze_${settings.shape}_${settings.width}_${settings.height}_${currentSeed}.svg`;
+    
+    maze.render(svgDrawingSurface);
+    saveSvg(elSvg, fileName);
+  }, [maze, settings, currentSeed]);
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex gap-4">
@@ -512,6 +541,8 @@ const MazeGame = () => {
             showGenerationProcess={showGenerationProcess}
             setShowGenerationProcess={setShowGenerationProcess}
             isGenerating={isGenerating}
+            onDownload={downloadMaze}
+            maze={maze}
           />
         </div>
       </div>
@@ -536,6 +567,8 @@ const MazeSettings = ({
   showGenerationProcess,
   setShowGenerationProcess,
   isGenerating,
+  onDownload,
+  maze,
 }) => {
   const { t } = useI18n();
 
@@ -724,6 +757,14 @@ const MazeSettings = ({
           className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           {isPlaying ? t("stop_game") : t("start_game")}
+        </button>
+
+        <button
+          onClick={onDownload}
+          className="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          disabled={!maze || isGenerating}
+        >
+          {t("download_maze")}
         </button>
       </div>
     </div>
