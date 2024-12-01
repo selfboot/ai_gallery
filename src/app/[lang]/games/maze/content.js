@@ -41,24 +41,6 @@ import {
 } from "./lib/constants";
 import Modal from "@/app/components/Modal";
 
-// Calculate the initial canvas size
-const calculateInitialCanvasSize = () => {
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-
-  // In wide screens (e.g., desktop devices)
-  if (viewportWidth > 768) {
-    // 768px is a common mobile device breakpoint
-    // Use 50% of the viewport height as the base
-    const size = viewportHeight * 0.8;
-    return { width: size, height: size };
-  } else {
-    // In narrow screens (e.g., mobile devices)
-    const size = viewportWidth * 0.9;
-    return { width: size, height: size };
-  }
-};
-
 const MazeGame = ({ lang }) => {
   const canvasRef = useRef(null);
   const [currentSeed, setCurrentSeed] = useState("");
@@ -73,15 +55,23 @@ const MazeGame = ({ lang }) => {
   });
   const [maze, setMaze] = useState(null);
   const [windowSize, setWindowSize] = useState({
-    width: window.visualViewport?.width || window.innerWidth,
-    height: window.visualViewport?.height || window.innerHeight,
+    width: 0,
+    height: 0,
   });
   const [showingSolution, setShowingSolution] = useState(false);
   const [playState, setPlayState] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
+  const [lastMoveTime, setLastMoveTime] = useState(0);
+  const MOVE_DELAY = 200;
 
-  // 监听窗口大小变化
+  useEffect(() => {
+    setWindowSize({
+      width: window.visualViewport?.width || window.innerWidth,
+      height: window.visualViewport?.height || window.innerHeight,
+    });
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setWindowSize({
@@ -94,10 +84,9 @@ const MazeGame = ({ lang }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 当窗口大小变化时重新生成迷宫
   useEffect(() => {
     generateMaze();
-  }, [windowSize]); // 依赖于 windowSize
+  }, [windowSize]);
 
   const generateMaze = useCallback(
     (isManual = false) => {
@@ -169,20 +158,16 @@ const MazeGame = ({ lang }) => {
           return;
         }
 
-        // 如果已经有路径，清除它
         if (maze.metadata?.[METADATA_PATH]) {
           maze.clearPathAndSolution();
           setShowingSolution(false);
         } else {
-          // 确保起点和终点存在
           console.assert(startCell);
           console.assert(endCell);
-          // 查找路径
           maze.findPathBetween(startCell.coords, endCell.coords);
           setShowingSolution(true);
         }
 
-        // 重新渲染迷宫
         maze.render();
       } catch (error) {
         console.error("Error solving maze:", error);
@@ -193,7 +178,6 @@ const MazeGame = ({ lang }) => {
     }
   };
 
-  // 开始游戏
   const startPlaying = () => {
     if (maze) {
       const [startCell, endCell] = findStartAndEndCells(maze);
@@ -219,7 +203,6 @@ const MazeGame = ({ lang }) => {
     }
   };
 
-  // 停止游戏
   const stopPlaying = () => {
     if (maze) {
       maze.clearMetadata(METADATA_PLAYER_CURRENT, METADATA_PLAYER_VISITED);
@@ -228,12 +211,11 @@ const MazeGame = ({ lang }) => {
     }
   };
 
-  // 键盘按键到方向的映射
   const keyCodeToDirection = {
-    38: DIRECTION_NORTH, // 上箭头
-    40: DIRECTION_SOUTH, // 下箭头
-    39: DIRECTION_EAST, // 右箭头
-    37: DIRECTION_WEST, // 左箭头
+    38: DIRECTION_NORTH, // Up 
+    40: DIRECTION_SOUTH, // Down
+    39: DIRECTION_EAST, // Right
+    37: DIRECTION_WEST, // Left
     65: DIRECTION_NORTH_WEST, // A
     83: DIRECTION_NORTH_EAST, // S
     90: DIRECTION_SOUTH_WEST, // Z
@@ -245,7 +227,6 @@ const MazeGame = ({ lang }) => {
     186: `${DIRECTION_OUTWARDS}_0`, // ;
   };
 
-  // 导航函数
   const navigate = (direction, shift, alt) => {
     if (!playState || !direction) return;
 
@@ -255,25 +236,20 @@ const MazeGame = ({ lang }) => {
       const moveOk = targetCell && targetCell.isLinkedTo(currentCell);
 
       if (moveOk) {
-        // 清除当前位置标记
         delete currentCell.metadata[METADATA_PLAYER_CURRENT];
-        // 标记新位置
         targetCell.metadata[METADATA_PLAYER_VISITED] = true;
         targetCell.metadata[METADATA_PLAYER_CURRENT] = true;
-
-        // 更新游戏状态
+        
         setPlayState((prev) => ({
           ...prev,
           previousCell: currentCell,
           currentCell: targetCell,
         }));
 
-        // 检查是否到达终点
         if (targetCell.metadata[METADATA_END_CELL]) {
           onMazeCompleted();
         }
 
-        // 处理连续移动
         if (playState.finished) {
           break;
         } else if (!shift) {
@@ -293,17 +269,14 @@ const MazeGame = ({ lang }) => {
       }
     }
 
-    // 重新渲染迷宫
     maze.render();
   };
 
-  // 完成迷宫时的处理函数
   const onMazeCompleted = () => {
     const timeMs = Date.now() - playState.startTime;
     const time = formatTime(timeMs);
     const { startCell, endCell } = playState;
 
-    // 重置游戏状态
     setPlayState(null);
 
     maze.findPathBetween(startCell.coords, endCell.coords);
@@ -321,6 +294,7 @@ const MazeGame = ({ lang }) => {
     maze.render();
 
     setModalContent(`
+      恭喜找到出口了！
       完成时间: ${time}
       访问格子数: ${visitedCells}
       最优路径长度: ${optimalPathLength}
@@ -339,7 +313,6 @@ const MazeGame = ({ lang }) => {
     return `${padNum(hours)}:${padNum(minutes)}:${padNum(seconds)}`;
   };
 
-  // 添加事件触发器
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (playState && !playState.finished) {
@@ -358,6 +331,66 @@ const MazeGame = ({ lang }) => {
     };
   }, [playState, maze]);
 
+  const handleMouseMove = useCallback((event) => {
+    if (!playState || !maze || !canvasRef.current) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastMoveTime < MOVE_DELAY) {
+      return;
+    }
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    const clickEvent = {
+      rawCoords: [x, y]
+    };
+
+    const direction = maze.getClosestDirectionForClick(playState.currentCell, clickEvent);
+
+    if (direction && 
+        playState.currentCell.neighbours[direction] && 
+        playState.currentCell.isLinkedTo(playState.currentCell.neighbours[direction])) {
+      maze.forEachCell(cell => {
+        delete cell.metadata[METADATA_PLAYER_CURRENT];
+      });
+      
+      navigate(direction, false, false);
+      maze.render();
+      setLastMoveTime(now);
+    }
+  }, [playState, maze, lastMoveTime, navigate]);
+
+  useEffect(() => {
+    if (playState && maze) {
+      const svgElement = canvasRef.current;
+      svgElement.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        svgElement.removeEventListener('mousemove', handleMouseMove);
+      };
+    }
+  }, [playState, maze, handleMouseMove]);
+
+  const calculateCanvasSize = useCallback(() => {
+    const viewportWidth = windowSize.width;
+    const viewportHeight = windowSize.height;
+
+    // In wide screens (e.g., desktop devices)
+    if (viewportWidth > 768) {
+      // 768px is a common mobile device breakpoint
+      // Use 50% of the viewport height as the base
+      const size = viewportHeight * 0.8;
+      return { width: size, height: size };
+    } else {
+      // In narrow screens (e.g., mobile devices)
+      const size = viewportWidth * 0.9;
+      return { width: size, height: size };
+    }
+  }, [windowSize]);
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex gap-4">
@@ -365,8 +398,8 @@ const MazeGame = ({ lang }) => {
           <div
             className="aspect-square relative mx-auto"
             style={{
-              width: calculateInitialCanvasSize().width,
-              height: calculateInitialCanvasSize().height,
+              width: calculateCanvasSize().width,
+              height: calculateCanvasSize().height,
             }}
           >
             <svg
@@ -378,9 +411,9 @@ const MazeGame = ({ lang }) => {
                 margin: "auto",
                 display: "block",
               }}
-              width={calculateInitialCanvasSize().width}
-              height={calculateInitialCanvasSize().height}
-              viewBox={`0 0 ${calculateInitialCanvasSize().width} ${calculateInitialCanvasSize().height}`}
+              width={calculateCanvasSize().width}
+              height={calculateCanvasSize().height}
+              viewBox={`0 0 ${calculateCanvasSize().width} ${calculateCanvasSize().height}`}
             />
           </div>
           {currentSeed && <div className="mt-2 text-sm text-gray-600">当前种子: {currentSeed}</div>}
