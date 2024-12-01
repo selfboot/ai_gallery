@@ -513,6 +513,8 @@
   "layers": "Layers",
   "seed": "Seed",
   "generate_maze": "Generate Maze",
+  "show_generation_process": "Show Generation Process",
+  "generating_maze": "Generating...",
   "show_path": "Show Path",
   "hide_path": "Hide Path",
   "stop_game": "Stop Game",
@@ -522,6 +524,7 @@
   "elapsed_time": "Elapsed Time",
   "show_distances": "Show Distance Map",
   "hide_distances": "Hide Distance Map",
+  "no_start_cell": "Maze has no start cell",
 
   "chartrace": {
     "population-growth": {

@@ -519,6 +519,8 @@
   "layers": "层数",
   "seed": "种子",
   "generate_maze": "生成迷宫",
+  "show_generation_process": "显示迷宫生成过程",
+  "generating_maze": "生成迷宫中...",
   "show_path": "显示路径",
   "hide_path": "隐藏路径",
   "stop_game": "停止游戏",
@@ -528,6 +530,7 @@
   "elapsed_time": "已用时间",
   "show_distances": "显示距离",
   "hide_distances": "隐藏距离",
+  "no_start_cell": "迷宫没有起点",
 
   "chartrace": {
       "population-growth": {

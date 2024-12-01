@@ -17,7 +17,6 @@ import {
   ALGORITHM_SIMPLIFIED_PRIMS,
   ALGORITHM_TRUE_PRIMS,
   ALGORITHM_ELLERS,
-  EXITS_NONE,
   EXITS_HARDEST,
   EXITS_HORIZONTAL,
   EXITS_VERTICAL,
@@ -69,7 +68,8 @@ const MazeGame = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const timerRef = useRef(null);
   const [showingDistances, setShowingDistances] = useState(false);
-  const [distanceMapStart, setDistanceMapStart] = useState(null);
+  const [showGenerationProcess, setShowGenerationProcess] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     setWindowSize({
@@ -95,7 +95,7 @@ const MazeGame = () => {
   }, [windowSize]);
 
   const generateMaze = useCallback(
-    (isManual = false) => {
+    async (isManual = false) => {
       if (canvasRef.current && windowSize.width > 0 && windowSize.height > 0) {
         let numericSeed;
         if (settings.seed) {
@@ -122,9 +122,23 @@ const MazeGame = () => {
         };
 
         try {
+          setIsGenerating(true);
           const newMaze = buildMaze(config);
           if (newMaze && newMaze.runAlgorithm) {
-            newMaze.runAlgorithm.toCompletion();
+            if (showGenerationProcess) {
+              await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                  const done = newMaze.runAlgorithm.oneStep();
+                  newMaze.render();
+                  if (done) {
+                    clearInterval(interval);
+                    resolve();
+                  }
+                }, 50);
+              });
+            } else {
+              newMaze.runAlgorithm.toCompletion();
+            }
             newMaze.render();
             setMaze(newMaze);
             setShowingSolution(false);
@@ -132,10 +146,12 @@ const MazeGame = () => {
           }
         } catch (error) {
           console.error("Error generating maze:", error);
+        } finally {
+          setIsGenerating(false);
         }
       }
     },
-    [windowSize, settings, canvasRef, currentSeed]
+    [windowSize, settings, canvasRef, currentSeed, showGenerationProcess]
   );
 
   const findStartAndEndCells = useCallback((maze) => {
@@ -426,17 +442,15 @@ const MazeGame = () => {
     if (showingDistances) {
       maze.clearDistances();
       setShowingDistances(false);
-      setDistanceMapStart(null);
       maze.render();
     } else {
       const [startCell, endCell] = findStartAndEndCells(maze);
       if (startCell) {
         maze.findDistancesFrom(...startCell.coords);
         setShowingDistances(true);
-        setDistanceMapStart(startCell.coords);
         maze.render();
       } else {
-        setModalContent(t("maze.errors.no_start_cell"));
+        setModalContent(t("no_start_cell"));
         setModalOpen(true);
       }
     }
@@ -495,6 +509,9 @@ const MazeGame = () => {
             showingSolution={showingSolution}
             showingDistances={showingDistances}
             isPlaying={!!playState}
+            showGenerationProcess={showGenerationProcess}
+            setShowGenerationProcess={setShowGenerationProcess}
+            isGenerating={isGenerating}
           />
         </div>
       </div>
@@ -516,6 +533,9 @@ const MazeSettings = ({
   showingSolution,
   showingDistances,
   isPlaying,
+  showGenerationProcess,
+  setShowGenerationProcess,
+  isGenerating,
 }) => {
   const { t } = useI18n();
 
@@ -656,12 +676,30 @@ const MazeSettings = ({
         />
       </div>
 
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="showGenerationProcess"
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          checked={showGenerationProcess}
+          onChange={(e) => setShowGenerationProcess(e.target.checked)}
+          disabled={isGenerating}
+        />
+        <label
+          htmlFor="showGenerationProcess"
+          className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+        >
+          {t("show_generation_process")}
+        </label>
+      </div>
+
       <div className="space-y-2">
         <button
           onClick={onGenerate}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          disabled={isGenerating}
         >
-          {t("generate_maze")}
+          {isGenerating ? t("generating_maze") : t("generate_maze")}
         </button>
 
         <button
