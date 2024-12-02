@@ -6,6 +6,8 @@ import { CanvasRenderer, FACE_SVGS } from "./CanvasRenderer";
 import { CustomListbox } from "@/app/components/ListBox";
 import LEDDigit from './LEDDigit';
 import { useI18n } from "@/app/i18n/client";
+import { HexRenderer } from "./HexRenderer";
+import HexMinesweeperGame from './hexGameLogic';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -14,7 +16,7 @@ const DIFFICULTY_LEVELS = {
   custom: "custom",
 };
 
-const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time }) => {
+const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time, isHexagonal = false }) => {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const containerRef = useRef(null);
@@ -87,9 +89,9 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    if (!rendererRef.current) {
-      rendererRef.current = new CanvasRenderer(canvas, "classic");
-    }
+    rendererRef.current = isHexagonal 
+      ? new HexRenderer(canvas, "classic")
+      : new CanvasRenderer(canvas, "classic");
 
     const renderer = rendererRef.current;
     renderer.setCellSize(cellSize);
@@ -97,35 +99,46 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
     for (let row = 0; row < game.rows; row++) {
       for (let col = 0; col < game.cols; col++) {
-        const isPressed = game.pressedCells.some(
-          ([r, c]) => r === row && c === col
-        );
-        
-        renderer.drawCell(
-          row,
-          col,
-          {
-            revealed: game.revealed[row][col],
-            flagged: game.flagged[row][col],
-            exploded: game.gameOver && game.board[row][col] === -1 && game.revealed[row][col],
-            pressed: isPressed,
-          },
-          game.board[row][col]
-        );
+        if (!isHexagonal || game.isValidCell?.(row, col)) {
+          const isPressed = game.pressedCells.some(
+            ([r, c]) => r === row && c === col
+          );
+          
+          renderer.drawCell(
+            row,
+            col,
+            {
+              revealed: game.revealed[row][col],
+              flagged: game.flagged[row][col],
+              exploded: game.gameOver && game.board[row][col] === -1 && game.revealed[row][col],
+              pressed: isPressed,
+            },
+            game.board[row][col]
+          );
+        }
       }
     }
-  }, [game, canvasWidth, canvasHeight, cellSize]);
+  }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal]);
 
   const handleClick = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor(x / cellSize);
-    const row = Math.floor(y / cellSize);
-
-    if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
-      onCellClick(row, col);
+    if (isHexagonal) {
+      const renderer = rendererRef.current;
+      if (renderer && renderer.getHexCellFromPoint) {
+        const { row, col } = renderer.getHexCellFromPoint(x, y);
+        if (game.isValidCell?.(row, col)) {
+          onCellClick(row, col);
+        }
+      }
+    } else {
+      const col = Math.floor(x / cellSize);
+      const row = Math.floor(y / cellSize);
+      if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
+        onCellClick(row, col);
+      }
     }
   };
 
@@ -136,11 +149,20 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor(x / cellSize);
-    const row = Math.floor(y / cellSize);
-
-    if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
-      onCellRightClick(e, row, col);
+    if (isHexagonal) {
+      const renderer = rendererRef.current;
+      if (renderer && renderer.getHexCellFromPoint) {
+        const { row, col } = renderer.getHexCellFromPoint(x, y);
+        if (game.isValidCell?.(row, col)) {
+          onCellRightClick(e, row, col);
+        }
+      }
+    } else {
+      const col = Math.floor(x / cellSize);
+      const row = Math.floor(y / cellSize);
+      if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
+        onCellRightClick(e, row, col);
+      }
     }
   };
 
@@ -149,11 +171,20 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const col = Math.floor(x / cellSize);
-    const row = Math.floor(y / cellSize);
-
-    if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
-      onCellDoubleClick(row, col);
+    if (isHexagonal) {
+      const renderer = rendererRef.current;
+      if (renderer && renderer.getHexCellFromPoint) {
+        const { row, col } = renderer.getHexCellFromPoint(x, y);
+        if (game.isValidCell?.(row, col)) {
+          onCellDoubleClick(row, col);
+        }
+      }
+    } else {
+      const col = Math.floor(x / cellSize);
+      const row = Math.floor(y / cellSize);
+      if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
+        onCellDoubleClick(row, col);
+      }
     }
   };
 
@@ -234,7 +265,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   );
 };
 
-const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue }) => {
+const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange }) => {
   const { t } = useI18n();
   
   const levelToTranslation = {
@@ -366,6 +397,18 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             <span>{t('auto_flag_mines')}</span>
           </label>
         </div>
+
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={isHexagonal}
+              onChange={(e) => onHexagonalChange(e.target.checked)}
+              className="mr-2"
+            />
+            <span>{t('hexagonal_grid')}</span>
+          </label>
+        </div>
       </div>
     </div>
   );
@@ -410,6 +453,7 @@ export default function Minesweeper() {
   const [timerActive, setTimerActive] = useState(false);
   const emojiCanvasRef = useRef(null);
   const emojiRendererRef = useRef(null);
+  const [isHexagonal, setIsHexagonal] = useState(false);
 
   // Add emoji rendering logic
   useLayoutEffect(() => {
@@ -474,13 +518,14 @@ export default function Minesweeper() {
   }, [game]);
 
   const handleReset = useCallback(() => {
-    const newGame = new MinesweeperGame(settings.rows, settings.cols, settings.mines);
+    const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = new GameClass(settings.rows, settings.cols, settings.mines);
     newGame.setAutoFlag(settings.autoFlag);
     setGame(newGame);
     setTime(0);
     setStartTime(null);
     setTimerActive(false);
-  }, [settings]);
+  }, [settings, isHexagonal]);
 
   useEffect(() => {
     let animationFrameId;
@@ -565,6 +610,17 @@ export default function Minesweeper() {
     }
   }, [game]);
 
+  const handleHexagonalChange = (checked) => {
+    setIsHexagonal(checked);
+    const GameClass = checked ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = new GameClass(settings.rows, settings.cols, settings.mines);
+    newGame.setAutoFlag(settings.autoFlag);
+    setGame(newGame);
+    setTime(0);
+    setStartTime(null);
+    setTimerActive(false);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
@@ -577,6 +633,7 @@ export default function Minesweeper() {
               onCellDoubleClick={handleCellDoubleClick}
               onReset={handleReset}
               time={time}
+              isHexagonal={isHexagonal}
             />
           </div>
         </div>
@@ -589,6 +646,8 @@ export default function Minesweeper() {
           onReset={handleReset}
           onContinue={handleContinue}
           canContinue={game.gameOver && !game.won && game.lastRevealedMine !== null}
+          isHexagonal={isHexagonal}
+          onHexagonalChange={handleHexagonalChange}
         />
       </div>
     </div>
