@@ -1,6 +1,7 @@
 class HexMinesweeperGame {
-  constructor(radius = 4, mines = 10) {
-    this.radius = radius;
+  constructor(rows = 6, cols = 10, mines = 10) {
+    this.rows = rows;
+    this.cols = cols;
     this.mines = mines;
     this.gameOver = false;
     this.won = false;
@@ -10,64 +11,31 @@ class HexMinesweeperGame {
     this.lastRevealedMine = null;
     this.autoFlag = false;
 
-    // 计算总行数和列数（确保足够容纳整个正六边形）
-    this.rows = 2 * radius - 1;
-    this.cols = 2 * radius - 1;
-
     // 初始化游戏板
     this.initializeArrays();
   }
 
   initializeArrays() {
-    this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(null));
+    // 创建矩形网格
+    this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
     this.revealed = Array(this.rows).fill().map(() => Array(this.cols).fill(false));
     this.flagged = Array(this.rows).fill().map(() => Array(this.cols).fill(false));
-
-    // 使用轴向坐标系标记有效的六边形单元格
-    const center = Math.floor(this.rows / 2);
-    for (let q = -this.radius + 1; q < this.radius; q++) {
-      for (let r = -this.radius + 1; r < this.radius; r++) {
-        // 计算第三个坐标 s
-        const s = -q - r;
-        
-        // 检查是否在正六边形范围内
-        if (Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) < this.radius) {
-          // 转换轴向坐标到数组索引
-          const col = q + center;
-          const row = r + center;
-          this.board[row][col] = 0;
-        }
-      }
-    }
   }
 
   isValidCell(row, col) {
-    if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
-      return false;
-    }
-    
-    // 计算到中心的距离
-    const centerRow = Math.floor(this.rows / 2);
-    const centerCol = Math.floor(this.cols / 2);
-    
-    // 使用轴向坐标系
-    const q = col - centerCol;
-    const r = row - centerRow;
-    const s = -q - r;
-    
-    // 检查是否在正六边形范围内
-    return Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) < this.radius;
+    return row >= 0 && row < this.rows && col >= 0 && col < this.cols;
   }
 
   getAdjacentCells(row, col) {
-    // 修改六边形网格的相邻方向
+    // 根据行的奇偶性确定相邻格子的位置
+    const isEvenRow = row % 2 === 0;
     const directions = [
-      [-1, 0],  // 上
-      [-1, 1],  // 右上
-      [0, 1],   // 右
-      [1, 0],   // 下
-      [1, -1],  // 左下
-      [0, -1]   // 左
+      [-1, isEvenRow ? -1 : 0],  // 左上
+      [-1, isEvenRow ? 0 : 1],   // 右上
+      [0, -1],                   // 左
+      [0, 1],                    // 右
+      [1, isEvenRow ? -1 : 0],   // 左下
+      [1, isEvenRow ? 0 : 1]     // 右下
     ];
 
     return directions
@@ -204,7 +172,7 @@ class HexMinesweeperGame {
   }
 
   static copyState(oldGame) {
-    const newGame = new HexMinesweeperGame(oldGame.radius, oldGame.mines);
+    const newGame = new HexMinesweeperGame(oldGame.rows, oldGame.cols, oldGame.mines);
     newGame.board = oldGame.board.map(row => [...row]);
     newGame.revealed = oldGame.revealed.map(row => [...row]);
     newGame.flagged = oldGame.flagged.map(row => [...row]);

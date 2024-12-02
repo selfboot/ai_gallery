@@ -9,15 +9,16 @@ export class HexRenderer {
 
   // 计算整个蜂窝地图所需的尺寸
   calculateGridSize(rows, cols) {
-    // 使用半径计算正六边形的尺寸
-    const radius = Math.floor(rows / 2);
+    // 计算六边形的宽度和高度
     const hexWidth = this.cellSize * Math.sqrt(3);
     const hexHeight = this.cellSize * 2;
-
-    // 计算正六边形的外接矩形
-    const gridWidth = hexWidth * (2 * radius - 1);
-    const gridHeight = hexHeight * (2 * radius - 1) * 0.75;
-
+    
+    // 计算总宽度和高度
+    // 宽度需要考虑错位，每列的间距是六边形宽度
+    const gridWidth = hexWidth * (cols + 0.5);  // 加0.5是为了最后一列的偏移
+    // 高度需要考虑重叠，每行的间距是六边形高度的3/4
+    const gridHeight = hexHeight * (rows * 0.75 + 0.25);
+    
     return {
       width: Math.ceil(gridWidth + this.padding * 2),
       height: Math.ceil(gridHeight + this.padding * 2)
@@ -28,17 +29,11 @@ export class HexRenderer {
     this.rows = rows;
     this.cols = cols;
     
-    // 计算需要的画布大小
     const { width, height } = this.calculateGridSize(rows, cols);
-    
-    // 设置固定的画布大小
     this.canvas.width = width;
     this.canvas.height = height;
-    
-    // 保存原始尺寸
     this.originalWidth = width;
     this.originalHeight = height;
-    
     return { width, height };
   }
 
@@ -64,61 +59,72 @@ export class HexRenderer {
     const hexWidth = this.cellSize * Math.sqrt(3);
     const hexHeight = this.cellSize * 2;
     
-    // 计算六边形网格的偏移
-    const centerX = this.canvas.width / 2;
-    const centerY = this.canvas.height / 2;
+    // 计算基础位置
+    let x = this.padding + hexWidth * col;
+    let y = this.padding + hexHeight * 0.75 * row;
     
-    // 使用轴向坐标计算位置
-    const x = centerX + hexWidth * (col - Math.floor(this.cols/2) + (row - Math.floor(this.rows/2))/2);
-    const y = centerY + hexHeight * 0.75 * (row - Math.floor(this.rows/2));
+    // 奇数行需要向右偏移半个六边形宽度
+    if (row % 2 === 1) {
+      x += hexWidth / 2;
+    }
     
     return { x, y };
   }
 
   // 从点击坐标计算六边形单元格
   getHexCellFromPoint(px, py) {
-    const centerX = this.canvas.width / 2;
-    const centerY = this.canvas.height / 2;
-    
-    // 相对于中心的坐标
-    const x = px - centerX;
-    const y = py - centerY;
-    
-    // 转换到轴向坐标
-    const q = (x * Math.sqrt(3)/3 - y / 3) / this.cellSize;
-    const r = y * 2/3 / this.cellSize;
-    
-    // 立方坐标转换
-    const s = -q - r;
-    
-    // 四舍五入到最近的六边形
-    let [rq, rr, rs] = this.roundCube(q, r, s);
-    
-    // 转换回网格坐标
-    const col = rq + Math.floor(this.cols/2);
-    const row = rr + Math.floor(this.rows/2);
-    
-    return { row, col };
-  }
+    const hexWidth = this.cellSize * Math.sqrt(3);
+    const hexHeight = this.cellSize * 2;
+    const hexVerticalSpacing = hexHeight * 0.75;  // 行间距
 
-  roundCube(x, y, z) {
-    let rx = Math.round(x);
-    let ry = Math.round(y);
-    let rz = Math.round(z);
+    // 计算行
+    let row = Math.floor((py - this.padding) / hexVerticalSpacing);
+    
+    // 计算列，需要考虑奇偶行的偏移
+    let x = px - this.padding;
+    if (row % 2 === 1) {
+      // 奇数行向右偏移半个六边形宽度
+      x -= hexWidth / 2;
+    }
+    let col = Math.floor(x / hexWidth);
 
-    const dx = Math.abs(rx - x);
-    const dy = Math.abs(ry - y);
-    const dz = Math.abs(rz - z);
+    // 计算点击位置在六边形格子内的相对位置
+    const localX = x - col * hexWidth;
+    const localY = (py - this.padding) - row * hexVerticalSpacing;
 
-    if (dx > dy && dx > dz) {
-      rx = -ry - rz;
-    } else if (dy > dz) {
-      ry = -rx - rz;
-    } else {
-      rz = -rx - ry;
+    // 计算六边形左右斜边的斜率
+    const slope = (hexHeight/2) / (hexWidth/2);
+    
+    // 检查点是否在六边形内
+    const topY = slope * Math.abs(localX - hexWidth/2);
+    const bottomY = hexVerticalSpacing - slope * Math.abs(localX - hexWidth/2);
+
+    // 如果点不在当前六边形内，需要调整行列
+    if (localY < topY) {
+      // 点在上方
+      if (localX < hexWidth/2) {
+        // 左上
+        row--;
+        if (row % 2 === 0) col--;
+      } else {
+        // 右上
+        row--;
+        if (row % 2 === 1) col++;
+      }
+    } else if (localY > bottomY) {
+      // 点在下方
+      if (localX < hexWidth/2) {
+        // 左下
+        row++;
+        if (row % 2 === 0) col--;
+      } else {
+        // 右下
+        row++;
+        if (row % 2 === 1) col++;
+      }
     }
 
-    return [rx, ry, rz];
+    return { row, col };
   }
 
   // 获取相邻位置
@@ -136,8 +142,6 @@ export class HexRenderer {
 
   drawCell(row, col, state, value) {
     const { x, y } = this.calculateCellCenter(row, col);
-    
-    // 使用固定的 cellSize
     const points = this.calculateHexPoints(x, y);
     
     // 设置填充颜色

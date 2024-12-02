@@ -121,21 +121,32 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal]);
 
   const handleClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    // 转换为相对于 canvas 的坐标
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    
+    // 考虑 canvas 的缩放比例
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    // 计算实际的 canvas 坐标
+    const canvasX = x * scaleX;
+    const canvasY = y * scaleY;
 
     if (isHexagonal) {
       const renderer = rendererRef.current;
       if (renderer && renderer.getHexCellFromPoint) {
-        const { row, col } = renderer.getHexCellFromPoint(x, y);
+        const { row, col } = renderer.getHexCellFromPoint(canvasX, canvasY);
         if (game.isValidCell?.(row, col)) {
           onCellClick(row, col);
         }
       }
     } else {
-      const col = Math.floor(x / cellSize);
-      const row = Math.floor(y / cellSize);
+      const col = Math.floor(canvasX / cellSize);
+      const row = Math.floor(canvasY / cellSize);
       if (row >= 0 && row < game.rows && col >= 0 && col < game.cols) {
         onCellClick(row, col);
       }
