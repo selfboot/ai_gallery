@@ -35,11 +35,11 @@ export class HexRenderer {
     this.cellSize = size;
   }
 
-  // 计算六边形的顶点
+  // Calculate the vertices of a hexagon
   calculateHexPoints(centerX, centerY) {
     const points = [];
     for (let i = 0; i < 6; i++) {
-      const angle = (Math.PI / 3) * i - Math.PI / 6; // 旋转30度使六边形竖直
+      const angle = (Math.PI / 3) * i - Math.PI / 6; // Rotate 30 degrees to make the hexagon vertical
       points.push({
         x: centerX + this.cellSize * Math.cos(angle),
         y: centerY + this.cellSize * Math.sin(angle),
@@ -69,68 +69,132 @@ export class HexRenderer {
     const hexWidth = this.cellSize * Math.sqrt(3);
     const hexHeight = this.cellSize * 2;
     const hexVerticalSpacing = hexHeight * 0.75;
-  
-    // 移除padding得到相对坐标
+
+    // Remove padding to get relative coordinates
     const x = px - this.padding;
     const y = py - this.padding;
-  
-    // 粗略估计行列
+
+    // Roughly estimate the row and column
     let row = Math.floor(y / hexVerticalSpacing);
     let col = Math.floor(x / hexWidth);
-  
-    // 找到周围可能的候选格子
+
+    // Find the surrounding possible candidate cells
     const candidates = [];
-    
-    // 添加估计的格子及其相邻格子
+
+    // Add the estimated cell and its neighbors
     for (let r = row - 1; r <= row + 1; r++) {
       for (let c = col - 1; c <= col + 1; c++) {
         if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
           const center = this.calculateCellCenter(r, c);
           const dx = px - center.x;
           const dy = py - center.y;
-          // 计算点到中心的距离
+          // Calculate the distance from the point to the center
           const distance = Math.sqrt(dx * dx + dy * dy);
           candidates.push({ row: r, col: c, distance });
         }
       }
     }
-  
-    // 按距离排序
+
+    // Sort by distance
     candidates.sort((a, b) => a.distance - b.distance);
-  
-    // 如果没有找到任何候选格子（这种情况不应该发生），返回最近的有效格子
+
+    // If no candidate cells are found (which should not happen), return the nearest valid cell
     if (candidates.length === 0) {
-      return { 
+      return {
         row: Math.max(0, Math.min(this.rows - 1, row)),
-        col: Math.max(0, Math.min(this.cols - 1, col))
+        col: Math.max(0, Math.min(this.cols - 1, col)),
       };
     }
-  
-    // 返回距离最近的格子
+
+    // Return the cell closest to the point
     return {
       row: candidates[0].row,
-      col: candidates[0].col
+      col: candidates[0].col,
     };
   }
 
-  // 获取相邻位置
+  // Get the neighboring positions
   getNeighborPositions(row, col) {
     const isEvenRow = row % 2 === 0;
     return [
-      [row - 1, isEvenRow ? col - 1 : col], // 左上
-      [row - 1, isEvenRow ? col : col + 1], // 右上
-      [row, col - 1], // 左
-      [row, col + 1], // 右
-      [row + 1, isEvenRow ? col - 1 : col], // 左下
-      [row + 1, isEvenRow ? col : col + 1], // 右下
+      [row - 1, isEvenRow ? col - 1 : col], // Top left
+      [row - 1, isEvenRow ? col : col + 1], // Top right
+      [row, col - 1], // Left
+      [row, col + 1], // Right
+      [row + 1, isEvenRow ? col - 1 : col], // Bottom left
+      [row + 1, isEvenRow ? col : col + 1], // Bottom right
     ];
+  }
+
+  draw3DEffect(points, isPressed) {
+    this.ctx.save();
+
+    const borderWidth = Math.max(1, Math.floor(this.cellSize * 0.1));
+
+    const innerPoints = points.map((p) => {
+      const dx = p.x - (points[0].x + points[3].x) / 2;
+      const dy = p.y - (points[0].y + points[3].y) / 2;
+      const scale = (this.cellSize - borderWidth) / this.cellSize;
+      return {
+        x: (points[0].x + points[3].x) / 2 + dx * scale,
+        y: (points[0].y + points[3].y) / 2 + dy * scale,
+      };
+    });
+
+    if (isPressed) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(innerPoints[0].x, innerPoints[0].y);
+      this.ctx.lineTo(innerPoints[1].x, innerPoints[1].y);
+      this.ctx.lineTo(innerPoints[2].x, innerPoints[2].y);
+      this.ctx.lineWidth = borderWidth;
+      this.ctx.strokeStyle = "#FFFFFF";
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(innerPoints[2].x, innerPoints[2].y);
+      this.ctx.lineTo(innerPoints[3].x, innerPoints[3].y);
+      this.ctx.lineTo(innerPoints[4].x, innerPoints[4].y);
+      this.ctx.lineTo(innerPoints[5].x, innerPoints[5].y);
+      this.ctx.lineWidth = borderWidth;
+      this.ctx.strokeStyle = "#666666";
+      this.ctx.stroke();
+    } else {
+      this.ctx.beginPath();
+      this.ctx.moveTo(innerPoints[0].x, innerPoints[0].y);
+      this.ctx.lineTo(innerPoints[1].x, innerPoints[1].y);
+      this.ctx.lineTo(innerPoints[2].x, innerPoints[2].y);
+      this.ctx.lineWidth = borderWidth;
+      this.ctx.strokeStyle = "#666666";
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(innerPoints[2].x, innerPoints[2].y);
+      this.ctx.lineTo(innerPoints[3].x, innerPoints[3].y);
+      this.ctx.lineTo(innerPoints[4].x, innerPoints[4].y);
+      this.ctx.lineTo(innerPoints[5].x, innerPoints[5].y);
+      this.ctx.lineWidth = borderWidth;
+      this.ctx.strokeStyle = "#FFFFFF";
+      this.ctx.stroke();
+    }
+
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = "#808080";
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      this.ctx.lineTo(points[i].x, points[i].y);
+    }
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    this.ctx.restore();
   }
 
   drawCell(row, col, state, value) {
     const { x, y } = this.calculateCellCenter(row, col);
     const points = this.calculateHexPoints(x, y);
 
-    // 设置填充颜色
+    // Set the fill color
     let fillColor = "#c0c0c0";
     if (state.revealed) {
       fillColor = "#e0e0e0";
@@ -142,7 +206,7 @@ export class HexRenderer {
       fillColor = "#a0a0a0";
     }
 
-    // 绘制六边形
+    // Draw the hexagon
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
@@ -150,17 +214,31 @@ export class HexRenderer {
     }
     this.ctx.closePath();
 
-    // 填充
+    // Fill the hexagon
     this.ctx.fillStyle = fillColor;
     this.ctx.fill();
 
-    // 边框
+    if (!state.revealed) {
+      this.draw3DEffect(points, state.pressed);
+    }
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      this.ctx.lineTo(points[i].x, points[i].y);
+    }
+    this.ctx.closePath();
+    this.ctx.lineWidth = 1;
     this.ctx.strokeStyle = "#808080";
     this.ctx.stroke();
 
-    // 绘制数字或旗帜
-    if (state.revealed && value > 0) {
-      this.drawNumber(x, y, value);
+    // Draw the number, mine or flag
+    if (state.revealed) {
+      if (value === -1) {
+        this.drawMine(x, y);
+      } else if (value > 0) {
+        this.drawNumber(x, y, value);
+      }
     } else if (state.flagged) {
       this.drawFlag(x, y);
     }
@@ -169,14 +247,14 @@ export class HexRenderer {
   drawNumber(x, y, value) {
     const colors = [
       null,
-      "#0000ff", // 1: 蓝色
-      "#008000", // 2: 绿色
-      "#ff0000", // 3: 红色
-      "#000080", // 4: 深蓝色
-      "#800000", // 5: 深红色
-      "#008080", // 6: 青色
-      "#000000", // 7: 黑色
-      "#808080", // 8: 灰色
+      "#0000ff", // 1: Blue
+      "#008000", // 2: Green
+      "#ff0000", // 3: Red
+      "#000080", // 4: Dark blue
+      "#800000", // 5: Dark red
+      "#008080", // 6: Cyan
+      "#000000", // 7: Black
+      "#808080", // 8: Gray
     ];
 
     this.ctx.fillStyle = colors[value] || "#000000";
@@ -187,24 +265,69 @@ export class HexRenderer {
   }
 
   drawFlag(x, y) {
-    const flagSize = this.cellSize * 0.4;
+    const flagSize = this.cellSize * 0.8;
 
-    // 绘制旗帜
-    this.ctx.fillStyle = "#ff0000";
+    // Calculate the center of the flag to ensure it's centered on the cell
+    const flagX = x - flagSize / 2;
+    const flagY = y - flagSize / 2;
+
+    // Flag pole - Draw from the center
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillRect(flagX + flagSize / 3, flagY, 2, flagSize);
+
+    // Flag - Draw relative to the center
+    this.ctx.fillStyle = "#FF0000";
     this.ctx.beginPath();
-    this.ctx.moveTo(x - flagSize / 2, y - flagSize / 2);
-    this.ctx.lineTo(x + flagSize / 2, y);
-    this.ctx.lineTo(x - flagSize / 2, y + flagSize / 2);
-    this.ctx.closePath();
+    this.ctx.moveTo(flagX + flagSize / 3, flagY);
+    this.ctx.lineTo(flagX + flagSize, flagY + flagSize / 3);
+    this.ctx.lineTo(flagX + flagSize / 3, flagY + flagSize / 2);
+    this.ctx.fill();
+  }
+
+  drawMine(x, y) {
+    const mineSize = this.cellSize * 0.8;
+    const centerX = x;
+    const centerY = y;
+    this.ctx.save();
+
+    this.ctx.fillStyle = "#000000";
+
+    const radius = mineSize / 3;
+    this.ctx.beginPath();
+    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // 绘制旗杆
+    const spikeLength = mineSize * 0.45;
+    const directions = [
+      [0, 1],
+      [1, 1],
+      [1, 0],
+      [1, -1],
+      [0, -1],
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+    ];
+
+    // Set the spike width
+    const spikeWidth = Math.max(2, this.cellSize * 0.1);
+    this.ctx.lineWidth = spikeWidth;
     this.ctx.strokeStyle = "#000000";
-    this.ctx.lineWidth = 2;
+
+    // Draw the spikes
+    directions.forEach(([dx, dy]) => {
+      this.ctx.beginPath();
+      this.ctx.moveTo(centerX + dx * radius * 0.8, centerY + dy * radius * 0.8);
+      this.ctx.lineTo(centerX + dx * spikeLength, centerY + dy * spikeLength);
+      this.ctx.stroke();
+    });
+
+    // Draw the highlight point
+    const highlightRadius = radius * 0.35;
+    this.ctx.fillStyle = "#FFFFFF";
     this.ctx.beginPath();
-    this.ctx.moveTo(x - flagSize / 2, y - flagSize / 2);
-    this.ctx.lineTo(x - flagSize / 2, y + flagSize / 2);
-    this.ctx.stroke();
-    this.ctx.lineWidth = 1;
+    this.ctx.arc(centerX - radius * 0.4, centerY - radius * 0.4, highlightRadius, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
   }
 }

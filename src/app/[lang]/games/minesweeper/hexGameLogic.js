@@ -11,15 +11,19 @@ class HexMinesweeperGame {
     this.lastRevealedMine = null;
     this.autoFlag = false;
 
-    // 初始化游戏板
     this.initializeArrays();
   }
 
   initializeArrays() {
-    // 创建矩形网格
-    this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
-    this.revealed = Array(this.rows).fill().map(() => Array(this.cols).fill(false));
-    this.flagged = Array(this.rows).fill().map(() => Array(this.cols).fill(false));
+    this.board = Array(this.rows)
+      .fill()
+      .map(() => Array(this.cols).fill(0));
+    this.revealed = Array(this.rows)
+      .fill()
+      .map(() => Array(this.cols).fill(false));
+    this.flagged = Array(this.rows)
+      .fill()
+      .map(() => Array(this.cols).fill(false));
   }
 
   isValidCell(row, col) {
@@ -27,26 +31,22 @@ class HexMinesweeperGame {
   }
 
   getAdjacentCells(row, col) {
-    // 根据行的奇偶性确定相邻格子的位置
     const isEvenRow = row % 2 === 0;
     const directions = [
-      [-1, isEvenRow ? -1 : 0],  // 左上
-      [-1, isEvenRow ? 0 : 1],   // 右上
-      [0, -1],                   // 左
-      [0, 1],                    // 右
-      [1, isEvenRow ? -1 : 0],   // 左下
-      [1, isEvenRow ? 0 : 1]     // 右下
+      [-1, isEvenRow ? -1 : 0], // 左上
+      [-1, isEvenRow ? 0 : 1], // 右上
+      [0, -1], // 左
+      [0, 1], // 右
+      [1, isEvenRow ? -1 : 0], // 左下
+      [1, isEvenRow ? 0 : 1], // 右下
     ];
 
-    return directions
-      .map(([dr, dc]) => [row + dr, col + dc])
-      .filter(([r, c]) => this.isValidCell(r, c));
+    return directions.map(([dr, dc]) => [row + dr, col + dc]).filter(([r, c]) => this.isValidCell(r, c));
   }
 
   initializeBoard(firstClickRow, firstClickCol) {
     this.initializeArrays();
 
-    // 放置地雷
     let minesPlaced = 0;
     while (minesPlaced < this.mines) {
       const row = Math.floor(Math.random() * this.rows);
@@ -62,7 +62,6 @@ class HexMinesweeperGame {
       }
     }
 
-    // 计算每个单元格周围的地雷数
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
         if (this.isValidCell(row, col) && this.board[row][col] !== -1) {
@@ -137,9 +136,7 @@ class HexMinesweeperGame {
   }
 
   countAdjacentFlags(row, col) {
-    return this.getAdjacentCells(row, col)
-      .filter(([r, c]) => this.flagged[r][c])
-      .length;
+    return this.getAdjacentCells(row, col).filter(([r, c]) => this.flagged[r][c]).length;
   }
 
   handleDoubleClick(row, col) {
@@ -150,21 +147,18 @@ class HexMinesweeperGame {
 
     const flagCount = this.countAdjacentFlags(row, col);
     if (flagCount === cellValue) {
-      // 打开所有未标记和未揭示的相邻单元格
       this.getAdjacentCells(row, col).forEach(([r, c]) => {
         if (!this.flagged[r][c] && !this.revealed[r][c]) {
           this.reveal(r, c);
         }
       });
     } else {
-      // 设置需要显示按下效果的单元格
       this.pressedCells = this.getAdjacentUnrevealedCells(row, col);
     }
   }
 
   getAdjacentUnrevealedCells(row, col) {
-    return this.getAdjacentCells(row, col)
-      .filter(([r, c]) => !this.revealed[r][c] && !this.flagged[r][c]);
+    return this.getAdjacentCells(row, col).filter(([r, c]) => !this.revealed[r][c] && !this.flagged[r][c]);
   }
 
   clearPressedCells() {
@@ -173,9 +167,9 @@ class HexMinesweeperGame {
 
   static copyState(oldGame) {
     const newGame = new HexMinesweeperGame(oldGame.rows, oldGame.cols, oldGame.mines);
-    newGame.board = oldGame.board.map(row => [...row]);
-    newGame.revealed = oldGame.revealed.map(row => [...row]);
-    newGame.flagged = oldGame.flagged.map(row => [...row]);
+    newGame.board = oldGame.board.map((row) => [...row]);
+    newGame.revealed = oldGame.revealed.map((row) => [...row]);
+    newGame.flagged = oldGame.flagged.map((row) => [...row]);
     newGame.gameOver = oldGame.gameOver;
     newGame.won = oldGame.won;
     newGame.firstMove = oldGame.firstMove;

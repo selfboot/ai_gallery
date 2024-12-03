@@ -123,16 +123,10 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   const handleClick = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    
-    // 转换为相对于 canvas 的坐标
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // 考虑 canvas 的缩放比例
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
-    // 计算实际的 canvas 坐标
     const canvasX = x * scaleX;
     const canvasY = y * scaleY;
 
@@ -185,16 +179,10 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   const handleDoubleClick = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    
-    // 转换为相对于 canvas 的坐标
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // 考虑 canvas 的缩放比例
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
-    // 计算实际的 canvas 坐标
     const canvasX = x * scaleX;
     const canvasY = y * scaleY;
 
