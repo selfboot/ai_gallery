@@ -7,18 +7,12 @@ export class HexRenderer {
     this.padding = 40;
   }
 
-  // 计算整个蜂窝地图所需的尺寸
+  // Calculate the size of the grid
   calculateGridSize(rows, cols) {
-    // 计算六边形的宽度和高度
     const hexWidth = this.cellSize * Math.sqrt(3);
     const hexHeight = this.cellSize * 2;
-
-    // 计算总宽度和高度
-    // 宽度需要考虑错位，每列的间距是六边形宽度
-    const gridWidth = hexWidth * (cols + 0.5); // 加0.5是为了最后一列的偏移
-    // 高度需要考虑重叠，每行的间距是六边形高度的3/4
-    const gridHeight = hexHeight * (rows * 0.75 + 0.25);
-
+    const gridWidth = hexWidth * cols;
+    const gridHeight = hexHeight * (1 + (rows - 1) * 0.75);
     return {
       width: Math.ceil(gridWidth + this.padding * 2),
       height: Math.ceil(gridHeight + this.padding * 2),
@@ -54,16 +48,16 @@ export class HexRenderer {
     return points;
   }
 
-  // 计算六边形网格中的单元格中心位置
+  // Calculate the center coordinates of a cell in the hexagon grid
   calculateCellCenter(row, col) {
     const hexWidth = this.cellSize * Math.sqrt(3);
     const hexHeight = this.cellSize * 2;
 
-    // 计算基础位置
+    // Calculate the base position
     let x = this.padding + hexWidth * col;
     let y = this.padding + hexHeight * 0.75 * row;
 
-    // 奇数行需要向右偏移半个六边形宽度
+    // Odd rows need to shift right by half the hexagon width
     if (row % 2 === 1) {
       x += hexWidth / 2;
     }
@@ -76,42 +70,47 @@ export class HexRenderer {
     const hexHeight = this.cellSize * 2;
     const hexVerticalSpacing = hexHeight * 0.75;
   
+    // 移除padding得到相对坐标
     const x = px - this.padding;
     const y = py - this.padding;
   
+    // 粗略估计行列
     let row = Math.floor(y / hexVerticalSpacing);
-    let adjustedX = x;
-    if (row % 2 === 1) {
-      adjustedX -= hexWidth / 2;
-    }
-    let col = Math.floor(adjustedX / hexWidth);
+    let col = Math.floor(x / hexWidth);
   
-    const centerX = col * hexWidth + (row % 2 === 1 ? hexWidth / 2 : 0);
-    const centerY = row * hexVerticalSpacing;
-  
-    const dx = x - centerX;
-    const dy = y - centerY;
-  
-    const relativeX = Math.abs(dx) / (hexWidth / 2);
-    const relativeY = Math.abs(dy) / (hexHeight / 2);
-  
-    if (relativeY > 0.5 * (1 - relativeX)) {
-      if (dy < 0) {
-        row--;
-        if (dx > 0 && row % 2 === 1) col++;
-        if (dx < 0 && row % 2 === 0) col--;
-      } else {
-        row++;
-        if (dx > 0 && row % 2 === 1) col++;
-        if (dx < 0 && row % 2 === 0) col--;
+    // 找到周围可能的候选格子
+    const candidates = [];
+    
+    // 添加估计的格子及其相邻格子
+    for (let r = row - 1; r <= row + 1; r++) {
+      for (let c = col - 1; c <= col + 1; c++) {
+        if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+          const center = this.calculateCellCenter(r, c);
+          const dx = px - center.x;
+          const dy = py - center.y;
+          // 计算点到中心的距离
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          candidates.push({ row: r, col: c, distance });
+        }
       }
     }
   
-    // 确保行列在有效范围内
-    row = Math.max(0, Math.min(this.rows - 1, row));
-    col = Math.max(0, Math.min(this.cols - 1, col));
+    // 按距离排序
+    candidates.sort((a, b) => a.distance - b.distance);
   
-    return { row, col };
+    // 如果没有找到任何候选格子（这种情况不应该发生），返回最近的有效格子
+    if (candidates.length === 0) {
+      return { 
+        row: Math.max(0, Math.min(this.rows - 1, row)),
+        col: Math.max(0, Math.min(this.cols - 1, col))
+      };
+    }
+  
+    // 返回距离最近的格子
+    return {
+      row: candidates[0].row,
+      col: candidates[0].col
+    };
   }
 
   // 获取相邻位置
