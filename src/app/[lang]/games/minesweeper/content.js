@@ -156,14 +156,19 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   // Process right-click events
   const handleContextMenu = (e) => {
     e.preventDefault();
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const canvasX = x * scaleX;
+    const canvasY = y * scaleY;
+  
     if (isHexagonal) {
       const renderer = rendererRef.current;
       if (renderer && renderer.getHexCellFromPoint) {
-        const { row, col } = renderer.getHexCellFromPoint(x, y);
+        const { row, col } = renderer.getHexCellFromPoint(canvasX, canvasY);
         if (game.isValidCell?.(row, col)) {
           onCellRightClick(e, row, col);
         }
@@ -178,14 +183,26 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   };
 
   const handleDoubleClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    // 转换为相对于 canvas 的坐标
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    
+    // 考虑 canvas 的缩放比例
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    // 计算实际的 canvas 坐标
+    const canvasX = x * scaleX;
+    const canvasY = y * scaleY;
 
     if (isHexagonal) {
       const renderer = rendererRef.current;
-      if (renderer && renderer.getHexCellFromPoint) {
-        const { row, col } = renderer.getHexCellFromPoint(x, y);
+      if (renderer) {
+        const { row, col } = renderer.getHexCellFromPoint(canvasX, canvasY);
+        console.log("canvasX", canvasX, "canvasY", canvasY, "row", row, "col", col);
         if (game.isValidCell?.(row, col)) {
           onCellDoubleClick(row, col);
         }
@@ -514,19 +531,21 @@ export default function Minesweeper() {
   const handleSettingsChange = useCallback((newSettings, shouldReset) => {
     if ('autoFlag' in newSettings) {
       setSettings(prev => ({ ...prev, autoFlag: newSettings.autoFlag }));
-      const newGame = MinesweeperGame.copyState(game);
+      const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+      const newGame = GameClass.copyState(game);
       newGame.setAutoFlag(newSettings.autoFlag);
       setGame(newGame);
     } else {
       setSettings(prev => ({ ...prev, ...newSettings }));
       if (shouldReset) {
-        setGame(new MinesweeperGame(newSettings.rows, newSettings.cols, newSettings.mines));
+        const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+        setGame(new GameClass(newSettings.rows, newSettings.cols, newSettings.mines));
         setTime(0);
         setStartTime(null);
         setTimerActive(false);
       }
     }
-  }, [game]);
+  }, [game, isHexagonal]);
 
   const handleReset = useCallback(() => {
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
@@ -566,18 +585,20 @@ export default function Minesweeper() {
 
   const handleCellClick = (row, col) => {
     if (game.gameOver) return;
-
+  
     if (!timerActive) {
       setTimerActive(true);
       setStartTime(Date.now());
     }
-
-    const newGame = MinesweeperGame.copyState(game);
+  
+    const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = GameClass.copyState(game);
     newGame.reveal(row, col);
     setGame(newGame);
   };
 
   const handleCellRightClick = (e, row, col) => {
+    console.log("handleCellRightClick", row, col);
     e.preventDefault();
     if (game.gameOver) return;
 
@@ -585,7 +606,8 @@ export default function Minesweeper() {
       setTimerActive(true);
     }
 
-    const newGame = MinesweeperGame.copyState(game);
+    const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = GameClass.copyState(game);
     newGame.toggleFlag(row, col);
     setGame(newGame);
   };
@@ -598,28 +620,30 @@ export default function Minesweeper() {
         setTimerActive(true);
       }
 
-      const newGame = MinesweeperGame.copyState(game);
+      const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+      const newGame = GameClass.copyState(game);
       newGame.handleDoubleClick(row, col);
       setGame(newGame);
 
       // If there is a pressed effect, set a timer to clear it
       if (newGame.pressedCells.length > 0) {
         setTimeout(() => {
-          const clearedGame = MinesweeperGame.copyState(newGame);
+          const clearedGame = GameClass.copyState(newGame);
           clearedGame.clearPressedCells();
           setGame(clearedGame);
         }, 300);
       }
     },
-    [game, timerActive]
+    [game, timerActive, isHexagonal]
   );
 
   const handleContinue = useCallback(() => {
-    const newGame = MinesweeperGame.copyState(game);
+    const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = GameClass.copyState(game);
     if (newGame.continueGame()) {
       setGame(newGame);
     }
-  }, [game]);
+  }, [game, isHexagonal]);
 
   const handleHexagonalChange = (checked) => {
     setIsHexagonal(checked);
