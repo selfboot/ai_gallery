@@ -4,7 +4,7 @@ export class HexRenderer {
     this.ctx = canvas.getContext("2d");
     this.theme = theme;
     this.cellSize = 30;
-    this.padding = 40;
+    this.padding = 35;
   }
 
   // Calculate the size of the grid
@@ -14,8 +14,8 @@ export class HexRenderer {
     const gridWidth = hexWidth * cols;
     const gridHeight = hexHeight * (1 + (rows - 1) * 0.75);
     return {
-      width: Math.ceil(gridWidth + this.padding * 2),
-      height: Math.ceil(gridHeight + this.padding * 2),
+      width: Math.ceil(gridWidth + this.padding),
+      height: Math.ceil(gridHeight + this.padding),
     };
   }
 
