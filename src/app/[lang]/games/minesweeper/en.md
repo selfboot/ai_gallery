@@ -24,6 +24,15 @@ At the top of the Minesweeper window on this page, you'll see a status bar conta
 
 **The right side of the status bar features another LED-style display as a timer**, starting from your first click and counting seconds. The timer maxes out at 999 seconds, a design that both satisfies most players' timing needs and provides a challenge for speed runners.
 
+This Minesweeper game offers two game modes:
+
+- **Classic Mode**: Traditional square grid minesweeper, identical to the one bundled with Windows. Each square is adjacent to eight neighboring squares (horizontally, vertically, and diagonally).
+- **Hexagonal Mode**: An innovative hexagonal grid minesweeper where each cell is a regular hexagon adjacent to six neighboring cells. This mode offers a fresh gaming experience, requiring players to adapt to new spatial relationships for logical deduction.
+
+You can switch between these two modes in the game settings at any time. The game will restart immediately after switching. Both modes support the same difficulty settings and control mechanisms.
+
+![Minesweeper Hexagonal Mode](https://slefboot-1251736664.file.myqcloud.com/20241204_ai_gallery_minesweeper_hexdemo.png)
+
 This Minesweeper game offers four difficulty levels, suitable for players of different skill levels:
 
 - Easy mode is perfect for beginners. The game area is 9×9 squares with 10 mines. At this difficulty, the mine density is relatively low, giving players plenty of room for thinking and practice.
@@ -38,3 +47,5 @@ This Minesweeper implementation provides three basic operations:
 1. **Left-clicking is the most basic operation**. When you left-click an unrevealed square, it gets revealed. If it's safe, it shows a number or blank; if it's a mine, the game ends. **When you click a blank square (with no mines in its 8 surrounding squares), the game automatically reveals the surrounding safe area**.
 2. **Right-clicking is used to flag mines**. When you deduce that a square contains a mine, you can right-click to place a flag on it. Right-clicking again removes the flag. While flagging doesn't directly affect gameplay, it helps you track identified mine locations and prevent accidental clicks. The number of flags affects the remaining mine count displayed in the top left.
 3. Double-clicking is an advanced operation that can greatly improve gameplay efficiency. When you double-click on a revealed number, if the number of flagged mines around it equals that number, the game automatically reveals all unflagged surrounding squares. This operation lets you reveal multiple squares you're confident are safe at once. However, **if your flagging was incorrect, you might trigger multiple mines at once**, so use this feature carefully.
+
+If you have any new suggestions for Minesweeper gameplay, feel free to leave a comment～
