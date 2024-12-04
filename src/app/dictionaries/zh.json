@@ -491,6 +491,9 @@
   "mines_count": "地雷数",
   "apply_changes": "应用设置",
   "auto_flag_mines": "自动标记地雷",
+  "game_mode": "游戏模式",
+  "classic_mode": "经典模式",
+  "hexagonal_mode": "蜂窝模式",
 
   "maze_title": "在线各种类型迷宫生成和路径查找", 
   "maze_description": "在线迷宫生成，支持生成方形、圆形、三角形、蜂窝形的迷宫地图。跟随鼠标移动查找迷宫路径，可以提示最优路径，下载迷宫等。",

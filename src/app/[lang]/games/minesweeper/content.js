@@ -291,8 +291,17 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
     'custom': t('custom')
   };
 
+  const modeToTranslation = {
+    'classic': t('classic_mode'),
+    'hexagonal': t('hexagonal_mode')
+  };
+
   const translationToLevel = Object.fromEntries(
     Object.entries(levelToTranslation).map(([k, v]) => [v, k])
+  );
+
+  const translationToMode = Object.fromEntries(
+    Object.entries(modeToTranslation).map(([k, v]) => [v, k])
   );
 
   const [selectedLevel, setSelectedLevel] = useState(() => {
@@ -313,10 +322,24 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
     }
   };
 
+  const handleModeChange = (translatedValue) => {
+    const mode = translationToMode[translatedValue];
+    onHexagonalChange(mode === 'hexagonal');
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-xl font-bold">{t('settings')}</h2>
       <div className="space-y-3">
+        <div>
+          <label className="block mb-1">{t('game_mode')}</label>
+          <CustomListbox
+            value={modeToTranslation[isHexagonal ? 'hexagonal' : 'classic']}
+            onChange={handleModeChange}
+            options={Object.values(modeToTranslation)}
+          />
+        </div>
+
         <div>
           <label className="block mb-1">{t('difficulty')}</label>
           <CustomListbox
@@ -325,6 +348,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             options={Object.values(levelToTranslation)}
           />
         </div>
+
         {translationToLevel[selectedLevel] === "custom" && (
           <>
             <div>
@@ -411,18 +435,6 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
               className="mr-2"
             />
             <span>{t('auto_flag_mines')}</span>
-          </label>
-        </div>
-
-        <div className="mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={isHexagonal}
-              onChange={(e) => onHexagonalChange(e.target.checked)}
-              className="mr-2"
-            />
-            <span>{t('hexagonal_grid')}</span>
           </label>
         </div>
       </div>
