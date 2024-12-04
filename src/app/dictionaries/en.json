@@ -488,6 +488,9 @@
   "game_mode": "Game Mode",
   "classic_mode": "Classic",
   "hexagonal_mode": "Hexagonal",
+  "completion_time": "Completion time: {{time}}",
+  "victory": "Victory!",
+  "minesweeper_fail": "Oh no! You hit a mine.\nBut you can click \"Continue Game\" to continue playing!",
 
   "maze_title": "Online Various Types of Maze Generation and Pathfinding", 
   "maze_description": "Online maze generation, supports generating maze maps of square, circular, triangular, and hexagonal shapes. Follow the mouse to find the maze path, and can get the optimal path, download the maze, etc.",

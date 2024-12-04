@@ -8,6 +8,7 @@ import LEDDigit from './LEDDigit';
 import { useI18n } from "@/app/i18n/client";
 import { HexRenderer } from "./HexRenderer";
 import HexMinesweeperGame from './hexGameLogic';
+import Modal from "@/app/components/Modal";
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -473,7 +474,7 @@ export default function Minesweeper() {
     rows: 9,
     cols: 9,
     mines: 10,
-    autoFlag: false
+    autoFlag: false,
   });
   const [game, setGame] = useState(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
   const [startTime, setStartTime] = useState(null);
@@ -482,6 +483,12 @@ export default function Minesweeper() {
   const emojiCanvasRef = useRef(null);
   const emojiRendererRef = useRef(null);
   const [isHexagonal, setIsHexagonal] = useState(false);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    message: "",
+    title: "",
+  });
+  const { t } = useI18n();
 
   // Add emoji rendering logic
   useLayoutEffect(() => {
@@ -528,24 +535,27 @@ export default function Minesweeper() {
     };
   }, [handleMouseDown, handleMouseUp]);
 
-  const handleSettingsChange = useCallback((newSettings, shouldReset) => {
-    if ('autoFlag' in newSettings) {
-      setSettings(prev => ({ ...prev, autoFlag: newSettings.autoFlag }));
-      const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
-      const newGame = GameClass.copyState(game);
-      newGame.setAutoFlag(newSettings.autoFlag);
-      setGame(newGame);
-    } else {
-      setSettings(prev => ({ ...prev, ...newSettings }));
-      if (shouldReset) {
+  const handleSettingsChange = useCallback(
+    (newSettings, shouldReset) => {
+      if ("autoFlag" in newSettings) {
+        setSettings((prev) => ({ ...prev, autoFlag: newSettings.autoFlag }));
         const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
-        setGame(new GameClass(newSettings.rows, newSettings.cols, newSettings.mines));
-        setTime(0);
-        setStartTime(null);
-        setTimerActive(false);
+        const newGame = GameClass.copyState(game);
+        newGame.setAutoFlag(newSettings.autoFlag);
+        setGame(newGame);
+      } else {
+        setSettings((prev) => ({ ...prev, ...newSettings }));
+        if (shouldReset) {
+          const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+          setGame(new GameClass(newSettings.rows, newSettings.cols, newSettings.mines));
+          setTime(0);
+          setStartTime(null);
+          setTimerActive(false);
+        }
       }
-    }
-  }, [game, isHexagonal]);
+    },
+    [game, isHexagonal]
+  );
 
   const handleReset = useCallback(() => {
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
@@ -585,12 +595,12 @@ export default function Minesweeper() {
 
   const handleCellClick = (row, col) => {
     if (game.gameOver) return;
-  
+
     if (!timerActive) {
       setTimerActive(true);
       setStartTime(Date.now());
     }
-  
+
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
     const newGame = GameClass.copyState(game);
     newGame.reveal(row, col);
@@ -656,6 +666,53 @@ export default function Minesweeper() {
     setTimerActive(false);
   };
 
+  useEffect(() => {
+    if (game.gameOver) {
+      setTimerActive(false);
+      if (game.won && !modalState.isOpen) {
+        setModalState({
+          isOpen: true,
+          message: `${t("congratulations")}\n${t("completion_time", { time: formatTime(time) })}`,
+          title: t("victory"),
+        });
+
+        if (window.umami) {
+          window.umami.track("Minesweeper Succ", {
+            time: time,
+            mode: isHexagonal ? "hexagonal" : "classic",
+          });
+        }
+      } else if (!game.won && !modalState.isOpen) {
+        setModalState({
+          isOpen: true,
+          message: t("minesweeper_fail"),
+          title: t("game_over"),
+        });
+
+        if (window.umami) {
+          window.umami.track("Minesweeper Lose", {
+            time: time,
+            mode: isHexagonal ? "hexagonal" : "classic",
+          });
+        }
+      }
+    }
+  }, [game.gameOver, game.won, time, t, isHexagonal]);
+
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      message: "",
+      title: "",
+    });
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
@@ -685,6 +742,10 @@ export default function Minesweeper() {
           onHexagonalChange={handleHexagonalChange}
         />
       </div>
+
+      <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.title}>
+        {modalState.message}
+      </Modal>
     </div>
   );
 }
