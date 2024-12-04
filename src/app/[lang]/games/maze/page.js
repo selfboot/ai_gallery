@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
       description: dict.seo.maze.description,
       keywords: dict.seo.maze.keywords,
       publishedDate: "2024-12-01T12:00:00.000Z",
-      updatedDate: "2024-12-01T12:00:00.000Z",
+      updatedDate: "2024-12-04T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/maze`,

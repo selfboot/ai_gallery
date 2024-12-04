@@ -144,6 +144,13 @@ const MazeGame = () => {
             setMaze(newMaze);
             setShowingSolution(false);
             setPlayState(null);
+            if (window.umami) {
+              window.umami.track("Maze Generated", {
+                shape: settings.shape,
+                algorithm: settings.algorithm,
+                seed: currentSeed,
+              });
+            }
           }
         } catch (error) {
           console.error("Error generating maze:", error);
@@ -323,6 +330,14 @@ const MazeGame = () => {
       cellsPerSecond: Math.round(cellsPerSecond)
     }));
     setModalOpen(true);
+
+    if (window.umami) {
+      window.umami.track("Maze Path Completed", {
+        time,
+        visitedCells,
+        optimalPathLength
+      });
+    }
   };
 
   const padNum = (num) => (num < 10 ? `0${num}` : num);
@@ -469,7 +484,15 @@ const MazeGame = () => {
       downloadLink.href = blobAsUrl;
       downloadLink.download = name;
       downloadLink.click();
-      URL.revokeObjectURL(blobAsUrl); // 清理 URL
+      URL.revokeObjectURL(blobAsUrl);
+    }
+
+    if (window.umami) {
+      window.umami.track("Maze Downloaded", {
+        shape: settings.shape,
+        width: settings.width,
+        seed: currentSeed,
+      });
     }
 
     const SVG_SIZE = 500;
