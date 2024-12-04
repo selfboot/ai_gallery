@@ -1,11 +1,11 @@
 const Projects = {
   games: [
     {
-      id: "gomoku",
-      title: "gomoku_title",
-      description: "gomoku_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_gomoku_small.png",
-      link: "/games/gomoku",
+      id: "minesweeper",
+      title: "minesweeper_title",
+      description: "minesweeper_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241201_ai_gallery_minesweeper_small.png",
+      link: "/games/minesweeper",
     },
     {
       id: "sliding",
@@ -36,11 +36,11 @@ const Projects = {
       link: "/games/maze",
     },
     {
-      id: "minesweeper",
-      title: "minesweeper_title",
-      description: "minesweeper_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241201_ai_gallery_minesweeper_small.png",
-      link: "/games/minesweeper",
+      id: "gomoku",
+      title: "gomoku_title",
+      description: "gomoku_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_gomoku_small.png",
+      link: "/games/gomoku",
     },
     {
       id: "tetris",
