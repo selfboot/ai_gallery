@@ -45,7 +45,10 @@ This page supports multiple maze shapes for generation. First is the square maze
 
 If you want to try different visual effects, you can choose the hexagonal maze, inspired by honeycomb structures, offering more diverse path connections and a fresh puzzle-solving experience. Finally, there's the circular maze, formed by concentric circles, whose unique layout requires different movement strategies during exploration.
 
+![Maze generator: various maze shapes](https://slefboot-1251736664.file.myqcloud.com/20241205_ai_gallery_maze_alltype.png)
+
 ### Exit Configuration
+
 In the maze game, exit configuration can significantly impact game difficulty and experience. First is the "Hardest Path" option, which **automatically selects the two farthest points in the maze as entrance and exit, providing the maximum challenge for players who enjoy extreme challenges**.
 
 If you prefer traditional maze layouts, you can choose the "Horizontal Exit" configuration, which places the entrance and exit on the left and right sides of the maze, offering relatively straightforward paths. There's also the "Vertical Exit" configuration, placing the entrance and exit at the top and bottom of the maze, providing a different puzzle-solving experience.

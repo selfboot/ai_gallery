@@ -49,3 +49,50 @@ You can see that the distances to both B and E have been updated. B's distance w
 You can continue to the next step, observing the search process here, watching how the distance numbers and searched vertices change. The final result is as follows:
 
 ![Dijkstra Algorithm Final Result](https://slefboot-1251736664.file.myqcloud.com/20241122_ai_gallery_dijkstra_step_final_en.png)
+
+## Proof of Dijkstra's Algorithm Correctness
+
+We'll use mathematical induction and proof by contradiction to prove the correctness of Dijkstra's algorithm. **At step k of the algorithm, for each vertex v in the visited set T, the distance dist[v] equals the global shortest path length short[v] from the source.**
+
+The inductive proof proceeds as follows:
+
+**1. Base Case**: When k = 1, T only contains the source vertex s, dist[s] = short[s] = 0, so the proposition holds for k = 1.
+
+**2. Inductive Hypothesis**: Assume the proposition holds at step k, meaning all dist values for vertices in T are the shortest path lengths.
+
+**3. Inductive Step**: Prove the proposition holds for step k+1:
+
+- Let v be the vertex selected at step k+1 (v has the minimum dist value among unvisited vertices); v is connected to some vertex u in set T
+- Need to prove: dist[v] = short[v]
+
+Using proof by contradiction:
+
+- Assume there exists a path P from source s to v with length short[v], where short[v] < dist[v]
+- Since source s is in set T and vertex v is not, **path P must pass through at least one vertex in set T (besides the source)**. This is because any distance from s to vertices not in T must be calculated and updated through vertices in T
+- Let last be the final vertex in set T along path P, followed by vertex y in the unvisited set to reach v. Let's analyze path P's length:
+
+```
+  short[v] = dist[last] + distance[last,y] + distance[y,v]  // Length of path P
+           ≥ dist[y] + distance[y,v]                        // By dist[y] update rule
+           ≥ dist[v]      
+```
+
+To understand the above derivation, two key points are essential:
+
+1. By the inductive hypothesis, dist[last] is the shortest distance to last; for vertex y, by Dijkstra's update rule: dist[y] ≤ dist[last] + distance[last,y]
+2. Since algorithm chose v as the minimum distance vertex at step k+1, we have dist[v] ≤ dist[y] + distance[y,v]
+
+Thus, we've **derived short[v] >= dist[v]**, which contradicts our assumption short[v] < dist[v]. Therefore, the assumption is false, and dist[v] is indeed the shortest path length from source to v. This proves that the algorithm correctly determines the shortest path length for each selected vertex.
+
+## Dijkstra's Algorithm Requires Non-negative Weights
+
+Finally, it's worth noting that **Dijkstra's algorithm requires all edge weights in the graph to be non-negative**. This is because:
+
+1. If negative weight edges exist, the greedy strategy may fail
+2. After determining a vertex's shortest path, a shorter path might be found through negative weight edges, violating the algorithm's basic assumption: confirmed shortest paths won't be updated
+
+For example, in the graph below, there's a negative weight edge CE with weight -13. The actual shortest path to E is -1 (shown by red arrows), but the algorithm calculates it as 10:
+
+![Dijkstra's Algorithm with Negative Weight](https://slefboot-1251736664.file.myqcloud.com/20241205_ai_gallery_dijkstra_negative_weight.png)
+
+For graphs with negative weight edges, other algorithms (such as the Bellman-Ford algorithm) must be used to solve the shortest path problem.
