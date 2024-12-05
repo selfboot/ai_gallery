@@ -1,13 +1,19 @@
+import { THEMES } from './themes';
+
 class CanvasRenderer {
   constructor(canvas, theme = "classic") {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.theme = theme;
-    this.cellSize = 24; // Default size
+    this.setTheme(theme);
+    this.cellSize = 24;
     this.borderSize = 3;
     this.innerBorder = 2;
     this.rows = 0;
     this.cols = 0;
+  }
+
+  setTheme(themeName) {
+    this.theme = THEMES[themeName] || THEMES.classic;
   }
 
   // Set cell size
@@ -51,37 +57,37 @@ class CanvasRenderer {
   // Draw unrevealed cell
   drawUnrevealedCell(x, y, size) {
     // Draw cell background
-    this.ctx.fillStyle = "#C0C0C0";
+    this.ctx.fillStyle = this.theme.cellBackground;
     this.ctx.fillRect(x, y, size, size);
 
     const borderWidth = Math.max(1, Math.floor(size * 0.1));
 
-    // Left and top bright border (white)
+    // Left and top bright border
     this.ctx.beginPath();
     this.ctx.moveTo(x + size - borderWidth, y + borderWidth);
     this.ctx.lineTo(x + borderWidth, y + borderWidth);
     this.ctx.lineTo(x + borderWidth, y + size - borderWidth);
     this.ctx.lineWidth = borderWidth;
-    this.ctx.strokeStyle = "#FFFFFF";
+    this.ctx.strokeStyle = this.theme.borderBright;
     this.ctx.stroke();
 
-    // Right and bottom dark border (gray)
+    // Right and bottom dark border
     this.ctx.beginPath();
     this.ctx.moveTo(x + borderWidth, y + size - borderWidth);
     this.ctx.lineTo(x + size - borderWidth, y + size - borderWidth);
     this.ctx.lineTo(x + size - borderWidth, y + borderWidth);
     this.ctx.lineWidth = borderWidth;
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.stroke();
 
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x, y, size, size);
   }
 
   drawPressedCell(x, y, size) {
     // Draw base background
-    this.ctx.fillStyle = "#C0C0C0";
+    this.ctx.fillStyle = this.theme.cellBackground;
     this.ctx.fillRect(x, y, size, size);
 
     const borderWidth = Math.max(1, Math.floor(size * 0.1));
@@ -92,7 +98,7 @@ class CanvasRenderer {
     this.ctx.lineTo(x + size - borderWidth, y + size - borderWidth);
     this.ctx.lineTo(x + borderWidth, y + size - borderWidth);
     this.ctx.lineWidth = borderWidth;
-    this.ctx.strokeStyle = "#FFFFFF";
+    this.ctx.strokeStyle = this.theme.borderBright;
     this.ctx.stroke();
 
     // Left and top borders use dark color (opposite to the unpressed state)
@@ -101,27 +107,27 @@ class CanvasRenderer {
     this.ctx.lineTo(x + borderWidth, y + borderWidth);
     this.ctx.lineTo(x + size - borderWidth, y + borderWidth);
     this.ctx.lineWidth = borderWidth;
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.stroke();
 
     // Outer border
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x, y, size, size);
   }
 
   // Draw revealed cell
   drawRevealedCell(x, y, size, value, exploded) {
-    this.ctx.fillStyle = "#C0C0C0";
+    this.ctx.fillStyle = this.theme.revealedBackground;
     this.ctx.fillRect(x, y, size, size);
 
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x, y, size, size);
 
     if (value === -1) {
       if (exploded) {
-        this.ctx.fillStyle = "#FF0000";
+        this.ctx.fillStyle = this.theme.explodedBackground;
         this.ctx.fillRect(x, y, size, size);
       }
       this.drawMine(x, y, size);
@@ -132,8 +138,7 @@ class CanvasRenderer {
 
   // Draw number
   drawNumber(x, y, size, value) {
-    const colors = ["", "#0000FF", "#008000", "#FF0000", "#000080", "#800000", "#008080", "#000000", "#808080"];
-    this.ctx.fillStyle = colors[value];
+    this.ctx.fillStyle = this.theme.numberColors[value];
     this.ctx.font = `bold ${Math.floor(size * 0.7)}px Arial`;
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
@@ -146,7 +151,7 @@ class CanvasRenderer {
     const centerY = y + size / 2;
     const mineSize = size * 0.6;
 
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = this.theme.mineColor;
 
     // Draw center circle
     const radius = mineSize / 3;
@@ -170,7 +175,7 @@ class CanvasRenderer {
     // Increase spike width
     const spikeWidth = Math.max(2, size * 0.1);
     this.ctx.lineWidth = spikeWidth;
-    this.ctx.strokeStyle = "#000000";
+    this.ctx.strokeStyle = this.theme.mineColor;
 
     directions.forEach(([dx, dy]) => {
       this.ctx.beginPath();
@@ -197,11 +202,11 @@ class CanvasRenderer {
     const flagSize = size / 2;
 
     // Flag pole
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = this.theme.borderDark;
     this.ctx.fillRect(flagX + flagSize / 3, flagY, 2, flagSize);
 
     // Flag
-    this.ctx.fillStyle = "#FF0000";
+    this.ctx.fillStyle = this.theme.flagColor;
     this.ctx.beginPath();
     this.ctx.moveTo(flagX + flagSize / 3, flagY);
     this.ctx.lineTo(flagX + flagSize, flagY + flagSize / 3);

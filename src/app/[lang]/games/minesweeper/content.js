@@ -18,7 +18,7 @@ const DIFFICULTY_LEVELS = {
   custom: "custom",
 };
 
-const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time, isHexagonal = false }) => {
+const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time, isHexagonal = false, theme }) => {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const containerRef = useRef(null);
@@ -92,8 +92,8 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     canvas.height = canvasHeight;
 
     rendererRef.current = isHexagonal 
-      ? new HexRenderer(canvas, "classic")
-      : new CanvasRenderer(canvas, "classic");
+      ? new HexRenderer(canvas, theme)
+      : new CanvasRenderer(canvas, theme);
 
     const renderer = rendererRef.current;
     renderer.setCellSize(cellSize);
@@ -120,7 +120,39 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
         }
       }
     }
-  }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal]);
+  }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal, theme]);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    const renderer = rendererRef.current;
+    if (renderer) {
+      renderer.setTheme(theme);
+      console.log("theme", theme);
+      // 重新渲染所有格子
+      for (let row = 0; row < game.rows; row++) {
+        for (let col = 0; col < game.cols; col++) {
+          if (!isHexagonal || game.isValidCell?.(row, col)) {
+            const isPressed = game.pressedCells.some(
+              ([r, c]) => r === row && c === col
+            );
+            
+            renderer.drawCell(
+              row,
+              col,
+              {
+                revealed: game.revealed[row][col],
+                flagged: game.flagged[row][col],
+                exploded: game.gameOver && game.board[row][col] === -1 && game.revealed[row][col],
+                pressed: isPressed,
+              },
+              game.board[row][col]
+            );
+          }
+        }
+      }
+    }
+  }, [theme, game]);
 
   const handleClick = (e) => {
     const canvas = canvasRef.current;
@@ -282,7 +314,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   );
 };
 
-const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange }) => {
+const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange, theme, setTheme }) => {
   const { t } = useI18n();
   
   const levelToTranslation = {
@@ -331,6 +363,12 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
     const mode = translationToMode[translatedValue];
     onHexagonalChange(mode === 'hexagonal');
   };
+
+  const themes = [
+    { value: 'classic', label: t('theme_classic') },
+    { value: 'dark', label: t('theme_dark') },
+    { value: 'pastel', label: t('theme_pastel') }
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -442,6 +480,15 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             <span>{t('auto_flag_mines')}</span>
           </label>
         </div>
+
+        <div>
+          <label className="block mb-1">{t('theme')}</label>
+          <CustomListbox
+            value={theme}
+            onChange={(value) => setTheme(value)}
+            options={themes.map(t => t.label)}
+          />
+        </div>
       </div>
     </div>
   );
@@ -502,6 +549,11 @@ export default function Minesweeper() {
   });
   const { t } = useI18n();
   const [flagMode, setFlagMode] = useState(false);
+  const [theme, setTheme] = usePersistentState(
+    "minesweeper-theme",
+    "classic",
+    365 * 24 * 60 * 60 * 1000
+  );
 
   useEffect(() => {
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
@@ -522,7 +574,7 @@ export default function Minesweeper() {
     if (!canvas) return;
 
     if (!emojiRendererRef.current) {
-      emojiRendererRef.current = new CanvasRenderer(canvas, "classic");
+      emojiRendererRef.current = new CanvasRenderer(canvas, theme);
     }
 
     const renderer = emojiRendererRef.current;
@@ -533,7 +585,7 @@ export default function Minesweeper() {
     }
 
     renderer.drawEmoji(0, 0, 40, emojiState);
-  }, [game.gameOver, game.won]);
+  }, [game.gameOver, game.won, theme]);
 
   const handleMouseDown = useCallback(() => {
     const canvas = emojiCanvasRef.current;
@@ -779,6 +831,7 @@ export default function Minesweeper() {
           <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
             <GameBoard
               game={game}
+              theme={theme}
               onCellClick={handleCellClick}
               onCellRightClick={handleCellRightClick}
               onCellDoubleClick={handleCellDoubleClick}
@@ -799,6 +852,8 @@ export default function Minesweeper() {
           canContinue={game.gameOver && !game.won && game.lastRevealedMine !== null}
           isHexagonal={isHexagonal}
           onHexagonalChange={handleHexagonalChange}
+          theme={theme}
+          setTheme={setTheme}
         />
       </div>
 
