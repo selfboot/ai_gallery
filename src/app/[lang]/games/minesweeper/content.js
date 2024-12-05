@@ -514,7 +514,13 @@ export default function Minesweeper() {
       newGame.setAutoFlag(settings.autoFlag);
       setGame(newGame);
     }
-  }, [settings, isHexagonal]);
+  }, [settings?.rows, settings?.cols, settings?.mines, isHexagonal]);
+
+  useEffect(() => {
+    if (game && settings) {
+      game.setAutoFlag(settings.autoFlag);
+    }
+  }, [settings?.autoFlag]);
 
   // Add emoji rendering logic
   useLayoutEffect(() => {
