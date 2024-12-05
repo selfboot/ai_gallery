@@ -192,7 +192,6 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
       const renderer = rendererRef.current;
       if (renderer) {
         const { row, col } = renderer.getHexCellFromPoint(canvasX, canvasY);
-        console.log("canvasX", canvasX, "canvasY", canvasY, "row", row, "col", col);
         if (game.isValidCell?.(row, col)) {
           onCellDoubleClick(row, col);
         }
@@ -305,16 +304,29 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
   const translationToMode = Object.fromEntries(
     Object.entries(modeToTranslation).map(([k, v]) => [v, k])
   );
+ 
+  const [selectedLevel, setSelectedLevel, clearSelectedLevel, isInitialized] = usePersistentState(
+    "minesweeper-difficulty",
+    () => {
+      const currentSettings = `${settings.rows},${settings.cols},${settings.mines}`;
+      const matchedLevel = Object.entries(DIFFICULTY_LEVELS).find(([key, config]) => {
+        if (key === "custom") return false;
+        return `${config.rows},${config.cols},${config.mines}` === currentSettings;
+      });
+      const level = matchedLevel ? matchedLevel[0] : "custom";
+      return levelToTranslation[level];
+    },
+    365 * 24 * 60 * 60 * 1000
+  );
 
-  const [selectedLevel, setSelectedLevel] = useState(() => {
-    const currentSettings = `${settings.rows},${settings.cols},${settings.mines}`;
-    const matchedLevel = Object.entries(DIFFICULTY_LEVELS).find(([key, config]) => {
-      if (key === "custom") return false;
-      return `${config.rows},${config.cols},${config.mines}` === currentSettings;
-    });
-    const level = matchedLevel ? matchedLevel[0] : "custom";
-    return levelToTranslation[level];
-  });
+  useEffect(() => {
+    if (isInitialized) {
+      const level = translationToLevel[selectedLevel];
+      if (level !== "custom" && DIFFICULTY_LEVELS[level]) {
+        onSettingsChange(DIFFICULTY_LEVELS[level], true);
+      }
+    }
+  }, [isInitialized]);
 
   const handleLevelChange = (translatedValue) => {
     const level = translationToLevel[translatedValue];
@@ -481,19 +493,28 @@ export default function Minesweeper() {
     },
     365 * 24 * 60 * 60 * 1000
   );
+  const [isHexagonal, setIsHexagonal] = usePersistentState("minesweeper-isHexagonal", false, 365 * 24 * 60 * 60 * 1000);
   const [game, setGame] = useState(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
   const [startTime, setStartTime] = useState(null);
   const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const emojiCanvasRef = useRef(null);
   const emojiRendererRef = useRef(null);
-  const [isHexagonal, setIsHexagonal] = usePersistentState("minesweeper-isHexagonal", false, 365 * 24 * 60 * 60 * 1000);
   const [modalState, setModalState] = useState({
     isOpen: false,
     message: "",
     title: "",
   });
   const { t } = useI18n();
+
+  useEffect(() => {
+    if (settings) {
+      const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+      const newGame = new GameClass(settings.rows, settings.cols, settings.mines);
+      newGame.setAutoFlag(settings.autoFlag);
+      setGame(newGame);
+    }
+  }, [settings, isHexagonal]);
 
   // Add emoji rendering logic
   useLayoutEffect(() => {
@@ -613,7 +634,6 @@ export default function Minesweeper() {
   };
 
   const handleCellRightClick = (e, row, col) => {
-    console.log("handleCellRightClick", row, col);
     e.preventDefault();
     if (game.gameOver) return;
 

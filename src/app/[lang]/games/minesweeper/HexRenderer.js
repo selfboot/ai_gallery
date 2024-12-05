@@ -258,7 +258,7 @@ export class HexRenderer {
     ];
 
     this.ctx.fillStyle = colors[value] || "#000000";
-    this.ctx.font = `bold ${this.cellSize * 0.5}px Arial`;
+    this.ctx.font = `bold ${this.cellSize * 0.8}px Arial`;
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
     this.ctx.fillText(value.toString(), x, y);

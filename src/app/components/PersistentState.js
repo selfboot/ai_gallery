@@ -10,6 +10,7 @@ const usePersistentState = (key, defaultValue, expirationTime = 24 * 60 * 60 * 1
         const savedItem = localStorage.getItem(key);
         if (savedItem) {
           const { value, timestamp } = JSON.parse(savedItem);
+          console.log(`Loaded value for ${key}:`, value); 
           if (Date.now() - timestamp < expirationTime) {
             setState(value);
           } else {
