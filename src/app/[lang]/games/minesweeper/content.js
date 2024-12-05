@@ -9,6 +9,7 @@ import { useI18n } from "@/app/i18n/client";
 import { HexRenderer } from "./HexRenderer";
 import HexMinesweeperGame from './hexGameLogic';
 import Modal from "@/app/components/Modal";
+import usePersistentState from '@/app/components/PersistentState';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -470,19 +471,23 @@ const LEDDisplay = ({ value, width = 90, height = 44 }) => (
 );
 
 export default function Minesweeper() {
-  const [settings, setSettings] = useState({
-    rows: 9,
-    cols: 9,
-    mines: 10,
-    autoFlag: false,
-  });
+  const [settings, setSettings] = usePersistentState(
+    "minesweeper-settings",
+    {
+      rows: 9,
+      cols: 9,
+      mines: 10,
+      autoFlag: false,
+    },
+    365 * 24 * 60 * 60 * 1000
+  );
   const [game, setGame] = useState(new MinesweeperGame(settings.rows, settings.cols, settings.mines));
   const [startTime, setStartTime] = useState(null);
   const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const emojiCanvasRef = useRef(null);
   const emojiRendererRef = useRef(null);
-  const [isHexagonal, setIsHexagonal] = useState(false);
+  const [isHexagonal, setIsHexagonal] = usePersistentState("minesweeper-isHexagonal", false, 365 * 24 * 60 * 60 * 1000);
   const [modalState, setModalState] = useState({
     isOpen: false,
     message: "",

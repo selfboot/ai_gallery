@@ -42,11 +42,13 @@ import Modal from "@/app/components/Modal";
 
 import { useI18n } from "@/app/i18n/client";
 import { drawingSurfaces } from "./lib/drawingSurfaces";
+import usePersistentState from '@/app/components/PersistentState';
+
 const MazeGame = () => {
   const { t } = useI18n();
   const canvasRef = useRef(null);
   const [currentSeed, setCurrentSeed] = useState("");
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = usePersistentState('maze-settings', {
     shape: SHAPE_SQUARE,
     algorithm: ALGORITHM_RECURSIVE_BACKTRACK,
     width: 10,
@@ -54,7 +56,7 @@ const MazeGame = () => {
     layers: 7,
     exitConfig: EXITS_HORIZONTAL,
     seed: "",
-  });
+  }, 31 * 24 * 60 * 60 * 1000);
   const [maze, setMaze] = useState(null);
   const [windowSize, setWindowSize] = useState({
     width: 0,

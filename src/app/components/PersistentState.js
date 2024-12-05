@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const usePersistentState = (key, defaultValue, expirationTime = 10 * 60 * 1000) => {
+const usePersistentState = (key, defaultValue, expirationTime = 24 * 60 * 60 * 1000) => {
   const [state, setState] = useState(defaultValue);
   const [isInitialized, setIsInitialized] = useState(false);
 
