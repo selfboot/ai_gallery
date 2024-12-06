@@ -506,6 +506,7 @@ export default function Minesweeper() {
     title: "",
   });
   const { t } = useI18n();
+  const [flagMode, setFlagMode] = useState(false);
 
   useEffect(() => {
     if (settings) {
@@ -635,7 +636,11 @@ export default function Minesweeper() {
 
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
     const newGame = GameClass.copyState(game);
-    newGame.reveal(row, col);
+    if (flagMode) {
+      newGame.toggleFlag(row, col);
+    } else {
+      newGame.reveal(row, col);
+    }
     setGame(newGame);
   };
 
@@ -747,6 +752,29 @@ export default function Minesweeper() {
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
+        {timerActive && (
+          <div className="flex justify-center mb-4">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={flagMode}
+                onChange={() => setFlagMode(!flagMode)}
+                className="sr-only peer"
+              />
+              <div
+                className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer 
+                            peer-checked:after:translate-x-full peer-checked:after:border-white 
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                            after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all 
+                            peer-checked:bg-red-500"
+              ></div>
+              <span className="ml-2 flex items-center gap-1">
+                {flagMode ? "🚩" : "👆"}
+                <span className="text-sm">{t(flagMode ? "flag_mode" : "dig_mode")}</span>
+              </span>
+            </label>
+          </div>
+        )}
         <div className="flex flex-col items-center min-w-fit">
           <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
             <GameBoard

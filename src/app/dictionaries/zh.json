@@ -497,6 +497,8 @@
   "victory": "胜利提醒",
   "completion_time": "完成用时：{{time}}",
   "minesweeper_fail": "啊！扫到雷了\n不过你可以点击“继续本局”接着玩～",
+  "flag_mode": "标记模式",
+  "dig_mode": "挖掘模式",
 
   "maze_title": "在线各种类型迷宫生成和路径查找", 
   "maze_description": "在线迷宫生成，支持生成方形、圆形、三角形、蜂窝形的迷宫地图。跟随鼠标移动查找迷宫路径，可以提示最优路径，下载迷宫等。",
