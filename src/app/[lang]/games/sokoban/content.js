@@ -74,11 +74,6 @@ const SokobanGame = ({ lang, levels }) => {
   const handleLevelChange = useCallback((levelIndex) => {
     setCurrentLevel(levelIndex);
     updateLevelURL(levelIndex);
-    if (window.umami) {
-      window.umami.track("Sokoban Change Level", {
-        level: levelIndex + 1,
-      });
-    }
   }, [updateLevelURL]);
 
   const initializeEditMap = useCallback(() => {

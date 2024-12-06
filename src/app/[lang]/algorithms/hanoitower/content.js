@@ -84,11 +84,6 @@ const HanoiTower = () => {
       setMessage(
         t("hintMessage", { from: String.fromCharCode(65 + move.from), to: String.fromCharCode(65 + move.to) })
       );
-      if (window.umami) {
-        window.umami.track("Hanoi Tower GetHint", {
-          disks: disks,
-        });
-      }
     } else {
       setHintMove(null);
       setMessage(t("noHintAvailable"));

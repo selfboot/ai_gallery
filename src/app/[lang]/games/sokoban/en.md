@@ -16,6 +16,8 @@ This page offers multiple convenient control options suitable for different devi
 
 For mobile phone or tablet users, the game provides virtual direction buttons at the bottom of the screen. Touch response is sensitive, ensuring smooth character control.
 
+Additionally, you can click on map elements with the mouse to move the player. If the player is next to a box, you can click on the box to select it, then click on the box's destination to move the player and push it to that location. Currently, only supports pushing boxes in one direction, and does not support turning corners. Of course, if there is no available path to reach the target location, mouse movement will not work either.
+
 **The game also includes helper functions to enhance the gaming experience**. When you make a wrong move, you can click the "Undo" button to return to the previous state, allowing you to boldly try different solving approaches. If you find your current path completely blocked or want to replan your route, you can click the "**Restart**" button at any time to reset the current level and start fresh.
 
 ## Game Tips and Strategies
