@@ -307,30 +307,21 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
  
   const [selectedLevel, setSelectedLevel, clearSelectedLevel, isInitialized] = usePersistentState(
     "minesweeper-difficulty",
-    () => {
-      const currentSettings = `${settings.rows},${settings.cols},${settings.mines}`;
-      const matchedLevel = Object.entries(DIFFICULTY_LEVELS).find(([key, config]) => {
-        if (key === "custom") return false;
-        return `${config.rows},${config.cols},${config.mines}` === currentSettings;
-      });
-      const level = matchedLevel ? matchedLevel[0] : "custom";
-      return levelToTranslation[level];
-    },
+    'easy',
     365 * 24 * 60 * 60 * 1000
   );
 
   useEffect(() => {
-    if (isInitialized) {
-      const level = translationToLevel[selectedLevel];
-      if (level !== "custom" && DIFFICULTY_LEVELS[level]) {
-        onSettingsChange(DIFFICULTY_LEVELS[level], true);
-      }
+    if (isInitialized && selectedLevel !== "custom" && DIFFICULTY_LEVELS[selectedLevel]) {
+      onSettingsChange(DIFFICULTY_LEVELS[selectedLevel], true);
     }
-  }, [isInitialized]);
+  }, [selectedLevel, isInitialized]);
+
+  const displayLevel = levelToTranslation[selectedLevel] || levelToTranslation.custom;
 
   const handleLevelChange = (translatedValue) => {
     const level = translationToLevel[translatedValue];
-    setSelectedLevel(translatedValue);
+    setSelectedLevel(level);
     if (level !== "custom") {
       onSettingsChange(DIFFICULTY_LEVELS[level], true);
     }
@@ -357,7 +348,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
         <div>
           <label className="block mb-1">{t('difficulty')}</label>
           <CustomListbox
-            value={selectedLevel}
+            value={displayLevel}
             onChange={handleLevelChange}
             options={Object.values(levelToTranslation)}
           />
@@ -482,6 +473,10 @@ const LEDDisplay = ({ value, width = 90, height = 44 }) => (
   </div>
 );
 
+export const __TEST_HOOKS__ = {
+  getGameInstance: null
+};
+
 export default function Minesweeper() {
   const [settings, setSettings] = usePersistentState(
     "minesweeper-settings",
@@ -509,12 +504,10 @@ export default function Minesweeper() {
   const [flagMode, setFlagMode] = useState(false);
 
   useEffect(() => {
-    if (settings) {
-      const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
-      const newGame = new GameClass(settings.rows, settings.cols, settings.mines);
-      newGame.setAutoFlag(settings.autoFlag);
-      setGame(newGame);
-    }
+    const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
+    const newGame = new GameClass(settings.rows, settings.cols, settings.mines);
+    newGame.setAutoFlag(settings.autoFlag);
+    setGame(newGame);
   }, [settings?.rows, settings?.cols, settings?.mines, isHexagonal]);
 
   useEffect(() => {
@@ -748,6 +741,13 @@ export default function Minesweeper() {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
+
+  // 在开发环境下暴露游戏实例
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'test') {
+      __TEST_HOOKS__.getGameInstance = () => game;
+    }
+  }, [game]);
 
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">

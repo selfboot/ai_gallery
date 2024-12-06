@@ -62,6 +62,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
     "jest": "^29.7.0",
+    "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6"
