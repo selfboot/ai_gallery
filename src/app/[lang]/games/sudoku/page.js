@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
       description: dict.seo.sudoku.description,
       keywords: dict.seo.sudoku.keywords,
       publishedDate: "2024-10-11T02:00:00.000Z",
-      updatedDate: "2024-11-19T09:00:00.000Z",
+      updatedDate: "2024-12-07T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/sudoku`,

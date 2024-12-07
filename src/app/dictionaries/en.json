@@ -363,8 +363,8 @@
   "ChartsIndexTableIntro": "Intro",
   "ChartsIndexTableDataSource": "Data Source",
 
-  "sudoku_title": "Sudoku",
-  "sudoku_description": "Classic Sudoku game, free to play online. Generate random Sudoku puzzles, choose difficulty levels, and enjoy undo and hint features. Come and play!",
+  "sudoku_title": "Free Online Sudoku Game",
+  "sudoku_description": "A classic Sudoku game that can be played online for free. It can generate random Sudoku questions, support the difficulty of selecting the question, support undo operation and prompt function.",
 
   "easy": "Easy",
   "medium": "Medium",
