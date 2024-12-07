@@ -339,12 +339,12 @@ const SudokuGame = () => {
         <div className="overflow-x-auto w-full relative flex justify-center">
           <div className="inline-block min-w-max">
             <div className="mb-4">{renderBoard()}</div>
-            <div className="grid grid-cols-9 gap-1">
+            <div className="grid grid-cols-9 gap-1 items-center">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button
                   key={num}
                   onClick={() => handleNumberInput(num)}
-                  className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base md:text-lg font-bold"
+                  className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base md:text-lg font-bold"
                 >
                   {num}
                 </button>
