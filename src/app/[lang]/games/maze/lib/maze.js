@@ -256,11 +256,14 @@ function getDistanceColour(distance, maxDistance) {
 
 export function buildSquareGrid(config) {
     "use strict";
+    grid.coordsFromPixels = (pixelX, pixelY) => {
+        return [Math.floor(pixelX), Math.floor(pixelY)];
+    };
     const {drawingSurface: defaultDrawingSurface} = config,
         grid = buildBaseGrid(config);
 
     defaultDrawingSurface.on(EVENT_CLICK, event => {
-        const coords = [Math.floor(event.x), Math.floor(event.y)];
+        const coords = grid.coordsFromPixels(event.x, event.y);
         if (grid.getCellByCoordinates(coords)) {
             eventTarget.trigger(EVENT_CLICK, {
                 coords,
@@ -470,35 +473,33 @@ export function buildTriangularGrid(config) {
         grid = buildBaseGrid(config),
         verticalAltitude = Math.sin(Math.PI/3);
 
-    defaultDrawingSurface.on(EVENT_CLICK, event => {
-        function getXCoord(event) {
-            const xDivision = 2 * event.x,
-                y = getYCoord(event);
+    grid.coordsFromPixels = (pixelX, pixelY) => {
+        function getXCoord(x, y) {
+            const xDivision = 2 * x;
+            const yCoord = Math.floor(y / verticalAltitude);
 
-            if ((Math.floor(xDivision) + y) % 2) {
-                const tx = 1 - (xDivision % 1),
-                    ty = (event.y / verticalAltitude) % 1;
-                if (tx > ty) {
-                    return Math.floor(xDivision) - 1;
-                } else {
-                    return Math.floor(xDivision);
-                }
+            if ((Math.floor(xDivision) + yCoord) % 2) {
+                const tx = 1 - (xDivision % 1);
+                const ty = (y / verticalAltitude) % 1;
+                return tx > ty ? Math.floor(xDivision) - 1 : Math.floor(xDivision);
             } else {
-                const tx = xDivision % 1,
-                    ty = (event.y / verticalAltitude) % 1;
-                if (tx > ty) {
-                    return Math.floor(xDivision);
-                } else {
-                    return Math.floor(xDivision) - 1;
-                }
+                const tx = xDivision % 1;
+                const ty = (y / verticalAltitude) % 1;
+                return tx > ty ? Math.floor(xDivision) : Math.floor(xDivision) - 1;
             }
         }
-        function getYCoord(event) {
-            return Math.floor(event.y / verticalAltitude);
+
+        function getYCoord(y) {
+            return Math.floor(y / verticalAltitude);
         }
-        const x = getXCoord(event),
-            y = getYCoord(event),
-            coords = [x,y];
+
+        const x = getXCoord(pixelX, pixelY);
+        const y = getYCoord(pixelY);
+        return [x, y];
+    };
+
+    defaultDrawingSurface.on(EVENT_CLICK, event => {
+        const coords = grid.coordsFromPixels(event.x, event.y);
 
         if (grid.getCellByCoordinates(coords)) {
             eventTarget.trigger(EVENT_CLICK, {
@@ -798,38 +799,42 @@ export function buildHexagonalGrid(config) {
         yOffset3 = 2,
         xOffset = Math.sin(Math.PI / 3);
 
-    defaultDrawingSurface.on(EVENT_CLICK, event => {
-        const ty = (event.y / (2 - yOffset1)) % 1;
+    grid.coordsFromPixels = (pixelX, pixelY) => {
+        const ty = (pixelY / (2 - yOffset1)) % 1;
         let x,y;
-        const row = Math.floor(event.y / (2 - yOffset1)),
+        const row = Math.floor(pixelY / (2 - yOffset1)),
             xRowBasedAdjustment = (row % 2) * xOffset;
 
         if (ty <= yOffset1) {
             // in zig-zag region
-            const tx = Math.abs(xOffset - ((event.x - xRowBasedAdjustment) % (2 * xOffset))),
+            const tx = Math.abs(xOffset - ((pixelX - xRowBasedAdjustment) % (2 * xOffset))),
                 tty = ty * (2 - yOffset1),
                 isAboveLine = tx/tty > Math.tan(Math.PI/3);
             let xYBasedAdjustment, yAdjustment;
             if (isAboveLine) {
                 if (xRowBasedAdjustment) {
-                    xYBasedAdjustment = (event.x - xRowBasedAdjustment) % (2 * xOffset) > xOffset ? 1 : 0;
+                    xYBasedAdjustment = (pixelX - xRowBasedAdjustment) % (2 * xOffset) > xOffset ? 1 : 0;
                 } else {
-                    xYBasedAdjustment = event.x % (2 * xOffset) > xOffset ? 0 : -1;
+                    xYBasedAdjustment = pixelX % (2 * xOffset) > xOffset ? 0 : -1;
                 }
                 yAdjustment = -1;
             } else {
                 xYBasedAdjustment = 0;
                 yAdjustment = 0;
             }
-            x = Math.floor((event.x - xRowBasedAdjustment) / (2 * xOffset)) + xYBasedAdjustment;
+            x = Math.floor((pixelX - xRowBasedAdjustment) / (2 * xOffset)) + xYBasedAdjustment;
             y = row + yAdjustment;
         } else {
             // in rectangular region
-            x = Math.floor((event.x - xRowBasedAdjustment) / (2 * xOffset));
+            x = Math.floor((pixelX - xRowBasedAdjustment) / (2 * xOffset));
             y = row;
         }
-        const coords = [x, y];
+        const coords = [x, y]; 
+        return coords;
+    };
 
+    defaultDrawingSurface.on(EVENT_CLICK, event => {
+        const coords = grid.coordsFromPixels(event.x, event.y);
         if (grid.getCellByCoordinates(coords)) {
             eventTarget.trigger(EVENT_CLICK, {
                 coords,
@@ -1085,17 +1090,24 @@ export function buildCircularGrid(config) {
     const cx = grid.metadata.layers,
         cy = grid.metadata.layers;
 
-    defaultDrawingSurface.on(EVENT_CLICK, event => {
-        const xDistance = event.x - cx,
-            yDistance = event.y - cy,
-            distanceFromCenter = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2)),
-            layer = Math.floor(distanceFromCenter),
-            cellsInThisLayer = cellCounts[layer],
-            anglePerCell = Math.PI * 2 / cellsInThisLayer,
-            angle = (Math.atan2(yDistance, xDistance) + 2.5 * Math.PI) % (Math.PI * 2),
-            cell = Math.floor(angle / anglePerCell),
-            coords = [layer, cell];
+    grid.coordsFromPixels = (pixelX, pixelY) => {
+        const xDistance = pixelX - cx;
+        const yDistance = pixelY - cy;
+        const distanceFromCenter = Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+        const layer = Math.floor(distanceFromCenter);
 
+        if (layer < grid.metadata.layers) {
+            const cellsInThisLayer = cellCounts[layer];
+            const anglePerCell = Math.PI * 2 / cellsInThisLayer;
+            const angle = (Math.atan2(yDistance, xDistance) + 2.5 * Math.PI) % (Math.PI * 2);
+            const cell = Math.floor(angle / anglePerCell);
+            return [layer, cell];
+        }
+        return null;
+    };
+
+    defaultDrawingSurface.on(EVENT_CLICK, event => {
+        const coords = grid.coordsFromPixels(event.x, event.y);
         if (grid.getCellByCoordinates(coords)) {
             eventTarget.trigger(EVENT_CLICK, {
                 coords,

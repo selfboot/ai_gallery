@@ -66,8 +66,6 @@ const MazeGame = () => {
   const [playState, setPlayState] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
-  const [lastMoveTime, setLastMoveTime] = useState(0);
-  const MOVE_DELAY = 200;
   const [elapsedTime, setElapsedTime] = useState(0);
   const timerRef = useRef(null);
   const [showingDistances, setShowingDistances] = useState(false);
@@ -374,33 +372,32 @@ const MazeGame = () => {
       return;
     }
 
-    const now = Date.now();
-    if (now - lastMoveTime < MOVE_DELAY) {
-      return;
-    }
-
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    const drawingSurface = maze.metadata.drawingSurface;
+    const { x, y } = drawingSurface.convertMouseCoords(offsetX, offsetY);
 
-    const clickEvent = {
-      rawCoords: [x, y]
-    };
+    const cellCoords = maze.coordsFromPixels(x, y);
+    if (!cellCoords) return;
+    const targetCell = maze.getCellByCoordinates(cellCoords);
+    if (targetCell &&
+      targetCell !== playState.currentCell &&
+      Object.values(playState.currentCell.neighbours).includes(targetCell) &&
+      playState.currentCell.isLinkedTo(targetCell)) {
 
-    const direction = maze.getClosestDirectionForClick(playState.currentCell, clickEvent);
+      const direction = Object.entries(playState.currentCell.neighbours)
+        .find(([dir, cell]) => cell === targetCell)?.[0];
 
-    if (direction &&
-      playState.currentCell.neighbours[direction] &&
-      playState.currentCell.isLinkedTo(playState.currentCell.neighbours[direction])) {
-      maze.forEachCell(cell => {
-        delete cell.metadata[METADATA_PLAYER_CURRENT];
-      });
-
-      navigate(direction, false, false);
-      maze.render();
-      setLastMoveTime(now);
+      if (direction) {
+        maze.forEachCell(cell => {
+          delete cell.metadata[METADATA_PLAYER_CURRENT];
+        });
+        navigate(direction, false, false);
+        maze.render();
+      }
     }
-  }, [playState, maze, lastMoveTime, navigate]);
+  }, [playState, maze, navigate]);
 
   useEffect(() => {
     if (playState && maze) {

@@ -109,6 +109,12 @@ export const drawingSurfaces = {
             dispose() {
                 eventTarget.off();
                 el.removeEventListener(EVENT_CLICK, onClick);
+            },
+            convertMouseCoords(offsetX, offsetY) {
+                return {
+                    x: invXCoord(offsetX),
+                    y: invYCoord(offsetY)
+                };
             }
         };
     },
@@ -244,6 +250,12 @@ export const drawingSurfaces = {
             },
             dispose() {
                 eventTarget.off();
+            },
+            convertMouseCoords(offsetX, offsetY) {
+                return {
+                    x: invXCoord(offsetX),
+                    y: invYCoord(offsetY)
+                };
             }
         };
     }
