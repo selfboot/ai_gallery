@@ -494,8 +494,8 @@
   "flag_mode": "Flag Mode",
   "dig_mode": "Dig Mode",
 
-  "maze_title": "Online Various Types of Maze Generation and Pathfinding", 
-  "maze_description": "Online maze generation, supports generating maze maps of square, circular, triangular, and hexagonal shapes. Follow the mouse to find the maze path, and can get the optimal path, download the maze, etc.",
+  "maze_title": "Free Online Maze Game and Maze Generation", 
+  "maze_description": "Free Online maze game and maze generation, supports generating maze maps of square, circular, triangular, and hexagonal shapes. Follow the mouse to find the maze path, and can get the optimal path, download the maze, etc.",
 
   "maze_completion": "Congratulations on finding the exit!\nCompletion time: {{time}}\nVisited cells: {{visitedCells}}\nOptimal path length: {{optimalPathLength}}\nOptimal rate: {{optimality}}%\nCells per second: {{cellsPerSecond}}",
   "maze_shape": "Shape",
