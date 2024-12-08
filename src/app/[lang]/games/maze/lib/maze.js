@@ -256,12 +256,11 @@ function getDistanceColour(distance, maxDistance) {
 
 export function buildSquareGrid(config) {
     "use strict";
+    const { drawingSurface: defaultDrawingSurface } = config,
+        grid = buildBaseGrid(config);
     grid.coordsFromPixels = (pixelX, pixelY) => {
         return [Math.floor(pixelX), Math.floor(pixelY)];
     };
-    const {drawingSurface: defaultDrawingSurface} = config,
-        grid = buildBaseGrid(config);
-
     defaultDrawingSurface.on(EVENT_CLICK, event => {
         const coords = grid.coordsFromPixels(event.x, event.y);
         if (grid.getCellByCoordinates(coords)) {
