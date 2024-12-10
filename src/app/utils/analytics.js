@@ -18,11 +18,18 @@ export const trackEvent = (category, eventName, params = {}, options = { umami: 
 
 export const CATEGORIES = {
   Minesweeper: "minesweeper",
+  Maze: "maze",
 };
 
 export const EVENTS = {
   Minesweeper: {
     Success: "success",
     Fail: "fail",
+  },
+  Maze: {
+    Success: "success",
+    Generated: "generated",
+    PathCompleted: "path_completed",
+    Downloaded: "downloaded",
   },
 };
