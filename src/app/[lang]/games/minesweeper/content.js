@@ -10,6 +10,7 @@ import { HexRenderer } from "./HexRenderer";
 import HexMinesweeperGame from './hexGameLogic';
 import Modal from "@/app/components/Modal";
 import usePersistentState from '@/app/components/PersistentState';
+import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -757,12 +758,15 @@ export default function Minesweeper() {
           title: t("victory"),
         });
 
-        if (window.umami) {
-          window.umami.track("Minesweeper Succ", {
+        trackEvent(
+          CATEGORIES.Minesweeper,
+          EVENTS.Minesweeper.Success,
+          {
             time: time,
             mode: isHexagonal ? "hexagonal" : "classic",
-          });
-        }
+          },
+          { umami: true }
+        );
       } else if (!game.won && !modalState.isOpen) {
         setModalState({
           isOpen: true,
@@ -770,12 +774,10 @@ export default function Minesweeper() {
           title: t("game_over"),
         });
 
-        if (window.umami) {
-          window.umami.track("Minesweeper Lose", {
-            time: time,
-            mode: isHexagonal ? "hexagonal" : "classic",
-          });
-        }
+        trackEvent(CATEGORIES.Minesweeper, EVENTS.Minesweeper.Fail, {
+          time: time,
+          mode: isHexagonal ? "hexagonal" : "classic",
+        });
       }
     }
   }, [game.gameOver, game.won, time, t, isHexagonal]);
