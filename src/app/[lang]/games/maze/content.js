@@ -43,6 +43,7 @@ import Modal from "@/app/components/Modal";
 import { useI18n } from "@/app/i18n/client";
 import { drawingSurfaces } from "./lib/drawingSurfaces";
 import usePersistentState from '@/app/components/PersistentState';
+import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
 
 const MazeGame = () => {
   const { t } = useI18n();
@@ -144,13 +145,11 @@ const MazeGame = () => {
             setMaze(newMaze);
             setShowingSolution(false);
             setPlayState(null);
-            if (window.umami) {
-              window.umami.track("Maze Generated", {
-                shape: settings.shape,
-                algorithm: settings.algorithm,
-                seed: currentSeed,
-              });
-            }
+            trackEvent(CATEGORIES.Maze, EVENTS.Maze.Generated, {
+              shape: settings.shape,
+              algorithm: settings.algorithm,
+              seed: currentSeed,
+            });
           }
         } catch (error) {
           console.error("Error generating maze:", error);
@@ -331,13 +330,11 @@ const MazeGame = () => {
     }));
     setModalOpen(true);
 
-    if (window.umami) {
-      window.umami.track("Maze Path Completed", {
-        time,
-        visitedCells,
-        optimalPathLength
-      });
-    }
+    trackEvent(CATEGORIES.Maze, EVENTS.Maze.PathCompleted, {
+      time,
+      visitedCells,
+      optimalPathLength,
+    });
   };
 
   const padNum = (num) => (num < 10 ? `0${num}` : num);
@@ -486,13 +483,11 @@ const MazeGame = () => {
       URL.revokeObjectURL(blobAsUrl);
     }
 
-    if (window.umami) {
-      window.umami.track("Maze Downloaded", {
-        shape: settings.shape,
-        width: settings.width,
-        seed: currentSeed,
-      });
-    }
+    trackEvent(CATEGORIES.Maze, EVENTS.Maze.Downloaded, {
+      shape: settings.shape,
+      width: settings.width,
+      seed: currentSeed,
+    });
 
     const SVG_SIZE = 500;
     const elSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
