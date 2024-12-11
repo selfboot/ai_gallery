@@ -11,6 +11,7 @@ import HexMinesweeperGame from './hexGameLogic';
 import Modal from "@/app/components/Modal";
 import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
+import { THEMES } from './themes';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -254,11 +255,12 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     >
       {/* Status bar */}
       <div
-        className="flex justify-between items-center mb-2 bg-[#C0C0C0] "
+        className="flex justify-between items-center mb-2"
         style={{
           height: `${statusBarHeight}px`,
           width: `${totalWidth}px`,
           paddingBottom: `${statusBarBottomPadding}px`,
+          backgroundColor: THEMES[theme].outerBackground,
         }}
       >
         <LEDDisplay value={game.minesLeft} />
@@ -275,11 +277,11 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
           style={{
             width: `${statusLEDHeight}px`,
             height: `${statusLEDHeight}px`,
-            backgroundColor: '#C0C0C0',
+            backgroundColor: THEMES[theme].outerBackground,
             border: '3px solid',
             borderColor: isFacePressed
-              ? '#808080 #ffffff #ffffff #808080'
-              : '#ffffff #808080 #808080 #ffffff',
+              ? THEMES[theme].borderDark + ' ' + THEMES[theme].borderBright + ' ' + THEMES[theme].borderBright + ' ' + THEMES[theme].borderDark
+              : THEMES[theme].borderBright + ' ' + THEMES[theme].borderDark + ' ' + THEMES[theme].borderDark + ' ' + THEMES[theme].borderBright,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -831,7 +833,13 @@ export default function Minesweeper() {
           </div>
         )}
         <div className="flex flex-col items-center min-w-fit">
-          <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
+          <div
+            className="p-6 border-t-4 border-l-4 border-r-4 border-b-4"
+            style={{
+              backgroundColor: THEMES[theme].outerBackground,
+              borderColor: `${THEMES[theme].borderBright} ${THEMES[theme].borderDark} ${THEMES[theme].borderDark} ${THEMES[theme].borderBright}`,
+            }}
+          >
             <GameBoard
               game={game}
               theme={theme}
