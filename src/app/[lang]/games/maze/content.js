@@ -620,11 +620,27 @@ const MazeSettings = ({
       ...prev,
       [key]: value,
     }));
+
+    if (key === 'algorithm') {
+      trackEvent(CATEGORIES.Maze, EVENTS.Maze.AlgorithmChanged, {
+        algorithm: value
+      });
+    }
+    else if (key === 'shape') {
+      trackEvent(CATEGORIES.Maze, EVENTS.Maze.ShapeChanged, {
+        shape: value
+      });
+    }
   };
 
   const handleSeedChange = (value) => {
     if (value === "" || /^\d+$/.test(value)) {
       handleChange("seed", value);
+      if (value) {
+        trackEvent(CATEGORIES.Maze, EVENTS.Maze.SeedEntered, {
+          seed: value
+        });
+      }
     }
   };
 
@@ -734,7 +750,12 @@ const MazeSettings = ({
           id="showGenerationProcess"
           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
           checked={showGenerationProcess}
-          onChange={(e) => setShowGenerationProcess(e.target.checked)}
+          onChange={(e) => {
+            setShowGenerationProcess(e.target.checked);
+            trackEvent(CATEGORIES.Maze, EVENTS.Maze.ShowGenerationProcess, {
+              enabled: e.target.checked
+            });
+          }}
           disabled={isGenerating}
         />
         <label
@@ -770,7 +791,15 @@ const MazeSettings = ({
         </button>
 
         <button
-          onClick={isPlaying ? onStop : onPlay}
+          onClick={() => {
+            if (isPlaying) {
+              onStop();
+              trackEvent(CATEGORIES.Maze, EVENTS.Maze.GameStopped);
+            } else {
+              onPlay();
+              trackEvent(CATEGORIES.Maze, EVENTS.Maze.GameStarted);
+            }
+          }}
           className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           {isPlaying ? t("stop_game") : t("start_game")}
