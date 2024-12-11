@@ -1,9 +1,22 @@
 export const trackEvent = (category, eventName, params = {}, options = { umami: false }) => {
+  const reportEventName = `${category}:${eventName}`;
+  const isLocalhost = typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+  // In local environment, only log to console
+  if (isLocalhost) {
+    console.log("[Analytics Event]", {
+      name: reportEventName,
+      ...params,
+      timestamp: new Date().toISOString(),
+    });
+    return;
+  }
+
   // GA4 report
   if (typeof gtag !== "undefined") {
-    gtag("event", eventName, {
-      event_category: category,
-      event_name: eventName,
+    gtag("event", reportEventName, {
+      event_name: reportEventName,
       ...params,
       timestamp: new Date().toISOString(),
     });
@@ -11,8 +24,7 @@ export const trackEvent = (category, eventName, params = {}, options = { umami: 
 
   // Umami report
   if (options.umami && typeof window !== "undefined" && window.umami) {
-    const umamiEventName = `${category}:${eventName}`;
-    window.umami.track(umamiEventName, params);
+    window.umami.track(reportEventName, params);
   }
 };
 
@@ -27,9 +39,14 @@ export const EVENTS = {
     Fail: "fail",
   },
   Maze: {
-    Success: "success",
     Generated: "generated",
-    PathCompleted: "path_completed",
+    PathCompleted: "pathcompleted",
     Downloaded: "downloaded",
+    AlgorithmChanged: 'algorithm_changed',
+    ShapeChanged: 'shape_changed',
+    SeedEntered: 'seed_entered',
+    ShowGenerationProcess: 'generation_process_toggled',
+    GameStarted: 'game_started',
+    GameStopped: 'game_stopped',
   },
 };
