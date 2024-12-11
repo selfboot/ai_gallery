@@ -7,7 +7,7 @@ import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-
+import { trackEvent, CATEGORIES, EVENTS } from "@/app/utils/analytics";
 const STORAGE_KEY = 'sokoban-progress';
 
 const SokobanGame = ({ lang, levels }) => {
@@ -156,11 +156,9 @@ const SokobanGame = ({ lang, levels }) => {
     setGameInstance(new SokobanLogic(0, [customMap]));
     setGameState(new SokobanLogic(0, [customMap]).getState());
 
-    if (window.umami) {
-      window.umami.track("Sokoban Save Custom Map", {
-        mapHash: mapHash,
-      });
-    }
+    trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.SaveCustomMap, {
+      mapHash: mapHash,
+    });
   };
 
   useEffect(() => {
@@ -493,19 +491,17 @@ const SokobanGame = ({ lang, levels }) => {
   useEffect(() => {
     if (gameState.isWon) {
       saveProgress(currentLevel, gameState.moves);
+      trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.Success, {
+        level: currentLevel + 1,
+        moves: gameState.moves,
+      }, { umami: true });
+
       setModalMessage(
         t("sokoban_succmsg", {
           moves: gameState.moves,
         })
       );
       setShowModal(true);
-
-      if (window.umami) {
-        window.umami.track("Sokoban Game Succ", {
-          level: currentLevel + 1,
-          moves: gameState.moves,
-        });
-      }
     }
   }, [gameState.isWon]);
 
@@ -755,7 +751,13 @@ const SokobanGame = ({ lang, levels }) => {
         <div className="flex flex-col gap-2">
           {!isEditMode && <button
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            onClick={resetGame}
+            onClick={() => {
+              trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.Restart, {
+                level: currentLevel + 1,
+                moves: gameState.moves
+              });
+              resetGame();
+            }}
           >
             <RotateCcw size={16} />
             {t("restart_game")}
@@ -770,7 +772,15 @@ const SokobanGame = ({ lang, levels }) => {
                   ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
             `}
-              onClick={handleUndo}
+              onClick={() => {
+                if (canUndo()) {
+                  trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.Undo, {
+                    level: currentLevel + 1,
+                    moves: gameState.moves
+                  });
+                  handleUndo();
+                }
+              }}
               disabled={!canUndo()}
             >
               <ArrowLeft size={16} />
@@ -782,6 +792,7 @@ const SokobanGame = ({ lang, levels }) => {
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
             onClick={() => {
               if (!isEditMode) {
+                trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.EnterEditMode);
                 if (gameState.map.length > 0) {
                   setEditConfig(prev => ({
                     ...prev,
@@ -792,6 +803,8 @@ const SokobanGame = ({ lang, levels }) => {
                 } else {
                   initializeEditMap();
                 }
+              } else {
+                trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.ExitEditMode);
               }
               setIsEditMode(!isEditMode);
             }}

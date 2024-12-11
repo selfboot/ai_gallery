@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Listbox, ListboxOptions, ListboxOption, ListboxButton } from "@headlessui/react";
+import { CustomListbox } from "@/app/components/ListBox";
 import { useI18n } from "@/app/i18n/client";
+import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
 
 const DISK_COLORS = [
   "#FF6B6B",
@@ -123,6 +124,10 @@ const HanoiTower = () => {
         } else {
           setIsPlaying(false);
           setMessage(t("gameCompleted"));
+          trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Success, {
+            disks: disks,
+            mode: "auto",
+          });
         }
       }, speed);
 
@@ -162,8 +167,8 @@ const HanoiTower = () => {
       });
       setTotalMoves((prev) => prev + 1);
 
-      if (window.umami && totalMoves === 50) {
-        window.umami.track("Hanoi Tower Move50", {
+      if (totalMoves === 50) {
+        trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Move50, {
           disks: disks,
         });
       }
@@ -173,15 +178,19 @@ const HanoiTower = () => {
 
       // Check if the game is completed
       if (towers[2].length === disks - 1 && toTower === 2) {
-        if (window.umami) {
-          window.umami.track("Hanoi Tower Succ", {
-            moves: totalMoves,
-            disks: disks,
-          });
-        }
+        trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Success, {
+          moves: totalMoves,
+          disks: disks,
+          mode: "manual",
+        });
+
         setMessage(t("gameCompleted"));
       }
     } else {
+      trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Fail, {
+        moves: totalMoves,
+        disks: disks,
+      });
       setMessage(t("moveFailure"));
     }
   };
@@ -190,12 +199,10 @@ const HanoiTower = () => {
     if (mode !== "manual") return;
 
     if (selectedTower === null) {
-      // 如果没有选中的塔,选择这个塔
       if (towers[towerIndex].length > 0) {
         setSelectedTower(towerIndex);
       }
     } else {
-      // 如果已经有选中的塔,尝试移动
       const fromTower = selectedTower;
       const toTower = towerIndex;
       const diskSize = towers[fromTower][towers[fromTower].length - 1];
@@ -212,11 +219,19 @@ const HanoiTower = () => {
           setMessage(t("moveSuccess"));
           setHintMove(null);
 
-          // 检查游戏是否完成
           if (towers[2].length === disks - 1 && toTower === 2) {
             setMessage(t("gameCompleted"));
+            trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Success, {
+              moves: totalMoves,
+              disks: disks,
+              mode: "manual",
+            });
           }
         } else {
+          trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.Fail, {
+            moves: totalMoves,
+            disks: disks,
+          });
           setMessage(t("moveFailure"));
         }
       }
@@ -280,37 +295,18 @@ const HanoiTower = () => {
         <h2 className="text-2xl font-bold">{t("settings")}</h2>
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700">{t("numberOfDisks")}</label>
-          <Listbox value={disks} onChange={setDisks} disabled={isPlaying}>
-            <ListboxButton className="relative w-full py-2 pl-3 pr-10 text-left border border-gray-300 rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-indigo-500 sm:text-sm">
-              {disks}
-            </ListboxButton>
-            <ListboxOptions className="absolute z-10 w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {diskOptions.map((num) => (
-                <ListboxOption
-                  key={num}
-                  className={({ active }) =>
-                    `${active ? "text-amber-900 bg-amber-100" : "text-gray-900"}
-                    cursor-default select-none relative py-2 pl-10 pr-4`
-                  }
-                  value={num}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span className={`${selected ? "font-medium" : "font-normal"} block truncate`}>{num}</span>
-                      {selected && (
-                        <span
-                          className={`${active ? "text-amber-600" : "text-amber-600"}
-                          absolute inset-y-0 left-0 flex items-center pl-3`}
-                        >
-                          ✓
-                        </span>
-                      )}
-                    </>
-                  )}
-                </ListboxOption>
-              ))}
-            </ListboxOptions>
-          </Listbox>
+          <CustomListbox
+            value={disks}
+            onChange={(newValue) => {
+              trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.DiskChanged, {
+                from: disks,
+                to: newValue
+              });
+              setDisks(newValue);
+            }}
+            options={diskOptions}
+            disabled={isPlaying}
+          />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">{t("speed")}</label>
@@ -330,7 +326,14 @@ const HanoiTower = () => {
           <select
             data-testid="mode-select"
             value={mode}
-            onChange={(e) => handleModeChange(e.target.value)}
+            onChange={(e) => {
+              const newMode = e.target.value;
+              trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.ModeChanged, {
+                from: mode,
+                to: newMode
+              });
+              handleModeChange(newMode);
+            }}
             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="manual">{t("manual")}</option>
@@ -349,7 +352,13 @@ const HanoiTower = () => {
         )}
         {mode === "manual" && (
           <button
-            onClick={getHint}
+            onClick={() => {
+              trackEvent(CATEGORIES.HanoiTower, EVENTS.HanoiTower.GetHint, {
+                disks: disks,
+                moves: totalMoves,
+              });
+              getHint();
+            }}
             className="px-4 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-700 focus:outline-none focus:shadow-outline"
           >
             {t("getHint")}
