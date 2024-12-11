@@ -449,6 +449,18 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
           </>
         )}
 
+        <div>
+          <label className="block mb-1">{t('theme')}</label>
+          <CustomListbox
+            value={themes.find(t => t.value === theme).label}
+            onChange={(translatedValue) => {
+              const selectedTheme = themes.find(t => t.label === translatedValue).value;
+              setTheme(selectedTheme);
+            }}
+            options={themes.map(t => t.label)}
+          />
+        </div>
+
         <button
           className="w-full px-4 py-2 bg-[#C0C0C0] text-black rounded 
                      border-t-2 border-l-2 border-[#ffffff] 
@@ -482,17 +494,6 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
           </label>
         </div>
 
-        <div>
-          <label className="block mb-1">{t('theme')}</label>
-          <CustomListbox
-            value={themes.find(t => t.value === theme).label}
-            onChange={(translatedValue) => {
-              const selectedTheme = themes.find(t => t.label === translatedValue).value;
-              setTheme(selectedTheme);
-            }}
-            options={themes.map(t => t.label)}
-          />
-        </div>
       </div>
     </div>
   );
@@ -834,10 +835,9 @@ export default function Minesweeper() {
         )}
         <div className="flex flex-col items-center min-w-fit">
           <div
-            className="p-6 border-t-4 border-l-4 border-r-4 border-b-4"
+            className="p-6"
             style={{
               backgroundColor: THEMES[theme].outerBackground,
-              borderColor: `${THEMES[theme].borderBright} ${THEMES[theme].borderDark} ${THEMES[theme].borderDark} ${THEMES[theme].borderBright}`,
             }}
           >
             <GameBoard
