@@ -14,6 +14,7 @@ class CanvasRenderer {
 
   setTheme(themeName) {
     this.theme = THEMES[themeName] || THEMES.classic;
+    console.log("use theme", themeName, this.theme);
   }
 
   // Set cell size

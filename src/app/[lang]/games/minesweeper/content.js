@@ -129,8 +129,6 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const renderer = rendererRef.current;
     if (renderer) {
       renderer.setTheme(theme);
-      console.log("theme", theme);
-      // 重新渲染所有格子
       for (let row = 0; row < game.rows; row++) {
         for (let col = 0; col < game.cols; col++) {
           if (!isHexagonal || game.isValidCell?.(row, col)) {
@@ -153,7 +151,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
         }
       }
     }
-  }, [theme, game]);
+  }, [theme, game, isHexagonal]);
 
   const handleClick = (e) => {
     const canvas = canvasRef.current;
@@ -485,8 +483,11 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
         <div>
           <label className="block mb-1">{t('theme')}</label>
           <CustomListbox
-            value={theme}
-            onChange={(value) => setTheme(value)}
+            value={themes.find(t => t.value === theme).label}
+            onChange={(translatedValue) => {
+              const selectedTheme = themes.find(t => t.label === translatedValue).value;
+              setTheme(selectedTheme);
+            }}
             options={themes.map(t => t.label)}
           />
         </div>
