@@ -31,6 +31,8 @@ export const trackEvent = (category, eventName, params = {}, options = { umami: 
 export const CATEGORIES = {
   Minesweeper: "minesweeper",
   Maze: "maze",
+  HanoiTower: "hanoitower",
+  Sokoban: "sokoban",
 };
 
 export const EVENTS = {
@@ -48,5 +50,22 @@ export const EVENTS = {
     ShowGenerationProcess: 'generation_process_toggled',
     GameStarted: 'game_started',
     GameStopped: 'game_stopped',
+  },
+  HanoiTower: {
+    Move50: "move50",
+    Success: "success",
+    Fail: "fail",
+    GetHint: "get_hint",
+    ModeChanged: "mode_changed",
+    DiskChanged: "disk_changed",
+  },
+  Sokoban: {
+    GameMoves: "moves50",
+    SaveCustomMap: "save_custommap",
+    Success: "success",
+    Undo: "undo",
+    Restart: "restart",
+    EnterEditMode: "enter_edit_mode",
+    ExitEditMode: "exit_edit_mode",
   },
 };

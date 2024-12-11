@@ -1,3 +1,5 @@
+import { trackEvent, CATEGORIES, EVENTS } from "@/app/utils/analytics";
+
 export const ELEMENTS = {
   EMPTY: 0,
   WALL: 1,
@@ -177,8 +179,8 @@ export class SokobanLogic {
       groupId: this.currentGroupId,
     });
 
-    if (this.moves === 50 && window.umami) {
-      window.umami.track("Sokoban Game Moves", {
+    if (this.moves % 50 === 0) {
+      trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.GameMoves, {
         moves: this.moves,
       });
     }
