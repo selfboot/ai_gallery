@@ -14,7 +14,6 @@ class CanvasRenderer {
 
   setTheme(themeName) {
     this.theme = THEMES[themeName] || THEMES.classic;
-    console.log("use theme", themeName, this.theme);
   }
 
   // Set cell size
@@ -190,7 +189,7 @@ class CanvasRenderer {
 
     // Draw highlight point
     const highlightRadius = radius * 0.35;
-    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.fillStyle = this.theme.mineHighlight;
     this.ctx.beginPath();
     this.ctx.arc(centerX - radius * 0.4, centerY - radius * 0.4, highlightRadius, 0, Math.PI * 2);
     this.ctx.fill();

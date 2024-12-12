@@ -184,7 +184,7 @@ export class HexRenderer {
     }
 
     this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
@@ -232,7 +232,7 @@ export class HexRenderer {
     }
     this.ctx.closePath();
     this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = "#808080";
+    this.ctx.strokeStyle = this.theme.borderDark;
     this.ctx.stroke();
 
     // Draw the number, mine or flag
@@ -315,7 +315,7 @@ export class HexRenderer {
 
     // Draw the highlight point
     const highlightRadius = radius * 0.35;
-    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.fillStyle = this.theme.mineHighlight;
     this.ctx.beginPath();
     this.ctx.arc(centerX - radius * 0.4, centerY - radius * 0.4, highlightRadius, 0, Math.PI * 2);
     this.ctx.fill();
