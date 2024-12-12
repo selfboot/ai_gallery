@@ -1,3 +1,13 @@
+export const THEME_OPTIONS = (t) => [
+  { value: 'classic', label: t('theme_classic') },
+  { value: 'dark', label: t('theme_dark') },
+  { value: 'pastel', label: t('theme_pastel') },
+  { value: 'green', label: t('theme_green') },
+  { value: 'yellow', label: t('theme_yellow') },
+  { value: 'ocean', label: t('theme_ocean') },
+  { value: 'sunset', label: t('theme_sunset') },
+];
+
 export const THEMES = {
   classic: {
     name: "classic",
@@ -40,5 +50,101 @@ export const THEMES = {
     outerBackground: "#E6E6FA",
     mineHighlight: "#FFFFFF",
     revealedBorder: "#B0C4DE",
+  },
+  green: {
+    name: "green",
+    cellBackground: "#A8D5BA",
+    revealedBackground: "#E8F5E9",
+    borderBright: "#C8E6C9",
+    borderDark: "#2E7D32",
+    revealedBorder: "#81C784",
+    numberColors: [
+      "", // 0 - No color
+      "#1B5E20", // 1 - Dark green
+      "#0277BD", // 2 - Blue
+      "#C62828", // 3 - Red
+      "#006064", // 4 - Dark cyan
+      "#4A148C", // 5 - Purple
+      "#00695C", // 6 - Dark cyan green
+      "#3E2723", // 7 - Dark brown
+      "#37474F", // 8 - Dark gray
+    ],
+    mineColor: "#1B5E20",
+    mineHighlight: "#FFFFFF",
+    flagColor: "#D32F2F",
+    explodedBackground: "#EF5350",
+    outerBackground: "#A8D5BA",
+  },
+  yellow: {
+    name: "yellow",
+    cellBackground: "#FFE082",
+    revealedBackground: "#FFF8E1",
+    borderBright: "#FFECB3",
+    borderDark: "#8D6E63",
+    revealedBorder: "#BCAAA4",
+    numberColors: [
+      "", // 0 - No color
+      "#5D4037", // 1 - Dark brown
+      "#0277BD", // 2 - Blue
+      "#C62828", // 3 - Red
+      "#2E7D32", // 4 - Dark green
+      "#4527A0", // 5 - Dark purple
+      "#00695C", // 6 - Dark cyan
+      "#263238", // 7 - Dark gray blue
+      "#424242", // 8 - Dark gray
+    ],
+    mineColor: "#4E342E",
+    mineHighlight: "#FFFFFF",
+    flagColor: "#D32F2F",
+    explodedBackground: "#EF5350",
+    outerBackground: "#FFE082",
+  },
+  ocean: {
+    name: "ocean",
+    cellBackground: "#81D4FA",
+    revealedBackground: "#E1F5FE",
+    borderBright: "#B3E5FC",
+    borderDark: "#0288D1",
+    revealedBorder: "#4FC3F7",
+    numberColors: [
+      "",
+      "#01579B",  // Deep blue
+      "#00695C",  // Dark cyan
+      "#D32F2F",  // Red
+      "#1A237E",  // Indigo
+      "#4A148C",  // Purple
+      "#004D40",  // Dark cyan green
+      "#263238",  // Dark gray blue
+      "#37474F"   // Dark gray
+    ],
+    mineColor: "#01579B",
+    mineHighlight: "#E1F5FE",
+    flagColor: "#F44336",
+    explodedBackground: "#EF5350",
+    outerBackground: "#81D4FA"
+  },
+  sunset: {
+    name: "sunset",
+    cellBackground: "#FFB74D",
+    revealedBackground: "#FFF3E0",
+    borderBright: "#FFE0B2",
+    borderDark: "#F4511E",
+    revealedBorder: "#FF8A65",
+    numberColors: [
+      "",
+      "#BF360C",  // Deep orange
+      "#0277BD",  // Blue
+      "#C62828",  // Red
+      "#1B5E20",  // Dark green
+      "#4A148C",  // Purple
+      "#006064",  // Dark cyan
+      "#3E2723",  // Dark brown
+      "#212121"   // Dark gray
+    ],
+    mineColor: "#D84315",
+    mineHighlight: "#FFFFFF",
+    flagColor: "#D32F2F",
+    explodedBackground: "#EF5350",
+    outerBackground: "#FFB74D"
   },
 };

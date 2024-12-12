@@ -503,6 +503,10 @@
   "theme_classic": "经典",
   "theme_dark": "暗黑",
   "theme_pastel": "粉彩",
+  "theme_green": "雅绿",
+  "theme_yellow": "暖黄",
+  "theme_ocean": "海洋",
+  "theme_sunset": "日落",
 
   "maze_title": "在线迷宫游戏、各种地图类型迷宫生成", 
   "maze_description": "在线迷宫生成，支持生成方形、圆形、三角形、蜂窝形的迷宫地图。跟随鼠标移动查找迷宫路径，可以提示最优路径，下载迷宫等。",

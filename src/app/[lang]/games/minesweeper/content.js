@@ -11,7 +11,7 @@ import HexMinesweeperGame from './hexGameLogic';
 import Modal from "@/app/components/Modal";
 import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
-import { THEMES } from './themes';
+import { THEMES, THEME_OPTIONS } from './themes';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -365,12 +365,6 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
     onHexagonalChange(mode === 'hexagonal');
   };
 
-  const themes = [
-    { value: 'classic', label: t('theme_classic') },
-    { value: 'dark', label: t('theme_dark') },
-    { value: 'pastel', label: t('theme_pastel') }
-  ];
-
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-xl font-bold">{t('settings')}</h2>
@@ -452,12 +446,12 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
         <div>
           <label className="block mb-1">{t('theme')}</label>
           <CustomListbox
-            value={themes.find(t => t.value === theme).label}
+            value={THEME_OPTIONS(t).find(t => t.value === theme).label}
             onChange={(translatedValue) => {
-              const selectedTheme = themes.find(t => t.label === translatedValue).value;
+              const selectedTheme = THEME_OPTIONS(t).find(t => t.label === translatedValue).value;
               setTheme(selectedTheme);
             }}
-            options={themes.map(t => t.label)}
+            options={THEME_OPTIONS(t).map(t => t.label)}
           />
         </div>
 
