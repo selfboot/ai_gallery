@@ -11,6 +11,7 @@ import HexMinesweeperGame from './hexGameLogic';
 import Modal from "@/app/components/Modal";
 import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
+import { THEMES, THEME_OPTIONS } from './themes';
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -19,7 +20,7 @@ const DIFFICULTY_LEVELS = {
   custom: "custom",
 };
 
-const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time, isHexagonal = false }) => {
+const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onReset, time, isHexagonal = false, theme }) => {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const containerRef = useRef(null);
@@ -93,8 +94,8 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     canvas.height = canvasHeight;
 
     rendererRef.current = isHexagonal 
-      ? new HexRenderer(canvas, "classic")
-      : new CanvasRenderer(canvas, "classic");
+      ? new HexRenderer(canvas, theme)
+      : new CanvasRenderer(canvas, theme);
 
     const renderer = rendererRef.current;
     renderer.setCellSize(cellSize);
@@ -121,7 +122,37 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
         }
       }
     }
-  }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal]);
+  }, [game, canvasWidth, canvasHeight, cellSize, isHexagonal, theme]);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    const renderer = rendererRef.current;
+    if (renderer) {
+      renderer.setTheme(theme);
+      for (let row = 0; row < game.rows; row++) {
+        for (let col = 0; col < game.cols; col++) {
+          if (!isHexagonal || game.isValidCell?.(row, col)) {
+            const isPressed = game.pressedCells.some(
+              ([r, c]) => r === row && c === col
+            );
+            
+            renderer.drawCell(
+              row,
+              col,
+              {
+                revealed: game.revealed[row][col],
+                flagged: game.flagged[row][col],
+                exploded: game.gameOver && game.board[row][col] === -1 && game.revealed[row][col],
+                pressed: isPressed,
+              },
+              game.board[row][col]
+            );
+          }
+        }
+      }
+    }
+  }, [theme, game, isHexagonal]);
 
   const handleClick = (e) => {
     const canvas = canvasRef.current;
@@ -224,11 +255,12 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     >
       {/* Status bar */}
       <div
-        className="flex justify-between items-center mb-2 bg-[#C0C0C0] "
+        className="flex justify-between items-center mb-2"
         style={{
           height: `${statusBarHeight}px`,
           width: `${totalWidth}px`,
           paddingBottom: `${statusBarBottomPadding}px`,
+          backgroundColor: THEMES[theme].outerBackground,
         }}
       >
         <LEDDisplay value={game.minesLeft} />
@@ -245,11 +277,11 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
           style={{
             width: `${statusLEDHeight}px`,
             height: `${statusLEDHeight}px`,
-            backgroundColor: '#C0C0C0',
+            backgroundColor: THEMES[theme].outerBackground,
             border: '3px solid',
             borderColor: isFacePressed
-              ? '#808080 #ffffff #ffffff #808080'
-              : '#ffffff #808080 #808080 #ffffff',
+              ? THEMES[theme].borderDark + ' ' + THEMES[theme].borderBright + ' ' + THEMES[theme].borderBright + ' ' + THEMES[theme].borderDark
+              : THEMES[theme].borderBright + ' ' + THEMES[theme].borderDark + ' ' + THEMES[theme].borderDark + ' ' + THEMES[theme].borderBright,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -283,7 +315,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   );
 };
 
-const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange }) => {
+const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange, theme, setTheme }) => {
   const { t } = useI18n();
   
   const levelToTranslation = {
@@ -411,6 +443,18 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
           </>
         )}
 
+        <div>
+          <label className="block mb-1">{t('theme')}</label>
+          <CustomListbox
+            value={THEME_OPTIONS(t).find(t => t.value === theme).label}
+            onChange={(translatedValue) => {
+              const selectedTheme = THEME_OPTIONS(t).find(t => t.label === translatedValue).value;
+              setTheme(selectedTheme);
+            }}
+            options={THEME_OPTIONS(t).map(t => t.label)}
+          />
+        </div>
+
         <button
           className="w-full px-4 py-2 bg-[#C0C0C0] text-black rounded 
                      border-t-2 border-l-2 border-[#ffffff] 
@@ -443,6 +487,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             <span>{t('auto_flag_mines')}</span>
           </label>
         </div>
+
       </div>
     </div>
   );
@@ -503,6 +548,11 @@ export default function Minesweeper() {
   });
   const { t } = useI18n();
   const [flagMode, setFlagMode] = useState(false);
+  const [theme, setTheme] = usePersistentState(
+    "minesweeper-theme",
+    "classic",
+    365 * 24 * 60 * 60 * 1000
+  );
 
   useEffect(() => {
     const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
@@ -523,7 +573,7 @@ export default function Minesweeper() {
     if (!canvas) return;
 
     if (!emojiRendererRef.current) {
-      emojiRendererRef.current = new CanvasRenderer(canvas, "classic");
+      emojiRendererRef.current = new CanvasRenderer(canvas, theme);
     }
 
     const renderer = emojiRendererRef.current;
@@ -534,7 +584,7 @@ export default function Minesweeper() {
     }
 
     renderer.drawEmoji(0, 0, 40, emojiState);
-  }, [game.gameOver, game.won]);
+  }, [game.gameOver, game.won, theme]);
 
   const handleMouseDown = useCallback(() => {
     const canvas = emojiCanvasRef.current;
@@ -754,33 +804,37 @@ export default function Minesweeper() {
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
       <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
-        {timerActive && (
-          <div className="flex justify-center mb-4">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={flagMode}
-                onChange={() => setFlagMode(!flagMode)}
-                className="sr-only peer"
-              />
-              <div
-                className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer 
+        <div className="flex justify-center mb-4">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={flagMode}
+              onChange={() => setFlagMode(!flagMode)}
+              className="sr-only peer"
+            />
+            <div
+              className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer 
                             peer-checked:after:translate-x-full peer-checked:after:border-white 
                             after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
                             after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all 
                             peer-checked:bg-red-500"
-              ></div>
-              <span className="ml-2 flex items-center gap-1">
-                {flagMode ? "🚩" : "👆"}
-                <span className="text-sm">{t(flagMode ? "flag_mode" : "dig_mode")}</span>
-              </span>
-            </label>
-          </div>
-        )}
+            ></div>
+            <span className="ml-2 flex items-center gap-1">
+              {flagMode ? "🚩" : "👆"}
+              <span className="text-sm">{t(flagMode ? "flag_mode" : "dig_mode")}</span>
+            </span>
+          </label>
+        </div>
         <div className="flex flex-col items-center min-w-fit">
-          <div className="bg-[#C0C0C0] p-6 border-t-4 border-l-4 border-[#ffffff] border-r-4 border-b-4 border-[#808080]">
+          <div
+            className="p-6"
+            style={{
+              backgroundColor: THEMES[theme].outerBackground,
+            }}
+          >
             <GameBoard
               game={game}
+              theme={theme}
               onCellClick={handleCellClick}
               onCellRightClick={handleCellRightClick}
               onCellDoubleClick={handleCellDoubleClick}
@@ -801,6 +855,8 @@ export default function Minesweeper() {
           canContinue={game.gameOver && !game.won && game.lastRevealedMine !== null}
           isHexagonal={isHexagonal}
           onHexagonalChange={handleHexagonalChange}
+          theme={theme}
+          setTheme={setTheme}
         />
       </div>
 
