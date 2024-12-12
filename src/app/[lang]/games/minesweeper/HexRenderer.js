@@ -1,10 +1,16 @@
+import { THEMES } from './themes';
+
 export class HexRenderer {
   constructor(canvas, theme = "classic") {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.theme = theme;
+    this.setTheme(theme);
     this.cellSize = 30;
     this.padding = 35;
+  }
+
+  setTheme(themeName) {
+    this.theme = THEMES[themeName] || THEMES.classic;
   }
 
   // Calculate the size of the grid
@@ -147,7 +153,7 @@ export class HexRenderer {
       this.ctx.lineTo(innerPoints[1].x, innerPoints[1].y);
       this.ctx.lineTo(innerPoints[2].x, innerPoints[2].y);
       this.ctx.lineWidth = borderWidth;
-      this.ctx.strokeStyle = "#FFFFFF";
+      this.ctx.strokeStyle = this.theme.borderBright;
       this.ctx.stroke();
 
       this.ctx.beginPath();
@@ -156,7 +162,7 @@ export class HexRenderer {
       this.ctx.lineTo(innerPoints[4].x, innerPoints[4].y);
       this.ctx.lineTo(innerPoints[5].x, innerPoints[5].y);
       this.ctx.lineWidth = borderWidth;
-      this.ctx.strokeStyle = "#666666";
+      this.ctx.strokeStyle = this.theme.borderDark;
       this.ctx.stroke();
     } else {
       this.ctx.beginPath();
@@ -164,7 +170,7 @@ export class HexRenderer {
       this.ctx.lineTo(innerPoints[1].x, innerPoints[1].y);
       this.ctx.lineTo(innerPoints[2].x, innerPoints[2].y);
       this.ctx.lineWidth = borderWidth;
-      this.ctx.strokeStyle = "#666666";
+      this.ctx.strokeStyle = this.theme.borderDark;
       this.ctx.stroke();
 
       this.ctx.beginPath();
@@ -173,7 +179,7 @@ export class HexRenderer {
       this.ctx.lineTo(innerPoints[4].x, innerPoints[4].y);
       this.ctx.lineTo(innerPoints[5].x, innerPoints[5].y);
       this.ctx.lineWidth = borderWidth;
-      this.ctx.strokeStyle = "#FFFFFF";
+      this.ctx.strokeStyle = this.theme.borderBright;
       this.ctx.stroke();
     }
 
@@ -195,16 +201,13 @@ export class HexRenderer {
     const points = this.calculateHexPoints(x, y);
 
     // Set the fill color
-    let fillColor = "#c0c0c0";
+    let fillColor = this.theme.cellBackground;
     if (state.revealed) {
-      fillColor = "#e0e0e0";
+      fillColor = this.theme.revealedBackground;
       if (state.exploded) {
-        fillColor = "#ff0000";
+        fillColor = this.theme.explodedBackground;
       }
-    }
-    if (state.pressed) {
-      fillColor = "#a0a0a0";
-    }
+    } 
 
     // Draw the hexagon
     this.ctx.beginPath();
@@ -245,19 +248,7 @@ export class HexRenderer {
   }
 
   drawNumber(x, y, value) {
-    const colors = [
-      null,
-      "#0000ff", // 1: Blue
-      "#008000", // 2: Green
-      "#ff0000", // 3: Red
-      "#000080", // 4: Dark blue
-      "#800000", // 5: Dark red
-      "#008080", // 6: Cyan
-      "#000000", // 7: Black
-      "#808080", // 8: Gray
-    ];
-
-    this.ctx.fillStyle = colors[value] || "#000000";
+    this.ctx.fillStyle = this.theme.numberColors[value];
     this.ctx.font = `bold ${this.cellSize * 0.8}px Arial`;
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
@@ -272,11 +263,11 @@ export class HexRenderer {
     const flagY = y - flagSize / 2;
 
     // Flag pole - Draw from the center
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = this.theme.borderDark;
     this.ctx.fillRect(flagX + flagSize / 3, flagY, 2, flagSize);
 
     // Flag - Draw relative to the center
-    this.ctx.fillStyle = "#FF0000";
+    this.ctx.fillStyle = this.theme.flagColor;
     this.ctx.beginPath();
     this.ctx.moveTo(flagX + flagSize / 3, flagY);
     this.ctx.lineTo(flagX + flagSize, flagY + flagSize / 3);
@@ -290,7 +281,7 @@ export class HexRenderer {
     const centerY = y;
     this.ctx.save();
 
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = this.theme.mineColor;
 
     const radius = mineSize / 3;
     this.ctx.beginPath();
@@ -312,7 +303,7 @@ export class HexRenderer {
     // Set the spike width
     const spikeWidth = Math.max(2, this.cellSize * 0.1);
     this.ctx.lineWidth = spikeWidth;
-    this.ctx.strokeStyle = "#000000";
+    this.ctx.strokeStyle = this.theme.mineColor;
 
     // Draw the spikes
     directions.forEach(([dx, dy]) => {
