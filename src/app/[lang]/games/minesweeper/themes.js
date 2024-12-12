@@ -10,7 +10,8 @@ export const THEMES = {
     flagColor: "#FF0000",
     explodedBackground: "#FF0000",
     outerBackground: "#C0C0C0",
-    mineHighlight: "#FFFFFF"
+    mineHighlight: "#FFFFFF",
+    revealedBorder: "#808080",
   },
   dark: {
     name: "dark",
@@ -23,7 +24,8 @@ export const THEMES = {
     flagColor: "#EF5350",
     explodedBackground: "#D32F2F",
     outerBackground: "#424242",
-    mineHighlight: "#AAAAAA"
+    mineHighlight: "#AAAAAA",
+    revealedBorder: "#767676",
   },
   pastel: {
     name: "pastel",
@@ -36,6 +38,7 @@ export const THEMES = {
     flagColor: "#DB7093",
     explodedBackground: "#FFB6C1",
     outerBackground: "#E6E6FA",
-    mineHighlight: "#FFFFFF"
-  }
-}; 
+    mineHighlight: "#FFFFFF",
+    revealedBorder: "#B0C4DE",
+  },
+};

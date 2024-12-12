@@ -232,7 +232,7 @@ export class HexRenderer {
     }
     this.ctx.closePath();
     this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = this.theme.borderDark;
+    this.ctx.strokeStyle = state.revealed ? this.theme.revealedBorder || this.theme.borderDark : this.theme.borderDark;
     this.ctx.stroke();
 
     // Draw the number, mine or flag

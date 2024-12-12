@@ -121,7 +121,7 @@ class CanvasRenderer {
     this.ctx.fillStyle = this.theme.revealedBackground;
     this.ctx.fillRect(x, y, size, size);
 
-    this.ctx.strokeStyle = this.theme.borderDark;
+    this.ctx.strokeStyle = this.theme.revealedBorder || this.theme.borderDark;
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x, y, size, size);
 
