@@ -45,7 +45,7 @@ const Cell = ({ x, y, cell, onCellClick }) => {
 }
 
 // 游戏面板组件
-const GameBoard = ({ width = 7, height = 7 }) => {
+const GameBoard = ({ width = 4, height = 4 }) => {
   const [gameState, setGameState] = useState(null)
   const [completed, setCompleted] = useState(false)
 

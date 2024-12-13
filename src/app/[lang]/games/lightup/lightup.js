@@ -144,7 +144,6 @@ function listLigths(state, ox, oy, includeOrigin = true) {
     if (y > data.maxy) data.maxy = y;
   }
 
-  console.log("listLigths", data);
   return data;
 }
 
@@ -364,16 +363,12 @@ function setBlacks(state, params, randomSeed) {
 function checkDark(state, x, y) {
   const lightData = listLigths(state, x, y, true);
   let isDark = 0;
-  console.log("In checkDark", x, y, lightData);
   foreachLit(lightData, (lx, ly) => {
-    if (state.getCell(lx, ly).lights === 1) {
-      console.log("In checkDark", x, y, lx, ly, "only one light");
+    const index = ly * state.width + lx;
+    if (state.lights[index] === 1) {
       isDark = 1;
     }
   });
-  if (isDark) {
-    console.log("IsDark", x, y, isDark);
-  }
   return isDark;
 }
 
@@ -384,13 +379,13 @@ function placeLights(state) {
   // Place a light on all grid squares without lights.
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
-      state.setCell(x, y, 0, state.getCell(x, y).flags & ~CellFlags.MARK);
-      if (!(state.getCell(x, y).flags & CellFlags.BLACK)) {
-        setLight(state, x, y, 1);
+      const index = y * state.width + x;
+      state.flags[index] &= ~CellFlags.MARK; // 清除标记
+      if (!(state.flags[index] & CellFlags.BLACK)) {
+        setLight(state, x, y, true);
       }
     }
   }
-  console.log("placeLights", state.nlights);
   debugPrintState(state);
 
   const positions = [];
@@ -405,19 +400,18 @@ function placeLights(state) {
   for (const pos of positions) {
     const x = pos % state.width;
     const y = Math.floor(pos / state.width);
-    const cell = state.getCell(x, y);
+    const index = y * state.width + x;
 
     // Skip non-light and marked cells
-    if (!(cell.flags & CellFlags.LIGHT)) continue;
-    if (cell.flags & CellFlags.MARK) continue;
+    if (!(state.flags[index] & CellFlags.LIGHT)) continue;
+    if (state.flags[index] & CellFlags.MARK) continue;
 
     const lightData = listLigths(state, x, y, false);
-    console.log("lightData", lightData);
     // If we're not lighting any lights ourself, don't remove anything.
     let hasLitLights = false;
     foreachLit(lightData, (lx, ly) => {
-      const index = ly * state.width + lx;
-      if (state.flags[index] & CellFlags.LIGHT) {
+      const lightIndex = ly * state.width + lx;
+      if (state.flags[lightIndex] & CellFlags.LIGHT) {
         hasLitLights = true;
       }
     });
@@ -428,24 +422,21 @@ function placeLights(state) {
     let darkCount = 0;
 
     foreachLit(lightData, (lx, ly) => {
-      const index = ly * state.width + lx;
-      if (state.flags[index] & CellFlags.LIGHT) {
+      const lightIndex = ly * state.width + lx;
+      if (state.flags[lightIndex] & CellFlags.LIGHT) {
         if (checkDark(state, lx, ly)) {
           darkCount++;
         }
       }
     });
 
-    console.log("Out checkDark", x, y, cell.flags, cell.lights, darkCount, lightData);
-
     if (darkCount === 0) {
       foreachLit(lightData, (lx, ly) => {
-        const index = ly * state.width + lx;
-        if (state.flags[index] & CellFlags.LIGHT) {
+        const lightIndex = ly * state.width + lx;
+        if (state.flags[lightIndex] & CellFlags.LIGHT) {
           setLight(state, lx, ly, 0);
         }
       });
-      const index = y * state.width + x;
       state.flags[index] |= CellFlags.MARK;
     }
     /* could get here if the line at [1] continue'd out of the loop. */
@@ -459,22 +450,25 @@ function placeLights(state) {
   }
 }
 
-// 为黑色墙壁添加数字
+// Place numbers on black walls
 function placeNumbers(state) {
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
-      if (!(state.getCell(x, y).flags & CellFlags.BLACK)) continue;
+      const index = y * state.width + x;
+      if (!(state.flags[index] & CellFlags.BLACK)) continue;
 
       const surrounds = getSurrounds(state, x, y);
       let lightCount = 0;
 
       for (const point of surrounds) {
-        if (state.getCell(point.x, point.y).flags & CellFlags.LIGHT) {
+        const surroundIndex = point.y * state.width + point.x;
+        if (state.flags[surroundIndex] & CellFlags.LIGHT) {
           lightCount++;
         }
       }
 
-      state.setCell(x, y, lightCount, state.getCell(x, y).flags | CellFlags.NUMBERED);
+      state.lights[index] = lightCount;
+      state.flags[index] |= CellFlags.NUMBERED;
     }
   }
 }
@@ -484,16 +478,16 @@ function debugPrintState(state) {
   let output = "\n当前游戏状态:\n";
 
   // 打印列号
-  output += "  ";
+  output += "      ";
   for (let x = 0; x < state.width; x++) {
-    output += `${x} `;
+    output += `${x}   `;
   }
   output += "\n";
 
   // 打印每一行
   for (let y = 0; y < state.height; y++) {
     // 打印行号
-    output += `${y} `;
+    output += `${y}   `;
 
     // 打印每个格子的状态
     for (let x = 0; x < state.width; x++) {
@@ -512,6 +506,7 @@ function debugPrintState(state) {
       } else {
         output += "□"; // 空格子
       }
+      output += "," + cell.lights;
       output += " ";
     }
     output += "\n";
