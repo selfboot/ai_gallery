@@ -48,8 +48,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   // Dynamic calculation of cell size
   const calculateCellSize = useCallback(() => {
     const isMobile = windowSize.width < 768;
-    
-    const widthRatio = isMobile ? 0.8 : 0.7;
+    const widthRatio = isMobile ? 0.8 : 0.65;
     const heightRatio = 0.8;
     const maxHeight = windowSize.height * heightRatio;
     const maxWidth = windowSize.width * widthRatio;
@@ -93,7 +92,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    rendererRef.current = isHexagonal 
+    rendererRef.current = isHexagonal
       ? new HexRenderer(canvas, theme)
       : new CanvasRenderer(canvas, theme);
 
@@ -107,7 +106,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
           const isPressed = game.pressedCells.some(
             ([r, c]) => r === row && c === col
           );
-          
+
           renderer.drawCell(
             row,
             col,
@@ -126,7 +125,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    
+
     const renderer = rendererRef.current;
     if (renderer) {
       renderer.setTheme(theme);
@@ -136,7 +135,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
             const isPressed = game.pressedCells.some(
               ([r, c]) => r === row && c === col
             );
-            
+
             renderer.drawCell(
               row,
               col,
@@ -192,7 +191,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     const scaleY = canvas.height / rect.height;
     const canvasX = x * scaleX;
     const canvasY = y * scaleY;
-  
+
     if (isHexagonal) {
       const renderer = rendererRef.current;
       if (renderer && renderer.getHexCellFromPoint) {
@@ -317,7 +316,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
 const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue, isHexagonal, onHexagonalChange, theme, setTheme }) => {
   const { t } = useI18n();
-  
+
   const levelToTranslation = {
     'easy': t('easy'),
     'medium': t('medium'),
@@ -337,7 +336,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
   const translationToMode = Object.fromEntries(
     Object.entries(modeToTranslation).map(([k, v]) => [v, k])
   );
- 
+
   const [selectedLevel, setSelectedLevel, clearSelectedLevel, isInitialized] = usePersistentState(
     "minesweeper-difficulty",
     'easy',
@@ -357,12 +356,42 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
     setSelectedLevel(level);
     if (level !== "custom") {
       onSettingsChange(DIFFICULTY_LEVELS[level], true);
+    } else {
+      onSettingsChange({
+        rows: settings.rows,
+        cols: settings.cols,
+        mines: settings.mines
+      }, false);
     }
   };
 
   const handleModeChange = (translatedValue) => {
     const mode = translationToMode[translatedValue];
     onHexagonalChange(mode === 'hexagonal');
+  };
+
+  const getValidatedSettings = (container) => {
+    const getValue = (className) => {
+      const input = container.querySelector(`.${className}`);
+      return parseInt(input.value) || 0;
+    };
+
+    const rows = Math.max(5, Math.min(100, getValue('rows-input') || 5));
+    const cols = Math.max(5, Math.min(100, getValue('cols-input') || 5));
+    const maxMines = rows * cols - 1;
+    const mines = Math.max(1, Math.min(maxMines, getValue('mines-input') || 1));
+
+    // Update input values to reflect validated numbers
+    const updateInput = (className, value) => {
+      const input = container.querySelector(`.${className}`);
+      input.value = value;
+    };
+
+    updateInput('rows-input', rows);
+    updateInput('cols-input', cols);
+    updateInput('mines-input', mines);
+
+    return { rows, cols, mines };
   };
 
   return (
@@ -386,61 +415,56 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             options={Object.values(levelToTranslation)}
           />
         </div>
+        {selectedLevel === "custom" && (
+          <div className="custom-settings space-y-4 my-4 p-4 bg-gray-50 rounded-lg border">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">{t('rows')}</label>
+                <input
+                  type="number"
+                  defaultValue={settings.rows}
+                  className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 rows-input"
+                  min="5"
+                  max="100"
+                />
+              </div>
 
-        {translationToLevel[selectedLevel] === "custom" && (
-          <>
-            <div>
-              <label className="block text-sm mb-1">{t('rows')}</label>
-              <input
-                type="number"
-                value={settings.rows}
-                onChange={(e) => {
-                  const rows = parseInt(e.target.value);
-                  onSettingsChange({ ...settings, rows }, false);
-                }}
-                className="w-full px-2 py-1 border rounded"
-                min="5"
-                max="30"
-              />
-            </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">{t('columns')}</label>
+                <input
+                  type="number"
+                  defaultValue={settings.cols}
+                  className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 cols-input"
+                  min="5"
+                  max="100"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm mb-1">{t('columns')}</label>
-              <input
-                type="number"
-                value={settings.cols}
-                onChange={(e) => {
-                  const cols = parseInt(e.target.value);
-                  onSettingsChange({ ...settings, cols }, false);
-                }}
-                className="w-full px-2 py-1 border rounded"
-                min="5"
-                max="30"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">{t('mines_count')}</label>
-              <input
-                type="number"
-                value={settings.mines}
-                onChange={(e) => {
-                  const mines = parseInt(e.target.value);
-                  onSettingsChange({ ...settings, mines }, false);
-                }}
-                className="w-full px-2 py-1 border rounded"
-                min="1"
-                max={settings.rows * settings.cols - 1}
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">{t('mines_count')}</label>
+                <input
+                  type="number"
+                  defaultValue={settings.mines}
+                  className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 mines-input"
+                  min="1"
+                  max={settings.rows * settings.cols - 1}
+                />
+              </div>
             </div>
 
             <button
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={onReset}
+              className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 
+                         transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 
+                         focus:ring-offset-2 focus:ring-blue-500"
+              onClick={(e) => {
+                const container = e.target.closest('.custom-settings');
+                const newSettings = getValidatedSettings(container);
+                onSettingsChange(newSettings, true);
+              }}
             >
               {t('apply_changes')}
             </button>
-          </>
+          </div>
         )}
 
         <div>
@@ -467,9 +491,9 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
 
         <button
           className={`w-full px-4 py-2 text-black rounded 
-                     ${canContinue 
-                       ? 'bg-[#C0C0C0] border-t-2 border-l-2 border-[#ffffff] border-r-2 border-b-2 border-[#808080] hover:bg-[#d4d4d4] active:border-[#808080]' 
-                       : 'bg-[#e0e0e0] text-[#a0a0a0] border-2 border-[#d0d0d0] cursor-not-allowed opacity-50'}`}
+                     ${canContinue
+              ? 'bg-[#C0C0C0] border-t-2 border-l-2 border-[#ffffff] border-r-2 border-b-2 border-[#808080] hover:bg-[#d4d4d4] active:border-[#808080]'
+              : 'bg-[#e0e0e0] text-[#a0a0a0] border-2 border-[#d0d0d0] cursor-not-allowed opacity-50'}`}
           onClick={onContinue}
           disabled={!canContinue}
         >
@@ -621,17 +645,30 @@ export default function Minesweeper() {
         newGame.setAutoFlag(newSettings.autoFlag);
         setGame(newGame);
       } else {
-        setSettings((prev) => ({ ...prev, ...newSettings }));
+        const validatedSettings = {
+          ...settings,
+          rows: Math.max(5, Math.min(100, newSettings.rows)),
+          cols: Math.max(5, Math.min(100, newSettings.cols)),
+          mines: Math.min(newSettings.mines, (newSettings.rows * newSettings.cols) - 1)
+        };
+
+        setSettings(validatedSettings);
         if (shouldReset) {
           const GameClass = isHexagonal ? HexMinesweeperGame : MinesweeperGame;
-          setGame(new GameClass(newSettings.rows, newSettings.cols, newSettings.mines));
+          const newGame = new GameClass(
+            validatedSettings.rows,
+            validatedSettings.cols,
+            validatedSettings.mines
+          );
+          newGame.setAutoFlag(validatedSettings.autoFlag);
+          setGame(newGame);
           setTime(0);
           setStartTime(null);
           setTimerActive(false);
         }
       }
     },
-    [game, isHexagonal]
+    [game, settings, isHexagonal]
   );
 
   const handleReset = useCallback(() => {
@@ -794,7 +831,6 @@ export default function Minesweeper() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  // 在开发环境下暴露游戏实例
   useEffect(() => {
     if (process.env.NODE_ENV === 'test') {
       __TEST_HOOKS__.getGameInstance = () => game;
@@ -803,7 +839,7 @@ export default function Minesweeper() {
 
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto">
-      <div className="w-full lg:w-4/5 lg:mr-8 lg:ml-4 overflow-auto">
+      <div className="w-full lg:w-4/5 lg:mr-8 overflow-auto">
         <div className="flex justify-center mb-4">
           <label className="relative inline-flex items-center cursor-pointer">
             <input
