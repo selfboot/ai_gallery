@@ -12,7 +12,7 @@ import {
   debugPrintState
 } from './lightup'
 
-// 单个格子组件
+// Render a single cell
 const Cell = ({ x, y, cell, onCellClick }) => {
   const isBlack = cell.flags & CellFlags.BLACK
   const isLight = cell.flags & CellFlags.LIGHT
@@ -20,8 +20,18 @@ const Cell = ({ x, y, cell, onCellClick }) => {
   
   // 确定格子内容
   let content = null
-  if (isBlack && cell.lights > 0) {
-    content = <span className="text-white font-bold">{cell.lights}</span>
+  if (isBlack) {
+    console.log("isBlack", x,y, cell.lights);
+    content = (
+      <>
+        <div className="absolute w-full h-full bg-gray-800" />
+        {cell.lights > 0 && (
+          <span className="relative z-10 text-white font-bold">
+            {cell.lights}
+          </span>
+        )}
+      </>
+    )
   } else if (isLight) {
     content = <div className="w-6 h-6 rounded-full bg-yellow-500 shadow-lg" />
   }
@@ -32,8 +42,8 @@ const Cell = ({ x, y, cell, onCellClick }) => {
         w-10 h-10 border border-gray-300
         flex items-center justify-center
         cursor-pointer
-        ${isBlack ? 'bg-gray-800' : ''}
-        ${isLight ? 'bg-yellow-400' : ''}
+        relative
+        ${!isBlack && isLight ? 'bg-yellow-400' : ''}
         ${!isBlack && !isLight && isLit ? 'bg-yellow-100' : ''}
         ${!isBlack && !isLight && !isLit ? 'bg-white' : ''}
       `}
@@ -45,48 +55,32 @@ const Cell = ({ x, y, cell, onCellClick }) => {
 }
 
 // 游戏面板组件
-const GameBoard = ({ width = 4, height = 4 }) => {
+const GameBoard = ({ width = 7, height = 7 }) => {
   const [gameState, setGameState] = useState(null)
   const [completed, setCompleted] = useState(false)
 
   // 生成新游戏
   const generateNewGame = () => {
     const state = new GameState(width, height)
-    
-    // 1. 清理游戏板
+
     cleanBoard(state, false)
-    
-    // 2. 随机生成黑色墙壁
     setBlacks(state, {
       w: width,
       h: height,
-      blackpc: 20, // 20%的格子是黑色的
+      blackpc: 20,
       symm: 1 // 使用2路旋转对称
     })
-    console.log("生成黑色墙壁后:");
-    debugPrintState(state);
-    // 3. 生成一个有效解
     placeLights(state)
-    console.log("生成灯泡后:");
-    debugPrintState(state);
-    // 4. 根据解生成数字提示
     placeNumbers(state)
-    console.log("生成数字后:");
-    debugPrintState(state);
-    // 5. 清除所有灯泡,只保留墙壁和数字
-    cleanBoard(state, true)
-    
     return state
   }
 
-  // 初始化游戏状态
   useEffect(() => {
     const newState = generateNewGame()
     setGameState(newState)
     setCompleted(false)
   }, [width, height])
 
-  // 处理格子点击
   const handleCellClick = (x, y) => {
     if (!gameState) return
     

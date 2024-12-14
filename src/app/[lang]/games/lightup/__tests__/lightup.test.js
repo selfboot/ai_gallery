@@ -1,4 +1,4 @@
-import { GameState, CellFlags, listLigths, setLight } from "../lightup";
+import { GameState, CellFlags, listLigths, setLight, placeNumbers } from "../lightup";
 
 describe("Test listLigths", () => {
   test("Empty board center light", () => {
@@ -189,5 +189,60 @@ describe("setLight", () => {
         }
       }
     }
+  });
+});
+
+describe("placeNumbers", () => {
+  test("Count lights around black block", () => {
+    const state = new GameState(5, 5);
+    state.flags[2 * 5 + 2] |= CellFlags.BLACK;
+    setLight(state, 1, 2, true); // Left
+    setLight(state, 3, 2, true); // Right
+    setLight(state, 2, 1, true); // Top
+    setLight(state, 2, 3, true); // Bottom
+    placeNumbers(state);
+    expect(state.flags[2 * 5 + 2] & CellFlags.NUMBERED).toBeTruthy();
+  });
+
+  test("Count partial lights around black block", () => {
+    const state = new GameState(5, 5);
+    state.flags[2 * 5 + 2] |= CellFlags.BLACK;
+    setLight(state, 1, 2, true); // Left
+    setLight(state, 2, 1, true); // Top
+    placeNumbers(state);
+    expect(state.lights[2 * 5 + 2]).toBe(2);
+    expect(state.flags[2 * 5 + 2] & CellFlags.NUMBERED).toBeTruthy();
+  });
+
+  test("Black block at edge", () => {
+    const state = new GameState(5, 5);
+    state.flags[0 * 5 + 0] |= CellFlags.BLACK; // Top-left corner
+    setLight(state, 1, 0, true); // Right
+    setLight(state, 0, 1, true); // Bottom
+    placeNumbers(state);
+    expect(state.lights[0]).toBe(2);
+    expect(state.flags[0] & CellFlags.NUMBERED).toBeTruthy();
+  });
+
+  test("Multiple black blocks", () => {
+    const state = new GameState(3, 3);
+    state.flags[0 * 3 + 0] |= CellFlags.BLACK; // (0,0)
+    state.flags[2 * 3 + 2] |= CellFlags.BLACK; // (2,2)
+    setLight(state, 1, 0, true); // Light between blocks
+    setLight(state, 1, 2, true); // Another light
+
+    placeNumbers(state);
+    expect(state.lights[0]).toBe(1);
+    expect(state.lights[2 * 3 + 2]).toBe(1);
+    expect(state.flags[0] & CellFlags.NUMBERED).toBeTruthy();
+    expect(state.flags[2 * 3 + 2] & CellFlags.NUMBERED).toBeTruthy();
+  });
+
+  test("No lights around black block", () => {
+    const state = new GameState(5, 5);
+    state.flags[2 * 5 + 2] |= CellFlags.BLACK;
+    placeNumbers(state);
+    expect(state.lights[2 * 5 + 2]).toBe(0);
+    expect(state.flags[2 * 5 + 2] & CellFlags.NUMBERED).toBeTruthy();
   });
 });

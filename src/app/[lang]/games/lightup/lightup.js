@@ -74,11 +74,9 @@ class GameState {
   }
 }
 
-// 获取一个格子周围的相邻格子
 function getSurrounds(state, ox, oy) {
   const points = [];
 
-  // 检查并添加相邻点
   if (ox > 0) points.push({ x: ox - 1, y: oy, f: 0 });
   if (ox < state.width - 1) points.push({ x: ox + 1, y: oy, f: 0 });
   if (oy > 0) points.push({ x: ox, y: oy - 1, f: 0 });
@@ -386,7 +384,6 @@ function placeLights(state) {
       }
     }
   }
-  debugPrintState(state);
 
   const positions = [];
   for (let i = 0; i < state.width * state.height; i++) {
@@ -473,38 +470,29 @@ function placeNumbers(state) {
   }
 }
 
-// 添加一个调试用的状态打印函数
+// Debug print the game state
 function debugPrintState(state) {
-  let output = "\n当前游戏状态:\n";
+  let output = "\nGame State:\n";
 
-  // 打印列号
   output += "      ";
   for (let x = 0; x < state.width; x++) {
     output += `${x}   `;
   }
   output += "\n";
 
-  // 打印每一行
   for (let y = 0; y < state.height; y++) {
-    // 打印行号
     output += `${y}   `;
 
-    // 打印每个格子的状态
     for (let x = 0; x < state.width; x++) {
       const cell = state.getCell(x, y);
       if (cell.flags & CellFlags.BLACK) {
-        // 黑色墙壁
-        if (cell.lights > 0) {
-          output += `${cell.lights}`; // 带数字的墙壁
-        } else {
-          output += "■"; // 普通墙壁
-        }
+        output += "■";
       } else if (cell.flags & CellFlags.LIGHT) {
-        output += "★"; // 灯泡
+        output += "★";
       } else if (cell.lights > 0) {
-        output += "·"; // 被照亮的格子
+        output += "·";
       } else {
-        output += "□"; // 空格子
+        output += "□";
       }
       output += "," + cell.lights;
       output += " ";
@@ -512,15 +500,13 @@ function debugPrintState(state) {
     output += "\n";
   }
 
-  // 打印额外信息
-  output += `\n灯泡数量: ${state.nlights}`;
-  output += `\n游戏是否完成: ${state.completed ? "是" : "否"}`;
+  output += `\nLights: ${state.nlights}`;
+  output += `\nCompleted: ${state.completed ? "Yes" : "No"}`;
 
   console.log(output);
   return output;
 }
 
-// 修改导出方式
 export {
   CellFlags,
   Colors,
