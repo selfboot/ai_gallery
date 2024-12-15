@@ -8,7 +8,6 @@ const CellFlags = {
   MARK: 32, // 标记
 };
 
-// 颜色常量
 const Colors = {
   BACKGROUND: 0,
   GRID: 1,
@@ -19,7 +18,6 @@ const Colors = {
   CURSOR: 6,
 };
 
-// 对称类型
 const Symmetry = {
   NONE: 0,
   REF2: 1, // 2路镜像
@@ -27,6 +25,10 @@ const Symmetry = {
   REF4: 3, // 4路镜像
   ROT4: 4, // 4路旋转
 };
+
+const F_SOLVE_FORCEUNIQUE = 1;
+const F_SOLVE_DISCOUNTSETS = 2;
+const F_SOLVE_ALLOWRECURSE = 4;
 
 // 游戏状态类
 class GameState {
@@ -45,7 +47,6 @@ class GameState {
     this.usedSolve = false;
   }
 
-  // 获取格子状态
   getCell(x, y) {
     const index = y * this.width + x;
     return {
@@ -55,14 +56,12 @@ class GameState {
     };
   }
 
-  // 设置格子状态
   setCell(x, y, lights, flags) {
     const index = y * this.width + x;
     this.lights[index] = lights;
     this.flags[index] = flags;
   }
 
-  // 复制游戏状态
   clone() {
     const newState = new GameState(this.width, this.height);
     newState.lights = [...this.lights];
@@ -181,7 +180,7 @@ function setLight(state, x, y, on) {
   }
 }
 
-// 检查是否所有格子都被照亮
+// Check if all cells are lit
 function isGridLit(state) {
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
@@ -194,12 +193,12 @@ function isGridLit(state) {
   return true;
 }
 
-// 检查是否有灯泡相互照射
-function hasOverlappingLights(state) {
+// Check for overlapping lights
+function gridOverlap(state) {
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
       const cell = state.getCell(x, y);
-      // 如果这个位置是灯泡，且被照射次数大于1，说明一定有重叠
+      // If this position is a light and is lit more than once, there must be overlap
       if (cell.flags & CellFlags.LIGHT && cell.lights > 1) {
         return true;
       }
@@ -208,7 +207,7 @@ function hasOverlappingLights(state) {
   return false;
 }
 
-// 检查数字提示是否正确
+// Check if the numbered wall is correct
 function checkNumberedWall(state, x, y) {
   const cell = state.getCell(x, y);
   if (!(cell.flags & CellFlags.NUMBERED)) return true;
@@ -225,15 +224,10 @@ function checkNumberedWall(state, x, y) {
   return lightCount === cell.lights;
 }
 
-// 检查游戏是否完成
+// Check if the game is complete
 function isGameComplete(state) {
-  // 检查所有格子是否被照亮
   if (!isGridLit(state)) return false;
-
-  // 检查是否有灯泡相互照射
-  if (hasOverlappingLights(state)) return false;
-
-  // 检查所有数字提示是否正确
+  if (gridOverlap(state)) return false;
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
       if (!checkNumberedWall(state, x, y)) return false;
@@ -243,7 +237,6 @@ function isGameComplete(state) {
   return true;
 }
 
-// 清理游戏板
 function cleanBoard(state, leaveBlacks) {
   for (let x = 0; x < state.width; x++) {
     for (let y = 0; y < state.height; y++) {
@@ -257,7 +250,6 @@ function cleanBoard(state, leaveBlacks) {
   state.nlights = 0;
 }
 
-// 设置黑色墙壁
 function setBlacks(state, params, randomSeed) {
   let degree = 0,
     rotate = 0;
@@ -265,7 +257,6 @@ function setBlacks(state, params, randomSeed) {
   const wodd = state.width % 2 ? 1 : 0;
   const hodd = state.height % 2 ? 1 : 0;
 
-  // 根据对称类型设置参数
   switch (params.symm) {
     case Symmetry.NONE:
       degree = 1;
@@ -289,7 +280,6 @@ function setBlacks(state, params, randomSeed) {
       break;
   }
 
-  // 计算需要随机填充的区域大小
   if (degree === 4) {
     rw = Math.floor(state.width / 2);
     rh = Math.floor(state.height / 2);
@@ -304,11 +294,10 @@ function setBlacks(state, params, randomSeed) {
     rh = state.height;
   }
 
-  // 清理游戏板并随机放置黑色方块
   cleanBoard(state, false);
   const nblack = Math.floor((rw * rh * params.blackpc) / 100);
 
-  // 使用Fisher-Yates洗牌算法生成随机位置
+  // Generate random positions using Fisher-Yates shuffle
   const positions = [];
   for (let i = 0; i < rw * rh; i++) {
     positions.push(i);
@@ -318,7 +307,7 @@ function setBlacks(state, params, randomSeed) {
     [positions[i], positions[j]] = [positions[j], positions[i]];
   }
 
-  // 放置黑色方块
+  // Place black squares
   for (let i = 0; i < nblack; i++) {
     const pos = positions[i];
     const x = pos % rw;
@@ -326,7 +315,7 @@ function setBlacks(state, params, randomSeed) {
     state.setCell(x, y, 0, state.getCell(x, y).flags | CellFlags.BLACK);
   }
 
-  // 根据对称性复制黑色方块
+  // Copy black squares based on symmetry
   if (params.symm !== Symmetry.NONE) {
     for (let x = 0; x < rw; x++) {
       for (let y = 0; y < rh; y++) {
@@ -349,7 +338,7 @@ function setBlacks(state, params, randomSeed) {
     }
   }
 
-  // 特殊处理ROT4对称时的中心点
+  // Special handling for the center point in ROT4 symmetry
   if (degree === 4 && rotate && wodd && Math.random() < params.blackpc / 100) {
     const cx = Math.floor(state.width / 2);
     const cy = Math.floor(state.height / 2);
@@ -437,11 +426,11 @@ function placeLights(state) {
       state.flags[index] |= CellFlags.MARK;
     }
     /* could get here if the line at [1] continue'd out of the loop. */
-    if (!hasOverlappingLights(state)) {
+    if (!gridOverlap(state)) {
       return;
     }
   }
-  if (hasOverlappingLights(state)) {
+  if (gridOverlap(state)) {
     console.error("placeLights failed to resolve overlapping lights!");
     debugPrintState(state);
   }
@@ -467,6 +456,566 @@ function placeNumbers(state) {
       state.lights[index] = lightCount;
       state.flags[index] |= CellFlags.NUMBERED;
     }
+  }
+}
+
+function flagsFromDifficulty(difficulty) {
+  let sflags = F_SOLVE_FORCEUNIQUE;
+  if (difficulty >= 1) sflags |= F_SOLVE_DISCOUNTSETS;
+  if (difficulty >= 2) sflags |= F_SOLVE_ALLOWRECURSE;
+  return sflags;
+}
+
+// Remove all lights
+function unplaceLights(state) {
+  for (let y = 0; y < state.height; y++) {
+    for (let x = 0; x < state.width; x++) {
+      const index = y * state.width + x;
+      if (state.flags[index] & CellFlags.LIGHT) {
+        setLight(state, x, y, false);
+      }
+      state.flags[index] &= ~CellFlags.IMPOSSIBLE;
+      state.flags[index] &= ~CellFlags.NUMBERUSED;
+    }
+  }
+}
+
+function solveSub(state, solveFlags, depth, maxDepth) {
+  const MAXRECURSE = 5;
+  let maxrecurse = 0;
+
+  if (maxDepth && maxDepth.value < depth) {
+    maxDepth.value = depth;
+  }
+  
+  if (solveFlags & F_SOLVE_ALLOWRECURSE) {
+    maxrecurse = MAXRECURSE;
+  }
+
+  let scratch = null; 
+  while (true) {
+    /* Our own solver, from scratch, should never cause this to happen
+    * (assuming a soluble grid). However, if we're trying to solve
+    * from a half-completed *incorrect* grid this might occur; we
+    * just return the 'no solutions' code in this case. */
+    if (gridOverlap(state)) {
+      return 0;
+    }
+
+    if (isGameComplete(state)) {
+      return 1;
+    }
+
+    let ncanplace = 0;
+    let didstuff = false;
+
+    /* These 2 loops, and the functions they call, are the critical loops
+     * for timing; any optimisations should look here first. */
+    for (let x = 0; x < state.width; x++) {
+      for (let y = 0; y < state.height; y++) {
+        const index = y * state.width + x;
+        const flags = state.flags[index];
+        const lights = state.lights[index];
+
+        ncanplace += couldPlaceLight(flags, lights);
+
+        if (trySolveLight(state, x, y, flags, lights)) didstuff = true;
+        if (trySolveNumber(state, x, y, flags, lights)) didstuff = true;
+      }
+    }
+
+    if (didstuff) continue;
+    if (!ncanplace) {
+      /* nowhere to put a light, puzzle is unsoluble. */
+      return 0;
+    }
+
+    if (solveFlags & F_SOLVE_DISCOUNTSETS) {
+      for (let x = 0; x < state.width; x++) {
+        for (let y = 0; y < state.height; y++) {
+          const index = y * state.width + x;
+          const flags = state.flags[index];
+          const lights = state.lights[index];
+          if (!scratch) {
+            scratch = new SetScratch(state.width, state.height);
+          }
+          if (!(flags & CellFlags.BLACK) && lights === 0) {
+            if (discountUnlit(state, x, y, scratch)) {
+              didstuff = true;
+              break;
+            }
+          } else if (flags & CellFlags.NUMBERED) {
+            if (discountClue(state, x, y, scratch)) {
+              didstuff = true;
+              break;
+            }
+          }
+        }
+        if (didstuff) break;
+      }
+      if (didstuff) continue;
+    }
+
+    if (depth >= maxrecurse) {
+      return -1;
+    }
+
+    /* Of all the squares that we could place a light, pick the one
+    * that would light the most currently unlit squares. 
+    * This heuristic was just plucked from the air; there may well be
+    * a more efficient way of choosing a square to flip to minimise
+    * recursion. */
+    let bestx = -1, besty = -1, bestn = 0;
+    for (let x = 0; x < state.width; x++) {
+      for (let y = 0; y < state.height; y++) {
+        const index = y * state.width + x;
+        const flags = state.flags[index];
+        const lights = state.lights[index];
+
+        if (!couldPlaceLight(flags, lights)) continue;
+
+        const lightData = listLigths(state, x, y, true);
+        let n = 0;
+        foreachLit(lightData, (lx, ly) => {
+          const index = ly * state.width + lx;
+          if (state.lights[index] === 0) {
+            n++;
+          }
+        });
+
+        if (n > bestn) {
+          bestn = n;
+          bestx = x;
+          besty = y;
+        }
+      }
+    }
+
+    if (bestn === 0 || bestx < 0 || besty < 0) {
+      throw new Error("Invalid best position found");
+    }
+
+    // Now we've chosen a plausible (x,y), try to solve it once as 'lit'
+    // and once as 'impossible'; we need to make one copy to do this.
+    const stateCopy = state.clone();
+
+    state.flags[besty * state.width + bestx] |= CellFlags.IMPOSSIBLE;
+    const selfSoluble = solveSub(state, solveFlags, depth + 1, maxDepth);
+
+    if (!(solveFlags & F_SOLVE_FORCEUNIQUE) && selfSoluble > 0) {
+      return selfSoluble;
+    }
+
+    setLight(stateCopy, bestx, besty, true);
+    const copySoluble = solveSub(stateCopy, solveFlags, depth + 1, maxDepth);
+
+    let ret;
+    if ((solveFlags & F_SOLVE_FORCEUNIQUE) && 
+        (copySoluble < 0 || selfSoluble < 0)) {
+      ret = -1;
+    } else if (copySoluble <= 0) {
+      ret = selfSoluble;
+    } else if (selfSoluble <= 0) {
+      state.copyFrom(stateCopy);
+      ret = copySoluble;
+    } else {
+      ret = copySoluble + selfSoluble;
+    }
+
+    return ret;
+  }
+}
+
+// Fills in the (possibly partially-complete) game_state as far as it can,
+// returning the number of possible solutions. If it returns >0 then the
+// game_state will be in a solved state, but you won't know which one.
+function doSolve(state, solveFlags, maxDepth) {
+  for (let x = 0; x < state.width; x++) {
+    for (let y = 0; y < state.height; y++) {
+      state.flags[y * state.width + x] &= ~CellFlags.NUMBERUSED;
+    }
+  }
+  
+  return solveSub(state, solveFlags, 0, maxDepth);
+}
+
+// Check if the puzzle is valid
+function puzzleIsGood(state, difficulty) {
+  let nsol, mdepth = 0;
+  const sflags = flagsFromDifficulty(difficulty);
+
+  // Clear all lights
+  unplaceLights(state);
+
+  // Try to solve the puzzle
+  nsol = doSolve(state, sflags, mdepth);
+
+  // If recursion is not allowed and recursion is used, the puzzle is invalid
+  if (!(sflags & F_SOLVE_ALLOWRECURSE) && mdepth > 0) {
+    console.debug("Ignoring recursive puzzle.");
+    return false;
+  }
+  console.debug(`${nsol} solutions found.`);
+  // There must be exactly one solution
+  return nsol === 1;
+}
+
+function couldPlaceLight(flags, lights) {
+  if (flags & (CellFlags.BLACK | CellFlags.IMPOSSIBLE)) {
+    return false;
+  }
+  return (lights > 0) ? false : true;
+}
+
+function trySolveLight(state, x, y, flags, lights) {
+  if (lights > 0 || flags & CellFlags.BLACK) {
+    return false;
+  }
+
+  /* We have an unlit square; count how many ways there are left to
+  * place a light that lights us (including this square); if only
+  * one, we must put a light there. Squares that could light us
+  * are, of course, the same as the squares we would light... */
+  let possibleX = -1, possibleY = -1, count = 0;
+  const lightData = listLigths(state, x, y, true);
+
+  foreachLit(lightData, (lx, ly) => {
+    const index = ly * state.width + lx;
+    if (couldPlaceLight(state.flags[index], state.lights[index])) {
+      count++;
+      possibleX = lx;
+      possibleY = ly;
+    }
+  });
+
+  if (count === 1) {
+    setLight(state, possibleX, possibleY, true);
+    return true;
+  }
+
+  return false;
+}
+
+/* For a given number square, determine whether we have enough info
+ * to unambiguously place its lights. */
+function trySolveNumber(state, x, y, flags, lights) {
+  if (!(flags & CellFlags.NUMBERED)) return false;
+
+  const surrounds = getSurrounds(state, x, y);
+  let nlit = 0, npossible = 0;
+
+  for (const point of surrounds) {
+    const index = point.y * state.width + point.x;
+    if (state.flags[index] & CellFlags.LIGHT) {
+      nlit++;
+    }
+    if (couldPlaceLight(state.flags[index], state.lights[index])) {
+      npossible++;
+    }
+  }
+
+  const target = lights;
+  if (nlit > target || nlit + npossible < target) {
+    console.debug("Number at (%d,%d) is impossible.", x, y);
+    return false;
+  }
+
+  if (nlit === target) {
+    console.debug("Number at (%d,%d) is trivial; setting unlit to IMPOSSIBLE.", x, y);
+    let didstuff = false;
+    for (const point of surrounds) {
+      const index = point.y * state.width + point.x;
+      if (couldPlaceLight(state.flags[index], state.lights[index])) {
+        state.flags[index] |= CellFlags.IMPOSSIBLE;
+        didstuff = true;
+      }
+    }
+    return didstuff;
+  }
+
+  if (nlit + npossible === target) {
+    console.debug("Number at (%d,%d) is trivial; setting unlit to LIGHT.", x, y);
+    let didstuff = false;
+    for (const point of surrounds) {
+      const index = point.y * state.width + point.x;
+      if (couldPlaceLight(state.flags[index], state.lights[index])) {
+        setLight(state, point.x, point.y, true);
+        didstuff = true;
+      }
+    }
+    return didstuff;
+  }
+
+  return false;
+}
+
+class SetScratch {
+  constructor(width, height) {
+    this.size = width + height;
+    this.positions = new Array(this.size).fill(null).map(() => ({
+      x: -1,
+      y: -1,
+      n: 0
+    }));
+    this.count = 0;
+  }
+
+  clear() {
+    this.count = 0;
+    this.positions.forEach(pos => {
+      pos.x = -1;
+      pos.y = -1;
+      pos.n = 0;
+    });
+  }
+  add(x, y) {
+    if (this.count >= this.size) return false;
+    this.positions[this.count].x = x;
+    this.positions[this.count].y = y;
+    this.positions[this.count].n = 0;
+    this.count++;
+    return true;
+  }
+}
+
+/* XXX Find all the squares which would rule out (x,y); anything
+* that would light it as well as squares adjacent to same clues
+* as X assuming that clue only has one remaining light.
+* Call the callback with each square. */
+function tryRuleOut(state, x, y, scratch, n, callback) {
+  const lightData = listLigths(state, x, y, false);
+
+  // Find all squares that would rule out a light at (x,y) and call trl_cb
+  foreachLit(lightData, (lx, ly) => {
+    if (couldPlaceLight(
+      state.flags[ly * state.width + lx],
+      state.lights[ly * state.width + lx]
+    )) {
+      callback(state, lx, ly, scratch, n);
+    }
+  });
+
+  const surrounds = getSurrounds(state, x, y);
+  
+  for (const s of surrounds) {
+    const sIndex = s.y * state.width + s.x;
+    if (!(state.flags[sIndex] & CellFlags.NUMBERED)) {
+      continue;
+    }
+    
+    const subSurrounds = getSurrounds(state, s.x, s.y);
+    let currentLights = 0;
+    for (const ss of subSurrounds) {
+      const ssIndex = ss.y * state.width + ss.x;
+      if (state.flags[ssIndex] & CellFlags.LIGHT) {
+        currentLights++;
+      }
+    }
+    const totalLights = state.lights[sIndex];
+    /* We have a clue with tot_lights to fill, and curr_lights currently
+      * around it. If adding a light at (x,y) fills up the clue (i.e.
+      * curr_lights + 1 = tot_lights) then we need to discount all other
+      * unlit squares around the clue. */
+    if (currentLights + 1 === totalLights) {
+      for (const ss of subSurrounds) {
+        if (ss.x === x && ss.y === y) {
+          continue;
+        }
+        if (couldPlaceLight(
+          state.flags[ss.y * state.width + ss.x],
+          state.lights[ss.y * state.width + ss.x]
+        )) {
+          callback(state, ss.x, ss.y, scratch, n);
+        }
+      }
+    }
+  }
+}
+
+function discountUnlit(state, x, y, scratch) {
+  scratch.clear();
+
+  const lightData = listLigths(state, x, y, true);
+
+  foreachLit(lightData, (lx, ly) => {
+    if (couldPlaceLight(
+      state.flags[ly * state.width + lx],
+      state.lights[ly * state.width + lx]
+    )) {
+      scratch.add(lx, ly);
+    }
+  });
+
+  const didSomething = discountSet(state, scratch);
+  return didSomething;
+}
+
+function discountSet(state, scratch) {
+  let didSomething = false;
+
+  if (scratch.count === 0) {
+    return false;
+  }
+
+  for (let i = 0; i < scratch.count; i++) {
+    const pos = scratch.positions[i];
+    pos.n = 0;
+
+    tryRuleOut(state, pos.x, pos.y, scratch, scratch.count,
+      (state, rx, ry, scratch, n) => {
+        pos.n++;
+      }
+    );
+  }
+
+  let bestIndex = -1;
+  let bestCount = Number.MAX_SAFE_INTEGER;
+
+  for (let i = 0; i < scratch.count; i++) {
+    const pos = scratch.positions[i];
+    if (pos.n < bestCount) {
+      bestCount = pos.n;
+      bestIndex = i;
+    }
+  }
+
+  if (bestIndex !== -1) {
+    const bestPos = scratch.positions[bestIndex];
+
+    tryRuleOut(state, bestPos.x, bestPos.y, scratch, scratch.count,
+      (state, rx, ry, scratch, n) => {
+        const index = ry * state.width + rx;
+        if (!(state.flags[index] & CellFlags.IMPOSSIBLE)) {
+          state.flags[index] |= CellFlags.IMPOSSIBLE;
+          didSomething = true;
+        }
+      }
+    );
+  }
+
+  return didSomething;
+}
+
+function generateCombinations(r, n) {
+  if (r > n) return [];
+  if (r === 0) return [[]];
+  if (r === n) {
+    return [[...Array(n).keys()]];
+  }
+
+  const combinations = [];
+
+  function combine(current, start) {
+    if (current.length === r) {
+      combinations.push([...current]);
+      return;
+    }
+
+    for (let i = start; i < n; i++) {
+      current.push(i);
+      combine(current, i + 1);
+      current.pop();
+    }
+  }
+
+  combine([], 0);
+  return combinations;
+}
+
+function discountClue(state, x, y, scratch) {
+  const index = y * state.width + x;
+  let m = state.lights[index];
+  if (m === 0) return false;
+  const surrounds = getSurrounds(state, x, y);
+  let emptySpaces = [];
+
+  for (const s of surrounds) {
+    const sIndex = s.y * state.width + s.x;
+    const flags = state.flags[sIndex];
+    const lights = state.lights[sIndex];
+    if (flags & CellFlags.LIGHT) {
+      m--;
+    }
+    if (couldPlaceLight(flags, lights)) {
+      emptySpaces.push(s);
+    }
+  }
+  const n = emptySpaces.length;
+  if (n === 0) return false;
+  if (m < 0 || m > n) return false;
+
+  let didSomething = false;
+  const combinations = generateCombinations(n - m + 1, n);
+  for (const combination of combinations) {
+    discountClear(state, scratch);
+
+    for (const index of combination) {
+      const space = emptySpaces[index];
+      scratch.add(space.x, space.y);
+    }
+
+    if (discountSet(state, scratch)) {
+      didSomething = true;
+    }
+  }
+  return didSomething;
+}
+
+
+function generateNewGame(params, random) {
+  const MAX_TRIES = 20;
+  
+  // Generate random positions sequence
+  const positions = [];
+  for(let i = 0; i < params.w * params.h; i++) {
+    positions.push(i);
+  }
+  shuffleArray(positions, random);
+  
+  while(true) {
+    for(let tries = 0; tries < MAX_TRIES; tries++) {
+      const state = new GameState(params.w, params.h);
+      
+      setBlacks(state, {
+        w: params.w,
+        h: params.h,
+        blackpc: params.blackpc,
+        symm: params.symm
+      });
+
+      placeLights(state);
+      placeNumbers(state);
+
+      if (!puzzleIsGood(state, params.difficulty)) {
+        continue;
+      }
+      
+      // Optimize puzzle - remove unnecessary numbers
+      for(const pos of positions) {
+        const x = pos % params.w;
+        const y = Math.floor(pos / params.w);
+        
+        if(!(state.flags[y * params.w + x] & CellFlags.NUMBERED)) {
+          continue;
+        }
+        
+        // Try removing the number
+        const oldNumber = state.lights[y * params.w + x];
+        state.lights[y * params.w + x] = 0;
+        state.flags[y * params.w + x] &= ~CellFlags.NUMBERED;
+        
+        // If removing the number makes the puzzle invalid, restore it
+        if(!puzzleIsGood(state, params.difficulty)) {
+          state.lights[y * params.w + x] = oldNumber;
+          state.flags[y * params.w + x] |= CellFlags.NUMBERED;
+        }
+      }
+      
+      return state;
+    }
+    
+    // If generation fails, increase black square percentage
+    params.blackpc = Math.min(90, params.blackpc + 5);
   }
 }
 
@@ -516,7 +1065,7 @@ export {
   listLigths,
   setLight,
   isGridLit,
-  hasOverlappingLights,
+  gridOverlap,
   checkNumberedWall,
   isGameComplete,
   cleanBoard,
@@ -524,5 +1073,7 @@ export {
   placeLights,
   checkDark,
   placeNumbers,
+  generateNewGame,
   debugPrintState,
+  generateCombinations,
 };

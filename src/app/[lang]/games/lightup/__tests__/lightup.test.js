@@ -1,4 +1,4 @@
-import { GameState, CellFlags, listLigths, setLight, placeNumbers } from "../lightup";
+import { GameState, CellFlags, listLigths, setLight, placeNumbers, generateCombinations } from "../lightup";
 
 describe("Test listLigths", () => {
   test("Empty board center light", () => {
@@ -244,5 +244,90 @@ describe("placeNumbers", () => {
     placeNumbers(state);
     expect(state.lights[2 * 5 + 2]).toBe(0);
     expect(state.flags[2 * 5 + 2] & CellFlags.NUMBERED).toBeTruthy();
+  });
+});
+
+describe("Test generateCombinations", () => {
+  test("Basic combinations", () => {
+    const combs = generateCombinations(2, 4);
+    expect(combs).toEqual([
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [1, 2],
+      [1, 3],
+      [2, 3]
+    ]);
+
+    expect(generateCombinations(3, 5)).toEqual([
+      [0, 1, 2],
+      [0, 1, 3],
+      [0, 1, 4],
+      [0, 2, 3],
+      [0, 2, 4],
+      [0, 3, 4],
+      [1, 2, 3],
+      [1, 2, 4],
+      [1, 3, 4],
+      [2, 3, 4]
+    ]);
+  });
+
+  test("Edge cases", () => {
+    expect(generateCombinations(0, 5)).toEqual([[]]);
+    expect(generateCombinations(3, 3)).toEqual([[0, 1, 2]]);
+    expect(generateCombinations(4, 3)).toEqual([]);
+    expect(generateCombinations(0, 0)).toEqual([[]]);
+  });
+
+  test("Small combinations", () => {
+    expect(generateCombinations(1, 3)).toEqual([
+      [0],
+      [1],
+      [2]
+    ]);
+    expect(generateCombinations(2, 3)).toEqual([
+      [0, 1],
+      [0, 2],
+      [1, 2]
+    ]);
+  });
+
+  test("Verify combination properties", () => {
+    const combs = generateCombinations(2, 4);
+    expect(combs.length).toBe(6);
+    combs.forEach(comb => {
+      expect(comb.length).toBe(2);
+    });
+
+    combs.forEach(comb => {
+      for (let i = 0; i < comb.length - 1; i++) {
+        expect(comb[i]).toBeLessThan(comb[i + 1]);
+      }
+    });
+
+    combs.forEach(comb => {
+      comb.forEach(num => {
+        expect(num).toBeGreaterThanOrEqual(0);
+        expect(num).toBeLessThan(4);
+      });
+    });
+  });
+
+  test("Verify uniqueness", () => {
+    const combs = generateCombinations(2, 4);
+    const stringified = combs.map(c => JSON.stringify(c));
+    const unique = new Set(stringified);
+
+    expect(unique.size).toBe(combs.length);
+  });
+
+  test("Large combinations size check", () => {
+    // C(3,7) = 35
+    expect(generateCombinations(3, 7).length).toBe(35);
+    // C(4,7) = 35
+    expect(generateCombinations(4, 7).length).toBe(35);
+    // C(2,10) = 45
+    expect(generateCombinations(2, 10).length).toBe(45);
   });
 });
