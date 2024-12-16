@@ -39,6 +39,10 @@ export const EVENTS = {
   Minesweeper: {
     Success: "success",
     Fail: "fail",
+    ThemeChanged: "theme_changed",
+    CustomSettings: "custom_settings",
+    ModeChanged: "mode_changed",
+    DifficultyChange: "difficulty_changed",
   },
   Maze: {
     Generated: "generated",

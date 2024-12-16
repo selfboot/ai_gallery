@@ -25,6 +25,7 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
   const rendererRef = useRef(null);
   const containerRef = useRef(null);
   const [isFacePressed, setIsFacePressed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const getInitialWindowSize = () => ({
     width: typeof window !== "undefined" ? window.innerWidth : 800,
@@ -75,8 +76,8 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
 
   // Calculate canvas dimensions
   const statusBarBottomPadding = 16;
-  const canvasWidth = game.cols * cellSize;
-  const canvasHeight = game.rows * cellSize;
+  const canvasWidth = mounted ? game.cols * cellSize : 'auto';
+  const canvasHeight = mounted ? game.rows * cellSize : 'auto';
 
   const statusLEDHeight = Math.max(44, cellSize);
   const statusBarHeight = statusLEDHeight + statusBarBottomPadding;
@@ -244,26 +245,32 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
     return isFacePressed ? FACE_SVGS.pressed : FACE_SVGS.normal;
   };
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const statusBarStyle = {
+    height: `${statusBarHeight}px`,
+    width: mounted ? `${totalWidth}px` : "auto",
+    paddingBottom: `${statusBarBottomPadding}px`,
+    backgroundColor: THEMES[theme].outerBackground,
+  };
+
   return (
     <div
       ref={containerRef}
       style={{
-        width: `${totalWidth}px`,
-        height: `${totalHeight}px`,
+        width: mounted ? `${totalWidth}px` : 'auto',
+        height: mounted ? `${totalHeight}px` : 'auto',
       }}
     >
       {/* Status bar */}
       <div
         className="flex justify-between items-center mb-2"
-        style={{
-          height: `${statusBarHeight}px`,
-          width: `${totalWidth}px`,
-          paddingBottom: `${statusBarBottomPadding}px`,
-          backgroundColor: THEMES[theme].outerBackground,
-        }}
+        style={statusBarStyle}
       >
         <LEDDisplay value={game.minesLeft} />
-
+        
         <button
           onClick={onReset}
           onMouseDown={(e) => {
@@ -288,8 +295,8 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
           }}
         >
           <div style={{
-            width: `${Math.floor(cellSize * 0.85)}px`,
-            height: `${Math.floor(cellSize * 0.85)}px`
+            width: mounted ? `${Math.floor(cellSize * 0.85)}px` : 'auto',
+            height: mounted ? `${Math.floor(cellSize * 0.85)}px` : 'auto',
           }}>
             {getFaceContent()}
           </div>
@@ -306,8 +313,8 @@ const GameBoard = ({ game, onCellClick, onCellRightClick, onCellDoubleClick, onR
         width={canvasWidth}
         height={canvasHeight}
         style={{
-          width: canvasWidth,
-          height: canvasHeight,
+          width: mounted ? canvasWidth : 'auto',
+          height: mounted ? canvasHeight : 'auto',
         }}
       />
     </div>
@@ -353,6 +360,14 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
 
   const handleLevelChange = (translatedValue) => {
     const level = translationToLevel[translatedValue];
+    trackEvent(
+      CATEGORIES.Minesweeper,
+      EVENTS.Minesweeper.DifficultyChanged,
+      {
+        from: selectedLevel,
+        to: level
+      }
+    );
     setSelectedLevel(level);
     if (level !== "custom") {
       onSettingsChange(DIFFICULTY_LEVELS[level], true);
@@ -367,7 +382,16 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
 
   const handleModeChange = (translatedValue) => {
     const mode = translationToMode[translatedValue];
-    onHexagonalChange(mode === 'hexagonal');
+    const isHex = mode === 'hexagonal';
+    trackEvent(
+      CATEGORIES.Minesweeper,
+      EVENTS.Minesweeper.ModeChanged,
+      {
+        from: isHexagonal ? 'hexagonal' : 'classic',
+        to: isHex ? 'hexagonal' : 'classic'
+      }
+    );
+    onHexagonalChange(isHex);
   };
 
   const getValidatedSettings = (container) => {
@@ -459,6 +483,15 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
               onClick={(e) => {
                 const container = e.target.closest('.custom-settings');
                 const newSettings = getValidatedSettings(container);
+                trackEvent(
+                  CATEGORIES.Minesweeper,
+                  EVENTS.Minesweeper.CustomSettings,
+                  {
+                    rows: newSettings.rows,
+                    cols: newSettings.cols,
+                    mines: newSettings.mines
+                  }
+                );
                 onSettingsChange(newSettings, true);
               }}
             >
@@ -473,6 +506,14 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
             value={THEME_OPTIONS(t).find(t => t.value === theme).label}
             onChange={(translatedValue) => {
               const selectedTheme = THEME_OPTIONS(t).find(t => t.label === translatedValue).value;
+              trackEvent(
+                CATEGORIES.Minesweeper,
+                EVENTS.Minesweeper.ThemeChanged,
+                {
+                  from: theme,
+                  to: selectedTheme
+                }
+              );
               setTheme(selectedTheme);
             }}
             options={THEME_OPTIONS(t).map(t => t.label)}
