@@ -40,6 +40,18 @@ This Minesweeper game offers four difficulty levels, suitable for players of dif
 - Expert mode uses an extra-wide 16×30 game area with 99 mines. This difficulty demands high levels of logical reasoning and attention from players, making it a challenge for experienced players.
 - Additionally, the game offers a custom difficulty option. You can freely set the number of rows, columns, and mines to create your personalized gaming experience.
 
+To make the game interface more aesthetically pleasing and personalized, this page currently **supports 7 different style themes**:
+
+1. Classic: The Windows classic Minesweeper gray theme, featuring three-dimensional cells and classic number coloring
+2. Dark: Dark background paired with soft number colors, perfect for nighttime use
+3. Pastel: Soft color scheme dominated by light purple, creating a relaxing and comfortable feeling
+4. Green: Green-based color scheme with dark numbers, full of nature and vitality
+5. Yellow: Warm yellow base paired with dark brown numbers, giving a warm, sunny feeling
+6. Ocean: Blue-based color scheme that evokes the refreshing feeling of the ocean
+7. Sunset: Warm orange tones reminiscent of the warm colors at dusk
+
+If you have better suggestions for Minesweeper color themes, please leave a message~
+
 ## Basic Operations
 
 This Minesweeper implementation provides three basic operations:
