@@ -42,7 +42,7 @@ export const EVENTS = {
     ThemeChanged: "theme_changed",
     CustomSettings: "custom_settings",
     ModeChanged: "mode_changed",
-    DifficultyChange: "difficulty_changed",
+    DifficultyChanged: "difficulty_changed",
   },
   Maze: {
     Generated: "generated",
