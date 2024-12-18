@@ -89,7 +89,7 @@ So far, we've implemented a toy Minesweeper game, but the interface still looks 
 
 Additionally, I specifically mentioned the technology for rendering the board, directly asking **it to use canvas to implement each cell**. Here I'll add some personal observations - **developers should still have some background knowledge when using AI**. This allows for more precise prompts and helps avoid detours.
 
-Previously, when implementing [Bloom Filter visualization](http://gallery.selfboot.cn/en/algorithms/bloomfilter), Claude implemented numerous cells directly using grid components, resulting in very poor performance. Only after multiple questions did I finally learn that canvas could be used. Without knowing about canvas and not prompting the AI, we might waste a lot of time on an incorrect approach.
+Previously, when implementing [Bloom Filter visualization](https://gallery.selfboot.cn/en/algorithms/bloomfilter), Claude implemented numerous cells directly using grid components, resulting in very poor performance. Only after multiple questions did I finally learn that canvas could be used. Without knowing about canvas and not prompting the AI, we might waste a lot of time on an incorrect approach.
 
 Finally, the simple prompt was:
 

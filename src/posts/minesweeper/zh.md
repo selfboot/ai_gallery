@@ -83,7 +83,7 @@ class MinesweeperGame {
 
 此外，我直接对渲染棋盘用的技术也做了说明，直接让**它用 canvas 实现每个方格**。这里补充一些自己的观点，其实**在使用 AI 的过程中，开发者还是要有一定的背景知识**。这样能更精确的给出一些提示，少走弯路。
 
-之前在实现[布隆过滤器的可视化](http://gallery.selfboot.cn/zh/algorithms/bloomfilter)的时候，Claude 绘制大量格子直接用 grid 组件实现，导致性能十分低下。后来多次提问，才最终学到可以用 canvas 来实现。如果不知道 canvas，不提示 AI 的话，可能在一个错误的方案上浪费很多时间。
+之前在实现[布隆过滤器的可视化](https://gallery.selfboot.cn/zh/algorithms/bloomfilter)的时候，Claude 绘制大量格子直接用 grid 组件实现，导致性能十分低下。后来多次提问，才最终学到可以用 canvas 来实现。如果不知道 canvas，不提示 AI 的话，可能在一个错误的方案上浪费很多时间。
 
 最后，简单的提示词如下：
 
