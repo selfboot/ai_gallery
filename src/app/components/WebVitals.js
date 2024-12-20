@@ -15,7 +15,7 @@ const reportWebVitals = (onPerfEntry) => {
 
 const sendToAnalytics = ({ name, value }) => {
   if (typeof window !== 'undefined' && window.gtag) {
-    console.log(`Sending Web Vital: ${name} = ${value}`);
+    // console.log(`Sending Web Vital: ${name} = ${value}`);
     window.gtag("event", name, {
       event_category: "Web Vitals",
       event_label: name,

@@ -30,12 +30,17 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
           title={`RSS Feed for AI Gallery`}
           href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
-        <meta name="baidu-site-verification" content="codeva-aNF6ICHngY" />
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544"
-          async
-          crossOrigin="anonymous"
-        />
+        <Script id="check-device-and-load-ads" strategy="beforeInteractive">
+          {`
+            if (window.innerWidth >= 768) {
+              const script = document.createElement('script');
+              script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544";
+              script.async = true;
+              script.crossOrigin = "anonymous";
+              document.head.appendChild(script);
+            }
+          `}
+        </Script>
         <Script
           id="microsoft-clarity"
           strategy="afterInteractive"
@@ -65,7 +70,7 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
         </div>
       </body>
       <GoogleAnalytics gaId="G-Y4WD2DT404" />
-      <WebVitals />
+      {/* <WebVitals /> */}
       <Script
         src="https://cloud.umami.is/script.js"
         data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
