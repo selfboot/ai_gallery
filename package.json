@@ -36,7 +36,7 @@
     "highlight.js": "^11.10.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.416.0",
-    "next": "14.2.15",
+    "next": "15.1.1",
     "node-fetch": "^3.3.2",
     "papaparse": "^5.4.1",
     "pizzip": "^3.1.7",
