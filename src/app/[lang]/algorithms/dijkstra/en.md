@@ -91,7 +91,7 @@ Finally, it's worth noting that **Dijkstra's algorithm requires all edge weights
 1. If negative weight edges exist, the greedy strategy may fail
 2. After determining a vertex's shortest path, a shorter path might be found through negative weight edges, violating the algorithm's basic assumption: confirmed shortest paths won't be updated
 
-For example, in the graph below, there's a negative weight edge CE with weight -13. The actual shortest path to E is -1 (shown by red arrows), but the algorithm calculates it as 10:
+For example, in the graph below, there's a negative weight edge CE with weight -13. The actual shortest path to E is 1 (shown by red arrows), but the algorithm calculates it as 10:
 
 ![Dijkstra's Algorithm with Negative Weight](https://slefboot-1251736664.file.myqcloud.com/20241205_ai_gallery_dijkstra_negative_weight.png)
 
