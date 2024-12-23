@@ -14,7 +14,8 @@ export const awardTemplates = {
         fontFamily: 'SimKai',
         color: '#000000',
         textAnchor: 'start',
-        label: '姓名'
+        label: '姓名',
+        defaultText: '小明'
       },
       {
         id: 'school',
@@ -24,7 +25,8 @@ export const awardTemplates = {
         fontFamily: 'SimSun',
         color: '#000000',
         textAnchor: 'end',
-        label: '学校'
+        label: '学校',
+        defaultText: 'XX中学'
       },
       {
         id: 'date',
@@ -34,7 +36,8 @@ export const awardTemplates = {
         fontFamily: 'SimSun',
         color: '#000000',
         textAnchor: 'end',
-        label: '日期'
+        label: '日期',
+        defaultText: '2024年1月1日'
       },
       {
         id: 'title',
@@ -45,7 +48,8 @@ export const awardTemplates = {
         color: '#ff0000',
         textAnchor: 'middle',
         label: '标题',
-        defaultValue: '三好学生'
+        defaultValue: '三好学生',
+        defaultText: '三好学生'
       }
     ]
   }
