@@ -21,13 +21,13 @@ function useAdInit() {
 }
 
 // 基础广告组件
-function BaseAdComponent({ slot }) {
+function BaseAdComponent({ slot, className }) {
   useAdInit();
 
   return (
-    <div className="my-4">
+    <div className={`relative ${className || ''}`}>
       <ins
-        className="adsbygoogle"
+        className="adsbygoogle absolute inset-0 w-full h-full"
         style={{ display: 'block' }}
         data-ad-client="ca-pub-7746897490519544"
         data-ad-slot={slot}
@@ -42,6 +42,9 @@ export function AdComponent() {
   return <BaseAdComponent slot="4833706118" />;
 }
 
-export function SideAdComponent() {
-  return <BaseAdComponent slot="7437487022" />;
+export function SideAdComponent({ className }) {
+  return <BaseAdComponent 
+    slot="7437487022" 
+    className={`overflow-hidden ${className || ''}`}
+  />;
 }
