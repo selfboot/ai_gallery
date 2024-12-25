@@ -421,7 +421,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-xl font-bold">{t('settings')}</h2>
+      <h2 className="text-xl font-bold mt-4 md:mt-0">{t('settings')}</h2>
       <div className="space-y-3">
         <div>
           <label className="block mb-1">{t('game_mode')}</label>
@@ -554,8 +554,8 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
           </label>
         </div>
 
-        <div className="hidden md:relative md:block w-full aspect-square bg-gray-100">
-          <SideAdComponent className="absolute inset-0" />
+        <div className="hidden md:relative md:block w-full bg-gray-100">
+          <SideAdComponent/>
         </div>
       </div>
     </div>
