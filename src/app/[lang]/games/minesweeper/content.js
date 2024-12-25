@@ -12,6 +12,7 @@ import Modal from "@/app/components/Modal";
 import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
 import { THEMES, THEME_OPTIONS } from './themes';
+import { SideAdComponent } from "@/app/components/AdComponent";
 
 const DIFFICULTY_LEVELS = {
   easy: { rows: 9, cols: 9, mines: 10 },
@@ -346,7 +347,7 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
 
   const [selectedLevel, setSelectedLevel, clearSelectedLevel, isInitialized] = usePersistentState(
     "minesweeper-difficulty",
-    'easy',
+    'medium',
     365 * 24 * 60 * 60 * 1000
   );
 
@@ -553,6 +554,9 @@ const Settings = ({ settings, onSettingsChange, onReset, onContinue, canContinue
           </label>
         </div>
 
+        <div className="hidden md:relative md:block w-full aspect-square bg-gray-100">
+          <SideAdComponent className="absolute inset-0" />
+        </div>
       </div>
     </div>
   );
