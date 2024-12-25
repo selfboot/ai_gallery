@@ -20,6 +20,7 @@ function useAdInit() {
   }, []);
 }
 
+// https://support.google.com/adsense/answer/9183460?hl=zh-Hans&sjid=15277587185637410503-AP
 // 基础广告组件
 function BaseAdComponent({ slot, className }) {
   useAdInit();
@@ -27,12 +28,12 @@ function BaseAdComponent({ slot, className }) {
   return (
     <div className={`relative ${className || ''}`}>
       <ins
-        className="adsbygoogle absolute inset-0 w-full h-full"
+        className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client="ca-pub-7746897490519544"
         data-ad-slot={slot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
+        data-ad-format="rectangle"
+        data-full-width-responsive="false"
       />
     </div>
   );
