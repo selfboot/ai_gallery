@@ -8,6 +8,8 @@ import Modal from "@/app/components/Modal";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { trackEvent, CATEGORIES, EVENTS } from "@/app/utils/analytics";
+import {SideAdComponent} from "@/app/components/AdComponent";
+
 const STORAGE_KEY = 'sokoban-progress';
 
 const SokobanGame = ({ lang, levels }) => {
@@ -647,6 +649,8 @@ const SokobanGame = ({ lang, levels }) => {
     );
   };
 
+  const shouldPlaceAdBelowSettings = gameState.map.length >= 9;
+
   return (
     <div className="flex flex-col lg:flex-row w-full gap-4 p-4">
       <div className="w-full lg:w-4/5 flex flex-col items-center gap-4">
@@ -739,6 +743,12 @@ const SokobanGame = ({ lang, levels }) => {
               </div>
             </div>
           </>
+        )}
+
+        {!shouldPlaceAdBelowSettings && ( 
+          <div className="hidden md:block w-full bg-gray-100">
+            <SideAdComponent format="horizontal" className="absolute inset-0" />
+          </div>
         )}
       </div>
 
@@ -894,6 +904,12 @@ const SokobanGame = ({ lang, levels }) => {
             </div>
           )}
         </div>
+
+        {shouldPlaceAdBelowSettings && (
+          <div className="hidden md:block w-full bg-gray-100">
+            <SideAdComponent/>
+          </div>
+        )}
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
