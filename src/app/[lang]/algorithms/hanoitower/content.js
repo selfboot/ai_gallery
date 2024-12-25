@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { CustomListbox } from "@/app/components/ListBox";
 import { useI18n } from "@/app/i18n/client";
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
+import { SideAdComponent } from "@/app/components/AdComponent";
 
 const DISK_COLORS = [
   "#FF6B6B",
@@ -291,7 +292,7 @@ const HanoiTower = () => {
 
     const minMoves = 2 ** disks - 1;
     return (
-      <div className="w-full md:w-1/4 p-4 flex flex-col space-y-4">
+      <div className="w-full md:w-1/5 p-4 flex flex-col space-y-4">
         <h2 className="text-2xl font-bold">{t("settings")}</h2>
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700">{t("numberOfDisks")}</label>
@@ -381,15 +382,21 @@ const HanoiTower = () => {
   });
 
   return (
-    <div className="flex flex-col md:flex-row">
-      <div className="w-full md:w-3/4 p-4 bg-gray-100">
-        <div className="flex flex-col md:flex-row justify-between h-full">
-          {towers.map((tower, index) => (
-            <Tower key={index} disks={tower} index={index} totalDisks={disks} />
-          ))}
+    <div className="flex flex-col">
+      <div className="flex flex-col md:flex-row">
+        <div className="w-full md:w-4/5 p-4 bg-gray-100">
+          <div className="flex flex-col md:flex-row justify-between h-full">
+            {towers.map((tower, index) => (
+              <Tower key={index} disks={tower} index={index} totalDisks={disks} />
+            ))}
+          </div>
         </div>
+        <Controls />
       </div>
-      <Controls />
+
+      <div className="hidden md:block md:w-4/5 w-full bg-gray-100">
+        <SideAdComponent format="horizontal" className="absolute inset-0" />
+      </div>
     </div>
   );
 };
