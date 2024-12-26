@@ -390,7 +390,7 @@
   "fileUpload_dragHere": "将文件拖到此处，或",
   "fileUpload_clickUpload": "点击上传",
   "fileUpload_sizeLimit": "仅支持{{accept}}文件，且不超过{{size}}MB",
-  "gendocx_title": "Word 文档生成器",
+  "gendocx_title": "在线免费批量生成 Word 文档",
   "gendocx_description": "上传 Excel 文件和 Word 模板，支持根据 excel 中的内容批量生成 Word 文档，支持下载全部和单个下载。界面优美简单，一键生成大量重复 word 文档。",
   "gendocx_uploadExcel": "上传Excel文件",
   "gendocx_uploadWord": "上传Word模板",
@@ -768,7 +768,7 @@
       "keywords": "3D魔方,在线玩3D魔方,免费3D魔方游戏,3D魔方策略,在线魔方游戏"
     },
     "gendocx": {
-      "title": "在线批量生成 Word 文档",
+      "title": "在线免费批量生成 Word 文档",
       "description": "上传 Excel 文件和 Word 模板，批量生成 Word 文档，支持下载所有。美观的界面，简单的操作，批量生成大量 Word 文档。",
       "keywords": "Word 文档生成器, Excel 转 Word, 批量生成 Word, Word 文档下载"
     },
