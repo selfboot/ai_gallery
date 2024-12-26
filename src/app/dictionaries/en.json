@@ -385,7 +385,7 @@
   "fileUpload_dragHere": "Drag files here, or ",
   "fileUpload_clickUpload": "click to upload",
   "fileUpload_sizeLimit": "Only {{accept}} files, max {{size}}MB",
-  "gendocx_title": "Batch Generate Word From Excel",
+  "gendocx_title": "Batch Generate Word From Excel Online For Free",
   "gendocx_description": "Upload Excel files and Word templates, support batch generation of Word documents based on the content of the Excel file, and support downloading all and single downloads. The interface is beautiful and simple, and generates a large number of duplicate Word documents with one click.",
   "gendocx_uploadExcel": "Upload Excel File",
   "gendocx_uploadWord": "Upload Word Template",
