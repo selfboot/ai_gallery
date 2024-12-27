@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
     keywords: dict.seo.gendocx.keywords,
     canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/gendocx`,
     publishedDate: "2024-10-30T10:00:00.000Z",
-    updatedDate: "2024-10-30T18:00:00.000Z",
+    updatedDate: "2024-12-27T10:00:00.000Z",
   });
 }
 
