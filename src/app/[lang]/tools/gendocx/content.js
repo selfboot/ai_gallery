@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import FileUploadBox from '@/app/components/FileUploadBox';
 import { useI18n } from "@/app/i18n/client";
 import Modal from '@/app/components/Modal';
+import Link from 'next/link';
 
 export default function GenDocx() {
   const { t } = useI18n();
