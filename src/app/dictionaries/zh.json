@@ -549,6 +549,13 @@
   "no_start_cell": "迷宫没有起点",
   "download_maze": "下载迷宫",
 
+  "gendocx_template_preview": "模板效果预览",
+  "gendocx_upload_excel": "上传 Excel文件",
+  "award_1_alt": "奖状效果预览图",
+  "gendocx_download_excel_template": "下载 Excel 模板",
+  "gendocx_download_word_template": "下载 Word 模板",
+  "award_1": "免费在线奖状批量生成器-模板 1",
+
   "chartrace": {
       "population-growth": {
         "title": "世界人口变化(1800-2015)",

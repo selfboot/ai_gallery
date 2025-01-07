@@ -542,7 +542,14 @@
   "hide_distances": "Hide Distance Map",
   "no_start_cell": "Maze has no start cell",
   "download_maze": "Download Maze",
-  
+
+  "gendocx_template_preview": "Template Preview",
+  "gendocx_upload_excel": "Upload Excel File",
+  "award_1_alt": "Award Certificate Preview",
+  "gendocx_download_excel_template": "Download Excel Template",
+  "gendocx_download_word_template": "Download Word Template",
+  "award_1": "Free Online Certificate Batch Generator - Template 1",
+
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",

@@ -22,7 +22,7 @@ export default function TemplatePage({ params: { lang, id } }) {
 
   return (
     <>
-      <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp/${id}`} />
+      <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp/${id}`} title={template.id} />
       <TemplateDocx lang={lang} template={template} />
     </>
   );

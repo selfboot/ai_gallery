@@ -246,36 +246,32 @@ export default function TemplateDocx({ lang, template }) {
 
   return (
     <div className="container mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">{template.name}</h1>
-        <p className="text-gray-600">{template.description}</p>
-        <div className="mt-4">
-          <h3 className="font-medium mb-2">{t("gendocx_required_fields")}：</h3>
-          <div className="flex flex-wrap gap-2">
-            {template.requiredFields.map((field) => (
-              <span key={field} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                {field}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         <div className="w-full md:w-1/2">
           <div className="border rounded-lg overflow-hidden bg-gray-50 h-full min-h-[300px]">
-            <div className="p-4 border-b bg-white">
-              <h3 className="font-medium text-gray-700">{t("gendocx_template_preview")}</h3>
+          <div className="p-4 border-b bg-white flex justify-between items-center">
+              <h3 className="font-medium text-gray-700">
+                {t("gendocx_template_preview")}
+              </h3>
+              <button
+                onClick={() => window.open(template.path, '_blank')}
+                className="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {t("gendocx_download_word_template")}
+              </button>
             </div>
             <div className="relative w-full h-[300px] md:h-[400px]">
               {template.previewImage ? (
-                <Image
-                  src={template.previewImage}
-                  alt={template.name}
-                  fill
-                  className="object-contain p-4"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                <div className="h-full flex items-center justify-center">
+                  <img
+                    src={template.previewImage}
+                    alt={t(template.previewImageAlt)}
+                    className="max-w-full max-h-full object-contain p-4"
+                  />
+                </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-gray-500">{t("gendocx_no_preview")}</p>
@@ -287,8 +283,19 @@ export default function TemplateDocx({ lang, template }) {
 
         <div className="w-full md:w-1/2">
           <div className="border rounded-lg overflow-hidden bg-gray-50 h-full min-h-[300px]">
-            <div className="p-4 border-b bg-white">
-              <h3 className="font-medium text-gray-700">{t("gendocx_upload_excel")}</h3>
+          <div className="p-4 border-b bg-white flex justify-between items-center">
+              <h3 className="font-medium text-gray-700">
+                {t("gendocx_upload_excel")}
+              </h3>
+              <button
+                onClick={() => window.open(template.excelTemplatePath, '_blank')}
+                className="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {t("gendocx_download_excel_template")}
+              </button>
             </div>
             <div className="p-4 h-[300px] md:h-[400px] flex flex-col">
               <FileUploadBox
