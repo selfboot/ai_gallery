@@ -548,10 +548,13 @@
   "gendocx_templates": "Online Batch Generation of Word Templates",
   "gendocx_template_preview": "Template Preview",
   "gendocx_upload_excel": "Upload Excel File",
-  "award_1_alt": "Award Certificate Preview",
+  "award_alt": "Award Certificate Preview",
+  "certificate_alt": "Certificate Preview",
   "gendocx_download_excel_template": "Download Excel Template",
   "gendocx_download_word_template": "Download Word Template",
   "award_1": "Free Online Certificate Batch Generator - Template 1",
+  "award_2": "Free Online Certificate Batch Generator - Template 2",
+  "certificate_1": "Free Online Certificate Batch Generator - Template 1",
 
   "chartrace": {
     "population-growth": {
@@ -578,6 +581,12 @@
       "title": "China Expenditure Change (2004-2023)",
       "intro": "The analysis reveals a continuous growth trend in fiscal expenditure across Chinese provinces, reflecting the government's increasing investment in people's livelihoods and economic development. However, there are significant regional differences in the scale and growth rate of expenditures, with economically developed eastern coastal provinces like Guangdong and Jiangsu far outspending western provinces like Qinghai and Ningxia, highlighting the vast disparity in fiscal strength. Notably, some central and western provinces such as Sichuan and Guizhou have seen faster expenditure growth, possibly linked to national strategies for balanced regional development. "
     }
+  },
+
+  "gendocx_temp": {
+    "award_1": "Generate awards online in batches, here is a good certificate template, just fill in the name, date and other information in the Excel template, you can automatically generate a large number of certificates, suitable for school teachers to use.",
+    "award_2": "Generate awards in batches online. A complete award certificate template can be used directly. Just fill in the name and date in the template to automatically generate a large number of award certificates. It is suitable for school teachers.",
+    "certificate_1": "Generate honorary certificates in batches online, a very useful honorary certificate template, fill in the name, date, company name, etc. in the Excel template, and you can automatically generate a large number of honorary certificates, suitable for workplace use."
   },
 
   "seo": {
@@ -800,6 +809,11 @@
       "title": "Various types of mazes are generated online for free, and the maze is supported to find paths",
       "description": "This page supports various types of online maze generation, and supports the generation of square, circle, triangle, and honeycomb maze maps. It also supports playing mazes online and finding maze paths, which can be found by just moving the mouse. It also supports hinting at the optimal path of the maze, downloading the maze, etc.",
       "keywords": "Online Maze Generator, Maze Path Finding, Maze Game Online, Online Maze Download"
+    },
+    "gendocx_temp": {
+      "title": "Free Online Batch Generation of Word Document Templates",
+      "description": "A large number of commonly used Word templates, simply provide an Excel data file, and all documents can be automatically generated. The tool also supports downloading Word templates and Excel files, simple operation, powerful function.",
+      "keywords": "Word Document Templates, Online Batch Generation of Word, Batch Generation of Word, Word Document Download"
     }
   }
 }

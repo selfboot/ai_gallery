@@ -7,14 +7,23 @@ import BlogMarkdown from '@/app/components/BlogMarkdown';
 
 export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.gendocx.title,
-    description: dict.seo.gendocx.description,
-    keywords: dict.seo.gendocx.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/gendocx`,
-    publishedDate: "2024-10-30T10:00:00.000Z",
-    updatedDate: "2024-12-27T10:00:00.000Z",
-  });
+  return {
+    ...PageMeta({
+      title: dict.seo.gendocx.title,
+      description: dict.seo.gendocx.description,
+      keywords: dict.seo.gendocx.keywords,
+      publishedDate: "2024-10-25T02:00:00.000Z",
+      updatedDate: "2025-01-08T09:00:00.000Z",
+    }),
+    alternates: {
+      canonical: `https://gallery.selfboot.cn/${lang}/tools/gendocx`,
+      languages: {
+        "en": "https://gallery.selfboot.cn/en/tools/gendocx",
+        "zh-CN": "https://gallery.selfboot.cn/zh/tools/gendocx",
+        "x-default": "https://gallery.selfboot.cn/en/tools/gendocx",
+      },
+    },
+  };
 }
 
 export default function GenDocxPage({ params: { lang } }) {

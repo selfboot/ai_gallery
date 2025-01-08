@@ -242,20 +242,20 @@ export default function GenDocx() {
   return (
     <div className="w-full mx-auto mt-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
-        <div className="w-full">
+      <div className="w-full">
           <FileUploadBox
-            accept=".xlsx,.xls"
-            onChange={handleExcelUpload}
-            title={t('gendocx_uploadExcel')}
+            accept=".docx"
+            onChange={handleWordTemplateUpload}
+            title={t('gendocx_uploadWord')}
             maxSize={50}
             className="h-full"
           />
         </div>
         <div className="w-full">
           <FileUploadBox
-            accept=".docx"
-            onChange={handleWordTemplateUpload}
-            title={t('gendocx_uploadWord')}
+            accept=".xlsx,.xls"
+            onChange={handleExcelUpload}
+            title={t('gendocx_uploadExcel')}
             maxSize={50}
             className="h-full"
           />
