@@ -78,8 +78,8 @@ async function generateSitemapAndRss() {
           for (const template of documentTemplates) {
             const dynamicRoute = route.replace("[id]", template.id);
             const metadata = {
-              title: dict.templates?.[template.id] || template.name,
-              description: dict.seo.gendocx_temp.description,
+              title: dict[template.id],
+              description: dict.gendocx_temp[template.id],
               canonicalUrl: `${DOMAIN}/${lang}${dynamicRoute}`,
               publishedDate: template.publishedDate || "2025-01-08T02:00:00.000Z",
               updatedDate: template.updatedDate || "2025-01-08T09:00:00.000Z",
