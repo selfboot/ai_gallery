@@ -549,6 +549,9 @@
   "no_start_cell": "迷宫没有起点",
   "download_maze": "下载迷宫",
 
+  "more_templates": "更多模板",
+  "custom_template": "自定义模板",
+  "gendocx_templates": "在线批量生成 word 模板",
   "gendocx_template_preview": "模板效果预览",
   "gendocx_upload_excel": "上传 Excel文件",
   "award_1_alt": "奖状效果预览图",

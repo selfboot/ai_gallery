@@ -543,6 +543,9 @@
   "no_start_cell": "Maze has no start cell",
   "download_maze": "Download Maze",
 
+  "more_templates": "More Templates",
+  "custom_template": "Custom Template",
+  "gendocx_templates": "Online Batch Generation of Word Templates",
   "gendocx_template_preview": "Template Preview",
   "gendocx_upload_excel": "Upload Excel File",
   "award_1_alt": "Award Certificate Preview",

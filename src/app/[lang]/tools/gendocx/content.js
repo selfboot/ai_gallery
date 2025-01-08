@@ -263,19 +263,31 @@ export default function GenDocx() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mb-6">
+        <Link 
+          href="./gendocx/temp" 
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-gray-700 bg-white border 
+            border-gray-300 rounded-md hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 
+            transition-all shadow-sm hover:shadow w-full sm:w-auto group"
+        >
+          <span className="group-hover:translate-x-0.5 transition-transform">{t('more_templates')}</span>
+        </Link>
+
         <button
           onClick={handleGenerate}
           disabled={!excelFile || !wordTemplate || isGenerating}
           className={`px-6 py-2.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 
-            disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors w-full sm:w-auto`}
+            disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md 
+            hover:translate-y-[-1px] active:translate-y-0 w-full sm:w-auto`}
         >
           {isGenerating ? t('gendocx_generating') : t('gendocx_generate')}
         </button>
+        
         <button
           onClick={handleDownloadAll}
           disabled={!isZipReady}
           className="px-6 py-2.5 bg-green-500 text-white rounded-md hover:bg-green-600 
-            disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors w-full sm:w-auto"
+            disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md 
+            hover:translate-y-[-1px] active:translate-y-0 w-full sm:w-auto"
         >
           {t('gendocx_downloadAll')}
         </button>
