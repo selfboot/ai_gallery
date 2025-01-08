@@ -6,6 +6,8 @@ import matter from "gray-matter";
 // 修改导入语句
 import dynamicChartConfigsModule from '../src/app/[lang]/tools/chartrace/dynamicChartConfigs.js';
 const { dynamicChartConfigs } = dynamicChartConfigsModule;
+import documentTemplatesModule from '../src/app/[lang]/tools/gendocx/templates.js';
+const { documentTemplates } = documentTemplatesModule;
 
 const DOMAIN = "https://gallery.selfboot.cn";
 const LANGUAGES = ["en", "zh"];
@@ -57,10 +59,10 @@ async function generateSitemapAndRss() {
       try {
         const content = fs.readFileSync(page, "utf8");
         
-        if (route.includes('[chartId]')) {
+        if (route.includes("[chartId]")) {
           // Handle dynamic chart routes
           for (const config of dynamicChartConfigs) {
-            const dynamicRoute = route.replace('[chartId]', config.id);
+            const dynamicRoute = route.replace("[chartId]", config.id);
             const metadata = {
               title: dict.seo.chartrace[config.id]?.title || config.title,
               description: dict.seo.chartrace[config.id]?.description || config.description,
@@ -68,7 +70,21 @@ async function generateSitemapAndRss() {
               publishedDate: config.publishedDate || "2024-10-01T02:00:00.000Z",
               updatedDate: config.updatedDate || "2024-10-03T09:00:00.000Z",
             };
-            
+
+            addToSitemapAndRss(sitemapItems, rssItems, metadata);
+          }
+        } else if (route.includes("[id]")) {
+          // Handle dynamic docx template routes
+          for (const template of documentTemplates) {
+            const dynamicRoute = route.replace("[id]", template.id);
+            const metadata = {
+              title: dict.templates?.[template.id] || template.name,
+              description: dict.seo.gendocx_temp.description,
+              canonicalUrl: `${DOMAIN}/${lang}${dynamicRoute}`,
+              publishedDate: template.publishedDate || "2025-01-08T02:00:00.000Z",
+              updatedDate: template.updatedDate || "2025-01-08T09:00:00.000Z",
+            };
+
             addToSitemapAndRss(sitemapItems, rssItems, metadata);
           }
         } else {
@@ -78,7 +94,7 @@ async function generateSitemapAndRss() {
           const canonicalUrlMatch = content.match(/canonicalUrl:\s*(`[^`]+`)/);
           const publishedDateMatch = content.match(/publishedDate:\s*"([^"]+)"/);
           const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
-        
+
           if (titleMatch && descriptionMatch) {
             const titleKey = titleMatch[1]
               .trim()

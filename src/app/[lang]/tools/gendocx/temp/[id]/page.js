@@ -5,8 +5,9 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import TemplateDocx from "./content";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+
 export async function generateMetadata({ params: { lang, id } }) {
-  const template = documentTemplates[id];
+  const template = documentTemplates.find(template => template.id === id);
   if (!template) return notFound();
 
   const dict = await getDictionary(lang);
@@ -14,8 +15,8 @@ export async function generateMetadata({ params: { lang, id } }) {
     ...PageMeta({
       title: dict[template.id],
       description: dict.gendocx_temp[template.id],
-      publishedDate: "2025-01-08T09:00:00.000Z",
-      updatedDate: "2025-01-08T09:00:00.000Z",
+      publishedDate: template.publishedDate,
+      updatedDate: template.updatedDate,
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/gendocx/temp/${id}`,
@@ -28,8 +29,17 @@ export async function generateMetadata({ params: { lang, id } }) {
   };
 }
 
+export async function generateStaticParams() {
+  return documentTemplates.flatMap((template) => 
+    ['en', 'zh'].map((lang) => ({
+      lang,
+      id: template.id,
+    }))
+  );
+}
+
 export default function TemplatePage({ params: { lang, id } }) {
-  const template = documentTemplates[id];
+  const template = documentTemplates.find(template => template.id === id);
   if (!template) return notFound();
 
   return (

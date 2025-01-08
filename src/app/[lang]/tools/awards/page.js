@@ -22,7 +22,6 @@ export default function GenDocxPage({ params: { lang } }) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/awards`} />
       <GenAwards lang={lang} />
-      <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/awards" />
       <CommonComments lang={lang} />
     </>
   );
