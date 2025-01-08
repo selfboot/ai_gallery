@@ -23,20 +23,27 @@ async function getRecentPageUrls() {
       const content = fs.readFileSync(page, "utf8");
       const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
       const updatedDate = updatedDateMatch ? updatedDateMatch[1].split('T')[0] : null;
-
       // 只处理今天更新的页面
-      if (updatedDate === today) {
+      if (updatedDate === today || updatedDate === null) {
         const route = page
           .replace("src/app/[lang]", "")
           .replace("/page.js", "")
           .replace("/index", "");
 
-        if (route.includes('[chartId]')) {
+        if (route.includes("[chartId]")) {
           // 处理动态图表路由
-          const { dynamicChartConfigs } = await import('../src/app/[lang]/tools/chartrace/dynamicChartConfigs.js');
+          const { dynamicChartConfigs } = await import("../src/app/[lang]/tools/chartrace/dynamicChartConfigs.js");
           for (const config of dynamicChartConfigs) {
-            if (config.updatedDate?.split('T')[0] === today) {
-              const dynamicRoute = route.replace('[chartId]', config.id);
+            if (config.updatedDate?.split("T")[0] === today) {
+              const dynamicRoute = route.replace("[chartId]", config.id);
+              urls.add(`${DOMAIN}/${lang}${dynamicRoute}`);
+            }
+          }
+        } else if (route.includes("[id]")) {
+          const { documentTemplates } = await import("../src/app/[lang]/tools/gendocx/templates.js");
+          for (const template of documentTemplates) {
+            if (template.updatedDate?.split("T")[0] === today) {
+              const dynamicRoute = route.replace("[id]", template.id);
               urls.add(`${DOMAIN}/${lang}${dynamicRoute}`);
             }
           }

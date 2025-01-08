@@ -7,7 +7,7 @@ import TemplateDocx from "./content";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 
 export async function generateMetadata({ params: { lang, id } }) {
-  const template = documentTemplates.find(template => template.id === id);
+  const template = documentTemplates.find((template) => template.id === id);
   if (!template) return notFound();
 
   const dict = await getDictionary(lang);
@@ -30,8 +30,8 @@ export async function generateMetadata({ params: { lang, id } }) {
 }
 
 export async function generateStaticParams() {
-  return documentTemplates.flatMap((template) => 
-    ['en', 'zh'].map((lang) => ({
+  return documentTemplates.flatMap((template) =>
+    ["en", "zh"].map((lang) => ({
       lang,
       id: template.id,
     }))
@@ -39,7 +39,7 @@ export async function generateStaticParams() {
 }
 
 export default function TemplatePage({ params: { lang, id } }) {
-  const template = documentTemplates.find(template => template.id === id);
+  const template = documentTemplates.find((template) => template.id === id);
   if (!template) return notFound();
 
   return (
