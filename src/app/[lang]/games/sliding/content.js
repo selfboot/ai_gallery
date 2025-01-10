@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { CustomListbox } from '@/app/components/ListBox';
 import { useI18n } from '@/app/i18n/client';
 import Modal from '@/app/components/Modal';
+import { SideAdComponent } from "@/app/components/AdComponent";
 
 // Priority Queue implementation
 class PriorityQueue {
@@ -158,23 +159,23 @@ const SlidingPuzzle = () => {
     const oldEmptyPos = findEmptyPosition(board);
     const newEmptyPos = findEmptyPosition(step.board);
     
-    // 计算移动方向
+    // Calculate the moving direction
     const dx = oldEmptyPos.col - newEmptyPos.col;
     const dy = oldEmptyPos.row - newEmptyPos.row;
     
-    // 设置动画状态
+    // Set the animation state
     const movingTileIndex = newEmptyPos.row * size + newEmptyPos.col;
     setAnimatingTiles({
       [movingTileIndex]: { dx, dy }
     });
 
-    // 延迟更新实际位置
+    // Delay updating the actual position
     setTimeout(() => {
       setBoard(step.board);
       setEmptyPos(newEmptyPos);
       setMoves(moves + 1);
       setAnimatingTiles({});
-    }, 200); // 动画持续时间
+    }, 200); // Animation duration
   };
 
   // Find empty position in board
@@ -233,7 +234,7 @@ const SlidingPuzzle = () => {
   };
 
   const initializeBoard = (size) => {
-    // 如果在编辑状态，先退出编辑状态
+    // If in edit mode, exit edit mode first
     if (isEditing) {
       setIsEditing(false);
       setSelectedCell(null);
@@ -651,6 +652,9 @@ const SlidingPuzzle = () => {
                   </div>
                 </>
               )}
+            </div>
+            <div className="hidden md:relative md:block w-full bg-gray-100">
+              <SideAdComponent />
             </div>
           </div>
         </div>

@@ -63,7 +63,7 @@ export default function TableOfContents({ content, lang }) {
       <h2 className="text-lg font-semibold mb-4">{t("tableofcontents")}</h2>
       <ul className="space-y-2">
         {headings.map(({ level, text, slug }) => (
-          <li key={slug} className={`toc-item ${level === 1 ? "pl-0" : level === 2 ? "pl-2" : "pl-4"}`}>
+          <li key={slug} className={`toc-item ${level === 2 ? "pl-0" : level === 3 ? "pl-2" : "pl-4"}`}>
             <a
               href={`#${slug}`}
               onClick={(e) => handleClick(e, slug)}

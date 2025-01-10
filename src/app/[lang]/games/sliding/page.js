@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
       description: dict.seo.sliding.description,
       keywords: dict.seo.sliding.keywords,
       publishedDate: "2024-11-01T02:00:00.000Z",
-      updatedDate: "2024-11-19T09:00:00.000Z",
+      updatedDate: "2025-01-10T09:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/sliding`,
