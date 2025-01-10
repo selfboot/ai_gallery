@@ -43,18 +43,18 @@ const Projects = {
       link: "/games/gomoku",
     },
     {
-      id: "tetris",
-      title: "tetris_title",
-      description: "tetris_description",
-      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_tetris_small.png",
-      link: "/games/tetris",
-    },
-    {
       id: "cube",
       title: "cube_title",
       description: "cube_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_cube_small.png",
       link: "/games/cube",
+    },
+    {
+      id: "tetris",
+      title: "tetris_title",
+      description: "tetris_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_tetris_small.png",
+      link: "/games/tetris",
     },
     {
       id: "snake",
