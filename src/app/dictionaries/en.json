@@ -554,6 +554,7 @@
   "gendocx_download_word_template": "Download Word Template",
   "award_1": "Free Online Certificate Batch Generator - Template 1",
   "award_2": "Free Online Certificate Batch Generator - Template 2",
+  "award_3": "Free Online Certificate Batch Generator - Template 3",
   "certificate_1": "Free Online Certificate Batch Generator - Template 1",
 
   "chartrace": {
@@ -586,6 +587,7 @@
   "gendocx_temp": {
     "award_1": "Generate awards online in batches, here is a good certificate template, just fill in the name, date and other information in the Excel template, you can automatically generate a large number of certificates, suitable for school teachers to use.",
     "award_2": "Generate awards in batches online. A complete award certificate template can be used directly. Just fill in the name and date in the template to automatically generate a large number of award certificates. It is suitable for school teachers.",
+    "award_3": "Generate awards in batches online. The pictures are very classic, with the classic award certificate screen plus two five-pointed stars on the left and right. Just fill in the name and date in the template to automatically generate a large number of award certificates. It is suitable for school teachers.",
     "certificate_1": "Generate honorary certificates in batches online, a very useful honorary certificate template, fill in the name, date, company name, etc. in the Excel template, and you can automatically generate a large number of honorary certificates, suitable for workplace use."
   },
 
