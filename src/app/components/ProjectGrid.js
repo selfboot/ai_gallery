@@ -33,7 +33,7 @@ const ProjectGrid = async ({ category, lang }) => {
           return (
             <React.Fragment key={`ad-${index}`}>
               <ProjectCard {...project} lang={lang} />
-              <div className="w-full bg-gray-100 min-h-[250px]">
+              <div className="hidden md:relative md:block w-full bg-gray-100">
                 <SideAdComponent format="rectangle" />
               </div>
             </React.Fragment>
