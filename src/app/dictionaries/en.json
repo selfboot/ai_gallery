@@ -209,8 +209,8 @@
   "random_init_success": "10 random nodes initialized",
   "operation_result": "Operation: {{operation}}, Result: {{result}}",
 
-  "subtitles_title": "Image Subtitle Stitching",
-  "subtitles_description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
+  "subtitles_title": "Free Online Image Subtitle Stitching Tool",
+  "subtitles_description": "Use this online tool to easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
   "preview": "Preview",
   "downloadImage": "Download Image",
   "replaceImage": "Replace Image",
