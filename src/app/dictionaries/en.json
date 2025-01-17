@@ -581,6 +581,10 @@
     "china_outcome": {
       "title": "China Expenditure Change (2004-2023)",
       "intro": "The analysis reveals a continuous growth trend in fiscal expenditure across Chinese provinces, reflecting the government's increasing investment in people's livelihoods and economic development. However, there are significant regional differences in the scale and growth rate of expenditures, with economically developed eastern coastal provinces like Guangdong and Jiangsu far outspending western provinces like Qinghai and Ningxia, highlighting the vast disparity in fiscal strength. Notably, some central and western provinces such as Sichuan and Guizhou have seen faster expenditure growth, possibly linked to national strategies for balanced regional development. "
+    },
+    "china_population_more": {
+      "title": "China Birth Rate Changes (2012-2023)",
+      "intro": "Changes in the birth rate of various provinces and cities in China in different years. From 2012 to 2023, the national birth rate showed a gradual downward trend. The birth rate in 2012 was 12.10‰, and by 2023 it dropped to 6.39‰. There are obvious regional differences in birth rates. The birth rate in Tibet has always remained at a high level. In contrast, the birth rates in big cities such as Shanghai and Beijing are lower, with 3.95‰ and 5.63‰ respectively in 2023. Although the two-child policy was relaxed in the middle, it can be seen from the data that the birth rate did not increase significantly, but continued to decline in the following years. Generally, provinces with more developed economies, such as Guangdong and Zhejiang, have relatively low birth rates. "
     }
   },
 
@@ -735,6 +739,11 @@
         "title": "China Province Expenditure Change",
         "description": "This analysis employs linear dynamic charts and animated bar graphs to vividly illustrate the fiscal expenditure trends across Chinese provinces from 2004 to 2023. Through these intuitive visualization tools, we clearly present the continuous growth in fiscal spending, regional disparities, policy impacts, and economic development characteristics. The dynamic charts not only display static data but also showcase the evolving process of fiscal expenditures, allowing readers to visually grasp the changes in fiscal strength and policy orientations across provinces. ",
         "keywords": "China Province Expenditure Growth, Fiscal Expenditure, Data Visualization, BarChartRace"
+      },
+      "china_population_more": {
+        "title": "China Province Population Birth Rate Change(2012-2023)",
+        "description": "In recent years, China's birth rate has declined from 12.10‰ in 2012 to 6.39‰ in 2023. Major cities like Beijing and Shanghai report lower birth rates, likely due to urbanization, high living costs, and lifestyle changes. In contrast, Tibet maintains a higher birth rate, influenced by cultural and policy factors. The 2016 universal two-child policy did not significantly boost birth rates, suggesting limited impact. Economically advanced regions such as Guangdong and Zhejiang also show lower birth rates, possibly due to increased living pressures and child-rearing costs.",
+        "keywords": "China Province Population Birth Rate Change, Population Birth Rate Line Chart, Population Birth Rate Data Visualization"
       }
     },
     "skiplist": {

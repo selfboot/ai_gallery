@@ -87,6 +87,21 @@ const dynamicChartConfigs = [
     max: -1,
     yearInterval: 1000
   },
+  {
+    id: 'china_population_more',
+    dataFile: 'china_population_more.csv',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/china_population_more.csv',
+    columns: {
+      time: '年份',
+      type: '地区',
+      value: '出生率'
+    },
+    publishedDate: "2025-01-17T18:00:00.000Z",
+    updatedDate: "2025-01-17T20:00:00.000Z",
+    dataSource: "NationalData",
+    max: -1,
+    yearInterval: 1000
+  }
 ];
 
 module.exports = { dynamicChartConfigs };
