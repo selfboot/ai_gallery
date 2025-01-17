@@ -2,6 +2,7 @@ const dynamicChartConfigs = [
   {
     id: 'population-growth',
     dataFile: 'life-expectancy-table.json',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/life-expectancy-table.json',
     columns: {
       time: 'Year',
       type: 'Country',
@@ -15,6 +16,7 @@ const dynamicChartConfigs = [
   {
     id: 'income-growth',
     dataFile: 'life-expectancy-table.json',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/life-expectancy-table.json',
     columns: {
       time: 'Year',
       type: 'Country',
@@ -28,6 +30,7 @@ const dynamicChartConfigs = [
   {
     id: 'china_gdp',
     dataFile: 'china_gdp.csv',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/china_gdp.csv',
     columns: {
       time: 'Year',
       type: 'Region',
@@ -42,6 +45,7 @@ const dynamicChartConfigs = [
   {
     id: 'china_population',
     dataFile: 'china_population.csv',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/china_population.csv',
     columns: {
       time: '年份',
       type: '省份',
@@ -56,6 +60,7 @@ const dynamicChartConfigs = [
   {
     id: 'china_income',
     dataFile: 'china_income.csv',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/china_income.csv',
     columns: {
       time: '年份',
       type: '省份',
@@ -70,6 +75,7 @@ const dynamicChartConfigs = [
   {
     id: 'china_outcome',
     dataFile: 'china_outcome.csv',
+    downloadUrl: 'https://slefboot-1251736664.file.myqcloud.com/china_outcome.csv',
     columns: {
       time: '年份',
       type: '省份',

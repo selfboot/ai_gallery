@@ -235,7 +235,7 @@ const DynamicChart = ({ config, initialData }) => {
           <FontAwesomeIcon icon={faArrowLeft} />
         </Link>
         <Link
-          href={`/racechart/${config.dataFile}`}
+          href={config.downloadUrl || `/racechart/${config.dataFile}`}
           download
           className="text-blue-500 hover:text-blue-700 cursor-pointer flex items-center mr-4"
         >

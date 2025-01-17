@@ -5,13 +5,11 @@ import { dynamicChartConfigs } from '../dynamicChartConfigs';
 import { useI18n } from "@/app/i18n/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useParams } from 'next/navigation';
 import CommonComments from "@/app/components/GiscusComments";
 import { faWrench } from "@fortawesome/free-solid-svg-icons";
 
-export default function DynamicChartsIndex() {
+export default function DynamicChartsIndex({ lang }) {
   const { t } = useI18n();
-  const { lang } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSource, setSelectedSource] = useState('All');
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -108,7 +106,7 @@ export default function DynamicChartsIndex() {
             {paginatedConfigs.map((config) => (
               <tr key={config.id} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left whitespace-nowrap">
-                  <Link href={`/tools/chartrace/dynamic/${config.id}`} className="font-medium text-blue-600 hover:text-blue-800">
+                  <Link href={`/${lang}/tools/chartrace/dynamic/${config.id}`} className="font-medium text-blue-600 hover:text-blue-800">
                     {t('chartrace')[config.id]?.title}
                   </Link>
                 </td>
