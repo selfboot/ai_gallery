@@ -44,6 +44,7 @@ import { useI18n } from "@/app/i18n/client";
 import { drawingSurfaces } from "./lib/drawingSurfaces";
 import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
+import { SideAdComponent } from "@/app/components/AdComponent";
 
 const MazeGame = () => {
   const { t } = useI18n();
@@ -561,6 +562,9 @@ const MazeGame = () => {
             onDownload={downloadMaze}
             maze={maze}
           />
+          <div className="hidden mt-4 md:relative md:block w-full bg-gray-100">
+            <SideAdComponent/>
+          </div>
         </div>
       </div>
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
