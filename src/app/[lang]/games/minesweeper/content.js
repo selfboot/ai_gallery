@@ -844,8 +844,7 @@ export default function Minesweeper() {
           {
             time: time,
             mode: isHexagonal ? "hexagonal" : "classic",
-          },
-          { umami: true }
+          }
         );
       } else if (!game.won && !modalState.isOpen) {
         setModalState({

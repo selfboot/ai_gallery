@@ -496,7 +496,7 @@ const SokobanGame = ({ lang, levels }) => {
       trackEvent(CATEGORIES.Sokoban, EVENTS.Sokoban.Success, {
         level: currentLevel + 1,
         moves: gameState.moves,
-      }, { umami: true });
+      });
 
       setModalMessage(
         t("sokoban_succmsg", {
