@@ -208,6 +208,13 @@ const Projects = {
       link: "/tools/gendocx/",
     },
     {
+      id: "retire",
+      title: "retire_title",
+      description: "retire_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250327_ai_gallery_retire.png",
+      link: "/tools/retire/",
+    },
+    {
       id: "chartrace",
       title: "chartrace_title",
       description: "chartrace_description",
@@ -220,7 +227,7 @@ const Projects = {
       description: "subtitles_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20240728_ai_gallery_subtitles.webp",
       link: "/tools/subtitles/",
-    }
+    },
   ],
 };
 

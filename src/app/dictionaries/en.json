@@ -557,6 +557,9 @@
   "award_3": "Free Online Certificate Batch Generator - Template 3",
   "certificate_1": "Free Online Certificate Batch Generator - Template 1",
 
+  "retire_title": "Free Online China Retirement Age Calculator",
+  "retire_description": "Calculate your retirement age based on your birth date and gender. The calculator takes into account the national retirement age policy changes in China.",
+
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",
@@ -825,6 +828,11 @@
       "title": "Free Online Batch Generation of Word Document Templates",
       "description": "A large number of commonly used Word templates, simply provide an Excel data file, and all documents can be automatically generated. The tool also supports downloading Word templates and Excel files, simple operation, powerful function.",
       "keywords": "Word Document Templates, Online Batch Generation of Word, Batch Generation of Word, Word Document Download"
+    },
+    "retire": {
+      "title": "Free Online China Retirement Age Calculator",
+      "description": "Calculate your retirement age based on your birth date and gender. The calculator takes into account the national retirement age policy changes in China.",
+      "keywords": "Retirement Age Calculator, Retirement Age Calculation, Retirement Age Calculation Tool"
     }
   }
 }
