@@ -31,7 +31,6 @@ export default function GenDocxPage({ params: { lang } }) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/retire`} />
       <RetirementCalculator lang={lang} />
-      <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/retire" />
       <CommonComments lang={lang} />
     </>
   );
