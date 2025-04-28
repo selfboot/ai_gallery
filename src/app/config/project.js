@@ -215,6 +215,13 @@ const Projects = {
       link: "/tools/retire/",
     },
     {
+      id: "loanrate",
+      title: "loanrate_title",
+      description: "loanrate_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250428_ai_gallery_loanrate_en.webp",
+      link: "/tools/loanrate/",
+    },
+    {
       id: "chartrace",
       title: "chartrace_title",
       description: "chartrace_description",

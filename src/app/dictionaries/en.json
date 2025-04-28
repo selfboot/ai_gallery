@@ -560,6 +560,52 @@
   "retire_title": "Free Online China Retirement Age Calculator",
   "retire_description": "Calculate your retirement age based on your birth date and gender. The calculator takes into account the national retirement age policy changes in China.",
 
+
+  "loanrate_title": "Free Online Loan Rate Calculator",
+  "loanrate_description": "Calculate the monthly payment, total interest, and total repayment amount for different loan repayment methods and interest rates. Compare the total interest for different repayment methods and interest rates to help you clearly see the interest difference.",
+
+  "loanrate": {
+    "yearlyInterestRate": "Annual Interest Rate (%)",
+    "loanAmount": "Loan Amount",
+    "repaymentPeriods": "Repayment Period (months)",
+    "calculate": "Calculate",
+    "yuan": "",
+    "interestComparisonChart": "Interest Comparison at Different Rates",
+    "detailedRepaymentPlan": "Detailed Repayment Plan",
+    "exportExcel": "Export to Excel",
+    "month": "Month",
+    "equalPayment": "Equal Payment",
+    "equalPrincipal": "Equal Principal",
+    "interestOnly": "Interest Only",
+    "principal": "Principal",
+    "interest": "Interest",
+    "monthlyPayment": "Monthly Payment",
+    "moreDataInExcel": "... More data available in Excel export ...",
+    "equalPaymentPrincipal": "Equal Payment - Principal",
+    "equalPaymentInterest": "Equal Payment - Interest",
+    "equalPaymentMonthly": "Equal Payment - Monthly",
+    "equalPrincipalPrincipal": "Equal Principal - Principal",
+    "equalPrincipalInterest": "Equal Principal - Interest",
+    "equalPrincipalMonthly": "Equal Principal - Monthly",
+    "interestOnlyPrincipal": "Interest Only - Principal",
+    "interestOnlyInterest": "Interest Only - Interest",
+    "interestOnlyMonthly": "Interest Only - Monthly",
+    "repaymentMethod": "Repayment Method",
+    "totalInterest": "Total Interest",
+    "totalRepayment": "Total Repayment",
+    "equalPrincipalFirstMonth": "Equal Principal (First Month)",
+    "interestOnlyPayment": "Interest Only",
+    "first": "First ",
+    "months": " months",
+    "lastMonth": "Last month",
+    "summary": "Summary",
+    "detailedPlan": "Detailed Plan",
+    "loanCalculationResult": "Loan Calculation Result.xlsx",
+    "equalPaymentTotalInterest": "Equal Payment Total Interest",
+    "equalPrincipalTotalInterest": "Equal Principal Total Interest", 
+    "interestOnlyTotalInterest": "Interest Only Total Interest"
+  },
+
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",
@@ -833,6 +879,11 @@
       "title": "Free Online China Retirement Age Calculator",
       "description": "Calculate your retirement age based on your birth date and gender. The calculator takes into account the national retirement age policy changes in China.",
       "keywords": "Retirement Age Calculator, Retirement Age Calculation, Retirement Age Calculation Tool"
+    },
+    "loanrate": {
+      "title": "Free Online Loan Rate Calculator, Compare Different Loan Repayment Methods",
+      "description": "Calculate your loan repayment amount, interest, and repayment plan for different loan repayment methods. Compare the differences between different loan repayment methods, and download the repayment plan table.",
+      "keywords": "Online Loan Rate Calculator, Loan Repayment Calculator, Loan Repayment Method Comparison"
     }
   }
 }

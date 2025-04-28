@@ -566,6 +566,51 @@
   "retire_title": "在线免费中国退休年龄计算器(最新2025年退休政策)",
   "retire_description": "输入您的出生日期和性别，在线计算您的法定退休年龄。计算器使用中国政府最新的退休年龄政策，和官方计算结果一样，但是更方便快捷。",
 
+  "loanrate_title": "在线贷款利率计算器",
+  "loanrate_description": "输入贷款金额、年化利率、还款期数，在线计算不同还款方式下的月供、总利息、总还款额等数据。同时可以对比不同还款方式，不同利率下的总利息，让你能清晰看到利息差异。",
+
+  "loanrate": {
+    "yearlyInterestRate": "年化利率 (%)",
+    "loanAmount": "贷款金额 (元)",
+    "repaymentPeriods": "还款期数 (月)",
+    "calculate": "计算",
+    "yuan": "元",
+    "interestComparisonChart": "不同利率下的总利息对比",
+    "detailedRepaymentPlan": "详细还款计划",
+    "exportExcel": "导出Excel",
+    "month": "月份",
+    "equalPayment": "等额本息",
+    "equalPrincipal": "等额本金",
+    "interestOnly": "先息后本",
+    "principal": "本金",
+    "interest": "利息",
+    "monthlyPayment": "月供",
+    "moreDataInExcel": "... 更多月份数据请导出Excel查看 ...",
+    "equalPaymentPrincipal": "等额本息-本金",
+    "equalPaymentInterest": "等额本息-利息",
+    "equalPaymentMonthly": "等额本息-月供",
+    "equalPrincipalPrincipal": "等额本金-本金",
+    "equalPrincipalInterest": "等额本金-利息",
+    "equalPrincipalMonthly": "等额本金-月供",
+    "interestOnlyPrincipal": "先息后本-本金",
+    "interestOnlyInterest": "先息后本-利息",
+    "interestOnlyMonthly": "先息后本-月供",
+    "repaymentMethod": "还款方式",
+    "totalInterest": "总利息(元)",
+    "totalRepayment": "总还款(元)",
+    "equalPrincipalFirstMonth": "等额本金(首月)",
+    "interestOnlyPayment": "先息后本",
+    "first": "前",
+    "months": "月",
+    "lastMonth": "最后1月",
+    "summary": "汇总",
+    "detailedPlan": "详细还款计划",
+    "loanCalculationResult": "贷款计算结果.xlsx",
+    "equalPaymentTotalInterest": "等额本息总利息",
+    "equalPrincipalTotalInterest": "等额本金总利息", 
+    "interestOnlyTotalInterest": "先息后本总利息"
+  },
+
   "chartrace": {
       "population-growth": {
         "title": "世界人口变化(1800-2015)",
@@ -839,6 +884,11 @@
       "title": "在线免费中国退休年龄计算器(最新2025年退休政策)",
       "description": "输入您的出生日期和性别，在线计算您的法定退休年龄。计算器使用中国政府最新的退休年龄政策，和官方计算结果一样，但是更方便快捷。",
       "keywords": "中国最新退休年龄, 退休年龄计算, 退休年龄计算工具"
+    },
+    "loanrate": {
+      "title": "在线免费贷款利率计算器，不同还款方式利率比较",
+      "description": "输入贷款金额、还款期数和利率，在线计算贷款的等额本息、等额本金和先息后本三种还款方式的还款额、利息总额和每期还款明细。直观对比不同还款方式的差异，支持下载还款计划表。",
+      "keywords": "在线贷款利率计算器, 在线还款方式比较"
     }
   }
 }

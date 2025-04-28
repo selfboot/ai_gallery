@@ -8,11 +8,11 @@ export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
-      title: dict.seo.retire.title,
-      description: dict.seo.retire.description,
-      keywords: dict.seo.retire.keywords,
-      publishedDate: "2025-03-27T02:00:00.000Z",
-      updatedDate: "2025-03-27T09:00:00.000Z",
+      title: dict.seo.loanrate.title,
+      description: dict.seo.loanrate.description,
+      keywords: dict.seo.loanrate.keywords,
+      publishedDate: "2025-04-28T12:00:00.000Z",
+      updatedDate: "2025-04-28T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/loanrate`,
