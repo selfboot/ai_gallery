@@ -13,7 +13,7 @@ export async function generateMetadata({ params: { lang } }) {
       description: dict.seo.loanrate.description,
       keywords: dict.seo.loanrate.keywords,
       publishedDate: "2025-04-28T12:00:00.000Z",
-      updatedDate: "2025-04-28T12:00:00.000Z",
+      updatedDate: "2025-05-07T12:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/loanrate`,
