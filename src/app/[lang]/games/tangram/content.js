@@ -45,50 +45,50 @@ const originalShapes = [
     id: 'big-tri-1',
     name: '大三角形1',
     color: '#0f82f2', // 蓝色
-    path: 'M-65,-32.5L0,32.5L65,-32.5Z',
-    initialTransform: 'translate(65 32.5)'
+    path: 'M-65.36,-32.68L0,32.68L65.36,-32.68Z',
+    initialTransform: 'translate(65.36 32.68)'
   },
   {
     id: 'big-tri-2',
     name: '大三角形2',
     color: '#cd0e66', // 品红色
-    path: 'M-65,-32.5L0,32.5L65,-32.5Z',
-    initialTransform: 'translate(32.5 65) rotate(270)'
+    path: 'M-65.36,-32.68L0,32.68L65.36,-32.68Z',
+    initialTransform: 'translate(32.68 65.36) rotate(270)'
   },
   {
     id: 'medium-tri',
     name: '中三角形',
     color: '#009ea6', // 青色
-    path: 'M0,-16.25L32.5,16.25L-32.5,16.25Z',
-    initialTransform: 'translate(65 81.25)'
+    path: 'M0,-16.34L32.68,16.34L-32.68,16.34Z',
+    initialTransform: 'translate(65.36 81.7)'
   },
   {
     id: 'small-tri-1',
     name: '小三角形1',
     color: '#eb4726', // 橙红色
-    path: 'M0,-16.25L32.5,16.25L-32.5,16.25Z',
-    initialTransform: 'translate(113.75 32.5) rotate(270)'
+    path: 'M0,-16.34L32.68,16.34L-32.68,16.34Z',
+    initialTransform: 'translate(114.38 32.68) rotate(270)'
   },
   {
     id: 'small-tri-2',
     name: '小三角形2',
     color: '#6d3bbf', // 紫色
-    path: 'M-32.5,-32.5L32.5,-32.5L32.5,32.5Z',
-    initialTransform: 'translate(97.5 97.5) rotate(90)'
+    path: 'M-32.68,-32.68L32.68,-32.68L32.68,32.68Z',
+    initialTransform: 'translate(98.04 98.04) rotate(90)'
   },
   {
     id: 'square',
     name: '正方形',
     color: '#22ab24', // 绿色
-    path: 'M-32.5,0L0,-32.5L32.5,0L0,32.5Z',
-    initialTransform: 'translate(97.5 65)'
+    path: 'M-32.68,0L0,-32.68L32.68,0L0,32.68Z',
+    initialTransform: 'translate(98.04 65.36)'
   },
   {
     id: 'parallelogram',
     name: '平行四边形',
     color: '#fd8c00', // 橙色
-    path: 'M-48.75,16.25L16.25,16.25L48.75,-16.25L-16.25,-16.25Z',
-    initialTransform: 'translate(48.75 113.75)'
+    path: 'M-49.02,16.34L16.34,16.34L49.02,-16.34L-16.34,-16.34Z',
+    initialTransform: 'translate(49.02 114.38)'
   }
 ];
 
