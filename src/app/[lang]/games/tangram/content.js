@@ -97,6 +97,8 @@ const TangramGame = () => {
   const [activePiece, setActivePiece] = useState(null);
   const [selectedPieces, setSelectedPieces] = useState([]);  // 存储多选的片段ID
   const [isShiftPressed, setIsShiftPressed] = useState(false);  // 跟踪Shift键是否按下
+  const [isSnappedToAngle, setIsSnappedToAngle] = useState(false);  // 跟踪是否吸附到角度
+  const [currentSnapAngle, setCurrentSnapAngle] = useState(null);  // 当前吸附的角度
   const [dragInfo, setDragInfo] = useState({
     isDragging: false,
     startX: 0,
@@ -453,6 +455,35 @@ const TangramGame = () => {
       // 计算新的旋转角度 - 原始角度加上鼠标角度的变化
       let newAngle = initialRotation + angleDiff;
 
+      const snapAngles = [0, 45, 90, 135, 180, 225, 270, 315, 360];
+      const snapThreshold = 10;
+
+      // Normalize the angle to the 0-360 range
+      while (newAngle < 0) newAngle += 360;
+      newAngle = newAngle % 360;
+
+      // Check if it needs to snap to a certain angle
+      let isSnapped = false;
+      let snappedAngle = null;
+
+      for (const snapAngle of snapAngles) {
+        // Calculate the difference between the current angle and the snap angle
+        const diff = Math.abs(newAngle - snapAngle);
+        // If the difference is less than the threshold, snap to that angle
+        if (diff < snapThreshold || 360 - diff < snapThreshold) {
+          newAngle = snapAngle;
+          isSnapped = true;
+          snappedAngle = snapAngle;
+          break;
+        }
+      }
+
+      setIsSnappedToAngle(isSnapped);
+      setCurrentSnapAngle(snappedAngle);
+
+      // Change 360 to 0 to keep consistency
+      if (newAngle === 360) newAngle = 0;
+
       // 更新片段旋转
       setCanvasPieces(prevPieces => {
         return prevPieces.map(p => {
@@ -467,6 +498,10 @@ const TangramGame = () => {
 
     // 添加鼠标松开事件监听器
     const handleMouseUp = () => {
+      // 重置吸附状态
+      setIsSnappedToAngle(false);
+      setCurrentSnapAngle(null);
+      
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
