@@ -39,95 +39,58 @@ function generateTransform(translate, rotate) {
   return transform;
 }
 
-// 定义七巧板的基本形状 - 缩放因子仅用于画布区域
-// 七巧板整体边长为200单位，画布为400单位，所以设置为60%大小
-const CANVAS_SIZE = 400;
-const SCALE_FACTOR = CANVAS_SIZE * 0.3; // 缩放因子，使七巧板占画布60%
-
-// 原始尺寸的七巧板形状（用于右侧预览区域）
+// 原始尺寸的七巧板形状（用于右侧预览区域，已缩小适配306x306视口）
 const originalShapes = [
   {
     id: 'big-tri-1',
     name: '大三角形1',
     color: '#0f82f2', // 蓝色
-    path: 'M-100,-50L0,50L100,-50Z',
-    initialTransform: 'translate(100 50)'
+    path: 'M-65,-32.5L0,32.5L65,-32.5Z',
+    initialTransform: 'translate(65 32.5)'
   },
   {
     id: 'big-tri-2',
     name: '大三角形2',
     color: '#cd0e66', // 品红色
-    path: 'M-100,-50L0,50L100,-50Z',
-    initialTransform: 'translate(50 100) rotate(270)'
+    path: 'M-65,-32.5L0,32.5L65,-32.5Z',
+    initialTransform: 'translate(32.5 65) rotate(270)'
   },
   {
     id: 'medium-tri',
     name: '中三角形',
     color: '#009ea6', // 青色
-    path: 'M0,-25L50,25L-50,25Z',
-    initialTransform: 'translate(100 125)'
+    path: 'M0,-16.25L32.5,16.25L-32.5,16.25Z',
+    initialTransform: 'translate(65 81.25)'
   },
   {
     id: 'small-tri-1',
     name: '小三角形1',
     color: '#eb4726', // 橙红色
-    path: 'M0,-25L50,25L-50,25Z',
-    initialTransform: 'translate(175 50) rotate(270)'
+    path: 'M0,-16.25L32.5,16.25L-32.5,16.25Z',
+    initialTransform: 'translate(113.75 32.5) rotate(270)'
   },
   {
     id: 'small-tri-2',
     name: '小三角形2',
     color: '#6d3bbf', // 紫色
-    path: 'M-50,-50L50,-50L50,50Z',
-    initialTransform: 'translate(150 150) rotate(90)'
+    path: 'M-32.5,-32.5L32.5,-32.5L32.5,32.5Z',
+    initialTransform: 'translate(97.5 97.5) rotate(90)'
   },
   {
     id: 'square',
     name: '正方形',
     color: '#22ab24', // 绿色
-    path: 'M-50,0L0,-50L50,0L0,50Z',
-    initialTransform: 'translate(150 100)'
+    path: 'M-32.5,0L0,-32.5L32.5,0L0,32.5Z',
+    initialTransform: 'translate(97.5 65)'
   },
   {
     id: 'parallelogram',
     name: '平行四边形',
     color: '#fd8c00', // 橙色
-    path: 'M-75,25L25,25L75,-25L-25,-25Z',
-    initialTransform: 'translate(75 175)'
+    path: 'M-48.75,16.25L16.25,16.25L48.75,-16.25L-16.25,-16.25Z',
+    initialTransform: 'translate(48.75 113.75)'
   }
 ];
-
-// 缩放后的七巧板形状（用于左侧画布区域和拖拽）
-const tangramShapes = originalShapes.map(shape => {
-  // 缩放路径 - 原始七巧板总宽度约为200单位，需要缩放到占画布的60%
-  const scaleFactor = SCALE_FACTOR / 200;
-
-  // 缩放路径
-  const scaledPath = shape.path.replace(/-?\d+\.?\d*/g, match => {
-    const num = parseFloat(match);
-    return (num * scaleFactor).toString();
-  });
-
-  // 提取原始变换中的平移和旋转信息
-  const transformInfo = extractTransformParams(shape.initialTransform);
-
-  // 缩放平移参数
-  const scaledTranslate = {
-    x: transformInfo.translate.x * scaleFactor,
-    y: transformInfo.translate.y * scaleFactor
-  };
-
-  // 生成新的变换字符串，保持旋转角度不变
-  const newTransform = generateTransform(scaledTranslate, transformInfo.rotate);
-
-  return {
-    ...shape,
-    path: scaledPath,
-    initialTransform: newTransform,
-    originalTransform: shape.initialTransform, // 保存原始变换
-    scaleFactor: scaleFactor  // 存储缩放因子以便后续参考
-  };
-});
 
 const TangramGame = () => {
   // 状态变量
@@ -157,33 +120,15 @@ const TangramGame = () => {
   const paletteRef = useRef(null);
 
   const [selectedTarget, setSelectedTarget] = useState(null); // Track selected target shape
-  const [targetScale, setTargetScale] = useState(1); // Scale factor for target shape
-
-  // 删除手动调整的方法
-
-  // 计算七巧板单位大小和形状缩放比例
-  const calculateTangramScaling = () => {
-    // 七巧板原始设计尺寸约为200x200
-    // 七巧板中最小的正方形边长是50单位
-    // 从原始设计到画布的缩放系数是 SCALE_FACTOR / 200
-    
-    // 实际的七巧板单位大小 = 50 * (SCALE_FACTOR / 200)
-    // 原始七巧板总边长 = 200
-    // 返回基础缩放系数和单位大小
-    return {
-      baseScale: SCALE_FACTOR / 200, // 基础缩放因子
-      unitSize: 50 * (SCALE_FACTOR / 200) // 基础单元大小
-    };
-  };
 
   // 处理从右侧七巧板区域开始拖拽
   const handlePaletteMouseDown = (e, pieceId) => {
     // 如果形状已经被拖走，不允许再次拖拽
     if (draggedShapes[pieceId]) return;
-    
+
     e.stopPropagation();
     e.preventDefault();
-    
+
     // 选中片段但不添加到画布
     if (e.shiftKey) {
       // 不改变当前选择状态
@@ -191,29 +136,29 @@ const TangramGame = () => {
       // 清除之前的选择
       setSelectedPieces([]);
     }
-    
+
     setActivePiece(pieceId);
-    
+
     // 获取SVG坐标系中的鼠标位置
     const svg = paletteRef.current;
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-    
-    // 找到原始片段用于拖拽预览（使用缩放后的形状）
-    const origPiece = tangramShapes.find(p => p.id === pieceId);
+
+    // 找到原始片段用于拖拽预览（使用原始大小的形状）
+    const origPiece = originalShapes.find(p => p.id === pieceId);
     if (origPiece) {
       // 保存原始变换信息到拖拽预览中
       const { translate, rotate } = extractTransformParams(origPiece.initialTransform);
-      
+
       setDragPreview({
         ...origPiece,
         initialTransform: origPiece.initialTransform,
         transformInfo: { translate, rotate }
       });
     }
-    
+
     // 保存拖拽开始信息，包括客户端坐标位置
     setDragInfo({
       isDragging: true,
@@ -259,7 +204,7 @@ const TangramGame = () => {
         // 使用函数式更新确保状态更新正确
         const newSelectedPieces = selectedPieces.filter(id => id !== pieceId);
         setSelectedPieces(newSelectedPieces);
-        
+
         // 如果取消选中的是当前活动片段，则需要更新活动片段
         if (activePiece === pieceId) {
           setActivePiece(newSelectedPieces.length > 0 ? newSelectedPieces[0] : null);
@@ -365,13 +310,13 @@ const TangramGame = () => {
         // 将鼠标位置转换为SVG坐标
         const svgP = pt.matrixTransform(canvas.getScreenCTM().inverse());
 
-        // 找到原始片段
-        const origPiece = tangramShapes.find(p => p.id === activePiece);
+        // 找到原始片段（使用原始大小的形状）
+        const origPiece = originalShapes.find(p => p.id === activePiece);
         if (origPiece) {
           // 获取原始片段的旋转信息
           const { rotate } = extractTransformParams(origPiece.initialTransform);
 
-          // 创建新片段，初始位置在鼠标位置，保持原始朝向
+          // 创建新片段，初始位置在鼠标位置，保持原始朝向和大小
           const newPiece = {
             ...origPiece,
             id: `${origPiece.id}-${Date.now()}`, // 生成唯一ID
@@ -392,7 +337,7 @@ const TangramGame = () => {
             // 否则清除之前的选择并设置当前片段为选中状态
             setSelectedPieces([newPiece.id]);
           }
-          
+
           // 选中新添加的片段
           setActivePiece(newPiece.id);
         }
@@ -416,7 +361,7 @@ const TangramGame = () => {
     const { translate, rotate } = extractTransformParams(piece.transform);
 
     // 计算旋转控制器的位置
-    const distance = 40;
+    const distance = 50;
     const angle = rotate.angle * Math.PI / 180;
 
     return {
@@ -534,7 +479,7 @@ const TangramGame = () => {
   const handlePieceClick = (e, pieceId) => {
     e.stopPropagation();
     e.preventDefault(); // 防止事件冒泡和默认行为
-    
+
     // 避免重复点击处理 - 因为mousedown已经处理了选择逻辑
     // 此处只作为备用
   };
@@ -583,7 +528,7 @@ const TangramGame = () => {
       if (e.key === 'Shift' && !isShiftPressed) {
         setIsShiftPressed(true);
       }
-      
+
       // Ctrl+A 或 Command+A 全选
       if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -594,7 +539,7 @@ const TangramGame = () => {
         }
       }
     };
-    
+
     const handleKeyUp = (e) => {
       // 跟踪Shift键的释放状态
       if (e.key === 'Shift') {
@@ -604,7 +549,7 @@ const TangramGame = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
@@ -618,7 +563,7 @@ const TangramGame = () => {
         handleMouseUp(e);
       }
     };
-    
+
     const handleGlobalMouseMove = (e) => {
       if (dragInfo.isDragging && dragInfo.sourceArea === 'palette') {
         // 从调色板区域拖拽到画布区域时，保持预览图形的移动方向与鼠标一致
@@ -627,18 +572,18 @@ const TangramGame = () => {
           const pt = canvas.createSVGPoint();
           pt.x = e.clientX;
           pt.y = e.clientY;
-          
+
           // 检查鼠标是否在画布范围内
           const rect = canvas.getBoundingClientRect();
-          const isOverCanvas = 
-            e.clientX >= rect.left && 
-            e.clientX <= rect.right && 
-            e.clientY >= rect.top && 
+          const isOverCanvas =
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
             e.clientY <= rect.bottom;
-          
+
           if (isOverCanvas) {
             const svgP = pt.matrixTransform(canvas.getScreenCTM().inverse());
-            
+
             // 更新鼠标当前位置（用于拖拽预览）和画布状态
             setDragInfo(prev => ({
               ...prev,
@@ -656,24 +601,15 @@ const TangramGame = () => {
         }
       }
     };
-    
+
     window.addEventListener('mouseup', handleGlobalMouseUp);
     window.addEventListener('mousemove', handleGlobalMouseMove);
-    
+
     return () => {
       window.removeEventListener('mouseup', handleGlobalMouseUp);
       window.removeEventListener('mousemove', handleGlobalMouseMove);
     };
   }, [dragInfo.isDragging, dragInfo.sourceArea]);
-
-  // Calculate the scale factor for the target shape
-  useEffect(() => {
-    if (selectedTarget) {
-      // Use the same scaling as the main tangram pieces
-      const scale = SCALE_FACTOR / 200;
-      setTargetScale(scale);
-    }
-  }, [selectedTarget]);
 
   // Handle target shape selection
   const handleTargetSelect = (target) => {
@@ -711,10 +647,10 @@ const TangramGame = () => {
               {selectedTarget && (
                 <g
                   className="target-shape"
-                  // Center the target shape in the main canvas
-                  // The target shape's viewBox is 0 0 200 200 (standardized)
-                  // We scale it by targetScale and then translate to center
-                  transform={`translate(${320 - (100 * targetScale)} ${180 - (100 * targetScale)}) scale(${targetScale})`}
+                  // Center the target shape directly in the middle of the canvas
+                  transform={selectedTarget.viewBox === '0 0 306 306'
+                    ? `translate(${320 - (153)} ${180 - (153)}) `
+                    : `translate(${320} ${180})`}
                 >
                   <path
                     d={selectedTarget.svgPath}
@@ -722,20 +658,24 @@ const TangramGame = () => {
                     opacity="0.5"
                     stroke="#666666"
                     strokeWidth="1"
+                    // Add transform for non-standard viewBox to center the shape properly
+                    transform={selectedTarget.viewBox !== '0 0 306 306'
+                      ? `translate(${-selectedTarget.viewBox.split(' ')[2] / 2} ${-selectedTarget.viewBox.split(' ')[3] / 2})`
+                      : ''}
                   />
                 </g>
               )}
 
               {/* 拖拽预览 */}
               {dragPreview && dragInfo.isDragging && dragInfo.sourceArea === 'palette' && dragInfo.isOverCanvas && (
-                <g 
+                <g
                   className="tile preview"
                   transform={`translate(${dragInfo.currentX} ${dragInfo.currentY}) ${dragPreview.transformInfo && dragPreview.transformInfo.rotate.angle !== 0 ? `rotate(${dragPreview.transformInfo.rotate.angle})` : ''}`}
                   style={{ opacity: 0.6 }}
                 >
-                  <path 
-                    fill={dragPreview.color} 
-                    d={dragPreview.path} 
+                  <path
+                    fill={dragPreview.color}
+                    d={dragPreview.path}
                     stroke="white"
                     strokeWidth="0.5"
                     strokeDasharray="5,5"
@@ -808,13 +748,13 @@ const TangramGame = () => {
               })()}
             </svg>
           </div>
-          
+
           {/* 目标形状选择区域 */}
           <div className="mt-4 w-full">
             <h4 className="font-medium text-gray-700 mb-2">选择目标形状:</h4>
             <div className="flex overflow-x-auto p-2 space-x-3 pb-3" style={{ scrollbarWidth: 'thin' }}>
               {/* 空选项 - 不选择任何目标 */}
-              <div 
+              <div
                 className={`target-tile flex flex-col items-center cursor-pointer ${selectedTarget === null ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white`}
                 onClick={() => handleTargetSelect(null)}
               >
@@ -823,18 +763,18 @@ const TangramGame = () => {
                 </div>
                 <span className="mt-1 text-xs text-center">自由创作</span>
               </div>
-              
+
               {/* 目标形状选项 */}
               {shapeTargets.map(target => (
-                <div 
+                <div
                   key={target.id}
                   className={`target-tile flex-shrink-0 flex flex-col items-center cursor-pointer ${selectedTarget?.id === target.id ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white`}
                   onClick={() => handleTargetSelect(target)}
                 >
                   <div className="w-20 h-20 flex items-center justify-center">
-                    <svg 
-                      width="88" 
-                      height="88" 
+                    <svg
+                      width="88"
+                      height="88"
                       viewBox={target.viewBox}
                     >
                       <path d={target.svgPath} fill="#333" />
@@ -845,7 +785,7 @@ const TangramGame = () => {
               ))}
             </div>
           </div>
-          
+
           {/* 添加多选信息和提示 */}
           <div className="mt-2 text-sm text-gray-600">
             <p>按住Shift键点击可选择多个图形。选中后可以一起移动所有被选中的图形。{isShiftPressed ? '【Shift键已按下】' : ''} 当前已选: {selectedPieces.length}个形状</p>
@@ -860,7 +800,7 @@ const TangramGame = () => {
           <div className="bg-white">
             <svg
               ref={paletteRef}
-              viewBox="0 0 200 200"
+              viewBox="0 0 130 130"
               className="w-full aspect-square"
             >
               {originalShapes.map((piece) => (
