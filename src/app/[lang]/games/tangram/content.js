@@ -99,6 +99,9 @@ const TangramGame = () => {
   const [isShiftPressed, setIsShiftPressed] = useState(false);  // 跟踪Shift键是否按下
   const [isSnappedToAngle, setIsSnappedToAngle] = useState(false);  // 跟踪是否吸附到角度
   const [currentSnapAngle, setCurrentSnapAngle] = useState(null);  // 当前吸附的角度
+  const [scrollPosition, setScrollPosition] = useState(0); // 添加滚动位置状态
+  const [showLeftArrow, setShowLeftArrow] = useState(false); // 添加左箭头显示状态
+  const [showRightArrow, setShowRightArrow] = useState(true); // 添加右箭头显示状态
   const [dragInfo, setDragInfo] = useState({
     isDragging: false,
     startX: 0,
@@ -651,6 +654,46 @@ const TangramGame = () => {
     setSelectedTarget(target);
   };
 
+  // 添加滚动处理函数
+  const handleScroll = (direction) => {
+    const container = document.querySelector('.target-shapes-container');
+    if (!container) return;
+
+    const scrollAmount = 200; // 每次滚动的距离
+    const newPosition = direction === 'left' 
+      ? container.scrollLeft - scrollAmount 
+      : container.scrollLeft + scrollAmount;
+
+    container.scrollTo({
+      left: newPosition,
+      behavior: 'smooth'
+    });
+
+    // 更新箭头显示状态
+    setTimeout(() => {
+      setShowLeftArrow(container.scrollLeft > 0);
+      setShowRightArrow(
+        container.scrollLeft < container.scrollWidth - container.clientWidth
+      );
+    }, 300);
+  };
+
+  // 添加滚动监听
+  useEffect(() => {
+    const container = document.querySelector('.target-shapes-container');
+    if (!container) return;
+
+    const handleScroll = () => {
+      setShowLeftArrow(container.scrollLeft > 0);
+      setShowRightArrow(
+        container.scrollLeft < container.scrollWidth - container.clientWidth
+      );
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="container mx-auto">
       <div className="lg:flex lg:items-start lg:space-x-8">
@@ -785,39 +828,65 @@ const TangramGame = () => {
           </div>
 
           {/* 目标形状选择区域 */}
-          <div className="mt-4 w-full">
+          <div className="mt-4 w-full relative">
             <h4 className="font-medium text-gray-700 mb-2">选择目标形状:</h4>
-            <div className="flex overflow-x-auto p-2 space-x-3 pb-3" style={{ scrollbarWidth: 'thin' }}>
-              {/* 空选项 - 不选择任何目标 */}
-              <div
-                className={`target-tile flex flex-col items-center cursor-pointer ${selectedTarget === null ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white`}
-                onClick={() => handleTargetSelect(null)}
-              >
-                <div className="w-20 h-20 flex items-center justify-center border border-dashed border-gray-400">
-                  <span className="text-gray-500">无</span>
-                </div>
-                <span className="mt-1 text-xs text-center">自由创作</span>
-              </div>
-
-              {/* 目标形状选项 */}
-              {shapeTargets.map(target => (
-                <div
-                  key={target.id}
-                  className={`target-tile flex-shrink-0 flex flex-col items-center cursor-pointer ${selectedTarget?.id === target.id ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white`}
-                  onClick={() => handleTargetSelect(target)}
+            <div className="relative">
+              {/* 左箭头 */}
+              {showLeftArrow && (
+                <button
+                  onClick={() => handleScroll('left')}
+                  className="absolute left-0 top-0 z-10 flex items-center justify-center w-12 h-[120px] bg-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] mt-2"
                 >
-                  <div className="w-20 h-20 flex items-center justify-center">
-                    <svg
-                      width="88"
-                      height="88"
-                      viewBox={target.viewBox}
-                    >
-                      <path d={target.svgPath} fill="#333" />
-                    </svg>
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-600 hover:text-gray-900">
+                    <path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                  </svg>
+                </button>
+              )}
+              
+              {/* 右箭头 */}
+              {showRightArrow && (
+                <button
+                  onClick={() => handleScroll('right')}
+                  className="absolute right-0 top-0 z-10 flex items-center justify-center w-12 h-[120px] bg-gray-200 shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)] mt-2"
+                >
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-600 hover:text-gray-900">
+                    <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                  </svg>
+                </button>
+              )}
+
+              <div className="target-shapes-container flex overflow-x-auto p-2 space-x-3 pb-3 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+                {/* 空选项 - 不选择任何目标 */}
+                <div
+                  className={`target-tile flex flex-col items-center cursor-pointer ${selectedTarget === null ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white flex-shrink-0`}
+                  onClick={() => handleTargetSelect(null)}
+                >
+                  <div className="w-20 h-20 flex items-center justify-center border border-dashed border-gray-400">
+                    <span className="text-gray-500">无</span>
                   </div>
-                  <span className="mt-1 text-xs text-center">{target.name}</span>
+                  <span className="mt-1 text-xs text-center">自由创作</span>
                 </div>
-              ))}
+
+                {/* 目标形状选项 */}
+                {shapeTargets.map(target => (
+                  <div
+                    key={target.id}
+                    className={`target-tile flex-shrink-0 flex flex-col items-center cursor-pointer ${selectedTarget?.id === target.id ? 'border-2 border-blue-500' : 'border border-gray-300'} p-2 rounded-lg bg-white`}
+                    onClick={() => handleTargetSelect(target)}
+                  >
+                    <div className="w-20 h-20 flex items-center justify-center">
+                      <svg
+                        width="88"
+                        height="88"
+                        viewBox={target.viewBox}
+                      >
+                        <path d={target.svgPath} fill="#333" />
+                      </svg>
+                    </div>
+                    <span className="mt-1 text-xs text-center">{target.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
