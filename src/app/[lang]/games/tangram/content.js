@@ -102,8 +102,7 @@ const TangramGame = ({ lang = 'en' }) => {
   const [activePiece, setActivePiece] = useState(null);
   const [selectedPieces, setSelectedPieces] = useState([]);  // 存储多选的片段ID
   const [isShiftPressed, setIsShiftPressed] = useState(false);  // 跟踪Shift键是否按下
-  const [isSnappedToAngle, setIsSnappedToAngle] = useState(false);  // 跟踪是否吸附到角度
-  const [currentSnapAngle, setCurrentSnapAngle] = useState(null);  // 当前吸附的角度
+
   const [showLeftArrow, setShowLeftArrow] = useState(false); // 添加左箭头显示状态
   const [showRightArrow, setShowRightArrow] = useState(true); // 添加右箭头显示状态
   const [dragInfo, setDragInfo] = useState({
@@ -485,9 +484,6 @@ const TangramGame = ({ lang = 'en' }) => {
         }
       }
 
-      setIsSnappedToAngle(isSnapped);
-      setCurrentSnapAngle(snappedAngle);
-
       // Change 360 to 0 to keep consistency
       if (newAngle === 360) newAngle = 0;
 
@@ -505,10 +501,6 @@ const TangramGame = ({ lang = 'en' }) => {
 
     // 添加鼠标松开事件监听器
     const handleMouseUp = () => {
-      // 重置吸附状态
-      setIsSnappedToAngle(false);
-      setCurrentSnapAngle(null);
-      
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
