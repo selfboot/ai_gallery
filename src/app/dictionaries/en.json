@@ -605,6 +605,17 @@
     "equalPrincipalTotalInterest": "Equal Principal Total Interest", 
     "interestOnlyTotalInterest": "Interest Only Total Interest"
   },
+  "tangram_title": "Free Online Tangram Puzzle Game",
+  "tangram_description": "Free online Tangram puzzle game, through dragging the Tangram, to make various shapes. Currently supports multiple target shapes, including buildings, animals, and vehicles. You can choose a target shape or create your own, to exercise your spatial imagination.",
+  "tangram": {
+    "multi_select_hint": "Hold down the Shift key to select multiple shapes. Selected shapes can be moved together.",
+    "shift_pressed": "【Shift key is pressed】",
+    "selected_count": "Selected {count} shapes",
+    "toolbox_title": "Tangram Toolbox",
+    "select_target_shape": "Select Target Shape:",
+    "no_target": "No",
+    "free_creation": "Free Creation"
+  },
 
   "chartrace": {
     "population-growth": {
@@ -884,6 +895,11 @@
       "title": "Free Online Loan Rate Calculator, Compare Different Loan Repayment Methods",
       "description": "Calculate your loan repayment amount, interest, and repayment plan for different loan repayment methods. Compare the differences between different loan repayment methods, and download the repayment plan table.",
       "keywords": "Online Loan Rate Calculator, Loan Repayment Calculator, Loan Repayment Method Comparison"
+    },
+    "tangram": {
+      "title": "Free Online Tangram Puzzle Game",
+      "description": "Free online Tangram puzzle game, through dragging the Tangram, to make various shapes. Currently supports multiple target shapes, including buildings, animals, and vehicles. You can choose a target shape or create your own, to exercise your spatial imagination.",
+      "keywords": "Tangram Puzzle Game, Online Tangram Puzzle, Free Tangram Puzzle"
     }
   }
 }

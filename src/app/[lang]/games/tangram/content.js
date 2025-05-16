@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import shapeTargets from './shapeTargets';
+import { useI18n } from "@/app/i18n/client";
 
 // 提取变换矩阵的参数
 function extractTransformParams(transformString) {
@@ -43,63 +44,66 @@ function generateTransform(translate, rotate) {
 const originalShapes = [
   {
     id: 'big-tri-1',
-    name: '大三角形1',
     color: '#0f82f2', // 蓝色
     path: 'M-65.36,-32.68L0,32.68L65.36,-32.68Z',
     initialTransform: 'translate(65.36 32.68)'
   },
   {
     id: 'big-tri-2',
-    name: '大三角形2',
     color: '#cd0e66', // 品红色
     path: 'M-65.36,-32.68L0,32.68L65.36,-32.68Z',
     initialTransform: 'translate(32.68 65.36) rotate(270)'
   },
   {
     id: 'medium-tri',
-    name: '中三角形',
     color: '#009ea6', // 青色
     path: 'M0,-16.34L32.68,16.34L-32.68,16.34Z',
     initialTransform: 'translate(65.36 81.7)'
   },
   {
     id: 'small-tri-1',
-    name: '小三角形1',
     color: '#eb4726', // 橙红色
     path: 'M0,-16.34L32.68,16.34L-32.68,16.34Z',
     initialTransform: 'translate(114.38 32.68) rotate(270)'
   },
   {
     id: 'small-tri-2',
-    name: '小三角形2',
     color: '#6d3bbf', // 紫色
     path: 'M-32.68,-32.68L32.68,-32.68L32.68,32.68Z',
     initialTransform: 'translate(98.04 98.04) rotate(90)'
   },
   {
     id: 'square',
-    name: '正方形',
     color: '#22ab24', // 绿色
     path: 'M-32.68,0L0,-32.68L32.68,0L0,32.68Z',
     initialTransform: 'translate(98.04 65.36)'
   },
   {
     id: 'parallelogram',
-    name: '平行四边形',
     color: '#fd8c00', // 橙色
     path: 'M-49.02,16.34L16.34,16.34L49.02,-16.34L-16.34,-16.34Z',
     initialTransform: 'translate(49.02 114.38)'
   }
 ];
 
-const TangramGame = () => {
-  // 状态变量
+const TangramGame = ({ lang = 'en' }) => {
+  const { t, dictionary } = useI18n();
+  const loanDict = dictionary.tangram || {};
+  const tTrangram = (key, params = {}) => {
+    let text = loanDict[key] || key;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        text = text.replace(`{${key}}`, value);
+      });
+    }
+    return text;
+  };
+ 
   const [activePiece, setActivePiece] = useState(null);
   const [selectedPieces, setSelectedPieces] = useState([]);  // 存储多选的片段ID
   const [isShiftPressed, setIsShiftPressed] = useState(false);  // 跟踪Shift键是否按下
   const [isSnappedToAngle, setIsSnappedToAngle] = useState(false);  // 跟踪是否吸附到角度
   const [currentSnapAngle, setCurrentSnapAngle] = useState(null);  // 当前吸附的角度
-  const [scrollPosition, setScrollPosition] = useState(0); // 添加滚动位置状态
   const [showLeftArrow, setShowLeftArrow] = useState(false); // 添加左箭头显示状态
   const [showRightArrow, setShowRightArrow] = useState(true); // 添加右箭头显示状态
   const [dragInfo, setDragInfo] = useState({
@@ -829,9 +833,8 @@ const TangramGame = () => {
 
           {/* 目标形状选择区域 */}
           <div className="mt-4 w-full relative">
-            <h4 className="font-medium text-gray-700 mb-2">选择目标形状:</h4>
+            <h4 className="font-medium text-gray-700 mb-2">{tTrangram('select_target_shape')}</h4>
             <div className="relative">
-              {/* 左箭头 */}
               {showLeftArrow && (
                 <button
                   onClick={() => handleScroll('left')}
@@ -862,9 +865,9 @@ const TangramGame = () => {
                   onClick={() => handleTargetSelect(null)}
                 >
                   <div className="w-20 h-20 flex items-center justify-center border border-dashed border-gray-400">
-                    <span className="text-gray-500">无</span>
+                    <span className="text-gray-500">{tTrangram('no_target')}</span>
                   </div>
-                  <span className="mt-1 text-xs text-center">自由创作</span>
+                  <span className="mt-1 text-xs text-center">{tTrangram('free_creation')}</span>
                 </div>
 
                 {/* 目标形状选项 */}
@@ -883,7 +886,7 @@ const TangramGame = () => {
                         <path d={target.svgPath} fill="#333" />
                       </svg>
                     </div>
-                    <span className="mt-1 text-xs text-center">{target.name}</span>
+                    <span className="mt-1 text-xs text-center">{target.name[lang] || target.name.en}</span>
                   </div>
                 ))}
               </div>
@@ -892,13 +895,17 @@ const TangramGame = () => {
 
           {/* 添加多选信息和提示 */}
           <div className="mt-2 text-sm text-gray-600">
-            <p>按住Shift键点击可选择多个图形。选中后可以一起移动所有被选中的图形。{isShiftPressed ? '【Shift键已按下】' : ''} 当前已选: {selectedPieces.length}个形状</p>
+            <p>
+              {tTrangram('multi_select_hint')}
+              {isShiftPressed ? tTrangram('shift_pressed') : ''}
+              {tTrangram('selected_count', { count: selectedPieces.length })}
+            </p>
           </div>
         </div>
 
         {/* 侧边控制区 - 大屏幕下占1/5宽度 */}
         <div className="lg:w-1/5 order-1 lg:order-2 p-4 flex flex-col gap-4">
-          <h3 className="font-bold text-lg mb-4">七巧板工具箱</h3>
+          <h3 className="font-bold text-lg mb-4">{tTrangram('toolbox_title')}</h3>
 
           {/* 七巧板组件区域 */}
           <div className="bg-white">
@@ -938,13 +945,12 @@ const TangramGame = () => {
           <div className="flex gap-2 mb-4">
             <button
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              title="清空画板"
               onClick={handleClear}
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5">
                 <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" fill="currentColor" />
               </svg>
-              重新开始
+              {t('restart')}
             </button>
           </div>
 

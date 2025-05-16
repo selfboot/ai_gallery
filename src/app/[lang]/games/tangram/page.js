@@ -8,9 +8,9 @@ export async function generateMetadata({ params: { lang } }) {
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
-      title: dict.seo.tetris.title,
-      description: dict.seo.tetris.description,
-      keywords: dict.seo.tetris.keywords,
+      title: dict.seo.tangram.title,
+      description: dict.seo.tangram.description,
+      keywords: dict.seo.tangram.keywords,
       publishedDate: "2025-05-11T02:00:00.000Z",
       updatedDate: "2025-05-19T02:00:00.000Z",
     }),
