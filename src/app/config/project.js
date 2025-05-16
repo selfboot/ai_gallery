@@ -36,6 +36,13 @@ const Projects = {
       link: "/games/maze",
     },
     {
+      id: "tangram",
+      title: "tangram_title",
+      description: "tangram_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250516_ai_gallery_tangram.webp",
+      link: "/games/tangram",
+    },
+    {
       id: "gomoku",
       title: "gomoku_title",
       description: "gomoku_description",
