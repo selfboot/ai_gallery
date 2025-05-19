@@ -4,9 +4,10 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['lodash'],
-  webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
-    return config;
+  turbopack: {
+    resolveAlias: {
+      '@': path.resolve(__dirname, 'src')
+    }
   },
   images: {
     remotePatterns: [

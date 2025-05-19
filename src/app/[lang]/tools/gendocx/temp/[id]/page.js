@@ -6,7 +6,14 @@ import PageHeader from "@/app/components/PageHeader";
 import TemplateDocx from "./content";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 
-export async function generateMetadata({ params: { lang, id } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang,
+    id
+  } = params;
+
   const template = documentTemplates.find((template) => template.id === id);
   if (!template) return notFound();
 
@@ -38,7 +45,14 @@ export async function generateStaticParams() {
   );
 }
 
-export default function TemplatePage({ params: { lang, id } }) {
+export default async function TemplatePage(props) {
+  const params = await props.params;
+
+  const {
+    lang,
+    id
+  } = params;
+
   const template = documentTemplates.find((template) => template.id === id);
   if (!template) return notFound();
 

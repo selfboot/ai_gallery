@@ -43,7 +43,13 @@ function deduplicateAndSortLevels(levels) {
   });
 }
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
@@ -64,7 +70,13 @@ export async function generateMetadata({ params: { lang } }) {
   };
 }
 
-export default function SokobanGalleryPage({ params: { lang } }) {
+export default async function SokobanGalleryPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const levels = deduplicateAndSortLevels([...levelsData.levels, ...extraLevelsData]);
   return (
     <>

@@ -4,7 +4,13 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
@@ -25,7 +31,13 @@ export async function generateMetadata({ params: { lang } }) {
   };
 }
 
-export default function Game2048Page({ params: { lang } }) {
+export default async function Game2048Page(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/2048`} />

@@ -4,7 +4,13 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return PageMeta({
     title: dict.seo.tokenbucket.title,
@@ -16,7 +22,13 @@ export async function generateMetadata({ params: { lang } }) {
   });
 }
 
-export default function TokenBucketPage({ params: { lang } }) {
+export default async function TokenBucketPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/tokenbucket`} />

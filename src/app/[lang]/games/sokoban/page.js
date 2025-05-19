@@ -6,7 +6,13 @@ import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import levelsData from "./levels.json";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
@@ -27,7 +33,13 @@ export async function generateMetadata({ params: { lang } }) {
   };
 }
 
-export default function SokobanPage({ params: { lang } }) {
+export default async function SokobanPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/sokoban`} />

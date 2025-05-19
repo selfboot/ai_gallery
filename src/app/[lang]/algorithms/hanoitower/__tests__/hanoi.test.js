@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor} from '@/app/test_utils';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import HanoiTower from '../content';
 
@@ -20,12 +21,22 @@ describe('HanoiTower Component', () => {
   });
 
   test('changes number of disks when selected', async () => {
+    const user = userEvent.setup();
     render(<HanoiTower />);
-    fireEvent.click(screen.getByRole('button', { name: '6' }));
-    fireEvent.click(screen.getByRole('option', { name: '4' }));
+    
+    const listboxButton = screen.getByRole('button', { name: '6' });
+    await user.click(listboxButton);
+
+    const option3 = await screen.findByRole('option', { name: '3' }); 
+    expect(option3).toBeVisible();
+
+    const option4 = await screen.findByRole('option', { name: '4' });
+    await user.click(option4);
+
     await waitFor(() => {
       const updatedDisks = screen.getAllByTestId('hanoi-disk');
       expect(updatedDisks.length).toBe(4);
+      expect(screen.getByRole('button', { name: '4' })).toBeInTheDocument();
     });
   });
 
@@ -125,7 +136,6 @@ describe('HanoiTower Component', () => {
       firstTower = screen.getByTestId('tower-0');
       secondTower = screen.getByTestId('tower-1');
 
-      // expect(firstTower.querySelectorAll('[data-testid="hanoi-disk"]')).toHaveLength(5);
       const disksOnSecondTower = secondTower.querySelectorAll('[data-testid="hanoi-disk"]');
       expect(disksOnSecondTower).toHaveLength(1);
     });

@@ -2,7 +2,13 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import DynamicChartsContent from './content';
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
 
   return PageMeta({
@@ -15,7 +21,13 @@ export async function generateMetadata({ params: { lang } }) {
   });
 }
 
-export default async function DynamicChartsPage({ params: { lang } }) {
+export default async function DynamicChartsPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
 
   return <DynamicChartsContent initialDict={dict} lang={lang} />;

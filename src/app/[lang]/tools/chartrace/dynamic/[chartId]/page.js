@@ -63,7 +63,14 @@ async function fetchChartData(dataFile, config) {
   }
 }
 
-export async function generateMetadata({ params: { chartId, lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    chartId,
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   const chartConfig = dynamicChartConfigs.find((c) => c.id === chartId);
 
@@ -79,7 +86,8 @@ export async function generateMetadata({ params: { chartId, lang } }) {
   }
 }
 
-export default async function DynamicChartPage({ params }) {
+export default async function DynamicChartPage(props) {
+  const params = await props.params;
   const { chartId, lang } = params;
   const config = dynamicChartConfigs.find((c) => c.id === chartId);
 

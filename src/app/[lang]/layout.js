@@ -15,7 +15,18 @@ export function generateStaticParams() {
   return SUPPORTED_LANGUAGES.map(lang => ({ lang }));
 }
 
-export default async function Layout({ children, params: { lang, slug = [] } }) {
+export default async function Layout(props) {
+  const params = await props.params;
+
+  const {
+    lang,
+    slug = []
+  } = params;
+
+  const {
+    children
+  } = props;
+
   const dict = await getDictionary(lang);
   const pathname = `/${lang}/${slug.join('/')}`;
 
@@ -30,15 +41,17 @@ export default async function Layout({ children, params: { lang, slug = [] } }) 
           title={`RSS Feed for AI Gallery`}
           href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
-        <Script id="check-device-and-load-ads" strategy="beforeInteractive">
+        <Script id="check-device-and-load-ads" strategy="afterInteractive">
           {`
-            if (window.innerWidth >= 768) {
-              const script = document.createElement('script');
-              script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544";
-              script.async = true;
-              script.crossOrigin = "anonymous";
-              document.head.appendChild(script);
-            }
+            (function() {
+              if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+                const script = document.createElement('script');
+                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7746897490519544";
+                script.async = true;
+                script.crossOrigin = "anonymous";
+                document.head.appendChild(script);
+              }
+            })();
           `}
         </Script>
         <Script

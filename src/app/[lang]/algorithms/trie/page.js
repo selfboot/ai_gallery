@@ -5,7 +5,13 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return PageMeta({
     title: dict.seo.trie.title,
@@ -17,7 +23,13 @@ export async function generateMetadata({ params: { lang } }) {
   });
 }
 
-export default function TriePage({ params: { lang } }) {
+export default async function TriePage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/trie`} />

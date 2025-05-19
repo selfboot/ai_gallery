@@ -5,7 +5,13 @@ import { BlogIndex } from "@/app/components/BlogIndex";
 import { getDictionary } from '@/app/dictionaries';
 import { PageMeta } from "@/app/components/Meta";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
 
   return PageMeta({
@@ -44,7 +50,13 @@ async function getPostMetadata(lang) {
   return postsMetadata.filter(Boolean).sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
-export default async function BlogIndexPage({ params: { lang } }) {
+export default async function BlogIndexPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const posts = await getPostMetadata(lang);
   return <BlogIndex posts={posts} lang={lang} />;
 }

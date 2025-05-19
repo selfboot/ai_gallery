@@ -3,7 +3,13 @@ import TemplateList from "./content";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 
-export async function generateMetadata({ params: { lang } }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   const dict = await getDictionary(lang);
   return {
     ...PageMeta({
@@ -24,7 +30,13 @@ export async function generateMetadata({ params: { lang } }) {
   };
 }
 
-export default function TemplatesPage({ params: { lang } }) {
+export default async function TemplatesPage(props) {
+  const params = await props.params;
+
+  const {
+    lang
+  } = params;
+
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp`} title="gendocx_templates" />

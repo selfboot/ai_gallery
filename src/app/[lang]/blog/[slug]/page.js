@@ -6,7 +6,14 @@ import TableOfContents from "@/app/components/TableOfContents";
 import CommonComments from "@/app/components/GiscusComments";
 import { SideAdComponent } from "@/app/components/AdComponent";
 
-export default async function BlogPostPage({ params: { lang, slug } }) {
+export default async function BlogPostPage(props) {
+  const params = await props.params;
+
+  const {
+    lang,
+    slug
+  } = params;
+
   const post = await getPostContent(slug, lang);
 
   if (!post) {
@@ -77,7 +84,8 @@ export default async function BlogPostPage({ params: { lang, slug } }) {
   );
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
   const { lang, slug } = params;
   const post = await getPostContent(slug, lang);
 
