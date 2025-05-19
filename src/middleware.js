@@ -35,7 +35,8 @@ export function middleware(request) {
     pathname.endsWith('.xlsx') ||
     pathname.endsWith('.docx') ||
     pathname.endsWith('.txt') ||
-    pathname.endsWith('.ico')
+    pathname.endsWith('.ico') || 
+    pathname.endsWith('.png')
   ) {
     // 对于静态文件，直接返回，不做任何处理
     return NextResponse.next();

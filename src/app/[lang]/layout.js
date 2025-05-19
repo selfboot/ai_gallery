@@ -41,6 +41,15 @@ export default async function Layout(props) {
           title={`RSS Feed for AI Gallery`}
           href={`https://gallery.selfboot.cn/${rssFileName}`}
         />
+
+        {/* Favicon links Start */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" /> */}
+        {/* <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" /> */}
+        <link rel="apple-touch-icon" sizes="192x192" href="/logo192.png" />
+        <link rel="manifest" href="/manifest.json" />
+        {/* Favicon links End */}
+
         <Script id="check-device-and-load-ads" strategy="afterInteractive">
           {`
             (function() {
