@@ -36,7 +36,7 @@ importers:
         specifier: ^10.0.8
         version: 10.0.8(@react-three/fiber@9.1.2(@types/react@18.3.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.169.0))(@types/react@18.3.12)(@types/three@0.163.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.169.0)
       '@react-three/fiber':
-        specifier: ^9.0.0
+        specifier: ^9.1.2
         version: 9.1.2(@types/react@18.3.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.169.0)
       '@tailwindcss/typography':
         specifier: ^0.5.14
@@ -355,10 +355,6 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
-
-  '@babel/runtime@7.25.7':
-    resolution: {integrity: sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.27.1':
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
@@ -3771,9 +3767,6 @@ packages:
     resolution: {integrity: sha512-fmfw4XgoDke3kdI6h4xcUz1dG8uaiv5q9gcEwLS4Pnth2kxT+GZ7YehS1JTMGBQmtV7Y4GFGbs2re2NqhdozUg==}
     engines: {node: '>= 0.4'}
 
-  regenerator-runtime@0.14.1:
-    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
-
   regexp.prototype.flags@1.5.2:
     resolution: {integrity: sha512-NcDiDkTLuPR+++OCKB0nWafEmhg/Da8aUPLPMQbK+bxKKCm1/S5he+AqYa4PlMCVBalb4/yxIRub6qkEx5yJbw==}
     engines: {node: '>= 0.4'}
@@ -4806,10 +4799,6 @@ snapshots:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
 
-  '@babel/runtime@7.25.7':
-    dependencies:
-      regenerator-runtime: 0.14.1
-
   '@babel/runtime@7.27.1': {}
 
   '@babel/template@7.25.0':
@@ -5415,7 +5404,7 @@ snapshots:
 
   '@react-three/fiber@9.1.2(@types/react@18.3.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.169.0)':
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.27.1
       '@types/react-reconciler': 0.28.9(@types/react@18.3.12)
       '@types/webxr': 0.5.20
       base64-js: 1.5.1
@@ -5578,7 +5567,7 @@ snapshots:
 
   '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react@18.3.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@babel/runtime': 7.25.7
+      '@babel/runtime': 7.27.1
       '@testing-library/dom': 10.4.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -9139,8 +9128,6 @@ snapshots:
       get-intrinsic: 1.3.0
       globalthis: 1.0.4
       which-builtin-type: 1.1.3
-
-  regenerator-runtime@0.14.1: {}
 
   regexp.prototype.flags@1.5.2:
     dependencies:

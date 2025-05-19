@@ -20,7 +20,7 @@
     "@next/third-parties": "15.3.2",
     "@react-spring/web": "^10.0.0",
     "@react-three/drei": "^10.0.8",
-    "@react-three/fiber": "^9.0.0",
+    "@react-three/fiber": "^9.1.2",
     "@tailwindcss/typography": "^0.5.14",
     "@vercel/speed-insights": "^1.2.0",
     "cookies-next": "^4.3.0",
