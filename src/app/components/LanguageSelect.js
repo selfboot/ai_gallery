@@ -12,10 +12,11 @@ export default function ClientLanguageSelect({ currentLang, languageOptions }) {
     const currentPathSegments = pathname.split("/").filter(Boolean);
 
     // Replace the language segment (first segment) with the new language
-    currentPathSegments[0] = newLang;
+    // Ensure newLang is a string before assigning (it should be, but good practice)
+    currentPathSegments[0] = String(newLang);
 
-    // Construct the new path
-    const newPath = `/${currentPathSegments.join("/")}`;
+    // Construct the new path safely by encoding each segment
+    const newPath = `/${currentPathSegments.map(segment => encodeURIComponent(String(segment))).join("/")}`;
 
     setCookie("NEXT_LOCALE", newLang, { maxAge: 365 * 24 * 60 * 60 }); // 1 year expiry
     // Navigate to the new path
