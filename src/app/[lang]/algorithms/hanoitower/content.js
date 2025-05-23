@@ -280,7 +280,17 @@ const HanoiTower = () => {
             }}
             draggable={mode === "manual"}
             onDragStart={(e) => handleDragStart(e, index, diskIndex)}
-          />
+          >
+            <div 
+              className="absolute inset-0 flex items-center justify-center font-bold text-white text-shadow"
+              style={{
+                fontSize: `${Math.max(12, Math.min(16, DISK_HEIGHT * 0.6))}px`,
+                textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
+              }}
+            >
+              {disk}
+            </div>
+          </div>
         ))}
         <div className="absolute bottom-[-24px] text-center w-full">{String.fromCharCode(65 + index)}</div>
       </div>
@@ -288,7 +298,7 @@ const HanoiTower = () => {
   });
 
   const Controls = React.memo(() => {
-    const diskOptions = useMemo(() => Array.from({ length: MAX_DISKS - 2 }, (_, i) => i + 3), []);
+    const diskOptions = useMemo(() => Array.from({ length: MAX_DISKS - 1 }, (_, i) => i + 2), []);
 
     const minMoves = 2 ** disks - 1;
     return (
