@@ -60,4 +60,9 @@ Before generating a large batch of documents, it's recommended to test with a si
 - If the files are too large, processing might be slow or even fail. It's recommended to keep files under 100MB;
 - Use modern browsers like Chrome, Firefox, or Edge. Internet Explorer may have compatibility issues.
 
-Finally, please note that generated documents will be automatically named in the format "template-name_sequence-number.docx". Data will be lost when the page is refreshed or closed, so please download your generated documents promptly.
+Finally, please note the document naming rules:
+- If the first column of Excel has content, it will be used as the file name
+- If the first column of Excel is empty, the format "template-name_sequence-number.docx" will be used
+- Illegal characters in file names will be automatically replaced with underscores
+
+Data will be lost when the page is refreshed or closed, so please download your generated documents promptly.

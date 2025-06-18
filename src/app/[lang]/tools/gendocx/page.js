@@ -19,7 +19,7 @@ export async function generateMetadata(props) {
       description: dict.seo.gendocx.description,
       keywords: dict.seo.gendocx.keywords,
       publishedDate: "2024-10-25T02:00:00.000Z",
-      updatedDate: "2025-01-08T09:00:00.000Z",
+      updatedDate: "2025-06-18T09:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/gendocx`,

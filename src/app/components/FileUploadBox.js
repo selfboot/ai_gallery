@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 import { useI18n } from '@/app/i18n/client';
 import Modal from '@/app/components/Modal';
 
@@ -116,10 +115,4 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
   );
 }
 
-FileUploadBox.propTypes = {
-  accept: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  maxSize: PropTypes.number,
-  className: PropTypes.string,
-};
+// PropTypes removed - not needed in modern React/Next.js projects

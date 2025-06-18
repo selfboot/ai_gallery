@@ -183,7 +183,19 @@ export default function TemplateDocx({ lang, template }) {
             mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
           });
 
-          const fileName = `${templateName}_${rowNumber - 1}.docx`;
+          // 尝试从第一列获取文件名，如果没有则使用默认格式
+          let fileName;
+          const firstColumnValue = row.getCell(1).value;
+          if (firstColumnValue && firstColumnValue.toString().trim()) {
+            // 清理文件名中的非法字符
+            const cleanFileName = firstColumnValue.toString().trim()
+              .replace(/[<>:"/\\|?*]/g, '_')  // 替换Windows非法字符
+              .replace(/\s+/g, '_');         // 替换空格为下划线
+            fileName = `${cleanFileName}.docx`;
+          } else {
+            // 如果第一列为空，使用原来的默认格式
+            fileName = `${templateName}_${rowNumber - 1}.docx`;
+          }
           zipRef.current.file(fileName, await generatedDoc.arrayBuffer());
           newPreviewUrls[fileName] = URL.createObjectURL(generatedDoc);
 
@@ -368,7 +380,10 @@ export default function TemplateDocx({ lang, template }) {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    {t("gendocx_fileName")}
+                    <div className="flex flex-col">
+                      <span>{t("gendocx_fileName")}</span>
+                      <span className="text-xs text-gray-400 normal-case">{t("gendocx_fileName_hint")}</span>
+                    </div>
                   </th>
                   <th
                     scope="col"
