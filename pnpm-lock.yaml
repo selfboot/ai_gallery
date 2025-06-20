@@ -89,9 +89,15 @@ importers:
       next:
         specifier: 15.3.2
         version: 15.3.2(@babel/core@7.25.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-themes:
+        specifier: ^0.2.1
+        version: 0.2.1(next@15.3.2(@babel/core@7.25.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
+      numfmt:
+        specifier: ^2.5.2
+        version: 2.5.2
       papaparse:
         specifier: ^5.4.1
         version: 5.4.1
@@ -3415,6 +3421,13 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
+  next-themes@0.2.1:
+    resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
+    peerDependencies:
+      next: '*'
+      react: '*'
+      react-dom: '*'
+
   next@15.3.2:
     resolution: {integrity: sha512-CA3BatMyHkxZ48sgOCLdVHjFU36N7TF1HhqAHLFOkV6buwZnvMI84Cug8xD56B9mCuKrqXnLn94417GrZ/jjCQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -3457,6 +3470,9 @@ packages:
   npm-run-path@4.0.1:
     resolution: {integrity: sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==}
     engines: {node: '>=8'}
+
+  numfmt@2.5.2:
+    resolution: {integrity: sha512-VXrB2bpU9Xa0oCHq8IsqE2CcUx5OLupLC3oryFT4DB9e/xe+OnUzBndhXfNHUzxFE4DYI3Sx4OtzS1Sdaf7tEw==}
 
   nwsapi@2.2.12:
     resolution: {integrity: sha512-qXDmcVlZV4XRtKFzddidpfVP4oMSGhga+xdMc25mv8kaLUHtgzCDhUxkrN8exkGdTlLNaXj7CV3GtON7zuGZ+w==}
@@ -8778,6 +8794,12 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
+  next-themes@0.2.1(next@15.3.2(@babel/core@7.25.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      next: 15.3.2(@babel/core@7.25.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
   next@15.3.2(@babel/core@7.25.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.3.2
@@ -8820,6 +8842,8 @@ snapshots:
   npm-run-path@4.0.1:
     dependencies:
       path-key: 3.1.1
+
+  numfmt@2.5.2: {}
 
   nwsapi@2.2.12: {}
 

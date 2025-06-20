@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as ExcelJS from 'exceljs';
 import Docxtemplater from 'docxtemplater';
 import PizZip from 'pizzip';
@@ -10,6 +10,7 @@ import { useI18n } from "@/app/i18n/client";
 import Modal from '@/app/components/Modal';
 import Link from 'next/link';
 import { SideAdComponent } from "@/app/components/AdComponent";
+import numfmt from 'numfmt';
 
 export default function GenDocx() {
   const { t } = useI18n();
@@ -70,9 +71,38 @@ export default function GenDocx() {
         headers.forEach((header, index) => {
           const cell = row.getCell(index + 1);
           let value = cell.value;
-
-          if (value instanceof Date) {
-            value = value.toLocaleDateString('zh-CN'); // 转换为 'YYYY/MM/DD' 格式
+          
+          // 使用numfmt库保持Excel中的原始格式
+          if (cell.numFmt && value !== null && value !== undefined) {
+            try {
+              // 对于日期类型，Excel内部存储为数字
+              if (value instanceof Date) {
+                // 将日期转换为Excel数字格式
+                const excelDate = 25569.0 + ((value.getTime() - (value.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+                value = numfmt.format(cell.numFmt, excelDate);
+              } else if (typeof value === 'number') {
+                // 对于数字，直接使用numfmt格式化
+                value = numfmt.format(cell.numFmt, value);
+              }
+            } catch (error) {
+              // 如果格式化失败，保持原值
+              console.warn('格式化失败:', error);
+              if (value instanceof Date) {
+                // 降级到默认日期格式
+                const year = value.getFullYear();
+                const month = value.getMonth() + 1;
+                const day = value.getDate();
+                value = `${year}年${month}月${day}日`;
+              } else {
+                value = value !== null && value !== undefined ? value.toString() : '';
+              }
+            }
+          } else if (value instanceof Date) {
+            // 如果没有格式信息但是是日期，使用默认格式
+            const year = value.getFullYear();
+            const month = value.getMonth() + 1;
+            const day = value.getDate();
+            value = `${year}年${month}月${day}日`;
           } else {
             value = value !== null && value !== undefined ? value.toString() : '';
           }
@@ -136,8 +166,45 @@ export default function GenDocx() {
           const rowData = {};
 
           Object.entries(headers).forEach(([colNumber, header]) => {
-            const value = row.getCell(Number(colNumber)).value;
-            rowData[header] = value !== null && value !== undefined ? value.toString() : '';
+            const cell = row.getCell(Number(colNumber));
+            let value = cell.value;
+            
+            // 使用numfmt库保持Excel中的原始格式
+            if (cell.numFmt && value !== null && value !== undefined) {
+              try {
+                // 对于日期类型，Excel内部存储为数字
+                if (value instanceof Date) {
+                  // 将日期转换为Excel数字格式
+                  const excelDate = 25569.0 + ((value.getTime() - (value.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
+                  value = numfmt.format(cell.numFmt, excelDate);
+                } else if (typeof value === 'number') {
+                  // 对于数字，直接使用numfmt格式化
+                  value = numfmt.format(cell.numFmt, value);
+                }
+              } catch (error) {
+                // 如果格式化失败，保持原值
+                console.warn('格式化失败:', error);
+                if (value instanceof Date) {
+                  // 降级到默认日期格式
+                  const year = value.getFullYear();
+                  const month = value.getMonth() + 1;
+                  const day = value.getDate();
+                  value = `${year}年${month}月${day}日`;
+                } else {
+                  value = value !== null && value !== undefined ? value.toString() : '';
+                }
+              }
+            } else if (value instanceof Date) {
+              // 如果没有格式信息但是是日期，使用默认格式
+              const year = value.getFullYear();
+              const month = value.getMonth() + 1;
+              const day = value.getDate();
+              value = `${year}年${month}月${day}日`;
+            } else {
+              value = value !== null && value !== undefined ? value.toString() : '';
+            }
+            
+            rowData[header] = value;
           });
 
         //   console.log(`Processing row ${rowNumber}:`, rowData);

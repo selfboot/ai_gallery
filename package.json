@@ -56,7 +56,9 @@
     "unist-util-visit": "^5.0.0",
     "web-vitals": "^4.2.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
-    "xlsx-js-style": "^1.2.0"
+    "xlsx-js-style": "^1.2.0",
+    "next-themes": "^0.2.1",
+    "numfmt": "^2.5.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
