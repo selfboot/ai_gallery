@@ -393,6 +393,8 @@
   "fileUpload_modal_close": "确定",
   "gendocx_title": "在线免费批量生成 Word 文档",
   "gendocx_description": "本在线工具支持根据 excel 中的内容批量生成 Word 文档，支持下载生成的文档。还有丰富的模板，可用于一键生成奖状、证书、成绩单等。所有数据和处理过程都在浏览器本地，不会上传服务器，保证个人隐私。",
+  "mergeword_title": "在线免费Word文件合并工具",
+  "mergeword_description": "支持合并多个Word文档为单个文件，保持原有格式和样式，在线处理，安全可靠，无需上传服务器。",
   "gendocx_uploadExcel": "上传Excel文件",
   "gendocx_uploadWord": "上传Word模板",
   "gendocx_generate": "生成文档",
@@ -909,6 +911,11 @@
       "title": "在线免费七巧板拼图游戏",
       "description": "在线免费七巧板拼图游戏，通过拖动七巧板，拼出各种形状。目前已经支持多种目标形状，包含建筑，动物，交通工具等，可以选择目标形状，也可以自由创作，锻炼你的空间想象能力。",
       "keywords": "七巧板拼图游戏, 在线七巧板拼图, 免费七巧板拼图"
+    },
+    "mergeword": {
+      "title": "在线免费Word文件合并工具",
+      "description": "支持合并多个Word文档为单个文件，保持原有格式和样式，在线处理，安全可靠，无需上传服务器。",
+      "keywords": "Word文件合并, 在线Word合并, 免费Word合并工具"
     }
   }
 }

@@ -17,7 +17,7 @@ const Modal = ({ isOpen, onClose, children, title }) => {
           </button>
         </div>
         <div className="overflow-y-auto">
-          <p className="whitespace-pre-line text-left">{children}</p>
+          <div className="whitespace-pre-line text-left">{children}</div>
         </div>
       </div>
     </div>

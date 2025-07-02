@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useI18n } from '@/app/i18n/client';
 import Modal from '@/app/components/Modal';
 
-export default function FileUploadBox({ accept, onChange, title, maxSize = 50, className = '' }) {
+export default function FileUploadBox({ accept, onChange, title, maxSize = 50, className = '', multiple = false }) {
   const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
-  const [fileName, setFileName] = useState('');
+  const [fileNames, setFileNames] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
@@ -29,24 +29,54 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFile(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      handleFiles(files);
     }
   };
 
-  const handleFile = (file) => {
-    if (file.size > maxSize * 1024 * 1024) {
-      showError(t('fileUpload_sizeExceeded', { size: maxSize }));
-      return;
+  const handleFiles = (files) => {
+    const validFiles = [];
+    const errors = [];
+
+    files.forEach(file => {
+      if (file.size > maxSize * 1024 * 1024) {
+        errors.push(`${file.name}: ${t('fileUpload_sizeExceeded', { size: maxSize })}`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (errors.length > 0) {
+      showError(errors.join('\n'));
     }
-    setFileName(file.name);
-    onChange(file);
+
+    if (validFiles.length > 0) {
+      const names = validFiles.map(f => f.name);
+      setFileNames(names);
+      
+      if (multiple) {
+        onChange(validFiles);
+      } else {
+        onChange(validFiles[0]);
+      }
+    }
+  };
+
+  const displayText = () => {
+    if (fileNames.length > 0) {
+      if (multiple && fileNames.length > 1) {
+        return `已选择 ${fileNames.length} 个文件`;
+      } else {
+        return fileNames[0];
+      }
+    }
+    return null;
   };
 
   return (
@@ -64,6 +94,7 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
         <input
           type="file"
           accept={accept}
+          multiple={multiple}
           onChange={handleFileChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
@@ -81,8 +112,8 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
           <div className="text-center">
             {title && <p className="text-sm font-medium text-gray-700 mb-2">{title}</p>}
             <p className="text-sm text-gray-600">
-              {fileName ? (
-                fileName
+              {displayText() ? (
+                displayText()
               ) : (
                 <>
                   {t('fileUpload_dragHere')}
@@ -95,13 +126,15 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
                 accept: accept.split(',').join('/'),
                 size: maxSize,
               })}
+              {multiple && <br/>}
+              {multiple && '支持选择多个文件'}
             </p>
           </div>
         </div>
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <p className="text-gray-700">{modalMessage}</p>
+        <div className="text-gray-700 whitespace-pre-line">{modalMessage}</div>
         <div className="mt-4 flex justify-end">
           <button
             onClick={() => setIsModalOpen(false)}

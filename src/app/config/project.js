@@ -215,6 +215,13 @@ const Projects = {
       link: "/tools/gendocx/",
     },
     {
+      id: "mergeword",
+      title: "mergeword_title",
+      description: "mergeword_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/mergeword/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
