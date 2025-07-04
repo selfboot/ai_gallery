@@ -16,6 +16,7 @@ export default function WordMergerContent() {
   const [modalMessage, setModalMessage] = useState("");
   const [modalType, setModalType] = useState("info"); // 'info', 'error', 'success'
   const [statusMessage, setStatusMessage] = useState(""); // 新增：用于显示上传状态消息
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
   const showModal = (message, type = "info") => {
     setModalMessage(message);
@@ -61,9 +62,6 @@ export default function WordMergerContent() {
       } else {
         setStatusMessage(`✓ ${t("mergeword_files_added", { count: validFiles.length })}`);
       }
-
-      // 3秒后清除状态消息
-      setTimeout(() => setStatusMessage(""), 3000);
     }
   };
 
@@ -202,132 +200,196 @@ export default function WordMergerContent() {
     setStatusMessage(""); // 清除状态消息
   };
 
+  const handleDragStart = (index) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    // 可视 feedback 可选
+  };
+
+  const handleDropCard = (index) => {
+    if (draggedIndex === null || draggedIndex === index) return;
+    moveFile(draggedIndex, index);
+    setDraggedIndex(null);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* 文件上传区域 */}
-      <div className="bg-white">
-        <FileUploadBox
-          accept=".docx"
-          multiple={true}
-          onChange={handleFileUpload}
-          title={t("mergeword_upload_hint")}
-          maxSize={50}
-          className="min-h-32"
-        />
-        {statusMessage && <p className="text-sm text-green-600 mt-2 font-medium">{statusMessage}</p>}
+    <div className="w-full mx-auto mt-4">
+      {/* 上半部分：左右分栏 */}
+      <div className="flex flex-col lg:flex-row lg:space-x-8 mb-8">
+        {/* 左侧：文件上传和合并操作 */}
+        <div className="lg:w-1/2">
+          {/* 文件上传区域 */}
+          <div className="bg-white rounded-lg shadow-lg p-6 h-full flex flex-col">
+            <h2 className="text-xl font-semibold mb-4">{t('mergeword_upload_title')}</h2>
+            <FileUploadBox
+              accept=".docx"
+              multiple={true}
+              onChange={handleFileUpload}
+              title={t('mergeword_upload_hint')}
+              maxSize={50}
+              className="min-h-32"
+            />
+            {statusMessage && (
+              <p className="text-sm text-green-600 mt-2 font-medium">
+                {statusMessage}
+              </p>
+            )}
+            
+            {/* 合并按钮 - 使用 mt-auto 让它始终在底部 */}
+            <div className="mt-auto pt-6">
+              <button
+                onClick={mergeDocuments}
+                disabled={isProcessing || files.length < 2}
+                className={`w-full py-4 px-6 rounded-lg font-medium text-white transition-colors text-lg
+                  ${isProcessing || files.length < 2
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+              >
+                {isProcessing ? t('mergeword_merging') : t('mergeword_merge_button', { count: files.length || 0 })}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 右侧：功能说明 */}
+        <div className="lg:w-1/2 mt-6 lg:mt-0">
+          <div className="bg-white rounded-lg shadow-lg p-6 h-full">
+            <h2 className="text-xl font-semibold mb-4 text-gray-700">{t('mergeword_feature_title')}</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-gray-800 mb-2">{t('mergeword_merge_process')}</h3>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• {t('mergeword_merge_info_1')}</li>
+                  <li>• {t('mergeword_merge_info_2')}</li>
+                  <li>• {t('mergeword_merge_info_3')}</li>
+                  <li>• {t('mergeword_merge_info_4')}</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-800 mb-2">{t('mergeword_features')}</h3>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    <span>{t('mergeword_feature_1')}</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    <span>{t('mergeword_feature_2')}</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    <span>{t('mergeword_feature_3')}</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    <span>{t('mergeword_feature_4')}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* 已上传文件列表 */}
+      {/* 下半部分：文件列表（全宽） */}
       {files.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">
-              {t("mergeword_uploaded_files")} ({files.length})
-            </h2>
-            <button onClick={clearAllFiles} className="text-red-500 hover:text-red-700 text-sm">
-              {t("mergeword_clear_all")}
+            <h2 className="text-xl font-semibold">{t('mergeword_uploaded_files')} ({files.length})</h2>
+            <button
+              onClick={clearAllFiles}
+              className="text-red-500 hover:text-red-700 text-sm"
+            >
+              {t('mergeword_clear_all')}
             </button>
           </div>
-
-          <div className="space-y-2">
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {files.map((file, index) => (
               <div
                 key={`${file.name}-${index}`}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded border"
+                className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors cursor-move"
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={() => handleDropCard(index)}
               >
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-blue-600">{index + 1}</span>
-                  <span className="text-sm text-gray-700">{file.name}</span>
-                  <span className="text-xs text-gray-500">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                    #{index + 1}
+                  </span>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => moveFile(index, index - 1)}
+                      disabled={index === 0}
+                      className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      title={t('mergeword_move_up')}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => moveFile(index, index + 1)}
+                      disabled={index === files.length - 1}
+                      className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                      title={t('mergeword_move_down')}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="p-1 text-red-500 hover:text-red-700"
+                      title={t('mergeword_delete')}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  {/* 移动按钮 */}
-                  <button
-                    onClick={() => moveFile(index, index - 1)}
-                    disabled={index === 0}
-                    className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                    title={t("mergeword_move_up")}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => moveFile(index, index + 1)}
-                    disabled={index === files.length - 1}
-                    className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                    title={t("mergeword_move_down")}
-                  >
-                    ↓
-                  </button>
-
-                  {/* 删除按钮 */}
-                  <button
-                    onClick={() => removeFile(index)}
-                    className="p-1 text-red-500 hover:text-red-700"
-                    title={t("mergeword_delete")}
-                  >
-                    ×
-                  </button>
+                
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-700 truncate" title={file.name}>
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t('mergeword_file_size')}{(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
                 </div>
               </div>
             ))}
           </div>
-
-          <p className="text-sm text-gray-500 mt-3">{t("mergeword_order_hint")}</p>
-        </div>
-      )}
-
-      {/* 合并按钮 */}
-      {files.length >= 2 && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <button
-            onClick={mergeDocuments}
-            disabled={isProcessing}
-            className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors
-              ${isProcessing ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
-          >
-            {isProcessing ? t("mergeword_merging") : t("mergeword_merge_button", { count: files.length })}
-          </button>
-
-          <div className="mt-4 p-4 bg-blue-50 rounded border-l-4 border-blue-400">
-            <h3 className="font-medium text-blue-800 mb-2">{t("mergeword_merge_info_title")}</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• {t("mergeword_merge_info_1")}</li>
-              <li>• {t("mergeword_merge_info_2")}</li>
-              <li>• {t("mergeword_merge_info_3")}</li>
-              <li>• {t("mergeword_merge_info_4")}</li>
-            </ul>
-          </div>
+          
+          <p className="text-sm text-gray-500 mt-4 text-center">
+            {t('mergeword_order_hint')}
+          </p>
         </div>
       )}
 
       {/* 模态框 */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="text-center">
-          <div
-            className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4
-            ${modalType === "error" ? "bg-red-100" : modalType === "success" ? "bg-green-100" : "bg-blue-100"}`}
-          >
-            <span
-              className={`text-2xl
-              ${modalType === "error" ? "text-red-600" : modalType === "success" ? "text-green-600" : "text-blue-600"}`}
-            >
-              {modalType === "error" ? "✕" : modalType === "success" ? "✓" : "ℹ"}
+          <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4
+            ${modalType === 'error' ? 'bg-red-100' : 
+              modalType === 'success' ? 'bg-green-100' : 'bg-blue-100'}`}>
+            <span className={`text-2xl
+              ${modalType === 'error' ? 'text-red-600' : 
+                modalType === 'success' ? 'text-green-600' : 'text-blue-600'}`}>
+              {modalType === 'error' ? '✕' : modalType === 'success' ? '✓' : 'ℹ'}
             </span>
           </div>
           <p className="text-gray-700 mb-4">{modalMessage}</p>
           <button
             onClick={() => setIsModalOpen(false)}
             className={`px-6 py-2 rounded text-white font-medium
-              ${
-                modalType === "error"
-                  ? "bg-red-500 hover:bg-red-600"
-                  : modalType === "success"
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+              ${modalType === 'error' ? 'bg-red-500 hover:bg-red-600' : 
+                modalType === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
-            {t("mergeword_confirm")}
+            {t('mergeword_confirm')}
           </button>
         </div>
       </Modal>
