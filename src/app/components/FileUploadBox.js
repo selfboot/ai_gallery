@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useI18n } from '@/app/i18n/client';
-import Modal from '@/app/components/Modal';
+import { useState } from "react";
+import { useI18n } from "@/app/i18n/client";
+import Modal from "@/app/components/Modal";
 
-export default function FileUploadBox({ accept, onChange, title, maxSize = 50, className = '', multiple = false }) {
+export default function FileUploadBox({ accept, onChange, title, maxSize = 50, className = "", multiple = false }) {
   const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
   const [fileNames, setFileNames] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [modalMessage, setModalMessage] = useState("");
 
   const showError = (message) => {
     setModalMessage(message);
@@ -44,22 +44,22 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
     const validFiles = [];
     const errors = [];
 
-    files.forEach(file => {
+    files.forEach((file) => {
       if (file.size > maxSize * 1024 * 1024) {
-        errors.push(`${file.name}: ${t('fileUpload_sizeExceeded', { size: maxSize })}`);
+        errors.push(`${file.name}: ${t("fileUpload_sizeExceeded", { size: maxSize })}`);
       } else {
         validFiles.push(file);
       }
     });
 
     if (errors.length > 0) {
-      showError(errors.join('\n'));
+      showError(errors.join("\n"));
     }
 
     if (validFiles.length > 0) {
-      const names = validFiles.map(f => f.name);
+      const names = validFiles.map((f) => f.name);
       setFileNames(names);
-      
+
       if (multiple) {
         onChange(validFiles);
       } else {
@@ -71,7 +71,7 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
   const displayText = () => {
     if (fileNames.length > 0) {
       if (multiple && fileNames.length > 1) {
-        return `已选择 ${fileNames.length} 个文件`;
+        return t("fileUpload_filesSelected", { count: fileNames.length });
       } else {
         return fileNames[0];
       }
@@ -83,7 +83,7 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
     <>
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 
-          ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
+          ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"}
           hover:border-blue-500 transition-colors duration-200
           flex items-center justify-center
           ${className}`}
@@ -116,18 +116,16 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
                 displayText()
               ) : (
                 <>
-                  {t('fileUpload_dragHere')}
-                  <span className="text-blue-500">{t('fileUpload_clickUpload')}</span>
+                  {t("fileUpload_dragHere")}
+                  <span className="text-blue-500">{t("fileUpload_clickUpload")}</span>
                 </>
               )}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {t('fileUpload_sizeLimit', {
-                accept: accept.split(',').join('/'),
+              {t("fileUpload_sizeLimit", {
+                accept: accept.split(",").join("/"),
                 size: maxSize,
               })}
-              {multiple && <br/>}
-              {multiple && '支持选择多个文件'}
             </p>
           </div>
         </div>
@@ -140,7 +138,7 @@ export default function FileUploadBox({ accept, onChange, title, maxSize = 50, c
             onClick={() => setIsModalOpen(false)}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            {t('fileUpload_modal_close')}
+            {t("fileUpload_modal_close")}
           </button>
         </div>
       </Modal>
