@@ -72,6 +72,10 @@ export default function GenDocx() {
           const cell = row.getCell(index + 1);
           let value = cell.value;
           
+          if (value && typeof value === 'object' && value.result !== undefined) {
+            value = value.result;
+          }
+
           // 使用numfmt库保持Excel中的原始格式
           if (cell.numFmt && value !== null && value !== undefined) {
             try {
@@ -169,6 +173,10 @@ export default function GenDocx() {
             const cell = row.getCell(Number(colNumber));
             let value = cell.value;
             
+            if (value && typeof value === 'object' && value.result !== undefined) {
+              value = value.result;
+            }
+
             // 使用numfmt库保持Excel中的原始格式
             if (cell.numFmt && value !== null && value !== undefined) {
               try {
