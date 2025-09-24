@@ -477,6 +477,7 @@
   "empty_space": "Space",
   "cancel": "Cancel",
   "moves": "Moves",
+  "loading": "Loading...",
   "move_direction": "Move {{number}} Direction: {{direction}}",
   "direction_up": "up",
   "direction_down": "down",
@@ -495,6 +496,13 @@
   "best_record": "Best Record",
   "completed_at": "Completed At",
   "steps": "Steps",
+  "previous_level": "Prev Level",
+  "next_level": "Next Level",
+  "unblockme_title": "Classic Unblock Me Slice Puzzle",
+  "unblockme_description": "250 carefully curated Unblock Me (Huarong Dao) levels with smooth drag interactions, undo support, best-score tracking, and a responsive Sokoban-style layout.",
+  "unblockme_success": "Great job! You freed the red block in {{moves}} moves!",
+  "unblockme_target": "Red Block",
+  "block": "Block",
   "exit_edit_mode": "Exit Edit Mode",
   "save_map": "Save Map",
   "create_level": "Create Game",
@@ -910,6 +918,11 @@
       "title": "Free Online Sokoban Game",
       "description": "A high-difficulty Sokoban game with levels of various difficulties, also supports customizing game levels and sharing with friends to play together. Use your brain to push the box around the obstacle and to the designated location. Puzzle games, suitable for all ages, exercise thinking skills.",
       "keywords": "Free Online Sokoban, Customize Sokoban, Sokoban Hardest Level"
+    },
+    "unblockme": {
+      "title": "Classic Unblock Me Slice Puzzle",
+      "description": "Play the classic Unblock Me (Huarong Dao) puzzle online for free. Drag blocks smoothly, undo any move, and challenge 250 curated levels with best-score tracking and responsive design.",
+      "keywords": "Unblock Me Online, Unblock Me Puzzle, Free Sliding Block Game"
     },
     "sokoban_more": {
       "title": "Many Online Sokoban Game Levels",

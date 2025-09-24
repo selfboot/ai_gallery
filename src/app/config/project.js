@@ -22,6 +22,13 @@ const Projects = {
       link: "/games/sokoban",
     },
     {
+      id: "unblockme",
+      title: "unblockme_title",
+      description: "unblockme_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250924_ai_gallery_unblockme_small.webp",
+      link: "/games/unblockme",
+    },
+    {
       id: "sudoku",
       title: "sudoku_title",
       description: "sudoku_description",
