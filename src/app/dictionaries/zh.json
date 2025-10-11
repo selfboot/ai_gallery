@@ -37,6 +37,15 @@
   "show_move_numbers": "显示落子顺序",
   "player_color": "执子颜色",
 
+  "game_mode": "游戏模式",
+  "mode_local": "单机对战",
+  "mode_ai": "与AI对战",
+  "ai_thinking": "AI思考中...",
+  "ai_rank": "AI段位",
+  "rank_novice": "新手",
+  "rank_expert": "高手",
+  "rank_master": "大师",
+
   "chess_title": "中国象棋",
   "chess_description": "中国象棋游戏，简约的棋盘的基本布局，完整的游戏规则，黑红玩家轮换，将军，最后胜局判断等。还支持悔棋功能哦",
   "current_player": "{{player}} 回合",
