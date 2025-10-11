@@ -7,6 +7,9 @@ import { generateProceduralLevel } from "./levelGenerator";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
 
+const RANDOM_GRID_SIZE = 15;
+const RANDOM_CELL_SIZE = 48;
+
 export default function LaserMazeGame({ lang, defaults, levels }) {
   const { t } = useI18n();
 
@@ -38,6 +41,8 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
 
   const [gameState, setGameState] = useState(() => initializeGameState(initialLevel, defaults));
   const [draggingBlock, setDraggingBlock] = useState(null);
+  const [solutionBlocks, setSolutionBlocks] = useState(initialLevel?.solutionBlocks ?? null);
+  const [showSolution, setShowSolution] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [hasShownSuccess, setHasShownSuccess] = useState(false);
   const svgRef = useRef(null);
@@ -46,6 +51,8 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     (nextLevel) => {
       setGameState(initializeGameState(nextLevel.data, defaults));
       setActiveLevel(nextLevel);
+      setSolutionBlocks(nextLevel.data?.solutionBlocks ?? null);
+      setShowSolution(false);
     },
     [defaults]
   );
@@ -64,11 +71,17 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     loadLevel(activeLevel);
     setShowSuccessModal(false);
     setHasShownSuccess(false);
+    setShowSolution(false);
   }, [activeLevel, loadLevel]);
 
   const handleGenerate = useCallback(
     (difficulty) => {
-      const level = generateProceduralLevel(difficulty, defaults);
+      const randomDefaults = {
+        ...defaults,
+        gridSize: RANDOM_GRID_SIZE,
+        cellSize: RANDOM_CELL_SIZE,
+      };
+      const level = generateProceduralLevel(difficulty, randomDefaults);
       loadLevel({ type: "random", index: null, difficulty, data: level });
     },
     [defaults, loadLevel]
@@ -144,9 +157,16 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
   useEffect(() => {
     setShowSuccessModal(false);
     setHasShownSuccess(false);
-  }, [activeLevel.index, activeLevel.type]);
+    setShowSolution(false);
+  }, [activeLevel.index, activeLevel.type, activeLevel.data?.id]);
 
   const boardSizePx = useMemo(() => gameState.gridSize * gameState.cellSize, [gameState.gridSize, gameState.cellSize]);
+  const targetOuterRadius = useMemo(() => gameState.cellSize * 0.28, [gameState.cellSize]);
+  const targetInnerRadius = useMemo(() => gameState.cellSize * 0.14, [gameState.cellSize]);
+  const laserOuterRadius = useMemo(() => gameState.cellSize * 0.32, [gameState.cellSize]);
+  const laserInnerRadius = useMemo(() => gameState.cellSize * 0.2, [gameState.cellSize]);
+  const redDotRadius = useMemo(() => gameState.cellSize * 0.08, [gameState.cellSize]);
+  const hasSolutionOverlay = useMemo(() => Array.isArray(solutionBlocks) && solutionBlocks.length > 0, [solutionBlocks]);
 
   return (
     <div
@@ -212,16 +232,21 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                       <circle
                         cx={gameState.laser.x * gameState.cellSize}
                         cy={gameState.laser.y * gameState.cellSize}
-                        r="16"
+                        r={laserOuterRadius}
                         fill="#f97316"
                         opacity="0.4"
                       >
-                        <animate attributeName="r" values="16;22;16" dur="1.5s" repeatCount="indefinite" />
+                        <animate
+                          attributeName="r"
+                          values={`${laserOuterRadius};${laserOuterRadius * 1.25};${laserOuterRadius}`}
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
                       </circle>
                       <circle
                         cx={gameState.laser.x * gameState.cellSize}
                         cy={gameState.laser.y * gameState.cellSize}
-                        r="10"
+                        r={laserInnerRadius}
                         fill="#f97316"
                       />
                       <line
@@ -230,7 +255,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                         x2={(gameState.laser.x + gameState.laser.dx * 0.3) * gameState.cellSize}
                         y2={(gameState.laser.y + gameState.laser.dy * 0.3) * gameState.cellSize}
                         stroke="#ffffff"
-                        strokeWidth="3"
+                        strokeWidth={Math.max(2, gameState.cellSize * 0.06)}
                         strokeLinecap="round"
                       />
                     </g>
@@ -246,13 +271,15 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                         <circle
                           cx={cx}
                           cy={cy}
-                          r="18"
+                          r={targetOuterRadius}
                           fill="none"
                           stroke={isHit ? "#22c55e" : "#86efac"}
-                          strokeWidth="4"
+                          strokeWidth={Math.max(3, gameState.cellSize * 0.08)}
                         />
-                        <circle cx={cx} cy={cy} r="9" fill={isHit ? "#22c55e" : "#dcfce7"}>
-                          {isHit && <animate attributeName="r" values="9;13;9" dur="0.5s" repeatCount="1" />}
+                        <circle cx={cx} cy={cy} r={targetInnerRadius} fill={isHit ? "#22c55e" : "#dcfce7"}>
+                          {isHit && (
+                            <animate attributeName="r" values={`${targetInnerRadius};${targetInnerRadius * 1.4};${targetInnerRadius}`} dur="0.5s" repeatCount="1" />
+                          )}
                         </circle>
                       </g>
                     );
@@ -270,23 +297,45 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                         className={isDragging ? "cursor-grabbing" : "cursor-grab"}
                       >
                         <rect
-                          x={x + 5}
-                          y={y + 5}
-                          width={gameState.cellSize - 10}
-                          height={gameState.cellSize - 10}
-                          rx="10"
+                          x={x + gameState.cellSize * 0.1}
+                          y={y + gameState.cellSize * 0.1}
+                          width={gameState.cellSize * 0.8}
+                          height={gameState.cellSize * 0.8}
+                          rx={gameState.cellSize * 0.14}
                           fill="#ffffff"
                           stroke={isDragging ? "#60a5fa" : "#94a3b8"}
-                          strokeWidth="3"
+                          strokeWidth={Math.max(2, gameState.cellSize * 0.06)}
                           style={{ filter: "drop-shadow(0 8px 16px rgba(15,23,42,0.12))" }}
                         />
-                        <circle cx={x + gameState.cellSize / 2} cy={y} r="4" fill="#f97316" />
-                        <circle cx={x + gameState.cellSize / 2} cy={y + gameState.cellSize} r="4" fill="#f97316" />
-                        <circle cx={x} cy={y + gameState.cellSize / 2} r="4" fill="#f97316" />
-                        <circle cx={x + gameState.cellSize} cy={y + gameState.cellSize / 2} r="4" fill="#f97316" />
+                        <circle cx={x + gameState.cellSize / 2} cy={y} r={redDotRadius} fill="#f97316" />
+                        <circle cx={x + gameState.cellSize / 2} cy={y + gameState.cellSize} r={redDotRadius} fill="#f97316" />
+                        <circle cx={x} cy={y + gameState.cellSize / 2} r={redDotRadius} fill="#f97316" />
+                        <circle cx={x + gameState.cellSize} cy={y + gameState.cellSize / 2} r={redDotRadius} fill="#f97316" />
                       </g>
                     );
                   })}
+
+                  {showSolution && hasSolutionOverlay &&
+                    solutionBlocks?.map((block, idx) => {
+                      const x = block.x * gameState.cellSize;
+                      const y = block.y * gameState.cellSize;
+                      return (
+                        <rect
+                          key={`solution-${idx}`}
+                          x={x + gameState.cellSize * 0.12}
+                          y={y + gameState.cellSize * 0.12}
+                          width={gameState.cellSize * 0.76}
+                          height={gameState.cellSize * 0.76}
+                          rx={gameState.cellSize * 0.18}
+                          fill="none"
+                          stroke="#3b82f6"
+                          strokeWidth={Math.max(2, gameState.cellSize * 0.05)}
+                          strokeDasharray="6 4"
+                          opacity="0.75"
+                          pointerEvents="none"
+                        />
+                      );
+                    })}
                 </svg>
               </div>
             </div>
@@ -329,7 +378,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
               </div>
             </div>
           )}
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-700">{t("lasermaze_targets_label")}</p>
             <div className="mt-2 flex items-end gap-2">
               <span className="text-3xl font-bold text-emerald-500">{progress.hit}</span>
@@ -348,7 +397,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-700">{t("lasermaze_random_section")}</p>
             <div className="mt-3 grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5].map((difficulty) => (
+              {[1, 2, 3].map((difficulty) => (
                 <button
                   key={difficulty}
                   type="button"
@@ -360,6 +409,15 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
               ))}
             </div>
             <p className="mt-2 text-xs text-slate-500">{t("lasermaze_random_tip")}</p>
+            {hasSolutionOverlay && (
+              <button
+                type="button"
+                className="mt-3 w-full rounded-full border border-blue-400 px-4 py-2 text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+                onClick={() => setShowSolution((prev) => !prev)}
+              >
+                {showSolution ? t("lasermaze_hide_solution") : t("lasermaze_show_solution")}
+              </button>
+            )}
           </div>
         </div>
         {/* 通关弹窗 */}
