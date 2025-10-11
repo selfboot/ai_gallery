@@ -379,7 +379,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
             <div className={hasPresetLevels ? "mt-6 border-t border-slate-200 pt-6" : ""}>
               <p className="text-sm font-medium text-slate-700">{t("lasermaze_random_section")}</p>
               <p className="mt-2 text-xs text-slate-500">{t("lasermaze_random_tip")}</p>
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {[1, 2, 3].map((difficulty) => {
                   const selected = randomDifficulty === difficulty;
                   return (
@@ -387,7 +387,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                       key={difficulty}
                       type="button"
                       onClick={() => setRandomDifficulty(difficulty)}
-                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      className={`flex-1 min-w-[120px] rounded-full border px-4 py-2 text-sm font-semibold text-center transition ${
                         selected
                           ? "border-blue-500 bg-blue-500 text-white hover:bg-blue-500"
                           : "border-blue-400 text-blue-500 hover:bg-blue-50"

@@ -22,6 +22,13 @@ const Projects = {
       link: "/games/sokoban",
     },
     {
+      id: "lasermaze",
+      title: "lasermaze_title",
+      description: "lasermaze_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20251011_ai_gallery_lasermaze.webp",
+      link: "/games/lasermaze",
+    },
+    {
       id: "unblockme",
       title: "unblockme_title",
       description: "unblockme_description",

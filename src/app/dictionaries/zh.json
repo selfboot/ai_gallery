@@ -953,8 +953,8 @@
       "keywords": "Word文件合并, 在线Word合并, 免费Word合并工具"
     }
   },
-  "lasermaze_title": "激光反射益智游戏",
-  "lasermaze_description": "拖动白色反射块，引导 45° 激光依次命中所有绿色目标。",
+  "lasermaze_title": "在线免费激光反射益智游戏",
+  "lasermaze_description": "把白色反射块放置到合适的位置，45 度 反射激光命中所有绿色目标。自带预设关卡，支持随机生成不同难度关卡，支持显示解法。",
   "lasermaze_random_label": "随机关卡",
   "lasermaze_custom_label": "自定义关卡",
   "lasermaze_random_badge": "随机",

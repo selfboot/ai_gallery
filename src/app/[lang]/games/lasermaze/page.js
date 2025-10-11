@@ -12,19 +12,13 @@ export async function generateMetadata(props) {
   const { lang } = params;
 
   const dict = await getDictionary(lang);
-  const seo = dict.seo?.lasermaze ?? {
-    title: "Laser Maze Puzzle",
-    description: "Guide the laser through reflective blocks to light up every target.",
-    keywords: "laser maze, reflection puzzle, mirror game",
-  };
-
   return {
     ...PageMeta({
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-      publishedDate: "2024-12-01T03:00:00.000Z",
-      updatedDate: "2024-12-01T03:00:00.000Z",
+      title: dict.seo.lasermaze.title,
+      description: dict.seo.lasermaze.description,
+      keywords: dict.seo.lasermaze.keywords,
+      publishedDate: "2025-10-11T03:00:00.000Z",
+      updatedDate: "2025-10-11T03:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/games/lasermaze`,
