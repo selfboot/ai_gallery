@@ -5,6 +5,7 @@ import { RotateCcw, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { initializeGameState, moveBlock, targetKey } from "./gameLogic";
 import { generateProceduralLevel } from "./levelGenerator";
 import { useI18n } from "@/app/i18n/client";
+import Modal from "@/app/components/Modal";
 
 export default function LaserMazeGame({ lang, defaults, levels }) {
   const { t } = useI18n();
@@ -37,6 +38,8 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
 
   const [gameState, setGameState] = useState(() => initializeGameState(initialLevel, defaults));
   const [draggingBlock, setDraggingBlock] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [hasShownSuccess, setHasShownSuccess] = useState(false);
   const svgRef = useRef(null);
 
   const loadLevel = useCallback(
@@ -57,7 +60,11 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     [hasPresetLevels, loadLevel, presetLevels]
   );
 
-  const handleReset = useCallback(() => loadLevel(activeLevel), [activeLevel, loadLevel]);
+  const handleReset = useCallback(() => {
+    loadLevel(activeLevel);
+    setShowSuccessModal(false);
+    setHasShownSuccess(false);
+  }, [activeLevel, loadLevel]);
 
   const handleGenerate = useCallback(
     (difficulty) => {
@@ -125,23 +132,19 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     }
   }, [progress.complete, activeLevel, completedLevels]);
 
-  const levelName = useMemo(() => {
-    const data = activeLevel.data;
-    if (data?.nameKey) {
-      const difficultyValue = data?.difficulty ?? activeLevel.difficulty;
-      return t(data.nameKey, { difficulty: difficultyValue });
+  // 通关弹窗（只弹一次）
+  useEffect(() => {
+    if (progress.complete && !hasShownSuccess) {
+      setShowSuccessModal(true);
+      setHasShownSuccess(true);
     }
-    if (data?.name) return data.name;
-    return activeLevel.type === "random" ? t("lasermaze_random_label") : t("lasermaze_custom_label");
-  }, [activeLevel.data, activeLevel.difficulty, activeLevel.type, t]);
+  }, [progress.complete, hasShownSuccess]);
 
-  const levelMeta = useMemo(() => {
-    if (activeLevel.type === "random") {
-      const diff = activeLevel.data?.difficulty ?? activeLevel.difficulty ?? 1;
-      return t("lasermaze_difficulty_label", { value: diff });
-    }
-    return t("lasermaze_level_badge", { index: (activeLevel.index ?? 0) + 1 });
-  }, [activeLevel, t]);
+  // 关卡切换时，重置通关弹窗的已显示标记，确保新关卡通关能再次弹窗
+  useEffect(() => {
+    setShowSuccessModal(false);
+    setHasShownSuccess(false);
+  }, [activeLevel.index, activeLevel.type]);
 
   const boardSizePx = useMemo(() => gameState.gridSize * gameState.cellSize, [gameState.gridSize, gameState.cellSize]);
 
@@ -292,63 +295,6 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
 
         {/* 右侧：设置区域 */}
         <div className="w-full lg:w-1/5 flex flex-col gap-4">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-            <div className="flex items-center justify-between text-sm text-slate-500">
-              <span>{levelMeta}</span>
-              {activeLevel.type === "random" && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
-                  <Sparkles className="h-4 w-4" />
-                  {t("lasermaze_random_badge")}
-                </span>
-              )}
-            </div>
-            <h2 className="mt-1 text-xl font-semibold text-slate-900">{levelName}</h2>
-            <div className="mt-4 flex items-center gap-2">
-              <button
-                type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:bg-slate-100 disabled:opacity-30"
-                onClick={() => goToLevel(lastPresetIndex - 1)}
-                disabled={!hasPresetLevels}
-                aria-label={t("lasermaze_prev_level")}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition hover:bg-slate-100 disabled:opacity-30"
-                onClick={() => goToLevel(lastPresetIndex + 1)}
-                disabled={!hasPresetLevels}
-                aria-label={t("lasermaze_next_level")}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="ml-auto inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-400"
-                onClick={handleReset}
-              >
-                <RotateCcw className="h-4 w-4" /> {t("lasermaze_reset_button")}
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-700">{t("lasermaze_targets_label")}</p>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="text-3xl font-bold text-emerald-500">{progress.hit}</span>
-              <span className="pb-1 text-sm text-slate-500">
-                {t("lasermaze_targets_total", { total: progress.total })}
-              </span>
-              {progress.complete && <span className="pb-1 text-xl">🎉</span>}
-            </div>
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400"
-                style={{ width: `${progress.total ? (progress.hit / progress.total) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-
           {hasPresetLevels && (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
               <p className="text-sm font-medium text-slate-700">{t("lasermaze_choose_level")}</p>
@@ -371,10 +317,34 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                     total: presetLevels.length,
                   })}
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-400"
+                    onClick={handleReset}
+                  >
+                    <RotateCcw className="h-4 w-4" /> {t("lasermaze_reset_button")}
+                  </button>
+                </div>
               </div>
             </div>
           )}
-
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+            <p className="text-sm font-medium text-slate-700">{t("lasermaze_targets_label")}</p>
+            <div className="mt-2 flex items-end gap-2">
+              <span className="text-3xl font-bold text-emerald-500">{progress.hit}</span>
+              <span className="pb-1 text-sm text-slate-500">
+                {t("lasermaze_targets_total", { total: progress.total })}
+              </span>
+              {progress.complete && <span className="pb-1 text-xl">🎉</span>}
+            </div>
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400"
+                style={{ width: `${progress.total ? (progress.hit / progress.total) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-700">{t("lasermaze_random_section")}</p>
             <div className="mt-3 grid grid-cols-3 gap-2">
@@ -392,6 +362,13 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
             <p className="mt-2 text-xs text-slate-500">{t("lasermaze_random_tip")}</p>
           </div>
         </div>
+        {/* 通关弹窗 */}
+        <Modal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
+          <div className="text-center p-2">
+            <div className="text-2xl font-bold mb-2">{t("congratulations")}</div>
+            <div className="text-slate-600 text-sm">{t("lasermaze_targets_label")}: {progress.hit} / {progress.total}</div>
+          </div>
+        </Modal>
       </div>
     </div>
   );

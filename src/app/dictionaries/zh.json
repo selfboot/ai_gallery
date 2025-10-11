@@ -923,7 +923,7 @@
       "keywords": "在线迷宫生成, 迷宫路径查找, 在线免费迷宫游戏, 在线迷宫下载"
     },
     "lasermaze": {
-      "title": "激光迷宫反射益智游戏",
+      "title": "激光反射益智游戏",
       "description": "拖动白色反射块，引导 45° 激光依次命中所有目标圆点。包含精心设计与随机关卡，支持自定义难度，体验光线反射的巧妙路径。",
       "keywords": "激光迷宫, 激光反射游戏, 益智闯关"
     },
@@ -953,37 +953,22 @@
       "keywords": "Word文件合并, 在线Word合并, 免费Word合并工具"
     }
   },
-  "lasermaze_title": "激光迷宫",
+  "lasermaze_title": "激光反射益智游戏",
   "lasermaze_description": "拖动白色反射块，引导 45° 激光依次命中所有绿色目标。",
   "lasermaze_random_label": "随机关卡",
   "lasermaze_custom_label": "自定义关卡",
   "lasermaze_random_badge": "随机",
   "lasermaze_custom_badge": "自定义",
-  "lasermaze_level_badge": "第 {{index}} 关",
   "lasermaze_reset_button": "重置关卡",
   "lasermaze_targets_label": "目标命中",
   "lasermaze_targets_total": "/ {{total}}",
-    "lasermaze_choose_level": "选择关卡",
-    "lasermaze_completed_progress": "已完成 {{hit}} / {{total}}",
+  "lasermaze_choose_level": "选择关卡",
+  "lasermaze_completed_progress": "已完成 {{hit}} / {{total}}",
   "lasermaze_random_section": "随机关卡",
   "lasermaze_random_tip": "难度越高，反射块越多，需要规划更多次反射。",
   "lasermaze_tip_title": "玩法提示",
   "lasermaze_tip_1": "反射块位于方格中心，激光只会在边缘的中点发生反射。",
   "lasermaze_tip_2": "激光遇到边界会停止，提前规划路径让光束扫过所有绿色目标。",
   "lasermaze_tip_3": "拖动并松开方块即可放置，尝试不同组合寻找新的反射角度。",
-  "lasermaze_difficulty_label": "难度 {{value}}",
-  "lasermaze_prev_level": "上一关",
-  "lasermaze_next_level": "下一关",
-  "lasermaze_level_button": "跳转到第 {{index}} 关",
-  "lasermaze_generated_level": "随机关卡 (难度 {{difficulty}})",
-  "lasermaze_level_intro": "第1关：初识反射",
-  "lasermaze_level_simple_turn": "第2关：简单转向",
-  "lasermaze_level_double_reflection": "第3关：双重反射",
-  "lasermaze_level_zigzag": "第4关：Z 字路径",
-  "lasermaze_level_double_target": "第5关：双目标",
-  "lasermaze_level_loop": "第6关：回字形",
-  "lasermaze_level_winding": "第7关：曲折迷宫",
-  "lasermaze_level_triple_challenge": "第8关：三重挑战",
-  "lasermaze_level_spiral": "第9关：螺旋路径",
-  "lasermaze_level_final": "第10关：终极迷宫"
+  "lasermaze_difficulty_label": "难度 {{value}}"
 }
