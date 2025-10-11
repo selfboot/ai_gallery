@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RotateCcw, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { initializeGameState, moveBlock, targetKey } from "./gameLogic";
+import { initializeGameState, moveBlock, targetKey } from "./gameLogic.js";
 import { generateProceduralLevel } from "./levelGenerator";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";

@@ -1,4 +1,4 @@
-import { EPSILON, traceLaserBeams } from "./gameLogic";
+import { EPSILON, traceLaserBeams } from "./gameLogic.js";
 
 const MAX_ATTEMPTS = 600;
 const MAX_INITIAL_ATTEMPTS = 800;
@@ -9,6 +9,8 @@ const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + mi
 
 const withinPlayableArea = (value, gridSize) =>
   value > 0.5 && value < gridSize - 0.5;
+
+const roundToHalf = (value) => Math.round(value * 2) / 2;
 
 const createLaserOnSide = (gridSize) => {
   const side = randomInt(0, 3);
@@ -166,10 +168,12 @@ const selectTargets = (candidateTargets, targetCount) => {
   const unique = [];
   const seenKey = new Set();
   for (const cand of candidateTargets) {
-    const key = `${cand.x.toFixed(1)},${cand.y.toFixed(1)}`;
+    const roundedX = roundToHalf(cand.x);
+    const roundedY = roundToHalf(cand.y);
+    const key = `${roundedX},${roundedY}`;
     if (seenKey.has(key)) continue;
     seenKey.add(key);
-    unique.push(cand);
+    unique.push({ ...cand, x: roundedX, y: roundedY });
   }
 
   const result = [];
@@ -182,13 +186,13 @@ const selectTargets = (candidateTargets, targetCount) => {
 
     for (let i = startIndex; i < unique.length; i++) {
       const cand = unique[i];
-      const plus = (cand.y - cand.x).toFixed(1);
-      const minus = (cand.y + cand.x).toFixed(1);
+      const plus = roundToHalf(cand.y - cand.x).toFixed(1);
+      const minus = roundToHalf(cand.y + cand.x).toFixed(1);
       if (plusUsed.has(plus) || minusUsed.has(minus)) continue;
 
       plusUsed.add(plus);
       minusUsed.add(minus);
-      result.push({ x: Number(cand.x.toFixed(1)), y: Number(cand.y.toFixed(1)) });
+      result.push({ x: cand.x, y: cand.y });
 
       if (dfs(i + 1)) return true;
 
@@ -319,8 +323,8 @@ export const generateProceduralLevel = (difficulty = 1, defaults = {}, depth = 0
     const candidateTargets = collectCandidateTargets(laser, solvedBlocks, gridSize, minReflections);
     if (candidateTargets.length < targetCountRange[0]) continue;
 
-    const allPlus = new Set(candidateTargets.map((cand) => (cand.y - cand.x).toFixed(1)));
-    const allMinus = new Set(candidateTargets.map((cand) => (cand.y + cand.x).toFixed(1)));
+    const allPlus = new Set(candidateTargets.map((cand) => roundToHalf(cand.y - cand.x).toFixed(1)));
+    const allMinus = new Set(candidateTargets.map((cand) => roundToHalf(cand.y + cand.x).toFixed(1)));
     const maxFeasibleTargets = Math.min(allPlus.size, allMinus.size, targetCountRange[1]);
     if (maxFeasibleTargets < targetCountRange[0]) continue;
 
@@ -329,6 +333,17 @@ export const generateProceduralLevel = (difficulty = 1, defaults = {}, depth = 0
     candidateTargets.sort((a, b) => b.depth - a.depth);
     const selectedTargets = selectTargets(candidateTargets, targetCount);
     if (!selectedTargets) continue;
+
+    const solvedVerification = traceLaserBeams({
+      laser,
+      blocks: solvedBlocks,
+      targets: selectedTargets,
+      gridSize,
+    });
+
+    if ((solvedVerification.targetsHit?.size ?? 0) !== selectedTargets.length) {
+      continue;
+    }
 
     const initialBlocks = generateInitialBlocks(blockCount, gridSize, laser, selectedTargets, solvedBlocks);
     if (!initialBlocks) continue;
