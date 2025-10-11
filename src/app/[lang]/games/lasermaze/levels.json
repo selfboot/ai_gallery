@@ -1,0 +1,155 @@
+{
+  "defaults": {
+    "gridSize": 8,
+    "cellSize": 70
+  },
+  "levels": [
+    {
+      "id": "intro-reflection",
+      "name": "第1关：初识反射",
+      "nameKey": "lasermaze_level_intro",
+      "laser": { "x": 1.5, "y": 0, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 3, "y": 2 }
+      ],
+      "targets": [
+        { "x": 5.5, "y": 2 }
+      ]
+    },
+    {
+      "id": "simple-turn",
+      "name": "第2关：简单转向",
+      "nameKey": "lasermaze_level_simple_turn",
+      "laser": { "x": 0, "y": 2.5, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 2, "y": 4 }
+      ],
+      "targets": [
+        { "x": 2.5, "y": 6 }
+      ]
+    },
+    {
+      "id": "double-reflection",
+      "name": "第3关：双重反射",
+      "nameKey": "lasermaze_level_double_reflection",
+      "laser": { "x": 1.5, "y": 1, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 3, "y": 3 },
+        { "x": 5, "y": 3 }
+      ],
+      "targets": [
+        { "x": 5.5, "y": 5 }
+      ]
+    },
+    {
+      "id": "zigzag",
+      "name": "第4关：Z字路径",
+      "nameKey": "lasermaze_level_zigzag",
+      "laser": { "x": 1, "y": 1.5, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 3, "y": 3 },
+        { "x": 5, "y": 5 }
+      ],
+      "targets": [
+        { "x": 7, "y": 5.5 }
+      ]
+    },
+    {
+      "id": "double-target",
+      "name": "第5关：双目标",
+      "nameKey": "lasermaze_level_double_target",
+      "laser": { "x": 2.5, "y": 0, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 4, "y": 2 },
+        { "x": 4, "y": 4 }
+      ],
+      "targets": [
+        { "x": 6.5, "y": 2 },
+        { "x": 4.5, "y": 6 }
+      ]
+    },
+    {
+      "id": "loop",
+      "name": "第6关：回字形",
+      "nameKey": "lasermaze_level_loop",
+      "laser": { "x": 0, "y": 3.5, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 2, "y": 5 },
+        { "x": 4, "y": 5 },
+        { "x": 4, "y": 3 }
+      ],
+      "targets": [
+        { "x": 6.5, "y": 3 }
+      ]
+    },
+    {
+      "id": "winding",
+      "name": "第7关：曲折迷宫",
+      "nameKey": "lasermaze_level_winding",
+      "laser": { "x": 1.5, "y": 1, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 3, "y": 3 },
+        { "x": 5, "y": 3 },
+        { "x": 5, "y": 5 },
+        { "x": 3, "y": 5 }
+      ],
+      "targets": [
+        { "x": 1, "y": 5.5 }
+      ]
+    },
+    {
+      "id": "triple-challenge",
+      "name": "第8关：三重挑战",
+      "nameKey": "lasermaze_level_triple_challenge",
+      "laser": { "x": 0, "y": 2.5, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 2, "y": 4 },
+        { "x": 4, "y": 4 },
+        { "x": 4, "y": 2 },
+        { "x": 6, "y": 2 }
+      ],
+      "targets": [
+        { "x": 6.5, "y": 4 },
+        { "x": 2.5, "y": 6 },
+        { "x": 4, "y": 0.5 }
+      ]
+    },
+    {
+      "id": "spiral",
+      "name": "第9关：螺旋路径",
+      "nameKey": "lasermaze_level_spiral",
+      "laser": { "x": 3.5, "y": 0, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 5, "y": 2 },
+        { "x": 5, "y": 4 },
+        { "x": 3, "y": 4 },
+        { "x": 3, "y": 2 },
+        { "x": 1, "y": 2 }
+      ],
+      "targets": [
+        { "x": 1, "y": 4.5 },
+        { "x": 5.5, "y": 6 }
+      ]
+    },
+    {
+      "id": "final-maze",
+      "name": "第10关：终极迷宫",
+      "nameKey": "lasermaze_level_final",
+      "laser": { "x": 0.5, "y": 0, "dx": 1, "dy": 1 },
+      "blocks": [
+        { "x": 2, "y": 2 },
+        { "x": 4, "y": 2 },
+        { "x": 6, "y": 2 },
+        { "x": 6, "y": 4 },
+        { "x": 4, "y": 4 },
+        { "x": 2, "y": 4 },
+        { "x": 2, "y": 6 }
+      ],
+      "targets": [
+        { "x": 4.5, "y": 6 },
+        { "x": 8, "y": 4.5 },
+        { "x": 0, "y": 6.5 }
+      ]
+    }
+  ]
+}

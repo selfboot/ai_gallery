@@ -43,7 +43,6 @@
   "rank_novice": "Novice",
   "rank_expert": "Expert",
   "rank_master": "Master",
-  
   "go_back": "Go Back",
   "chess_title": "Chinese Chess",
   "chess_description": "Chinese Chess game with a minimalist board layout, complete rules, alternating turns between black and red players, checks, and endgame determination. Undo feature is also supported.",
@@ -69,7 +68,6 @@
   "max_heap": "Max Heap",
   "min_heap": "Min Heap",
   "heap_type": "Heap Type",
-  
   "astar_title": "A* Algorithm Find Shortest Path",
   "astar_description": "Visualization of the A* pathfinding algorithm. Set obstacles, start and end points in a network, and watch the pathfinding process.",
   "set_obstacles": "Set Obstacles",
@@ -93,7 +91,6 @@
   "round": "Round",
   "next_step": "Next Step",
   "auto_play": "Auto Play",
-
   "bar_chart_race_title": "BarChartRace(Developing)",
   "bar_chart_race_description": "Dynamic bar charts are usually used to show how data changes over time. This page allows you to customize data and time, generate dynamic bar charts, and supports a large number of custom settings.",
   "2048_title": "Game 2048",
@@ -110,7 +107,6 @@
   "ghost_power": "Ignore Obstacles",
   "food_rain_power": "Too Many Foods",
   "golden_power": "Break Obstacles",
-
   "ratelimit_title": "Rate Limit",
   "ratelimit_description": "Rate limiting is a strategy to control the rate of traffic sent or received by a network. Fixed window rate limiting and sliding window rate limiting are the most common rate limiting algorithms. This page shows the characteristics and comparison of these two algorithms.",
   "rate_limit_compare": "Sliding Window VS Fixed Window Rate Limiting Comparison",
@@ -216,7 +212,6 @@
   "settings_updated": "Skip list settings updated",
   "random_init_success": "10 random nodes initialized",
   "operation_result": "Operation: {{operation}}, Result: {{result}}",
-
   "subtitles_title": "Free Online Image Subtitle Stitching Tool",
   "subtitles_description": "Use this online tool to easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
   "preview": "Preview",
@@ -245,7 +240,6 @@
   "backgroundOpacity": "Background Opacity: {{opacity}}",
   "useGradientBackground": "Use Gradient Background",
   "gradientEndColor": "Gradient End Color",
-
   "dpcoin_title": "Dynamic Programming (Coin Change)",
   "dpcoin_description": "Visualization of the dynamic programming coin change algorithm. Set the target amount and the available coin denominations, click the step-by-step calculation button, and observe how the optimal solution is found step by step. The state transition process column of the output shows how the algorithm builds the solution of the larger problem from smaller problems.",
   "targetAmount": "Target Amount",
@@ -259,7 +253,6 @@
   "optimalCombination": "Optimal Combination",
   "stateTransitionProcess": "State Transition Process",
   "removeCoin": "Remove Coin",
-
   "hashring_title": "Consistent Hash Ring",
   "hashring_description": "The hash ring visualization of consistent hashing allows you to clearly and intuitively understand the key value allocation of consistent hashing, and add key value migration for deleting nodes. It also supports setting up virtual nodes (shadow nodes) to understand the effect of distribution balance optimization.",
   "position": "Position",
@@ -286,7 +279,6 @@
   "nodeAdded": "Added {{nodeName}}. {{migratedCount}} keys migrated.",
   "cannotRemoveLastNode": "Cannot remove the last remaining node.",
   "nodeRemoved": "Removed {{nodeName}}. {{migratedCount}} keys migrated.",
-
   "bloomfilter_title": "Bloom Filter Principle and Visualization",
   "bloomfilter_description": "Bloom filter is a space-efficient probabilistic data structure that is used to test whether an element is a member of a set. This page allows you to visualize the process of adding keys to the bloom filter and checking for key existence.",
   "predictedKeyCount": "Predicted key count (n)",
@@ -300,7 +292,6 @@
   "keysAtPosition": "Keys at position {{index}}:",
   "mayExist": "may exist in the set",
   "definitelyNotExist": "definitely does not exist in the set",
-
   "jumphash_title": "JumpHash",
   "jumphash_description": "Jumphash is a consistent hashing algorithm that provides a balance between the number of keys assigned to each node and the number of nodes. This page allows you to visualize the process of adding keys to the jump hash and checking for key existence.",
   "hashVisualization": "JumpHash Visualization",
@@ -308,7 +299,6 @@
   "murmurhash": "MurmurHash",
   "numberOfBuckets": "Number of Buckets",
   "add10Keys": "Add 10 Keys",
-
   "hanoitower_title": "Play Tower of Hanoi Game Online",
   "hanoitower_description": "Experience the classic Tower of Hanoi game in an interactive web application. Challenge yourself with adjustable disk numbers, choose between manual and automatic modes, and receive hints to solve the puzzle.",
   "numberOfDisks": "Number of Disks",
@@ -324,7 +314,6 @@
   "moveSuccess": "Move successful!",
   "moveFailure": "Move failed. Larger disk cannot be placed on smaller disk.",
   "gameCompleted": "Congratulations! You have completed the Tower of Hanoi!",
-
   "binarysearchtree_title": "Binary Search Tree Visualization",
   "binarysearchtree_description": "Visualize the binary search tree algorithm. You can set the number of nodes and randomization method, insert, search, and delete nodes to understand how binary search trees work.",
   "nodeCount": "Node Count (1-50)",
@@ -337,8 +326,7 @@
   "found_value": "Found {{value}}",
   "notFound_value": "{{value}} not found",
   "nodeExists": "Node {{value}} already exists",
-
-  "chartrace_title": "Online BarChartRace Generation Tool",  
+  "chartrace_title": "Online BarChartRace Generation Tool",
   "chartrace_description": "This page provides a handy dynamic racing chart maker that allows you to easily upload data, customize the time, type, and data columns, and then generate beautiful dynamic racing bars, which can also be exported as GIFs.",
   "uploadChartData": "Upload Chart Data",
   "jsonParseError": "JSON parsing error",
@@ -370,10 +358,8 @@
   "ChartsIndexTableTitle": "Title",
   "ChartsIndexTableIntro": "Intro",
   "ChartsIndexTableDataSource": "Data Source",
-
   "sudoku_title": "Free Online Sudoku Game",
   "sudoku_description": "A classic Sudoku game that can be played online for free. It can generate random Sudoku questions, support the difficulty of selecting the question, support undo operation and prompt function.",
-
   "easy": "Easy",
   "medium": "Medium",
   "hard": "Hard",
@@ -389,7 +375,6 @@
   "cube_title": "3D Online Rubik's Cube",
   "cube_description": "Classic Rubik's Cube puzzle game, free to play online. Supports random scrambling, rotating the cube, sliding the cube, and getting hints for solving the cube. Open source, free to play Rubik's Cube online.",
   "scramble": "Scramble",
-
   "fileUpload_dragHere": "Drag files here, or ",
   "fileUpload_clickUpload": "click to upload",
   "fileUpload_sizeLimit": "Only {{accept}} files, max {{size}}MB",
@@ -464,7 +449,6 @@
   "gendocx_status": "Status",
   "gendocx_fileName_hint": "Tip: If the first column of Excel has content, it will be used as the file name",
   "fileUpload_sizeExceeded": "File size cannot exceed {{size}}MB",
-
   "game_settings": "Game Settings",
   "board_size": "Board Size",
   "difficulty": "Difficulty",
@@ -493,7 +477,6 @@
   "direction_right": "right",
   "sliding_title": "Free Online Sliding Puzzle",
   "sliding_description": "Classic digital sliding puzzle game, supports random generation of different difficulty levels and different sizes of starting positions, and supports obtaining intelligent solution plans!",
-
   "sokoban_title": "Free Online Sokoban Game",
   "sokoban_more_title": "Free Online Sokoban Levels Collection",
   "sokoban_description": "High difficulty Sokoban game, with various levels built-in, good operation experience, supports undo operation, see how far you can play?",
@@ -546,7 +529,6 @@
   "apply_changes": "Apply Changes",
   "continue_game": "Continue Game",
   "auto_flag_mines": "Auto Flag Mines",
-  "game_mode": "Game Mode",
   "classic_mode": "Classic",
   "hexagonal_mode": "Hexagonal",
   "completion_time": "Completion time: {{time}}",
@@ -562,10 +544,8 @@
   "theme_yellow": "Yellow",
   "theme_ocean": "Ocean",
   "theme_sunset": "Sunset",
-
-  "maze_title": "Free Online Maze Game and Maze Generation", 
+  "maze_title": "Free Online Maze Game and Maze Generation",
   "maze_description": "Free Online maze game and maze generation, supports generating maze maps of square, circular, triangular, and hexagonal shapes. Follow the mouse to find the maze path, and can get the optimal path, download the maze, etc.",
-
   "maze_completion": "Congratulations on finding the exit!\nCompletion time: {{time}}\nVisited cells: {{visitedCells}}\nOptimal path length: {{optimalPathLength}}\nOptimal rate: {{optimality}}%\nCells per second: {{cellsPerSecond}}",
   "maze_shape": "Shape",
   "shapes_square": "Square",
@@ -603,7 +583,6 @@
   "hide_distances": "Hide Distance Map",
   "no_start_cell": "Maze has no start cell",
   "download_maze": "Download Maze",
-
   "more_templates": "More Templates",
   "custom_template": "Custom Template",
   "gendocx_templates": "Online Batch Generation of Word Templates",
@@ -617,14 +596,10 @@
   "award_2": "Free Online Certificate Batch Generator - Template 2",
   "award_3": "Free Online Certificate Batch Generator - Template 3",
   "certificate_1": "Free Online Certificate Batch Generator - Template 1",
-
   "retire_title": "Free Online China Retirement Age Calculator",
   "retire_description": "Calculate your retirement age based on your birth date and gender. The calculator takes into account the national retirement age policy changes in China.",
-
-
   "loanrate_title": "Free Online Loan Rate Calculator",
   "loanrate_description": "Calculate the monthly payment, total interest, and total repayment amount for different loan repayment methods and interest rates. Compare the total interest for different repayment methods and interest rates to help you clearly see the interest difference.",
-
   "loanrate": {
     "yearlyInterestRate": "Annual Interest Rate (%)",
     "loanAmount": "Loan Amount",
@@ -663,7 +638,7 @@
     "detailedPlan": "Detailed Plan",
     "loanCalculationResult": "Loan Calculation Result.xlsx",
     "equalPaymentTotalInterest": "Equal Payment Total Interest",
-    "equalPrincipalTotalInterest": "Equal Principal Total Interest", 
+    "equalPrincipalTotalInterest": "Equal Principal Total Interest",
     "interestOnlyTotalInterest": "Interest Only Total Interest"
   },
   "tangram_title": "Free Online Tangram Puzzle Game",
@@ -677,7 +652,6 @@
     "no_target": "No",
     "free_creation": "Free Creation"
   },
-
   "chartrace": {
     "population-growth": {
       "title": "World Population Change (1800-2015)",
@@ -708,14 +682,12 @@
       "intro": "Changes in the birth rate of various provinces and cities in China in different years. From 2012 to 2023, the national birth rate showed a gradual downward trend. The birth rate in 2012 was 12.10‰, and by 2023 it dropped to 6.39‰. There are obvious regional differences in birth rates. The birth rate in Tibet has always remained at a high level. In contrast, the birth rates in big cities such as Shanghai and Beijing are lower, with 3.95‰ and 5.63‰ respectively in 2023. Although the two-child policy was relaxed in the middle, it can be seen from the data that the birth rate did not increase significantly, but continued to decline in the following years. Generally, provinces with more developed economies, such as Guangdong and Zhejiang, have relatively low birth rates. "
     }
   },
-
   "gendocx_temp": {
     "award_1": "Generate awards online in batches, here is a good certificate template, just fill in the name, date and other information in the Excel template, you can automatically generate a large number of certificates, suitable for school teachers to use.",
     "award_2": "Generate awards in batches online. A complete award certificate template can be used directly. Just fill in the name and date in the template to automatically generate a large number of award certificates. It is suitable for school teachers.",
     "award_3": "Generate awards in batches online. The pictures are very classic, with the classic award certificate screen plus two five-pointed stars on the left and right. Just fill in the name and date in the template to automatically generate a large number of award certificates. It is suitable for school teachers.",
     "certificate_1": "Generate honorary certificates in batches online, a very useful honorary certificate template, fill in the name, date, company name, etc. in the Excel template, and you can automatically generate a large number of honorary certificates, suitable for workplace use."
   },
-
   "seo": {
     "index": {
       "title": "AI Gallery",
@@ -726,7 +698,7 @@
       "title": "The Blogs About How I Use AI",
       "description": "This is the index page of a series of articles, sharing how I use Cursot and Claude3.5 to write code and generate various fun websites. It includes various classic and interesting games, visualizations of common algorithms, and many useful tools.",
       "keywords": "AI write code blog, Claude3.5 blog, Cursor coding blog"
-    },  
+    },
     "algorithms": {
       "title": "Algorithms Visualization",
       "description": "This page provides visualizations of various algorithms, including trie, linked list, stack, rate limiting, path findind and hash table.",
@@ -877,7 +849,7 @@
       "description": "Easily add beautiful captions to your pictures. You can customize the font, size, color, and position of the subtitle. You can also add gradient backgrounds and special effects. No software download required, process images in your local browser, free and safe.",
       "keywords": "Image subtitle tool, Online subtitle maker, video subtitle stitching generator"
     },
-    "dpcoin":{
+    "dpcoin": {
       "title": "Dynamic Programming Coin Change Visualization",
       "description": "Explore the coin change problem of dynamic programming algorithms. The idea of dynamic programming can disassemble molecular problems and use the solutions of sub-problems to solve complex problems. This page describes the ideas and solutions of dynamic programming, and uses visual tools to help you understand the process of solving the coin change problem.",
       "keywords": "Dynamic programming detailed explanation, coin change visualization, dynamic programming coin change"
@@ -947,6 +919,11 @@
       "description": "This page supports various types of online maze generation, and supports the generation of square, circle, triangle, and honeycomb maze maps. It also supports playing mazes online and finding maze paths, which can be found by just moving the mouse. It also supports hinting at the optimal path of the maze, downloading the maze, etc.",
       "keywords": "Online Maze Generator, Maze Path Finding, Maze Game Online, Online Maze Download"
     },
+    "lasermaze": {
+      "title": "Laser Maze Reflection Puzzle",
+      "description": "Guide a 45-degree laser beam through movable mirrors to hit every target ring. Drag reflective blocks across the grid, experiment with bounce routes, and solve handcrafted plus procedural levels.",
+      "keywords": "laser maze, reflection puzzle, mirror game"
+    },
     "gendocx_temp": {
       "title": "Free Online Batch Generation of Word Document Templates",
       "description": "A large number of commonly used Word templates, simply provide an Excel data file, and all documents can be automatically generated. The tool also supports downloading Word templates and Excel files, simple operation, powerful function.",
@@ -972,5 +949,38 @@
       "description": "Merge multiple Office Word documents into a single file while preserving original formatting and styles. Process online safely without uploading to servers.",
       "keywords": "Word file merge, online Word merge, free Word merge tool"
     }
-  }
+  },
+  "lasermaze_title": "Laser Maze Reflection Puzzle",
+  "lasermaze_description": "Drag the white reflector blocks to bend the 45-degree laser and light up every green target.",
+  "lasermaze_random_label": "Procedural Level",
+  "lasermaze_custom_label": "Custom Level",
+  "lasermaze_random_badge": "Random",
+  "lasermaze_custom_badge": "Custom",
+  "lasermaze_level_badge": "Level {{index}}",
+  "lasermaze_reset_button": "Reset Level",
+  "lasermaze_targets_label": "Targets",
+  "lasermaze_targets_total": "/ {{total}}",
+    "lasermaze_choose_level": "Choose Level",
+    "lasermaze_completed_progress": "Completed {{hit}} / {{total}}",
+  "lasermaze_random_section": "Procedural Levels",
+  "lasermaze_random_tip": "Higher difficulty adds more mirrors and requires additional reflections.",
+  "lasermaze_tip_title": "Tips",
+  "lasermaze_tip_1": "Mirror blocks sit in the middle of each square; the laser only reflects at edge midpoints.",
+  "lasermaze_tip_2": "The laser stops at the border—plan the bounce route to sweep every green target.",
+  "lasermaze_tip_3": "Drag, release, and reposition blocks freely to discover new angles.",
+  "lasermaze_difficulty_label": "Difficulty {{value}}",
+  "lasermaze_prev_level": "Previous level",
+  "lasermaze_next_level": "Next level",
+  "lasermaze_level_button": "Go to level {{index}}",
+  "lasermaze_generated_level": "Procedural Level (Difficulty {{difficulty}})",
+  "lasermaze_level_intro": "Stage 1: First Reflection",
+  "lasermaze_level_simple_turn": "Stage 2: Gentle Turn",
+  "lasermaze_level_double_reflection": "Stage 3: Double Bounce",
+  "lasermaze_level_zigzag": "Stage 4: Zigzag Route",
+  "lasermaze_level_double_target": "Stage 5: Twin Targets",
+  "lasermaze_level_loop": "Stage 6: Looping Path",
+  "lasermaze_level_winding": "Stage 7: Winding Maze",
+  "lasermaze_level_triple_challenge": "Stage 8: Triple Challenge",
+  "lasermaze_level_spiral": "Stage 9: Spiral Trail",
+  "lasermaze_level_final": "Stage 10: Final Labyrinth"
 }
