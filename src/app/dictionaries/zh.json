@@ -966,6 +966,7 @@
   "lasermaze_completed_progress": "已完成 {{hit}} / {{total}}",
   "lasermaze_random_section": "随机关卡",
     "lasermaze_random_tip": "难度越高，反射块越多，需要规划更多次反射。",
+    "lasermaze_random_generate_button": "生成该难度关卡",
     "lasermaze_show_solution": "显示解法",
     "lasermaze_hide_solution": "隐藏解法",
   "lasermaze_tip_title": "玩法提示",

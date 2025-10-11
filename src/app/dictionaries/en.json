@@ -950,7 +950,7 @@
       "keywords": "Word file merge, online Word merge, free Word merge tool"
     }
   },
-  "lasermaze_title": "Laser Maze Reflection Puzzle",
+  "lasermaze_title": "Laser Maze Puzzle, Play Online for Free!",
   "lasermaze_description": "Drag the white reflector blocks to bend the 45-degree laser and light up every green target.",
   "lasermaze_random_label": "Procedural Level",
   "lasermaze_custom_label": "Custom Level",
@@ -963,6 +963,7 @@
   "lasermaze_completed_progress": "Completed {{hit}} / {{total}}",
   "lasermaze_random_section": "Procedural Levels",
     "lasermaze_random_tip": "Higher difficulty adds more mirrors and requires additional reflections.",
+    "lasermaze_random_generate_button": "Generate Level",
     "lasermaze_show_solution": "Show Solution",
     "lasermaze_hide_solution": "Hide Solution",
   "lasermaze_tip_title": "Tips",

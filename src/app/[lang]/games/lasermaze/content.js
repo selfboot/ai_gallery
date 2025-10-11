@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RotateCcw, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { initializeGameState, moveBlock, targetKey } from "./gameLogic.js";
 import { generateProceduralLevel } from "./levelGenerator";
 import { useI18n } from "@/app/i18n/client";
@@ -37,7 +36,6 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     difficulty: 1,
     data: initialLevel,
   });
-  const [lastPresetIndex, setLastPresetIndex] = useState(0);
 
   const [gameState, setGameState] = useState(() => initializeGameState(initialLevel, defaults));
   const [draggingBlock, setDraggingBlock] = useState(null);
@@ -45,6 +43,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
   const [showSolution, setShowSolution] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [hasShownSuccess, setHasShownSuccess] = useState(false);
+  const [randomDifficulty, setRandomDifficulty] = useState(1);
   const svgRef = useRef(null);
 
   const loadLevel = useCallback(
@@ -61,7 +60,6 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     (index) => {
       if (!hasPresetLevels) return;
       const normalizedIndex = (index + presetLevels.length) % presetLevels.length;
-      setLastPresetIndex(normalizedIndex);
       loadLevel({ type: "preset", index: normalizedIndex, difficulty: null, data: presetLevels[normalizedIndex] });
     },
     [hasPresetLevels, loadLevel, presetLevels]
@@ -82,6 +80,7 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
         cellSize: RANDOM_CELL_SIZE,
       };
       const level = generateProceduralLevel(difficulty, randomDefaults);
+      setRandomDifficulty(difficulty);
       loadLevel({ type: "random", index: null, difficulty, data: level });
     },
     [defaults, loadLevel]
@@ -159,6 +158,12 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
     setHasShownSuccess(false);
     setShowSolution(false);
   }, [activeLevel.index, activeLevel.type, activeLevel.data?.id]);
+
+  useEffect(() => {
+    if (activeLevel.type === "random" && activeLevel.difficulty) {
+      setRandomDifficulty(activeLevel.difficulty);
+    }
+  }, [activeLevel]);
 
   const boardSizePx = useMemo(() => gameState.gridSize * gameState.cellSize, [gameState.gridSize, gameState.cellSize]);
   const targetOuterRadius = useMemo(() => gameState.cellSize * 0.28, [gameState.cellSize]);
@@ -344,40 +349,84 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
 
         {/* 右侧：设置区域 */}
         <div className="w-full lg:w-1/5 flex flex-col gap-4">
-          {hasPresetLevels && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-700">{t("lasermaze_choose_level")}</p>
-              <div className="mt-3">
-                <select
-                  className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-700"
-                  value={activeLevel.index ?? 0}
-                  onChange={(e) => goToLevel(parseInt(e.target.value))}
-                >
-                  {presetLevels.map((_, index) => (
-                    <option key={index} value={index}>
-                      {index + 1}
-                      {completedLevels[String(index)] ? " ✓" : ""}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2 text-xs text-slate-500">
-                  {t("lasermaze_completed_progress", {
-                    hit: Object.keys(completedLevels).length,
-                    total: presetLevels.length,
-                  })}
-                </div>
-                <div className="mt-3 flex justify-end">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-400"
-                    onClick={handleReset}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+            {hasPresetLevels && (
+              <div>
+                <p className="text-sm font-medium text-slate-700">{t("lasermaze_choose_level")}</p>
+                <div className="mt-3">
+                  <select
+                    className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-700"
+                    value={activeLevel.index ?? 0}
+                    onChange={(e) => goToLevel(parseInt(e.target.value))}
                   >
-                    <RotateCcw className="h-4 w-4" /> {t("lasermaze_reset_button")}
-                  </button>
+                    {presetLevels.map((_, index) => (
+                      <option key={index} value={index}>
+                        {index + 1}
+                        {completedLevels[String(index)] ? " ✓" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2 text-xs text-slate-500">
+                    {t("lasermaze_completed_progress", {
+                      hit: Object.keys(completedLevels).length,
+                      total: presetLevels.length,
+                    })}
+                  </div>
                 </div>
               </div>
+            )}
+
+            <div className={hasPresetLevels ? "mt-6 border-t border-slate-200 pt-6" : ""}>
+              <p className="text-sm font-medium text-slate-700">{t("lasermaze_random_section")}</p>
+              <p className="mt-2 text-xs text-slate-500">{t("lasermaze_random_tip")}</p>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((difficulty) => {
+                  const selected = randomDifficulty === difficulty;
+                  return (
+                    <button
+                      key={difficulty}
+                      type="button"
+                      onClick={() => setRandomDifficulty(difficulty)}
+                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        selected
+                          ? "border-blue-500 bg-blue-500 text-white hover:bg-blue-500"
+                          : "border-blue-400 text-blue-500 hover:bg-blue-50"
+                      }`}
+                      aria-pressed={selected}
+                    >
+                      {t("lasermaze_difficulty_label", { value: difficulty })}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                className="mt-3 w-full rounded-full border border-blue-400 px-4 py-2 text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+                onClick={() => handleGenerate(randomDifficulty)}
+              >
+                {t("lasermaze_random_generate_button")}
+              </button>
             </div>
-          )}
+
+            <div className="mt-6 border-t border-slate-200 pt-6 space-y-2">
+              <button
+                type="button"
+                className="w-full rounded-full border border-blue-400 px-4 py-2 text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+                onClick={handleReset}
+              >
+                {t("lasermaze_reset_button")}
+              </button>
+              {hasSolutionOverlay && (
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-blue-400 px-4 py-2 text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
+                  onClick={() => setShowSolution((prev) => !prev)}
+                >
+                  {showSolution ? t("lasermaze_hide_solution") : t("lasermaze_show_solution")}
+                </button>
+              )}
+            </div>
+          </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
             <p className="text-sm font-medium text-slate-700">{t("lasermaze_targets_label")}</p>
             <div className="mt-2 flex items-end gap-2">
@@ -393,31 +442,6 @@ export default function LaserMazeGame({ lang, defaults, levels }) {
                 style={{ width: `${progress.total ? (progress.hit / progress.total) * 100 : 0}%` }}
               />
             </div>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-            <p className="text-sm font-medium text-slate-700">{t("lasermaze_random_section")}</p>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {[1, 2, 3].map((difficulty) => (
-                <button
-                  key={difficulty}
-                  type="button"
-                  onClick={() => handleGenerate(difficulty)}
-                  className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-600 transition hover:border-amber-400 hover:bg-amber-100"
-                >
-                  {t("lasermaze_difficulty_label", { value: difficulty })}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-slate-500">{t("lasermaze_random_tip")}</p>
-            {hasSolutionOverlay && (
-              <button
-                type="button"
-                className="mt-3 w-full rounded-full border border-blue-400 px-4 py-2 text-sm font-semibold text-blue-500 transition hover:bg-blue-50"
-                onClick={() => setShowSolution((prev) => !prev)}
-              >
-                {showSolution ? t("lasermaze_hide_solution") : t("lasermaze_show_solution")}
-              </button>
-            )}
           </div>
         </div>
         {/* 通关弹窗 */}
