@@ -236,6 +236,13 @@ const Projects = {
       link: "/tools/mergeword/",
     },
     {
+      id: "removeblank",
+      title: "removeblank_title",
+      description: "removeblank_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp",
+      link: "/tools/removeblank/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
