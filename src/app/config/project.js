@@ -143,6 +143,13 @@ const Projects = {
       link: "/algorithms/binarysearchtree/",
     },
     {
+      id: "avltree",
+      title: "avltree_title",
+      description: "avltree_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20240908_ai_gallery_binarysearchtree.webp",
+      link: "/algorithms/avltree/",
+    },
+    {
       id: "bloomfilter",
       title: "bloomfilter_title",
       description: "bloomfilter_description",
