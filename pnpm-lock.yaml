@@ -50,9 +50,15 @@ importers:
       crypto:
         specifier: ^1.0.1
         version: 1.0.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       docxtemplater:
         specifier: ^3.67.5
         version: 3.67.5
+      echarts:
+        specifier: ^5.5.1
+        version: 5.5.1
       echarts-for-react:
         specifier: ^3.0.5
         version: 3.0.5(echarts@5.5.1)(react@19.1.0)
