@@ -34,3 +34,50 @@
         /* 添加其他需要重置的元素样式 */
     }
 }
+
+@layer utilities {
+    @keyframes tileSpawn {
+        0% {
+            transform: scale(0.68);
+            opacity: 0.45;
+        }
+        72% {
+            transform: scale(1.06);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes tileMerge {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+        }
+        38% {
+            transform: scale(1.14);
+            box-shadow: 0 10px 24px rgba(234, 179, 8, 0.35);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+        }
+    }
+
+    .animate-tile-spawn {
+        animation: tileSpawn 180ms cubic-bezier(0.17, 0.67, 0.35, 1.25);
+    }
+
+    .animate-tile-merge {
+        animation: tileMerge 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-tile-spawn,
+    .animate-tile-merge {
+        animation: none;
+    }
+}
