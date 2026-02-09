@@ -125,6 +125,79 @@ function generateScramble(rng, length = 20) {
   return tokens.join(" ");
 }
 
+function generateSliceScramble(rng, length = 20) {
+  const faces = ["R", "L", "U", "D", "F", "B", "M", "E", "S"];
+  const suffixes = ["", "'", "2"];
+  const tokens = [];
+  let prevFace = "";
+
+  for (let i = 0; i < length; i += 1) {
+    let face = faces[Math.floor(rng() * faces.length)];
+    while (face === prevFace) {
+      face = faces[Math.floor(rng() * faces.length)];
+    }
+
+    const suffix = suffixes[Math.floor(rng() * suffixes.length)];
+    tokens.push(`${face}${suffix}`);
+    prevFace = face;
+  }
+
+  return tokens.join(" ");
+}
+
+function getSticker(cubies, x, y, z, dir) {
+  const cubie = cubies.find((item) => item.pos[0] === x && item.pos[1] === y && item.pos[2] === z);
+  return cubie?.stickers?.[dir] ?? "?";
+}
+
+function virtualCubeToFaceletString(cubies) {
+  const facelets = [];
+
+  // U face
+  for (const z of [-1, 0, 1]) {
+    for (const x of [-1, 0, 1]) {
+      facelets.push(getSticker(cubies, x, 1, z, "+y"));
+    }
+  }
+
+  // R face
+  for (const y of [1, 0, -1]) {
+    for (const z of [1, 0, -1]) {
+      facelets.push(getSticker(cubies, 1, y, z, "+x"));
+    }
+  }
+
+  // F face
+  for (const y of [1, 0, -1]) {
+    for (const x of [-1, 0, 1]) {
+      facelets.push(getSticker(cubies, x, y, 1, "+z"));
+    }
+  }
+
+  // D face
+  for (const z of [1, 0, -1]) {
+    for (const x of [-1, 0, 1]) {
+      facelets.push(getSticker(cubies, x, -1, z, "-y"));
+    }
+  }
+
+  // L face
+  for (const y of [1, 0, -1]) {
+    for (const z of [-1, 0, 1]) {
+      facelets.push(getSticker(cubies, -1, y, z, "-x"));
+    }
+  }
+
+  // B face
+  for (const y of [1, 0, -1]) {
+    for (const x of [1, 0, -1]) {
+      facelets.push(getSticker(cubies, x, y, -1, "-z"));
+    }
+  }
+
+  return facelets.join("");
+}
+
 function isVirtualCubeSolved(cubies) {
   return cubies.every((cubie) => {
     const [x, y, z] = cubie.pos;
@@ -152,6 +225,10 @@ describe("Rubik move mapping compatibility", () => {
     expect(quarterTokenToMove("D")).toMatchObject({ axis: "y", layer: -1, angle: QUARTER_TURN });
     expect(quarterTokenToMove("F")).toMatchObject({ axis: "z", layer: 1, angle: -QUARTER_TURN });
     expect(quarterTokenToMove("B")).toMatchObject({ axis: "z", layer: -1, angle: QUARTER_TURN });
+    expect(quarterTokenToMove("M")).toMatchObject({ axis: "x", layer: 0, angle: QUARTER_TURN });
+    expect(quarterTokenToMove("M'")).toMatchObject({ axis: "x", layer: 0, angle: -QUARTER_TURN });
+    expect(quarterTokenToMove("E")).toMatchObject({ axis: "y", layer: 0, angle: QUARTER_TURN });
+    expect(quarterTokenToMove("S")).toMatchObject({ axis: "z", layer: 0, angle: -QUARTER_TURN });
   });
 
   test("move objects map back to canonical quarter tokens", () => {
@@ -163,6 +240,10 @@ describe("Rubik move mapping compatibility", () => {
     expect(moveToQuarterToken({ axis: "y", layer: -1, angle: -QUARTER_TURN })).toBe("D'");
     expect(moveToQuarterToken({ axis: "z", layer: -1, angle: QUARTER_TURN })).toBe("B");
     expect(moveToQuarterToken({ axis: "z", layer: -1, angle: -QUARTER_TURN })).toBe("B'");
+    expect(moveToQuarterToken({ axis: "x", layer: 0, angle: QUARTER_TURN })).toBe("M");
+    expect(moveToQuarterToken({ axis: "x", layer: 0, angle: -QUARTER_TURN })).toBe("M'");
+    expect(moveToQuarterToken({ axis: "y", layer: 0, angle: QUARTER_TURN })).toBe("E");
+    expect(moveToQuarterToken({ axis: "z", layer: 0, angle: -QUARTER_TURN })).toBe("S");
   });
 
   test.each([
@@ -195,6 +276,24 @@ describe("Rubik move mapping compatibility", () => {
       applyAlgorithm(virtualCube, solution);
 
       expect(isVirtualCubeSolved(virtualCube)).toBe(true);
+    }
+  });
+
+  test("Kociemba solution keeps visual state fully synced with cubejs for slice-heavy scrambles", () => {
+    const rng = createSeededRandom(20260209);
+
+    for (let i = 0; i < 60; i += 1) {
+      const scramble = generateSliceScramble(rng, 24);
+      const solverCube = new Cube();
+      solverCube.move(scramble);
+      const solution = solverCube.solve();
+      solverCube.move(solution);
+
+      const virtualCube = createVirtualCube();
+      applyAlgorithm(virtualCube, scramble);
+      applyAlgorithm(virtualCube, solution);
+
+      expect(virtualCubeToFaceletString(virtualCube)).toBe(solverCube.asString());
     }
   });
 });

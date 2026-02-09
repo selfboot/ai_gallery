@@ -118,7 +118,7 @@ const BASE_MOVE_TO_CONFIG = {
   D: { axis: 'y', layer: -1, angle: QUARTER_TURN },
   F: { axis: 'z', layer: 1, angle: -QUARTER_TURN },
   B: { axis: 'z', layer: -1, angle: QUARTER_TURN },
-  M: { axis: 'x', layer: 0, angle: -QUARTER_TURN },
+  M: { axis: 'x', layer: 0, angle: QUARTER_TURN },
   E: { axis: 'y', layer: 0, angle: QUARTER_TURN },
   S: { axis: 'z', layer: 0, angle: -QUARTER_TURN },
 };
@@ -128,8 +128,8 @@ const MOVE_KEY_TO_QUARTER_TOKEN = {
   'x:1:1': "R'",
   'x:-1:1': 'L',
   'x:-1:-1': "L'",
-  'x:0:-1': 'M',
-  'x:0:1': "M'",
+  'x:0:1': 'M',
+  'x:0:-1': "M'",
   'y:1:-1': 'U',
   'y:1:1': "U'",
   'y:-1:1': 'D',
@@ -195,12 +195,6 @@ function getAxisVector(axis) {
   if (axis === 'x') return new THREE.Vector3(1, 0, 0);
   if (axis === 'y') return new THREE.Vector3(0, 1, 0);
   return new THREE.Vector3(0, 0, 1);
-}
-
-function onlyOuterLayerMove(move) {
-  if (!move) return null;
-  if (Math.abs(move.layer) !== 1) return null;
-  return move;
 }
 
 function animateMove(cubes, move, onComplete) {
@@ -455,12 +449,10 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls, executeMoveR
       const z = Math.round(position.z);
       const pos = moveConfig.axis === 'x' ? x : z;
 
-      const move = CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
-      return onlyOuterLayerMove(move);
+      return CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
     }
 
-    const move = CLOCKWISE_ROTATION_MAPS.y[direction === 'right' ? 'clockwise' : 'counterclockwise'][y];
-    return onlyOuterLayerMove(move);
+    return CLOCKWISE_ROTATION_MAPS.y[direction === 'right' ? 'clockwise' : 'counterclockwise'][y];
   };
 
   const determineVerticalMove = (startIntersection, startX, startY, currentX, currentY) => {
@@ -485,8 +477,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls, executeMoveR
       const z = Math.round(position.z);
       const pos = moveConfig.axis === 'y' ? y : z;
 
-      const move = CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
-      return onlyOuterLayerMove(move);
+      return CLOCKWISE_ROTATION_MAPS[moveConfig.axis][moveConfig.isClockwise ? 'clockwise' : 'counterclockwise'][pos];
     }
 
     let moveClockwise = isUpward ? 'clockwise' : 'counterclockwise';
@@ -495,8 +486,7 @@ function useCubeControl(groupRef, cubesRef, setEnableOrbitControls, executeMoveR
     }
 
     const x = Math.round(position.x);
-    const move = CLOCKWISE_ROTATION_MAPS.x[moveClockwise][x];
-    return onlyOuterLayerMove(move);
+    return CLOCKWISE_ROTATION_MAPS.x[moveClockwise][x];
   };
 
   useEffect(() => {
