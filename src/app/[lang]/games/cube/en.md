@@ -27,3 +27,24 @@ For beginners, the Layer by Layer (LBL) method is most recommended, with the fol
 3. Solve the top layer
 
 As skills improve, one can learn more advanced solving methods like CFOP. Currently, the world record holder for speed solving is Max Park, who set the single solve record at 3.134 seconds.
+
+### Built-in Auto Solve Methods
+
+This page includes automatic solving to help you learn solution sequences and quickly validate the current cube state.
+
+- `Kociemba`: Uses the classic two-phase solving approach. It usually produces shorter solutions and is good for studying efficient move sequences.
+- `Reverse`: Solves by reversing the scramble operations. It is more intuitive for beginners because it follows the idea of "undo what was done."
+
+Recommended workflow:
+
+1. Click `Scramble` to generate a random state
+2. Select `Kociemba` or `Reverse` in the solver method dropdown
+3. Click `Generate Solution` to get the full move list
+4. Use `Next Step` if you want to execute and learn step by step
+5. Use `Auto Solve` if you want to complete the solve directly
+6. Click `Stop Auto Solve` at any time during autoplay
+
+Notes:
+
+- Solution steps are shown below the cube area, with progress highlighting.
+- If the cube is already solved, the page will show an "already solved" prompt.
