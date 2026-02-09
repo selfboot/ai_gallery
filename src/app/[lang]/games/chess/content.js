@@ -1,560 +1,366 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/app/i18n/client";
+import {
+  BOARD_COLS,
+  BOARD_ROWS,
+  applyMove,
+  createInitialState,
+  getLegalMoves,
+  undoMove,
+} from "./engine";
+import { WukongAI } from "./ai";
 
-class ChineseChess {
-  constructor() {
-    this.resetGame();
-  }
+const CELL_WIDTH = "w-12 sm:w-16 md:w-20 lg:w-[5.75rem]";
+const CELL_HEIGHT = "h-11 sm:h-14 md:h-16 lg:h-[4.5rem]";
 
-  initializeBoard() {
-    let board = Array(10)
-      .fill()
-      .map(() => Array(9).fill(null));
+const toPositionKey = (row, col) => `${row}-${col}`;
 
-    // Initialize black pieces
-    board[0][0] = board[0][8] = { type: "车", color: "black" };
-    board[0][1] = board[0][7] = { type: "马", color: "black" };
-    board[0][2] = board[0][6] = { type: "象", color: "black" };
-    board[0][3] = board[0][5] = { type: "士", color: "black" };
-    board[0][4] = { type: "将", color: "black" };
-    board[2][1] = board[2][7] = { type: "炮", color: "black" };
-    board[3][0] =
-      board[3][2] =
-      board[3][4] =
-      board[3][6] =
-      board[3][8] =
-        { type: "卒", color: "black" };
-
-    // Initialize red pieces
-    board[9][0] = board[9][8] = { type: "車", color: "red" };
-    board[9][1] = board[9][7] = { type: "馬", color: "red" };
-    board[9][2] = board[9][6] = { type: "相", color: "red" };
-    board[9][3] = board[9][5] = { type: "仕", color: "red" };
-    board[9][4] = { type: "帥", color: "red" };
-    board[7][1] = board[7][7] = { type: "炮", color: "red" };
-    board[6][0] =
-      board[6][2] =
-      board[6][4] =
-      board[6][6] =
-      board[6][8] =
-        { type: "兵", color: "red" };
-
-    return board;
-  }
-
-  resetGame() {
-    this.board = this.initializeBoard();
-    this.selectedPiece = null;
-    this.currentPlayer = "red";
-    this.gameStatus = "playing";
-    this.moveHistory = [];
-    this.moveCount = 0;
-  }
-
-  switchPlayer() {
-    this.currentPlayer = this.currentPlayer === "red" ? "black" : "red";
-  }
-
-  makeMove(fromRow, fromCol, toRow, toCol) {
-    // console.log(fromRow, fromCol, toRow, toCol);
-    if (!this.isValidMove(fromRow, fromCol, toRow, toCol, true)) {
-      return false;
-    }
-    const moveDetails = {
-      from: { row: fromRow, col: fromCol },
-      to: { row: toRow, col: toCol },
-      piece: this.board[fromRow][fromCol],
-      captured: this.board[toRow][toCol],
-    };
-
-    this.doMovePiece(fromRow, fromCol, toRow, toCol);
-    this.moveHistory.push(moveDetails);
-    this.moveCount++;
-    this.selectedPiece = null;
-    this.switchPlayer();
-    this.checkGameStatus();
-    return true;
-  }
-
-  undoMove() {
-    if (this.moveHistory.length === 0) return;
-    const lastMove = this.moveHistory.pop();
-    this.board[lastMove.from.row][lastMove.from.col] = lastMove.piece;
-    this.board[lastMove.to.row][lastMove.to.col] = lastMove.captured;
-
-    this.switchPlayer();
-    this.moveCount--;
-    this.gameStatus = "playing";
-    return true;
-  }
-
-  checkGameStatus() {
-    if (this.isCheckmate(this.currentPlayer)) {
-      this.gameStatus = "checkmate";
-    } else if (this.isCheck(this.board, this.currentPlayer)) {
-      this.gameStatus = "check";
-    } else if (this.isStalemate(this.currentPlayer)) {
-      this.gameStatus = "stalemate";
-    } else {
-      this.gameStatus = "playing";
-    }
-  }
-
-  isValidMove(fromRow, fromCol, toRow, toCol, checkForCheck = false) {
-    if (!this.board[fromRow] || !this.board[toRow]) {
-      console.error("Invalid row index");
-      return false;
-    }
-
-    const piece = this.board[fromRow][fromCol];
-    if (!piece) return false;
-
-    // Can't capture your own pieces
-    if (
-      this.board[toRow][toCol] &&
-      this.board[toRow][toCol].color === piece.color
-    )
-      return false;
-
-    let isValid = false;
-
-    switch (piece.type) {
-      case "車":
-      case "车":
-        isValid = this.isValidChariotMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "马":
-      case "馬":
-        isValid = this.isValidHorseMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "象":
-      case "相":
-        isValid = this.isValidElephantMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "士":
-      case "仕":
-        isValid = this.isValidAdvisorMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "将":
-      case "帥":
-        isValid = this.isValidGeneralMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "炮":
-        isValid = this.isValidCannonMove(fromRow, fromCol, toRow, toCol);
-        break;
-      case "卒":
-      case "兵":
-        isValid = this.isValidPawnMove(fromRow, fromCol, toRow, toCol);
-        break;
-      default:
-        isValid = false;
-    }
-
-    if (isValid && checkForCheck) {
-      // Check if the move puts or leaves the player in check
-      const newBoard = this.tryMovePiece(
-        this.board,
-        fromRow,
-        fromCol,
-        toRow,
-        toCol
-      );
-
-      if (this.isCheck(newBoard, piece.color)) {
-        isValid = false;
-      }
-    }
-
-    return isValid;
-  }
-
-  isCheck(board, player) {
-    const oppositeColor = player === "red" ? "black" : "red";
-    let generalPosition;
-
-    // Find the general's position
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (
-          board[i][j] &&
-          board[i][j].type === (player === "red" ? "帥" : "将") &&
-          board[i][j].color === player
-        ) {
-          generalPosition = { row: i, col: j };
-          break;
-        }
-      }
-      if (generalPosition) break;
-    }
-
-    // Check if any opponent's piece can capture the general
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (board[i][j] && board[i][j].color === oppositeColor) {
-          if (
-            this.isValidMove(
-              i,
-              j,
-              generalPosition.row,
-              generalPosition.col,
-              false
-            )
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  tryMovePiece(board, fromRow, fromCol, toRow, toCol) {
-    const newBoard = board.map((row) => [...row]);
-    newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-    newBoard[fromRow][fromCol] = null;
-    return newBoard;
-  }
-
-  doMovePiece(fromRow, fromCol, toRow, toCol) {
-    const piece = this.board[fromRow][fromCol];
-    this.board[toRow][toCol] = piece;
-    this.board[fromRow][fromCol] = null;
-  }
-
-  isValidChariotMove(fromRow, fromCol, toRow, toCol) {
-    if (fromRow !== toRow && fromCol !== toCol) return false;
-
-    const rowStep =
-      fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
-    const colStep =
-      fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
-
-    for (
-      let i = 1;
-      i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol));
-      i++
-    ) {
-      if (this.board[fromRow + i * rowStep][fromCol + i * colStep])
-        return false;
-    }
-
-    return true;
-  }
-
-  isValidHorseMove(fromRow, fromCol, toRow, toCol) {
-    const rowDiff = Math.abs(toRow - fromRow);
-    const colDiff = Math.abs(toCol - fromCol);
-
-    if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
-      // Check if the horse is not blocked
-      if (rowDiff === 2) {
-        return !this.board[fromRow + (toRow - fromRow) / 2][fromCol];
-      } else {
-        return !this.board[fromRow][fromCol + (toCol - fromCol) / 2];
-      }
-    }
-
-    return false;
-  }
-
-  isValidElephantMove(fromRow, fromCol, toRow, toCol) {
-    const rowDiff = Math.abs(toRow - fromRow);
-    const colDiff = Math.abs(toCol - fromCol);
-
-    if (rowDiff === 2 && colDiff === 2) {
-      // Check if the elephant is not blocked
-      const midRow = (fromRow + toRow) / 2;
-      const midCol = (fromCol + toCol) / 2;
-      if (!this.board[midRow][midCol]) {
-        // Check if the elephant stays on its side of the river
-        return (
-          (this.board[fromRow][fromCol].color === "red" && toRow > 4) ||
-          (this.board[fromRow][fromCol].color === "black" && toRow < 5)
-        );
-      }
-    }
-
-    return false;
-  }
-
-  isValidAdvisorMove(fromRow, fromCol, toRow, toCol) {
-    const rowDiff = Math.abs(toRow - fromRow);
-    const colDiff = Math.abs(toCol - fromCol);
-
-    if (rowDiff === 1 && colDiff === 1) {
-      // Check if the advisor stays in the palace
-      return this.isInPalace(toRow, toCol, this.board[fromRow][fromCol].color);
-    }
-
-    return false;
-  }
-
-  isValidGeneralMove(fromRow, fromCol, toRow, toCol) {
-    const rowDiff = Math.abs(toRow - fromRow);
-    const colDiff = Math.abs(toCol - fromCol);
-
-    if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
-      // Check if the general stays in the palace
-      return this.isInPalace(toRow, toCol, this.board[fromRow][fromCol].color);
-    }
-
-    return false;
-  }
-
-  isValidCannonMove(fromRow, fromCol, toRow, toCol) {
-    if (fromRow !== toRow && fromCol !== toCol) return false;
-
-    const rowStep =
-      fromRow === toRow ? 0 : (toRow - fromRow) / Math.abs(toRow - fromRow);
-    const colStep =
-      fromCol === toCol ? 0 : (toCol - fromCol) / Math.abs(toCol - fromCol);
-
-    let piecesBetween = 0;
-    for (
-      let i = 1;
-      i < Math.max(Math.abs(toRow - fromRow), Math.abs(toCol - fromCol));
-      i++
-    ) {
-      if (this.board[fromRow + i * rowStep][fromCol + i * colStep])
-        piecesBetween++;
-    }
-
-    if (this.board[toRow][toCol]) {
-      // Capturing
-      return piecesBetween === 1;
-    } else {
-      // Moving
-      return piecesBetween === 0;
-    }
-  }
-
-  isValidPawnMove(fromRow, fromCol, toRow, toCol) {
-    const rowDiff = toRow - fromRow;
-    const colDiff = Math.abs(toCol - fromCol);
-
-    if (this.board[fromRow][fromCol].color === "red") {
-      if (fromRow > 4) {
-        // Haven't crossed the river
-        return rowDiff === -1 && colDiff === 0;
-      } else {
-        // Crossed the river
-        return (
-          (rowDiff === -1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)
-        );
-      }
-    } else {
-      if (fromRow < 5) {
-        // Haven't crossed the river
-        return rowDiff === 1 && colDiff === 0;
-      } else {
-        // Crossed the river
-        return (
-          (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)
-        );
-      }
-    }
-  }
-
-  isInPalace(row, col, color) {
-    if (color === "red") {
-      return row >= 7 && row <= 9 && col >= 3 && col <= 5;
-    } else {
-      return row >= 0 && row <= 2 && col >= 3 && col <= 5;
-    }
-  }
-
-  isCheckmate(player) {
-    if (!this.isCheck(this.board, player)) return false;
-
-    // Try all possible moves for the player
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (this.board[i][j] && this.board[i][j].color === player) {
-          for (let k = 0; k < 10; k++) {
-            for (let l = 0; l < 9; l++) {
-              if (this.isValidMove(i, j, k, l, true)) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return true;
-  }
-
-  isStalemate(player) {
-    if (this.isCheck(this.board, player)) return false;
-
-    // Check if the player has any legal moves
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (this.board[i][j] && this.board[i][j].color === player) {
-          for (let k = 0; k < 10; k++) {
-            for (let l = 0; l < 9; l++) {
-              if (this.isValidMove(i, j, k, l, true)) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return true;
-  }
-}
+const formatCoord = ({ row, col }) => `${10 - row}-${col + 1}`;
 
 const ChineseChessBoard = () => {
-  const [chess] = useState(new ChineseChess());
-  const [refresh, setRefresh] = useState(false); // 用于触发重渲染
   const { t } = useI18n();
-  const translatePlayer = (player) => {
-    return t(player); // 'red' 和 'black' 的翻译应该在翻译文件中定义
+  const [state, setState] = useState(createInitialState);
+  const [selected, setSelected] = useState(null);
+  const [legalMoves, setLegalMoves] = useState([]);
+  const [gameMode, setGameMode] = useState("pvp");
+  const [playerColor, setPlayerColor] = useState("red");
+  const [aiRank, setAiRank] = useState("expert");
+  const [aiThinking, setAiThinking] = useState(false);
+  const aiRef = useRef(null);
+
+  const aiColor = useMemo(
+    () => (playerColor === "red" ? "black" : "red"),
+    [playerColor]
+  );
+
+  useEffect(() => {
+    aiRef.current = new WukongAI();
+    return () => {
+      aiRef.current = null;
+    };
+  }, []);
+
+  const legalMoveMap = useMemo(() => {
+    const map = new Map();
+    legalMoves.forEach((move) => {
+      map.set(toPositionKey(move.row, move.col), move);
+    });
+    return map;
+  }, [legalMoves]);
+
+  const capturedByColor = useMemo(() => {
+    return state.moveHistory.reduce(
+      (acc, move) => {
+        if (move.captured) {
+          acc[move.captured.color].push(move.captured.label);
+        }
+        return acc;
+      },
+      { red: [], black: [] }
+    );
+  }, [state.moveHistory]);
+
+  const clearSelection = useCallback(() => {
+    setSelected(null);
+    setLegalMoves([]);
+  }, []);
+
+  const resetGame = useCallback(() => {
+    setState(createInitialState());
+    clearSelection();
+    setAiThinking(false);
+  }, [clearSelection]);
+
+  useEffect(() => {
+    resetGame();
+  }, [gameMode, playerColor, resetGame]);
+
+  const statusText = useMemo(() => {
+    if (
+      gameMode === "ai" &&
+      aiThinking &&
+      state.currentPlayer === aiColor &&
+      state.gameStatus !== "checkmate" &&
+      state.gameStatus !== "stalemate"
+    ) {
+      return t("ai_thinking");
+    }
+    if (state.gameStatus === "checkmate") {
+      return t("checkmate_announcement", { winner: t(state.winner || "black") });
+    }
+    if (state.gameStatus === "stalemate") {
+      return t("stalemate_announcement");
+    }
+    if (state.gameStatus === "check") {
+      return t("player_in_check", {
+        player: t(state.checkedPlayer || state.currentPlayer),
+      });
+    }
+    return t("current_player", { player: t(state.currentPlayer) });
+  }, [aiColor, aiThinking, gameMode, state.checkedPlayer, state.currentPlayer, state.gameStatus, state.winner, t]);
+
+  const selectPiece = (row, col) => {
+    setSelected({ row, col });
+    setLegalMoves(getLegalMoves(state, row, col));
+  };
+
+  const handleCellClick = (row, col) => {
+    if (state.gameStatus === "checkmate" || state.gameStatus === "stalemate") {
+      return;
+    }
+    if (gameMode === "ai" && (aiThinking || state.currentPlayer !== playerColor)) {
+      return;
+    }
+
+    const piece = state.board[row][col];
+
+    if (!selected) {
+      if (piece && piece.color === state.currentPlayer) {
+        selectPiece(row, col);
+      }
+      return;
+    }
+
+    if (selected.row === row && selected.col === col) {
+      clearSelection();
+      return;
+    }
+
+    if (piece && piece.color === state.currentPlayer) {
+      selectPiece(row, col);
+      return;
+    }
+
+    const nextState = applyMove(state, selected, { row, col });
+    if (nextState) {
+      setState(nextState);
+      clearSelection();
+    }
+  };
+
+  const handleUndo = () => {
+    setState((prev) => {
+      let next = undoMove(prev);
+
+      // In AI mode, undo one full round when possible.
+      if (gameMode === "ai" && next.moveHistory.length > 0 && next.currentPlayer === aiColor) {
+        next = undoMove(next);
+      }
+
+      return next;
+    });
+    clearSelection();
+    setAiThinking(false);
+  };
+
+  const handleRestart = () => {
+    resetGame();
   };
 
   useEffect(() => {
-    setRefresh((r) => !r); // 当棋局状态变化时触发重渲染
-  }, [chess.gameStatus, chess.currentPlayer]);
+    if (gameMode !== "ai") return;
+    if (state.gameStatus === "checkmate" || state.gameStatus === "stalemate") return;
+    if (state.currentPlayer !== aiColor) return;
+    if (!aiRef.current) return;
 
-  function undoMove() {
-    if (chess.undoMove()) {
-      setRefresh(!refresh); // 触发组件重渲染以更新界面
-    }
-  }
+    setAiThinking(true);
+    const snapshot = state;
+    let cancelled = false;
 
-  function restartGame() {
-    chess.resetGame();
-    setRefresh(!refresh);
-  }
+    const timer = setTimeout(() => {
+      if (cancelled) return;
 
-  const handleClick = useCallback(
-    (row, col) => {
-      if (chess.gameStatus !== "playing" && chess.gameStatus !== "check")
-        return;
-
-      if (chess.selectedPiece) {
-        if (
-          chess.makeMove(
-            chess.selectedPiece.row,
-            chess.selectedPiece.col,
-            row,
-            col
-          )
-        ) {
-          setRefresh((r) => !r); // 成功移动后触发重渲染
-        }
-        chess.selectedPiece = null; // 清除选中的棋子
-      } else if (
-        chess.board[row][col] &&
-        chess.board[row][col].color === chess.currentPlayer
-      ) {
-        chess.selectedPiece = { row, col }; // 选择棋子
-        setRefresh((r) => !r);
+      let aiMove = null;
+      try {
+        aiMove = aiRef.current.getBestMove(snapshot, aiRank);
+      } catch (error) {
+        console.error("AI move failed:", error);
       }
-    },
-    [chess]
-  );
+
+      if (aiMove) {
+        setState((prev) => {
+          if (
+            prev.currentPlayer !== snapshot.currentPlayer ||
+            prev.moveCount !== snapshot.moveCount ||
+            prev.gameStatus !== snapshot.gameStatus
+          ) {
+            return prev;
+          }
+          return applyMove(prev, aiMove.from, aiMove.to) || prev;
+        });
+      }
+
+      clearSelection();
+      setAiThinking(false);
+    }, 120);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      setAiThinking(false);
+    };
+  }, [aiColor, aiRank, clearSelection, gameMode, state]);
+
+  const lastMove = state.moveHistory[state.moveHistory.length - 1] || null;
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 p-4">
-      <div className="text-lg mb-4 font-bold">
-        {chess.gameStatus === "playing" &&
-          t("current_player", {
-            player: translatePlayer(chess.currentPlayer),
-          })}
-        {chess.gameStatus === "check" &&
-          t("player_in_check", {
-            player: translatePlayer(chess.currentPlayer),
-          })}
-        {chess.gameStatus === "checkmate" &&
-          t("checkmate_announcement", {
-            winner: translatePlayer(
-              chess.currentPlayer === "red" ? "black" : "red"
-            ),
-          })}
-        {chess.gameStatus === "stalemate" && t("stalemate_announcement")}
-      </div>
-      <div className="flex flex-col border-2 border-black mb-4">
-        {[...Array(11)].map((_, rowIndex) => (
-          <div key={rowIndex} className="flex">
-            {rowIndex === 5 ? (
-              <div className="w-full h-16 bg-yellow-100 flex items-center justify-center text-2xl font-bold">
-                楚河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉界
-              </div>
-            ) : (
-              [...Array(9)].map((_, colIndex) => {
-                const piece =
-                  rowIndex < 5
-                    ? chess.board[rowIndex][colIndex]
-                    : chess.board[rowIndex - 1][colIndex];
-                return (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    className={`w-16 h-16 border border-black flex justify-center items-center
-                                             ${
-                                               (rowIndex + colIndex) % 2 === 0
-                                                 ? "bg-yellow-200"
-                                                 : "bg-yellow-100"
-                                             }
-                                             ${
-                                               chess.selectedPiece &&
-                                               chess.selectedPiece.row ===
-                                                 (rowIndex < 5
-                                                   ? rowIndex
-                                                   : rowIndex - 1) &&
-                                               chess.selectedPiece.col ===
-                                                 colIndex
-                                                 ? "bg-blue-300"
-                                                 : ""
-                                             }
-                                         `}
-                    onClick={() =>
-                      handleClick(
-                        rowIndex < 5 ? rowIndex : rowIndex - 1,
-                        colIndex
-                      )
-                    }
-                  >
-                    {piece && (
-                      <div
-                        className={`w-14 h-14 rounded-full flex justify-center items-center text-2xl font-bold
-                                                ${
-                                                  piece.color === "red"
-                                                    ? "bg-red-500 text-white"
-                                                    : "bg-black text-white"
-                                                }`}
-                      >
-                        {piece.type}
-                      </div>
-                    )}
+    <div className="container mx-auto max-w-[1600px] px-1 md:px-3">
+      <div className="lg:flex lg:items-start lg:space-x-8">
+        <div className="lg:w-5/6 flex flex-col items-center">
+          <div className="text-center mb-4">
+            <p className="text-lg font-bold">{statusText}</p>
+          </div>
+          <div className="bg-[#E6B771] p-2 rounded-md shadow max-w-full overflow-auto">
+            <div className="border-2 border-amber-900/70">
+              {Array.from({ length: BOARD_ROWS }).map((_, row) => (
+                <React.Fragment key={`row-${row}`}>
+                  <div className="grid grid-cols-9">
+                    {Array.from({ length: BOARD_COLS }).map((_, col) => {
+                      const piece = state.board[row][col];
+                      const isSelected = selected && selected.row === row && selected.col === col;
+                      const moveHint = legalMoveMap.get(toPositionKey(row, col));
+                      const isLastFrom =
+                        lastMove && lastMove.from.row === row && lastMove.from.col === col;
+                      const isLastTo = lastMove && lastMove.to.row === row && lastMove.to.col === col;
+
+                      return (
+                        <button
+                          key={`cell-${row}-${col}`}
+                          type="button"
+                          className={`${CELL_WIDTH} ${CELL_HEIGHT} relative border border-amber-900/50 flex items-center justify-center select-none transition-colors
+                          ${(row + col) % 2 === 0 ? "bg-[#f3d5a3]" : "bg-[#f7dfba]"}
+                          ${isSelected ? "bg-blue-200" : ""}
+                          ${!isSelected && isLastFrom ? "bg-amber-200" : ""}
+                          ${!isSelected && isLastTo ? "bg-emerald-200" : ""}`}
+                          onClick={() => handleCellClick(row, col)}
+                        >
+                          {moveHint && !piece && (
+                            <span className="absolute w-2.5 h-2.5 sm:w-3 sm:h-3 bg-sky-500/75 rounded-full" />
+                          )}
+                          {moveHint && piece && (
+                            <span className="absolute inset-1 rounded-full ring-2 ring-sky-500/70" />
+                          )}
+                          {piece && (
+                            <span
+                              className={`relative z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center text-base sm:text-lg font-bold
+                              ${
+                                piece.color === "red"
+                                  ? "bg-red-50 border-red-500 text-red-600"
+                                  : "bg-gray-100 border-gray-700 text-gray-800"
+                              }`}
+                            >
+                              {piece.label}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
-                );
-              })
+                  {row === 4 && (
+                    <div className="grid grid-cols-9">
+                      <div
+                        className={`${CELL_HEIGHT} col-span-9 w-full border-x border-b border-amber-900/50 bg-[#edd3a2]
+                        flex items-center justify-center text-sm sm:text-base md:text-lg font-bold`}
+                      >
+                        <div className="w-full flex items-center justify-center gap-10 sm:gap-16 md:gap-24 tracking-[0.2em]">
+                          <span>楚河</span>
+                          <span>汉界</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="lg:w-1/6 mt-8 lg:mt-0">
+          <h2 className="text-xl font-bold mb-4">{t("settings")}</h2>
+          <div className="mb-4 flex items-center">
+            <label className="text-gray-700 mr-2">{t("game_mode")} :</label>
+            <select
+              value={gameMode}
+              onChange={(e) => setGameMode(e.target.value)}
+              className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="pvp">{t("mode_local")}</option>
+              <option value="ai">{t("mode_ai")}</option>
+            </select>
+          </div>
+          {gameMode === "ai" && (
+            <>
+              <div className="mb-4 flex items-center">
+                <label className="text-gray-700 mr-2">{t("player_color")} :</label>
+                <select
+                  value={playerColor}
+                  onChange={(e) => setPlayerColor(e.target.value)}
+                  className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="red">{t("red")}</option>
+                  <option value="black">{t("black")}</option>
+                </select>
+              </div>
+              <div className="mb-4 flex items-center">
+                <label className="text-gray-700 mr-2">{t("ai_rank")} :</label>
+                <select
+                  value={aiRank}
+                  onChange={(e) => setAiRank(e.target.value)}
+                  className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="novice">{t("rank_novice")}</option>
+                  <option value="expert">{t("rank_expert")}</option>
+                  <option value="master">{t("rank_master")}</option>
+                </select>
+              </div>
+            </>
+          )}
+          <div className="rounded-md border border-gray-200 bg-white p-3 mb-4">
+            <p className="font-semibold">{statusText}</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {t("move_steps", { steps: state.moveCount })}
+            </p>
+          </div>
+          <button
+            className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded mb-2 disabled:bg-gray-400"
+            onClick={handleUndo}
+            disabled={state.moveHistory.length === 0 || aiThinking}
+          >
+            {t("undo_move")}
+          </button>
+          <button
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-4"
+            onClick={handleRestart}
+          >
+            {t("restart_game")}
+          </button>
+          <div className="rounded-md border border-gray-200 bg-white p-3 mb-4">
+            <p className="font-semibold mb-2">{t("captured_pieces")}</p>
+            <p className="text-sm mb-1">
+              {t("red")}：{capturedByColor.red.length > 0 ? capturedByColor.red.join(" ") : "-"}
+            </p>
+            <p className="text-sm">
+              {t("black")}：{capturedByColor.black.length > 0 ? capturedByColor.black.join(" ") : "-"}
+            </p>
+          </div>
+          <div className="rounded-md border border-gray-200 bg-white p-3">
+            <p className="font-semibold mb-2">{t("move_history")}</p>
+            {state.moveHistory.length === 0 ? (
+              <p className="text-sm text-gray-500">{t("chess_no_moves")}</p>
+            ) : (
+              <ol className="space-y-1 text-sm max-h-56 overflow-y-auto pr-1">
+                {state.moveHistory.map((move, index) => (
+                  <li key={`move-${index}`}>
+                    {index + 1}. {move.piece.label} {formatCoord(move.from)}→{formatCoord(move.to)}
+                    {move.captured ? ` x${move.captured.label}` : ""}
+                  </li>
+                ))}
+              </ol>
             )}
           </div>
-        ))}
+        </div>
       </div>
-      <div className="flex space-x-4">
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={undoMove}
-          disabled={chess.moveHistory.length === 0}
-        >
-          {t("undo_move")}
-        </button>
-        <button
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          onClick={restartGame}
-        >
-          {t("restart_game")}
-        </button>
-      </div>
-      <div className="mt-4">{t("move_steps", { steps: chess.moveCount })}</div>
     </div>
   );
 };
