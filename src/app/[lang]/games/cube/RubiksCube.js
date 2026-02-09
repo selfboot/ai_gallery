@@ -352,6 +352,16 @@ export function expandTokenToQuarterTokens(token) {
   return [];
 }
 
+export function adaptKociembaStepsForMethod(tokens, method) {
+  if (!Array.isArray(tokens)) return [];
+
+  if (method === 'lbl') {
+    return tokens.flatMap((token) => expandTokenToQuarterTokens(token));
+  }
+
+  return [...tokens];
+}
+
 function splitAlgorithm(algorithm) {
   if (!algorithm) return [];
   return algorithm
@@ -766,7 +776,8 @@ export default function RubiksCube({
         } else {
           ensureSolverInitialized();
           const solution = cubeStateRef.current.solve();
-          steps = splitAlgorithm(solution);
+          const kociembaSteps = splitAlgorithm(solution);
+          steps = adaptKociembaStepsForMethod(kociembaSteps, solveMethod);
         }
 
         solutionStepsRef.current = steps;

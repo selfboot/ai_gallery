@@ -187,6 +187,8 @@ export default function CubeGame() {
             disabled={disableCommonActions}
           >
             <option value="kociemba">{t("cube_solver_kociemba")}</option>
+            <option value="cfop">{t("cube_solver_cfop")}</option>
+            <option value="lbl">{t("cube_solver_lbl")}</option>
             <option value="reverse">{t("cube_solver_reverse")}</option>
           </select>
 

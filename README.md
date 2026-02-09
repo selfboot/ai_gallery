@@ -8,7 +8,7 @@
 
 <a name="english"></a>
 
-Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. I've integrated these components into this [showcase site](https://gallery.selfboot.cn). Feel free to explore and experience it yourself!
+Welcome to my AI-assisted web development project! Despite having minimal frontend knowledge (just a bit of HTML and CSS), I've managed to create some interesting components with the help of Claude 3.5 and GPT-4. More recently, I've also started using GPT-5.2 and GPT-5.3 in daily development workflows. I've integrated these components into this [showcase site](https://gallery.selfboot.cn). Feel free to explore and experience it yourself!
 
 I must say, AI has truly transformed the way we write code.
 
@@ -37,6 +37,8 @@ Other Components: Various interesting widgets, including dynamic charts for data
 # Local Development
 
 Everyone is welcome to contribute to improving these components. **Don't worry if you lack a frontend technical background – you can leverage AI to bring your ideas to life!** Here are the simple steps to run this project locally:
+
+Prerequisites: Node.js 22+ and pnpm 9+.
 
 1. Clone the repository:
    ```
@@ -82,4 +84,13 @@ The most effective approach is to use AI as a collaborative tool, combining its 
 These are personal opinions and for reference only. Both AI models played important roles in this project, each with its own strengths. I typically use Claude 3.5 for quick prototyping and GPT-4 for solving detailed issues.
 
 - **GPT-4**: Excels at providing detailed explanations and handling complex, multi-step tasks. For issues where I have a general understanding of the cause, GPT-4 often provides good code and explanations when given detailed prompts.
-- **Claude 3.5**: Performs exceptionally well in code generation and refactoring. Given a simple requirement description, it often quickly produces a good prototype. Its responses are usually more concise and directly applicable, making it great for rapid implementation and bug fixing.
+- **Claude 3.5**: Performs exceptionally well in code generation and refactoring. Given a simple requirement description, it often quickly produces a good prototype. Its responses are usually concise and directly applicable, making it great for rapid implementation and bug fixing.
+
+## Current AI Setup
+
+In addition to the earlier models above, I now also use newer models and coding tools in day-to-day work:
+
+- **GPT-5.2 / GPT-5.3**: Used for deeper reasoning, architecture discussions, and more complex implementation tasks.
+- **Codex CLI**: My terminal-first coding workflow for repository edits, refactors, and command-driven development.
+- **Claude Code CLI**: Used as another CLI coding partner for implementation comparisons and alternative solutions.
+- **Cursor**: My IDE-based AI workflow for interactive editing, quick iterations, and in-editor code conversations.

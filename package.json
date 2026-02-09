@@ -2,6 +2,10 @@
   "name": "ai_gallery_next",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "node scripts/generate-sitemap-rss.mjs && next dev --turbopack",
     "build": "node scripts/generate-sitemap-rss.mjs && next build",

@@ -423,6 +423,8 @@
   "scramble": "随机打乱魔方",
   "cube_solver_method": "还原策略",
   "cube_solver_kociemba": "两阶段求解（Kociemba）",
+  "cube_solver_cfop": "CFOP 自动求解",
+  "cube_solver_lbl": "LBL 层先法自动求解",
   "cube_solver_reverse": "逆向当前操作（教学）",
   "cube_generate_solution": "生成还原步骤",
   "cube_next_step": "执行下一步",

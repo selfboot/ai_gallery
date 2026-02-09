@@ -1,5 +1,5 @@
 import Cube from "cubejs";
-import { expandTokenToQuarterTokens, moveToQuarterToken, quarterTokenToMove } from "../RubiksCube";
+import { adaptKociembaStepsForMethod, expandTokenToQuarterTokens, moveToQuarterToken, quarterTokenToMove } from "../RubiksCube";
 
 const QUARTER_TURN = Math.PI / 2;
 
@@ -246,6 +246,13 @@ describe("Rubik move mapping compatibility", () => {
     expect(moveToQuarterToken({ axis: "z", layer: 0, angle: -QUARTER_TURN })).toBe("S");
   });
 
+  test("LBL adaptation expands half turns into quarter steps", () => {
+    const base = ["R2", "U", "F2", "L'"];
+    expect(adaptKociembaStepsForMethod(base, "lbl")).toEqual(["R", "R", "U", "F", "F", "L'"]);
+    expect(adaptKociembaStepsForMethod(base, "cfop")).toEqual(base);
+    expect(adaptKociembaStepsForMethod(base, "kociemba")).toEqual(base);
+  });
+
   test.each([
     "R U L D F B R2 U2 L2 D2 F2 B2 R' U' L' D' F' B'",
     "R U R' U' F2 D L2 B U2 R2 D' F L B'",
@@ -294,6 +301,27 @@ describe("Rubik move mapping compatibility", () => {
       applyAlgorithm(virtualCube, solution);
 
       expect(virtualCubeToFaceletString(virtualCube)).toBe(solverCube.asString());
+    }
+  });
+
+  test("CFOP and LBL auto methods can both restore random scrambles", () => {
+    const rng = createSeededRandom(20260210);
+    const methods = ["cfop", "lbl"];
+
+    for (let i = 0; i < 40; i += 1) {
+      const scramble = generateScramble(rng, 24);
+      const solverCube = new Cube();
+      solverCube.move(scramble);
+      const kociembaSolution = solverCube.solve();
+      const kociembaSteps = kociembaSolution.trim().split(/\s+/).filter(Boolean);
+
+      methods.forEach((method) => {
+        const steps = adaptKociembaStepsForMethod(kociembaSteps, method);
+        const virtualCube = createVirtualCube();
+        applyAlgorithm(virtualCube, scramble);
+        applyAlgorithm(virtualCube, steps.join(" "));
+        expect(isVirtualCubeSolved(virtualCube)).toBe(true);
+      });
     }
   });
 });
