@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useI18n } from "@/app/i18n/client";
 import { CustomListbox } from "@/app/components/ListBox";
+import { Apple, Clock3, Crown, Shield, TreePine } from "lucide-react";
 
 const TARGET_CELL_SIZE = 20;
 const INITIAL_DIRECTION = "RIGHT";
@@ -14,7 +15,15 @@ const GAME_STATUS = {
   OVER: "OVER",
 };
 
-const FOOD_TYPES = ["🍎"];
+const FOOD_TYPES = {
+  APPLE: {
+    id: "APPLE",
+    Icon: Apple,
+    color: "#DC2626",
+  },
+};
+
+const FOOD_TYPE_LIST = Object.values(FOOD_TYPES);
 
 const DIFFICULTY_LEVELS = {
   EASY: "easy",
@@ -31,17 +40,20 @@ const DIFFICULTY_PERCENTAGES = {
 const POWER_UP_TYPES = {
   GHOST: {
     id: "GHOST",
-    icon: "🌀",
+    Icon: Shield,
+    color: "#6366F1",
     name: "ghost_power",
   },
   FOOD_RAIN: {
     id: "FOOD_RAIN",
-    icon: "🌳",
+    Icon: TreePine,
+    color: "#16A34A",
     name: "food_rain_power",
   },
   GOLDEN: {
     id: "GOLDEN",
-    icon: "👑",
+    Icon: Crown,
+    color: "#CA8A04",
     name: "golden_power",
   },
 };
@@ -101,7 +113,7 @@ const SnakeGame = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameStatus, setGameStatus] = useState(GAME_STATUS.INIT);
   const [foodCounts, setFoodCounts] = useState({
-    "🍎": 0,
+    [FOOD_TYPES.APPLE.id]: 0,
   });
   const [gameTime, setGameTime] = useState(0);
   const [timeInterval, setTimeInterval] = useState(null);
@@ -166,10 +178,11 @@ const SnakeGame = () => {
     (currentSnake, currentObstacles = []) => {
       let newFood;
       do {
+        const foodType = FOOD_TYPE_LIST[Math.floor(Math.random() * FOOD_TYPE_LIST.length)];
         newFood = {
           x: Math.floor(Math.random() * gridWidth),
           y: Math.floor(Math.random() * gridHeight),
-          type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
+          type: foodType.id,
         };
       } while (
         currentSnake.some((segment) => segment.x === newFood.x && segment.y === newFood.y) ||
@@ -237,7 +250,7 @@ const SnakeGame = () => {
     setIsPlaying(false);
     setGameStatus(GAME_STATUS.INIT);
     setFoodCounts({
-      "🍎": 0,
+      [FOOD_TYPES.APPLE.id]: 0,
     });
     setGameTime(0);
     setGhostPowerCount(0);
@@ -296,7 +309,7 @@ const SnakeGame = () => {
 
     setPowerUp({
       ...position,
-      type: powerUpType.icon,
+      type: powerUpType.id,
     });
 
     setTimeout(() => {
@@ -389,14 +402,14 @@ const SnakeGame = () => {
 
     // Check if the snake eats the power-up
     if (powerUp && head.x === powerUp.x && head.y === powerUp.y) {
-      if (powerUp.type === POWER_UP_TYPES.GHOST.icon) {
+      if (powerUp.type === POWER_UP_TYPES.GHOST.id) {
         setGhostPowerCount((prev) => prev + 1);
         setPowerUp(null);
-      } else if (powerUp.type === POWER_UP_TYPES.FOOD_RAIN.icon) {
+      } else if (powerUp.type === POWER_UP_TYPES.FOOD_RAIN.id) {
         setFoodRainCount((prev) => prev + 1);
         generateFoodRain();
         setPowerUp(null);
-      } else if (powerUp.type === POWER_UP_TYPES.GOLDEN.icon) {
+      } else if (powerUp.type === POWER_UP_TYPES.GOLDEN.id) {
         setGoldenPowerCount((prev) => prev + 1);
         setIsGolden(true);
         setPowerUp(null);
@@ -621,28 +634,63 @@ const SnakeGame = () => {
                   >
                     {renderObstacles()}
                     {snake.map((segment, index) => renderSnakeSegment(segment, index, snake, direction, cellSize))}
-                    {foods.map((food, index) => (
-                      <text
-                        key={`food-${index}`}
-                        x={food.x * cellSize + cellSize / 2}
-                        y={food.y * cellSize + cellSize / 2}
-                        fontSize={cellSize}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                      >
-                        {food.type}
-                      </text>
-                    ))}
+                    {foods.map((food, index) => {
+                      const foodType = FOOD_TYPES[food.type];
+                      if (!foodType) return null;
+                      const FoodIcon = foodType.Icon;
+                      return (
+                        <g
+                          key={`food-${index}`}
+                          transform={`translate(${food.x * cellSize}, ${food.y * cellSize})`}
+                        >
+                          <circle
+                            cx={cellSize / 2}
+                            cy={cellSize / 2}
+                            r={cellSize * 0.42}
+                            fill="#ffffff"
+                            stroke={foodType.color}
+                            strokeWidth={Math.max(1.2, cellSize * 0.08)}
+                          />
+                          <FoodIcon
+                            x={cellSize * 0.2}
+                            y={cellSize * 0.2}
+                            width={cellSize * 0.6}
+                            height={cellSize * 0.6}
+                            color={foodType.color}
+                            strokeWidth={2.2}
+                          />
+                        </g>
+                      );
+                    })}
                     {powerUp && (
-                      <text
-                        x={powerUp.x * cellSize + cellSize / 2}
-                        y={powerUp.y * cellSize + cellSize / 2}
-                        fontSize={cellSize}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                      >
-                        {powerUp.type}
-                      </text>
+                      (() => {
+                        const powerUpType = POWER_UP_TYPES[powerUp.type];
+                        if (!powerUpType) return null;
+                        const Icon = powerUpType.Icon;
+                        return (
+                          <g transform={`translate(${powerUp.x * cellSize}, ${powerUp.y * cellSize})`}>
+                            <rect
+                              x={cellSize * 0.08}
+                              y={cellSize * 0.08}
+                              width={cellSize * 0.84}
+                              height={cellSize * 0.84}
+                              rx={cellSize * 0.16}
+                              ry={cellSize * 0.16}
+                              fill="rgba(255,255,255,0.9)"
+                              stroke={powerUpType.color}
+                              strokeWidth={Math.max(1.2, cellSize * 0.08)}
+                            />
+                            <Icon
+                              x={cellSize * 0.2}
+                              y={cellSize * 0.2}
+                              width={cellSize * 0.6}
+                              height={cellSize * 0.6}
+                              color={powerUpType.color}
+                              strokeWidth={2.3}
+                            />
+                          </g>
+                        );
+                      })()
                     )}
                   </svg>
                 )}
@@ -657,20 +705,22 @@ const SnakeGame = () => {
               <div className="mt-4 w-full">
                 <div className="flex flex-wrap gap-4 items-center justify-center lg:justify-start">
                   <div className="flex items-center space-x-2 pl-0">
-                    <span className="text-xl">⏱️</span>
+                    <Clock3 size={20} color="#334155" strokeWidth={2.2} />
                     <span className="text-xl min-w-[4ch]">{formatTime(gameTime)}</span>
                   </div>
-                  {FOOD_TYPES.map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <span className="text-xl">{type}</span>
-                      <span className="text-xl min-w-[2ch]">{foodCounts[type].toString()}</span>
+                  {FOOD_TYPE_LIST.map((foodType) => (
+                    <div key={foodType.id} className="flex items-center space-x-2">
+                      <foodType.Icon size={20} color={foodType.color} strokeWidth={2.2} />
+                      <span className="text-xl min-w-[2ch]">
+                        {(foodCounts[foodType.id] ?? 0).toString()}
+                      </span>
                     </div>
                   ))}
                   {Object.values(POWER_UP_TYPES).map(
                     (powerUp) =>
                       enabledPowerUps.includes(powerUp.id) && (
                         <div key={powerUp.id} className="flex items-center space-x-2">
-                          <span className="text-xl">{powerUp.icon}</span>
+                          <powerUp.Icon size={20} color={powerUp.color} strokeWidth={2.2} />
                           <span className="text-xl min-w-[2ch]">
                             {powerUp.id === "GHOST"
                               ? ghostPowerCount
@@ -726,7 +776,13 @@ const SnakeGame = () => {
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <span>
-                      {powerUp.icon} {t(powerUp.name)}
+                      <powerUp.Icon
+                        size={16}
+                        color={powerUp.color}
+                        strokeWidth={2.2}
+                        className="inline-block align-text-bottom mr-1"
+                      />
+                      {t(powerUp.name)}
                     </span>
                   </label>
                 ))}
