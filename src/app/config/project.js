@@ -250,6 +250,13 @@ const Projects = {
       link: "/tools/splitword/",
     },
     {
+      id: "splitpdf",
+      title: "splitpdf_title",
+      description: "splitpdf_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp",
+      link: "/tools/splitpdf/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
@@ -262,6 +269,13 @@ const Projects = {
       description: "loanrate_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20250428_ai_gallery_loanrate_en.webp",
       link: "/tools/loanrate/",
+    },
+    {
+      id: "iit",
+      title: "iit_title",
+      description: "iit_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250428_ai_gallery_loanrate_en.webp",
+      link: "/tools/iit/",
     },
     {
       id: "chartrace",
