@@ -243,6 +243,13 @@ const Projects = {
       link: "/tools/mergeword/",
     },
     {
+      id: "splitword",
+      title: "splitword_title",
+      description: "splitword_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp",
+      link: "/tools/splitword/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
