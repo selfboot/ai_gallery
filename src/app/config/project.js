@@ -250,6 +250,13 @@ const Projects = {
       link: "/tools/splitword/",
     },
     {
+      id: "mergepdf",
+      title: "mergepdf_title",
+      description: "mergepdf_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp",
+      link: "/tools/mergepdf/",
+    },
+    {
       id: "splitpdf",
       title: "splitpdf_title",
       description: "splitpdf_description",
