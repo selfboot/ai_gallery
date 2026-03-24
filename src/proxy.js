@@ -1,4 +1,4 @@
-// middleware.js
+// proxy.js
 import { NextResponse } from 'next/server';
 
 const LOCALES = ['en', 'zh'];
@@ -23,7 +23,7 @@ function getPreferredLocale(request) {
   return 'en';
 }
 
-export function middleware(request) {
+export function proxy(request) {
   const pathname = request.nextUrl.pathname;
 
   // 静态文件直接跳过
