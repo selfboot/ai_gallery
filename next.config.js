@@ -9,6 +9,19 @@ const nextConfig = {
       '@': path.resolve(__dirname, 'src')
     }
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'index,follow',
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

@@ -26,7 +26,7 @@ function getPreferredLocale(request) {
 export function middleware(request) {
   const pathname = request.nextUrl.pathname;
 
-  // 首先检查是否为静态文件
+  // 静态文件直接跳过
   if (
     pathname.endsWith('.xml') ||
     pathname.endsWith('.js') ||
@@ -35,51 +35,33 @@ export function middleware(request) {
     pathname.endsWith('.xlsx') ||
     pathname.endsWith('.docx') ||
     pathname.endsWith('.txt') ||
-    pathname.endsWith('.ico') || 
+    pathname.endsWith('.ico') ||
     pathname.endsWith('.png')
   ) {
-    // 对于静态文件，直接返回，不做任何处理
     return NextResponse.next();
   }
 
-  let response;
+  const preferredLocale = getPreferredLocale(request);
+
   // 处理根路径
   if (pathname === '/') {
-    const preferredLocale = getPreferredLocale(request);
-    response = NextResponse.redirect(new URL(`/${preferredLocale}/games`, request.url));
-  } else {
-    // 处理缺少语言前缀的路径
-    const pathnameIsMissingLocale = LOCALES.every(
-      (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-    );
-    if (pathnameIsMissingLocale) {
-      const preferredLocale = getPreferredLocale(request);
-      response = NextResponse.redirect(new URL(`/${preferredLocale}${pathname}/`, request.url));
-    } else {
-      response = NextResponse.next();
-    }
+    return NextResponse.redirect(new URL(`/${preferredLocale}/games`, request.url));
   }
 
-  // 添加自定义 header
-  if (response) {
-    response.headers.set('x-pathname', pathname);
-  } else {
-    response = NextResponse.next();
-    response.headers.set('x-pathname', pathname);
-  }
-
-  response.headers.set('X-Robots-Tag', 'index,follow');
-  return response;
+  // 缺少语言前缀的路径，补上语言前缀
+  return NextResponse.redirect(new URL(`/${preferredLocale}${pathname}/`, request.url));
 }
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
+     * - en, zh (locale prefixed paths, already have locale)
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
+     * - favicon.ico, sitemap, rss, robots.txt (metadata files)
      */
-    '/((?!api|_next/static|_next/image|robots.txt).*)',
+    '/((?!en|zh|api|_next/static|_next/image|favicon.ico|sitemap|rss|robots.txt).*)',
   ],
 };
