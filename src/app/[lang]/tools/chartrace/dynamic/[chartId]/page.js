@@ -8,6 +8,8 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import Papa from 'papaparse';
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return dynamicChartConfigs.flatMap((config) => 
     ['en', 'zh'].map((lang) => ({

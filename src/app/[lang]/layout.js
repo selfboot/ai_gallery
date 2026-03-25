@@ -6,7 +6,6 @@ import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Script from 'next/script';
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const SUPPORTED_LANGUAGES = ['en', 'zh'];
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
@@ -90,7 +89,6 @@ export default async function Layout(props) {
             <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
           </I18nProvider>
         </div>
-        <SpeedInsights/>
       </body>
       <GoogleAnalytics gaId="G-Y4WD2DT404" />
       {/* <WebVitals /> */}

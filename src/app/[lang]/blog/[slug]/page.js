@@ -114,6 +114,8 @@ export async function generateMetadata(props) {
   };
 }
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const posts = await getPostSlugs();
   return posts.flatMap((slug) => [
