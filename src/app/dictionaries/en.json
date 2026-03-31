@@ -472,6 +472,8 @@
   "mergeword_move_up": "Move Up",
   "mergeword_move_down": "Move Down",
   "mergeword_delete": "Delete",
+  "mergeword_keep_page_numbers": "Keep each Word file's page numbers",
+  "mergeword_keep_page_numbers_desc": "When enabled, each document keeps its own section-based page numbering instead of continuing as one merged sequence.",
   "mergeword_order_hint": "Files will be merged in the above order, you can adjust the order with arrows or drag",
   "mergeword_merging": "Merging documents...",
   "mergeword_merge_button": "Merge {{count}} documents",

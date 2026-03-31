@@ -8,6 +8,155 @@ import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import { saveAs } from "file-saver";
 
+const BODY_REGEX = /<w:body[^>]*>([\s\S]*?)<\/w:body>/;
+const SECTION_PROPS_REGEX = /<w:sectPr\b[\s\S]*?<\/w:sectPr>/g;
+const TRAILING_SECTION_PROPS_REGEX = /([\s\S]*?)(<w:sectPr\b[\s\S]*?<\/w:sectPr>)\s*$/;
+const TYPE_NODE_REGEX = /<w:type\b[^>]*(?:\/>|>[\s\S]*?<\/w:type>)/;
+const PAGE_NUMBER_NODE_REGEX = /<w:pgNumType\b[^>]*(?:\/>|>[\s\S]*?<\/w:pgNumType>)/;
+const TYPE_INSERT_MARKERS = [
+  "<w:pgSz",
+  "<w:pgMar",
+  "<w:paperSrc",
+  "<w:pgBorders",
+  "<w:lnNumType",
+  "<w:pgNumType",
+  "<w:cols",
+  "<w:formProt",
+  "<w:vAlign",
+  "<w:noEndnote",
+  "<w:titlePg",
+  "<w:textFlow",
+  "<w:bidi",
+  "<w:rtlGutter",
+  "<w:docGrid",
+  "<w:sectPrChange",
+  "</w:sectPr>",
+];
+const PAGE_NUMBER_INSERT_MARKERS = [
+  "<w:cols",
+  "<w:formProt",
+  "<w:vAlign",
+  "<w:noEndnote",
+  "<w:titlePg",
+  "<w:textFlow",
+  "<w:bidi",
+  "<w:rtlGutter",
+  "<w:docGrid",
+  "<w:sectPrChange",
+  "</w:sectPr>",
+];
+
+const stripSectionHeaderFooterReferences = (sectPr) => {
+  return sectPr.replace(/<w:(?:headerReference|footerReference)\b[^>]*\/>/g, "");
+};
+
+const replaceDocPageCountFields = (xmlContent) => {
+  return xmlContent
+    .replace(/(<w:fldSimple\b[^>]*\bw:instr="[^"]*)NUMPAGES([^"]*")/g, "$1SECTIONPAGES$2")
+    .replace(/(<w:instrText\b[^>]*>[^<]*)NUMPAGES([^<]*<\/w:instrText>)/g, "$1SECTIONPAGES$2");
+};
+
+const rewriteTemplatePageCountFields = (zip) => {
+  Object.keys(zip.files)
+    .filter((fileName) => /^word\/(?:document|header\d+|footer\d+)\.xml$/.test(fileName))
+    .forEach((fileName) => {
+      const file = zip.files[fileName];
+      if (!file || file.dir) {
+        return;
+      }
+
+      const originalXml = file.asText();
+      const updatedXml = replaceDocPageCountFields(originalXml);
+      if (updatedXml !== originalXml) {
+        zip.file(fileName, updatedXml);
+      }
+    });
+};
+
+const insertSectionChildBefore = (sectPr, childXml, markers) => {
+  const markerIndexes = markers
+    .map((marker) => sectPr.indexOf(marker))
+    .filter((index) => index !== -1);
+
+  const insertIndex = markerIndexes.length > 0 ? Math.min(...markerIndexes) : sectPr.lastIndexOf("</w:sectPr>");
+  if (insertIndex === -1) {
+    return sectPr;
+  }
+
+  return `${sectPr.slice(0, insertIndex)}${childXml}${sectPr.slice(insertIndex)}`;
+};
+
+const ensureSectionPageNumberStart = (sectPr, start = 1) => {
+  if (/<w:pgNumType\b[^>]*w:start=/.test(sectPr)) {
+    return sectPr;
+  }
+
+  if (PAGE_NUMBER_NODE_REGEX.test(sectPr)) {
+    return sectPr.replace(PAGE_NUMBER_NODE_REGEX, (existingNode) => {
+      const cleanedNode = existingNode.replace(/\s+w:start="[^"]*"/g, "");
+
+      if (cleanedNode.endsWith("/>")) {
+        return cleanedNode.replace(/\/>$/, ` w:start="${start}"/>`);
+      }
+
+      return `<w:pgNumType w:start="${start}"/>`;
+    });
+  }
+
+  return insertSectionChildBefore(sectPr, `<w:pgNumType w:start="${start}"/>`, PAGE_NUMBER_INSERT_MARKERS);
+};
+
+const ensureSectionBreakType = (sectPr, type = "nextPage") => {
+  const typeXml = `<w:type w:val="${type}"/>`;
+
+  if (TYPE_NODE_REGEX.test(sectPr)) {
+    return sectPr.replace(TYPE_NODE_REGEX, typeXml);
+  }
+
+  return insertSectionChildBefore(sectPr, typeXml, TYPE_INSERT_MARKERS);
+};
+
+const normalizeDocumentSections = (bodyContent, { stripHeaderFooterReferences = false, resetFirstSectionPageNumber = false }) => {
+  let sectionIndex = 0;
+
+  return bodyContent.replace(SECTION_PROPS_REGEX, (sectPr) => {
+    let normalizedSectPr = sectPr;
+
+    if (stripHeaderFooterReferences) {
+      normalizedSectPr = stripSectionHeaderFooterReferences(normalizedSectPr);
+    }
+
+    if (resetFirstSectionPageNumber && sectionIndex === 0) {
+      normalizedSectPr = ensureSectionPageNumberStart(normalizedSectPr);
+    }
+
+    sectionIndex += 1;
+    return normalizedSectPr;
+  });
+};
+
+const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocument }) => {
+  const normalizedBodyContent = normalizeDocumentSections(bodyContent, {
+    stripHeaderFooterReferences: !isFirstDocument,
+    resetFirstSectionPageNumber: true,
+  });
+
+  const trailingSectionMatch = normalizedBodyContent.match(TRAILING_SECTION_PROPS_REGEX);
+  if (!trailingSectionMatch) {
+    return isLastDocument
+      ? normalizedBodyContent
+      : `${normalizedBodyContent}<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+  }
+
+  const [, mainContent, finalSectionProps] = trailingSectionMatch;
+  if (isLastDocument) {
+    return `${mainContent}${finalSectionProps}`;
+  }
+
+  const sectionBreakProps = ensureSectionBreakType(finalSectionProps, "nextPage");
+  return `${mainContent}<w:p><w:pPr>${sectionBreakProps}</w:pPr></w:p>`;
+};
+
 export default function WordMergerContent() {
   const { t } = useI18n();
   const [files, setFiles] = useState([]);
@@ -17,6 +166,7 @@ export default function WordMergerContent() {
   const [modalType, setModalType] = useState("info"); // 'info', 'error', 'success'
   const [statusMessage, setStatusMessage] = useState(""); // 新增：用于显示上传状态消息
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const [preserveSourcePageNumbers, setPreserveSourcePageNumbers] = useState(false);
 
   const showModal = (message, type = "info") => {
     setModalMessage(message);
@@ -85,7 +235,7 @@ export default function WordMergerContent() {
       reader.onload = (event) => {
         try {
           const zip = new PizZip(event.target.result);
-          const doc = new Docxtemplater().loadZip(zip);
+          new Docxtemplater().loadZip(zip);
 
           // 获取文档的XML内容
           const content = zip.files["word/document.xml"];
@@ -136,10 +286,16 @@ export default function WordMergerContent() {
       }
 
       // 合并文档内容
-      const mergedContent = mergeDocumentXML(allContents);
+      const mergedContent = mergeDocumentXML(allContents, {
+        preserveSourcePageNumbers,
+      });
 
       // 更新ZIP文件中的document.xml
       templateContent.file("word/document.xml", mergedContent);
+
+      if (preserveSourcePageNumbers) {
+        rewriteTemplatePageCountFields(templateContent);
+      }
 
       // 生成新的DOCX文件
       const mergedDocx = templateContent.generate({
@@ -163,25 +319,31 @@ export default function WordMergerContent() {
     }
   };
 
-  const mergeDocumentXML = (xmlContents) => {
+  const mergeDocumentXML = (xmlContents, { preserveSourcePageNumbers = false } = {}) => {
     // 这是一个简化的XML合并方法
     // 提取每个文档的body内容并合并
-    const bodyRegex = /<w:body[^>]*>(.*?)<\/w:body>/s;
     const mergedBodies = [];
 
     xmlContents.forEach((xml, index) => {
-      const match = xml.match(bodyRegex);
+      const match = xml.match(BODY_REGEX);
       if (match) {
         let bodyContent = match[1];
 
-        // 移除最后的sectPr标签（页面设置），除了最后一个文档
-        if (index < xmlContents.length - 1) {
-          bodyContent = bodyContent.replace(/<w:sectPr[^>]*>.*?<\/w:sectPr>/s, "");
-        }
+        if (preserveSourcePageNumbers) {
+          bodyContent = preserveDocumentPageNumbers(bodyContent, {
+            isFirstDocument: index === 0,
+            isLastDocument: index === xmlContents.length - 1,
+          });
+        } else {
+          // 移除最后的sectPr标签（页面设置），除了最后一个文档
+          if (index < xmlContents.length - 1) {
+            bodyContent = bodyContent.replace(/<w:sectPr[^>]*>.*?<\/w:sectPr>/s, "");
+          }
 
-        // 如果不是第一个文档，添加分页符
-        if (index > 0) {
-          bodyContent = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>' + bodyContent;
+          // 如果不是第一个文档，添加分页符
+          if (index > 0) {
+            bodyContent = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>' + bodyContent;
+          }
         }
 
         mergedBodies.push(bodyContent);
@@ -192,7 +354,7 @@ export default function WordMergerContent() {
     const baseXml = xmlContents[0];
     const mergedBodyContent = mergedBodies.join("");
 
-    return baseXml.replace(bodyRegex, `<w:body>${mergedBodyContent}</w:body>`);
+    return baseXml.replace(BODY_REGEX, `<w:body>${mergedBodyContent}</w:body>`);
   };
 
   const clearAllFiles = () => {
@@ -238,6 +400,21 @@ export default function WordMergerContent() {
                 {statusMessage}
               </p>
             )}
+
+            <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={preserveSourcePageNumbers}
+                  onChange={(e) => setPreserveSourcePageNumbers(e.target.checked)}
+                  className="mt-1"
+                />
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{t('mergeword_keep_page_numbers')}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('mergeword_keep_page_numbers_desc')}</p>
+                </div>
+              </label>
+            </div>
             
             {/* 合并按钮 - 使用 mt-auto 让它始终在底部 */}
             <div className="mt-auto pt-6">

@@ -474,6 +474,8 @@
   "mergeword_move_up": "上移",
   "mergeword_move_down": "下移",
   "mergeword_delete": "删除",
+  "mergeword_keep_page_numbers": "保持每个 Word 自己的页码",
+  "mergeword_keep_page_numbers_desc": "勾选后，会在每个文档边界保留独立节分页，页码按各自文档重新开始，不再在合并结果里连续累计。",
   "mergeword_order_hint": "文件将按照上述顺序进行合并，可以通过箭头或者拖拽调整顺序",
   "mergeword_merging": "正在合并文档...",
   "mergeword_merge_button": "合并 {{count}} 个文档",

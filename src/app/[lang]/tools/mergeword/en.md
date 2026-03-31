@@ -7,6 +7,8 @@ This tool merges multiple Word (`.docx`) documents into one directly in your bro
 3. **Start merging** – When there are two or more valid files the **“Merge X documents”** button turns blue. Click to parse and merge. Once finished the merged file will download automatically.
 4. **Preview or merge again** – After download you can drag more files in or delete old ones to merge again. Click **“Clear All”** to remove every file at once.
 
+If you want each original Word document to keep its own page numbering instead of continuing as one merged sequence, enable **“Keep each Word file's page numbers”** before merging. The tool will keep a separate section break at each document boundary.
+
 ![Merge Word documents](https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp)
 
 ## Common problems
