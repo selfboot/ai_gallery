@@ -7,7 +7,7 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "node scripts/generate-sitemap-rss.mjs && next dev --turbopack",
+    "dev": "node scripts/generate-sitemap-rss.mjs && next dev --webpack",
     "build": "node scripts/generate-sitemap-rss.mjs && next build",
     "start": "next start",
     "lint": "next lint",

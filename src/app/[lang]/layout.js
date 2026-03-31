@@ -33,7 +33,7 @@ export default async function Layout(props) {
   const rssFileName = lang === 'zh' ? 'rss.xml' : `rss-${lang}.xml`;
 
   return (
-    <html lang={lang}>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <link
           rel="alternate"
@@ -77,7 +77,7 @@ export default async function Layout(props) {
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <div className="flex flex-col min-h-screen">
           <nav className="bg-white shadow-md">
             <div className="container mx-auto px-2 sm:px-4 py-3">
@@ -91,20 +91,20 @@ export default async function Layout(props) {
           </I18nProvider>
         </div>
         <SpeedInsights/>
+        <GoogleAnalytics gaId="G-Y4WD2DT404" />
+        {/* <WebVitals /> */}
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
+          strategy="afterInteractive"
+          data-domains="gallery.selfboot.cn"
+        />
+        <Script
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
+          strategy="afterInteractive"
+        />
       </body>
-      <GoogleAnalytics gaId="G-Y4WD2DT404" />
-      {/* <WebVitals /> */}
-      <Script
-        src="https://cloud.umami.is/script.js"
-        data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
-        strategy="afterInteractive"
-        data-domains="gallery.selfboot.cn"
-      />
-      <Script
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
-        strategy="afterInteractive"
-      />
     </html>
   );
 }
