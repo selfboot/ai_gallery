@@ -4,13 +4,12 @@ import { useState } from "react";
 import FileUploadBox from "@/app/components/FileUploadBox";
 import { useI18n } from "@/app/i18n/client";
 import Modal from "@/app/components/Modal";
-import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
 import { saveAs } from "file-saver";
 
 const BODY_REGEX = /<w:body[^>]*>([\s\S]*?)<\/w:body>/;
 const SECTION_PROPS_REGEX = /<w:sectPr\b[\s\S]*?<\/w:sectPr>/g;
-const TRAILING_SECTION_PROPS_REGEX = /([\s\S]*?)(<w:sectPr\b[\s\S]*?<\/w:sectPr>)\s*$/;
+const TRAILING_SECTION_PROPS_REGEX = /([\s\S]*)(<w:sectPr\b[\s\S]*?<\/w:sectPr>)\s*$/;
 const TYPE_NODE_REGEX = /<w:type\b[^>]*(?:\/>|>[\s\S]*?<\/w:type>)/;
 const PAGE_NUMBER_NODE_REGEX = /<w:pgNumType\b[^>]*(?:\/>|>[\s\S]*?<\/w:pgNumType>)/;
 const TYPE_INSERT_MARKERS = [
@@ -136,7 +135,12 @@ const normalizeDocumentSections = (bodyContent, { stripHeaderFooterReferences = 
 };
 
 const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocument }) => {
-  const normalizedBodyContent = normalizeDocumentSections(bodyContent, {
+  // Strip <w:sectPrChange> blocks first: they contain a nested <w:sectPr> which
+  // causes lazy sectPr regexes to stop at the inner </w:sectPr> and leave
+  // orphaned </w:sectPrChange></w:sectPr> in the output, corrupting the XML.
+  const cleanedBodyContent = bodyContent.replace(/<w:sectPrChange\b[\s\S]*?<\/w:sectPrChange>/g, "");
+
+  const normalizedBodyContent = normalizeDocumentSections(cleanedBodyContent, {
     stripHeaderFooterReferences: !isFirstDocument,
     resetFirstSectionPageNumber: true,
   });
@@ -235,7 +239,6 @@ export default function WordMergerContent() {
       reader.onload = (event) => {
         try {
           const zip = new PizZip(event.target.result);
-          new Docxtemplater().loadZip(zip);
 
           // 获取文档的XML内容
           const content = zip.files["word/document.xml"];
@@ -354,7 +357,7 @@ export default function WordMergerContent() {
     const baseXml = xmlContents[0];
     const mergedBodyContent = mergedBodies.join("");
 
-    return baseXml.replace(BODY_REGEX, `<w:body>${mergedBodyContent}</w:body>`);
+    return baseXml.replace(BODY_REGEX, () => `<w:body>${mergedBodyContent}</w:body>`);
   };
 
   const clearAllFiles = () => {
