@@ -12,6 +12,60 @@ import Link from 'next/link';
 import { SideAdComponent } from "@/app/components/AdComponent";
 import numfmt from 'numfmt';
 
+/**
+ * Extract a plain string value from an ExcelJS cell, handling all value types:
+ * formula objects, rich text, hyperlinks, error values, dates, and numbers.
+ */
+const getCellValue = (cell) => {
+  let value = cell.value;
+
+  // Unwrap formula objects: { formula, result }
+  if (value && typeof value === 'object' && value.result !== undefined) {
+    value = value.result;
+  }
+
+  // Unwrap rich text objects: { richText: [{ text, font }, ...] }
+  if (value && typeof value === 'object' && value.richText !== undefined) {
+    value = value.richText.map((rt) => rt.text || '').join('');
+  }
+
+  // Unwrap hyperlink objects: { hyperlink, text }
+  if (value && typeof value === 'object' && value.hyperlink !== undefined) {
+    value = value.text || value.hyperlink || '';
+  }
+
+  // Unwrap error objects: { error: '#DIV/0!' }
+  if (value && typeof value === 'object' && value.error !== undefined) {
+    value = '';
+  }
+
+  // Apply Excel number format (numFmt) for dates and numbers
+  if (cell.numFmt && value !== null && value !== undefined) {
+    try {
+      if (value instanceof Date) {
+        // Convert JS Date to Excel serial number for numfmt
+        const excelDate = 25569.0 + ((value.getTime() - value.getTimezoneOffset() * 60 * 1000) / (1000 * 60 * 60 * 24));
+        value = numfmt.format(cell.numFmt, excelDate);
+      } else if (typeof value === 'number') {
+        value = numfmt.format(cell.numFmt, value);
+      }
+    } catch (err) {
+      console.warn('格式化失败:', err);
+      if (value instanceof Date) {
+        value = `${value.getFullYear()}年${value.getMonth() + 1}月${value.getDate()}日`;
+      } else {
+        value = value !== null && value !== undefined ? value.toString() : '';
+      }
+    }
+  } else if (value instanceof Date) {
+    value = `${value.getFullYear()}年${value.getMonth() + 1}月${value.getDate()}日`;
+  } else {
+    value = value !== null && value !== undefined ? value.toString() : '';
+  }
+
+  return value;
+};
+
 export default function GenDocx() {
   const { t } = useI18n();
   const [excelFile, setExcelFile] = useState(null);
@@ -70,48 +124,7 @@ export default function GenDocx() {
         const rowData = {};
         headers.forEach((header, index) => {
           const cell = row.getCell(index + 1);
-          let value = cell.value;
-          
-          if (value && typeof value === 'object' && value.result !== undefined) {
-            value = value.result;
-          }
-
-          // 使用numfmt库保持Excel中的原始格式
-          if (cell.numFmt && value !== null && value !== undefined) {
-            try {
-              // 对于日期类型，Excel内部存储为数字
-              if (value instanceof Date) {
-                // 将日期转换为Excel数字格式
-                const excelDate = 25569.0 + ((value.getTime() - (value.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
-                value = numfmt.format(cell.numFmt, excelDate);
-              } else if (typeof value === 'number') {
-                // 对于数字，直接使用numfmt格式化
-                value = numfmt.format(cell.numFmt, value);
-              }
-            } catch (error) {
-              // 如果格式化失败，保持原值
-              console.warn('格式化失败:', error);
-              if (value instanceof Date) {
-                // 降级到默认日期格式
-                const year = value.getFullYear();
-                const month = value.getMonth() + 1;
-                const day = value.getDate();
-                value = `${year}年${month}月${day}日`;
-              } else {
-                value = value !== null && value !== undefined ? value.toString() : '';
-              }
-            }
-          } else if (value instanceof Date) {
-            // 如果没有格式信息但是是日期，使用默认格式
-            const year = value.getFullYear();
-            const month = value.getMonth() + 1;
-            const day = value.getDate();
-            value = `${year}年${month}月${day}日`;
-          } else {
-            value = value !== null && value !== undefined ? value.toString() : '';
-          }
-
-          rowData[header] = value;
+          rowData[header] = getCellValue(cell);
         });
         data.push({
           ...rowData,
@@ -171,48 +184,7 @@ export default function GenDocx() {
 
           Object.entries(headers).forEach(([colNumber, header]) => {
             const cell = row.getCell(Number(colNumber));
-            let value = cell.value;
-            
-            if (value && typeof value === 'object' && value.result !== undefined) {
-              value = value.result;
-            }
-
-            // 使用numfmt库保持Excel中的原始格式
-            if (cell.numFmt && value !== null && value !== undefined) {
-              try {
-                // 对于日期类型，Excel内部存储为数字
-                if (value instanceof Date) {
-                  // 将日期转换为Excel数字格式
-                  const excelDate = 25569.0 + ((value.getTime() - (value.getTimezoneOffset() * 60 * 1000)) / (1000 * 60 * 60 * 24));
-                  value = numfmt.format(cell.numFmt, excelDate);
-                } else if (typeof value === 'number') {
-                  // 对于数字，直接使用numfmt格式化
-                  value = numfmt.format(cell.numFmt, value);
-                }
-              } catch (error) {
-                // 如果格式化失败，保持原值
-                console.warn('格式化失败:', error);
-                if (value instanceof Date) {
-                  // 降级到默认日期格式
-                  const year = value.getFullYear();
-                  const month = value.getMonth() + 1;
-                  const day = value.getDate();
-                  value = `${year}年${month}月${day}日`;
-                } else {
-                  value = value !== null && value !== undefined ? value.toString() : '';
-                }
-              }
-            } else if (value instanceof Date) {
-              // 如果没有格式信息但是是日期，使用默认格式
-              const year = value.getFullYear();
-              const month = value.getMonth() + 1;
-              const day = value.getDate();
-              value = `${year}年${month}月${day}日`;
-            } else {
-              value = value !== null && value !== undefined ? value.toString() : '';
-            }
-            
-            rowData[header] = value;
+            rowData[header] = getCellValue(cell);
           });
 
         //   console.log(`Processing row ${rowNumber}:`, rowData);
@@ -245,10 +217,10 @@ export default function GenDocx() {
 
           // 尝试从第一列获取文件名，如果没有则使用默认格式
           let fileName;
-          const firstColumnValue = row.getCell(1).value;
-          if (firstColumnValue && firstColumnValue.toString().trim()) {
+          const firstColumnValue = getCellValue(row.getCell(1));
+          if (firstColumnValue && firstColumnValue.trim()) {
             // 清理文件名中的非法字符
-            const cleanFileName = firstColumnValue.toString().trim()
+            const cleanFileName = firstColumnValue.trim()
               .replace(/[<>:"/\\|?*]/g, '_')  // 替换Windows非法字符
               .replace(/\s+/g, '_');         // 替换空格为下划线
             fileName = `${cleanFileName}.docx`;
