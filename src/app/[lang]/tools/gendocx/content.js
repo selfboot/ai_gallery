@@ -81,6 +81,7 @@ export default function GenDocx() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [uploadBoxResetKey, setUploadBoxResetKey] = useState(0);
+  const excelUploadRequestIdRef = useRef(0);
 
   const totalPages = Math.ceil(excelData.length / pageSize);
 
@@ -100,10 +101,17 @@ export default function GenDocx() {
   };
 
   const handleExcelUpload = async (file) => {
+    const requestId = excelUploadRequestIdRef.current + 1;
+    excelUploadRequestIdRef.current = requestId;
     setExcelFile(file);
     try {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(await file.arrayBuffer());
+
+      if (excelUploadRequestIdRef.current !== requestId) {
+        return;
+      }
+
       const worksheet = workbook.getWorksheet(1);
 
       if (!worksheet) {
@@ -117,6 +125,11 @@ export default function GenDocx() {
           headers.push(header.trim());
         }
       });
+
+      if (excelUploadRequestIdRef.current !== requestId) {
+        return;
+      }
+
       setExcelHeaders(headers);
 
       const data = [];
@@ -133,8 +146,17 @@ export default function GenDocx() {
           status: t('gendocx_status_pending'),
         });
       }
+
+      if (excelUploadRequestIdRef.current !== requestId) {
+        return;
+      }
+
       setExcelData(data);
     } catch (error) {
+      if (excelUploadRequestIdRef.current !== requestId) {
+        return;
+      }
+
       console.error('Excel reading error:', error);
       showError(`${t('gendocx_error_excel')} ${error.message}`);
     }
@@ -301,6 +323,8 @@ export default function GenDocx() {
   };
 
   const handleClearAll = () => {
+    excelUploadRequestIdRef.current += 1;
+
     Object.values(previewUrls).forEach((url) => {
       URL.revokeObjectURL(url);
     });
