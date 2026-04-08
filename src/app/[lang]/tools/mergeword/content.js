@@ -49,6 +49,10 @@ const stripSectionHeaderFooterReferences = (sectPr) => {
   return sectPr.replace(/<w:(?:headerReference|footerReference)\b[^>]*\/>/g, "");
 };
 
+const stripSectionPageNumberSettings = (sectPr) => {
+  return sectPr.replace(PAGE_NUMBER_NODE_REGEX, "");
+};
+
 const replaceDocPageCountFields = (xmlContent) => {
   return xmlContent
     .replace(/(<w:fldSimple\b[^>]*\bw:instr="[^"]*)NUMPAGES([^"]*")/g, "$1SECTIONPAGES$2")
@@ -115,7 +119,14 @@ const ensureSectionBreakType = (sectPr, type = "nextPage") => {
   return insertSectionChildBefore(sectPr, typeXml, TYPE_INSERT_MARKERS);
 };
 
-const normalizeDocumentSections = (bodyContent, { stripHeaderFooterReferences = false, resetFirstSectionPageNumber = false }) => {
+const normalizeDocumentSections = (
+  bodyContent,
+  {
+    stripHeaderFooterReferences = false,
+    stripPageNumberSettings = false,
+    resetFirstSectionPageNumber = false,
+  }
+) => {
   let sectionIndex = 0;
 
   return bodyContent.replace(SECTION_PROPS_REGEX, (sectPr) => {
@@ -123,6 +134,10 @@ const normalizeDocumentSections = (bodyContent, { stripHeaderFooterReferences = 
 
     if (stripHeaderFooterReferences) {
       normalizedSectPr = stripSectionHeaderFooterReferences(normalizedSectPr);
+    }
+
+    if (stripPageNumberSettings) {
+      normalizedSectPr = stripSectionPageNumberSettings(normalizedSectPr);
     }
 
     if (resetFirstSectionPageNumber && sectionIndex === 0) {
@@ -134,7 +149,15 @@ const normalizeDocumentSections = (bodyContent, { stripHeaderFooterReferences = 
   });
 };
 
-const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocument }) => {
+const preserveDocumentSections = (
+  bodyContent,
+  {
+    isFirstDocument,
+    isLastDocument,
+    stripPageNumberSettings = false,
+    resetFirstSectionPageNumber = false,
+  }
+) => {
   // Strip <w:sectPrChange> blocks first: they contain a nested <w:sectPr> which
   // causes lazy sectPr regexes to stop at the inner </w:sectPr> and leave
   // orphaned </w:sectPrChange></w:sectPr> in the output, corrupting the XML.
@@ -142,7 +165,8 @@ const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocum
 
   const normalizedBodyContent = normalizeDocumentSections(cleanedBodyContent, {
     stripHeaderFooterReferences: !isFirstDocument,
-    resetFirstSectionPageNumber: true,
+    stripPageNumberSettings,
+    resetFirstSectionPageNumber,
   });
 
   const trailingSectionMatch = normalizedBodyContent.match(TRAILING_SECTION_PROPS_REGEX);
@@ -159,6 +183,14 @@ const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocum
 
   const sectionBreakProps = ensureSectionBreakType(finalSectionProps, "nextPage");
   return `${mainContent}<w:p><w:pPr>${sectionBreakProps}</w:pPr></w:p>`;
+};
+
+const preserveDocumentPageNumbers = (bodyContent, { isFirstDocument, isLastDocument }) => {
+  return preserveDocumentSections(bodyContent, {
+    isFirstDocument,
+    isLastDocument,
+    resetFirstSectionPageNumber: true,
+  });
 };
 
 export default function WordMergerContent() {
@@ -323,8 +355,6 @@ export default function WordMergerContent() {
   };
 
   const mergeDocumentXML = (xmlContents, { preserveSourcePageNumbers = false } = {}) => {
-    // 这是一个简化的XML合并方法
-    // 提取每个文档的body内容并合并
     const mergedBodies = [];
 
     xmlContents.forEach((xml, index) => {
@@ -338,15 +368,11 @@ export default function WordMergerContent() {
             isLastDocument: index === xmlContents.length - 1,
           });
         } else {
-          // 移除最后的sectPr标签（页面设置），除了最后一个文档
-          if (index < xmlContents.length - 1) {
-            bodyContent = bodyContent.replace(/<w:sectPr[^>]*>.*?<\/w:sectPr>/s, "");
-          }
-
-          // 如果不是第一个文档，添加分页符
-          if (index > 0) {
-            bodyContent = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>' + bodyContent;
-          }
+          bodyContent = preserveDocumentSections(bodyContent, {
+            isFirstDocument: index === 0,
+            isLastDocument: index === xmlContents.length - 1,
+            stripPageNumberSettings: true,
+          });
         }
 
         mergedBodies.push(bodyContent);
