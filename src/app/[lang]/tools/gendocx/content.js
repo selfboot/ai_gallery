@@ -80,6 +80,7 @@ export default function GenDocx() {
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const [uploadBoxResetKey, setUploadBoxResetKey] = useState(0);
 
   const totalPages = Math.ceil(excelData.length / pageSize);
 
@@ -299,11 +300,30 @@ export default function GenDocx() {
     }
   };
 
+  const handleClearAll = () => {
+    Object.values(previewUrls).forEach((url) => {
+      URL.revokeObjectURL(url);
+    });
+
+    setExcelFile(null);
+    setWordTemplate(null);
+    setIsGenerating(false);
+    setIsZipReady(false);
+    zipRef.current = null;
+    setExcelHeaders([]);
+    setExcelData([]);
+    setPreviewUrls({});
+    setCurrentPage(1);
+    setPageSize(10);
+    setUploadBoxResetKey((prev) => prev + 1);
+  };
+
   return (
     <div className="w-full mx-auto mt-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
       <div className="w-full">
           <FileUploadBox
+            key={`word-${uploadBoxResetKey}`}
             accept=".docx"
             onChange={handleWordTemplateUpload}
             title={t('gendocx_uploadWord')}
@@ -313,6 +333,7 @@ export default function GenDocx() {
         </div>
         <div className="w-full">
           <FileUploadBox
+            key={`excel-${uploadBoxResetKey}`}
             accept=".xlsx,.xls"
             onChange={handleExcelUpload}
             title={t('gendocx_uploadExcel')}
@@ -331,6 +352,16 @@ export default function GenDocx() {
         >
           <span className="group-hover:translate-x-0.5 transition-transform">{t('more_templates')}</span>
         </Link>
+
+        <button
+          onClick={handleClearAll}
+          disabled={isGenerating || (!excelFile && !wordTemplate && excelData.length === 0 && !isZipReady)}
+          className="px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 
+            hover:text-red-600 hover:border-red-300 disabled:bg-gray-100 disabled:text-gray-400 
+            disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md w-full sm:w-auto"
+        >
+          {t('gendocx_clearAll')}
+        </button>
 
         <button
           onClick={handleGenerate}

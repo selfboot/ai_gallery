@@ -636,6 +636,7 @@
   "splitpdf_error_split_failed": "拆分失败，请检查参数后重试。",
   "gendocx_uploadExcel": "上传Excel文件",
   "gendocx_uploadWord": "上传Word模板",
+  "gendocx_clearAll": "清理所有",
   "gendocx_generate": "生成文档",
   "gendocx_generating": "生成中...",
   "gendocx_downloadAll": "下载全部",

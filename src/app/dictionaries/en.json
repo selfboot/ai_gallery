@@ -634,6 +634,7 @@
   "splitpdf_error_split_failed": "Split failed. Please check your settings and try again.",
   "gendocx_uploadExcel": "Upload Excel File",
   "gendocx_uploadWord": "Upload Word Template",
+  "gendocx_clearAll": "Clear All",
   "gendocx_generate": "Generate Documents",
   "gendocx_generating": "Generating...",
   "gendocx_downloadAll": "Download All",
