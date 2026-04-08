@@ -642,6 +642,7 @@
   "gendocx_status_pending": "Pending",
   "gendocx_status_failed": "Failed",
   "gendocx_status_generated": "Generated",
+  "gendocx_sheetSelect": "Select the worksheet to use",
   "gendocx_pageSize": "Items per page:",
   "gendocx_items": "items",
   "gendocx_showing": "Showing",

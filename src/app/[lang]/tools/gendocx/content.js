@@ -75,6 +75,8 @@ export default function GenDocx() {
   const zipRef = useRef(null);
   const [excelHeaders, setExcelHeaders] = useState([]);
   const [excelData, setExcelData] = useState([]);
+  const [excelSheetNames, setExcelSheetNames] = useState([]);
+  const [selectedSheetName, setSelectedSheetName] = useState('');
   const [previewUrls, setPreviewUrls] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -100,19 +102,26 @@ export default function GenDocx() {
     setIsModalOpen(true);
   };
 
-  const handleExcelUpload = async (file) => {
-    const requestId = excelUploadRequestIdRef.current + 1;
-    excelUploadRequestIdRef.current = requestId;
-    setExcelFile(file);
+  const clearGeneratedOutputs = () => {
+    Object.values(previewUrls).forEach((url) => {
+      URL.revokeObjectURL(url);
+    });
+
+    zipRef.current = null;
+    setIsZipReady(false);
+    setPreviewUrls({});
+  };
+
+  const parseExcelSheet = async ({ file, sheetName, requestId }) => {
     try {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(await file.arrayBuffer());
 
       if (excelUploadRequestIdRef.current !== requestId) {
-        return;
+        return null;
       }
 
-      const worksheet = workbook.getWorksheet(1);
+      const worksheet = workbook.getWorksheet(sheetName);
 
       if (!worksheet) {
         throw new Error(t('gendocx_error_worksheet'));
@@ -127,10 +136,8 @@ export default function GenDocx() {
       });
 
       if (excelUploadRequestIdRef.current !== requestId) {
-        return;
+        return null;
       }
-
-      setExcelHeaders(headers);
 
       const data = [];
       for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
@@ -148,10 +155,57 @@ export default function GenDocx() {
       }
 
       if (excelUploadRequestIdRef.current !== requestId) {
+        return null;
+      }
+
+      return { headers, data };
+    } catch (error) {
+      if (excelUploadRequestIdRef.current !== requestId) {
+        return null;
+      }
+
+      console.error('Excel reading error:', error);
+      showError(`${t('gendocx_error_excel')} ${error.message}`);
+      return null;
+    }
+  };
+
+  const handleExcelUpload = async (file) => {
+    const requestId = excelUploadRequestIdRef.current + 1;
+    excelUploadRequestIdRef.current = requestId;
+    setExcelFile(file);
+    clearGeneratedOutputs();
+    try {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await file.arrayBuffer());
+
+      if (excelUploadRequestIdRef.current !== requestId) {
         return;
       }
 
-      setExcelData(data);
+      const sheetNames = workbook.worksheets.map((sheet) => sheet.name);
+      const initialSheetName = sheetNames[0] || '';
+
+      if (!initialSheetName) {
+        throw new Error(t('gendocx_error_worksheet'));
+      }
+
+      setExcelSheetNames(sheetNames);
+      setSelectedSheetName(initialSheetName);
+
+      const parsedResult = await parseExcelSheet({
+        file,
+        sheetName: initialSheetName,
+        requestId,
+      });
+
+      if (!parsedResult || excelUploadRequestIdRef.current !== requestId) {
+        return;
+      }
+
+      setCurrentPage(1);
+      setExcelHeaders(parsedResult.headers);
+      setExcelData(parsedResult.data);
     } catch (error) {
       if (excelUploadRequestIdRef.current !== requestId) {
         return;
@@ -160,6 +214,31 @@ export default function GenDocx() {
       console.error('Excel reading error:', error);
       showError(`${t('gendocx_error_excel')} ${error.message}`);
     }
+  };
+
+  const handleSheetChange = async (sheetName) => {
+    if (!excelFile) {
+      return;
+    }
+
+    const requestId = excelUploadRequestIdRef.current + 1;
+    excelUploadRequestIdRef.current = requestId;
+    setSelectedSheetName(sheetName);
+    clearGeneratedOutputs();
+
+    const parsedResult = await parseExcelSheet({
+      file: excelFile,
+      sheetName,
+      requestId,
+    });
+
+    if (!parsedResult || excelUploadRequestIdRef.current !== requestId) {
+      return;
+    }
+
+    setCurrentPage(1);
+    setExcelHeaders(parsedResult.headers);
+    setExcelData(parsedResult.data);
   };
 
   const handleWordTemplateUpload = (file) => {
@@ -182,7 +261,7 @@ export default function GenDocx() {
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(await excelFile.arrayBuffer());
-      const worksheet = workbook.getWorksheet(1);
+      const worksheet = workbook.getWorksheet(selectedSheetName || 1);
 
       if (!worksheet) {
         throw new Error(t('gendocx_error_worksheet'));
@@ -324,19 +403,15 @@ export default function GenDocx() {
 
   const handleClearAll = () => {
     excelUploadRequestIdRef.current += 1;
-
-    Object.values(previewUrls).forEach((url) => {
-      URL.revokeObjectURL(url);
-    });
+    clearGeneratedOutputs();
 
     setExcelFile(null);
     setWordTemplate(null);
     setIsGenerating(false);
-    setIsZipReady(false);
-    zipRef.current = null;
     setExcelHeaders([]);
     setExcelData([]);
-    setPreviewUrls({});
+    setExcelSheetNames([]);
+    setSelectedSheetName('');
     setCurrentPage(1);
     setPageSize(10);
     setUploadBoxResetKey((prev) => prev + 1);
@@ -367,7 +442,32 @@ export default function GenDocx() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mb-6">
+      <div className="flex flex-col gap-3 mb-6 lg:flex-row lg:items-end lg:justify-between">
+        {excelSheetNames.length > 1 ? (
+          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm lg:min-w-[360px] lg:max-w-[520px]">
+            <div className="lg:flex lg:items-center lg:gap-3">
+            <label htmlFor="gendocx-sheet-select" className="block text-sm font-medium text-gray-700 mb-2 lg:mb-0 whitespace-nowrap">
+              {t('gendocx_sheetSelect')}
+            </label>
+            <select
+              id="gendocx-sheet-select"
+              value={selectedSheetName}
+              onChange={(e) => handleSheetChange(e.target.value)}
+              className="w-full lg:flex-1 border border-gray-300 rounded-md text-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {excelSheetNames.map((sheetName) => (
+                <option key={sheetName} value={sheetName}>
+                  {sheetName}
+                </option>
+              ))}
+            </select>
+            </div>
+          </div>
+        ) : (
+          <div className="hidden lg:block" />
+        )}
+
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
         <Link 
           href="./gendocx/temp" 
           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-gray-700 bg-white border 
@@ -406,6 +506,7 @@ export default function GenDocx() {
         >
           {t('gendocx_downloadAll')}
         </button>
+        </div>
       </div>
 
       <div className="hidden mt-4 md:relative md:block w-full bg-gray-100">

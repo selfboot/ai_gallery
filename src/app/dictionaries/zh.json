@@ -644,6 +644,7 @@
   "gendocx_status_pending": "待生成",
   "gendocx_status_failed": "失败",
   "gendocx_status_generated": "已生成",
+  "gendocx_sheetSelect": "选择要使用的工作表",
   "gendocx_pageSize": "每页显示：",
   "gendocx_items": "条",
   "gendocx_showing": "显示第",
