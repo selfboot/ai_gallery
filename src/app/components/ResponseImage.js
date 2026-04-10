@@ -1,13 +1,19 @@
 import React, { useMemo } from 'react';
 
 const getImageUrl = (url, size) => {
-  const baseUrl = url.split('/webp')[0]; // 移除任何现有的 /webp 后缀
+  const baseUrl = url.split('/webp')[0];
   return `${baseUrl}/webp${size}`;
 };
 
+const isLocalAsset = (url) => url.startsWith('/');
+const isSvgSource = (url) => url.toLowerCase().includes('.svg');
+
 const ResponsiveWebPImage = React.memo(({ src, alt, isGif = false }) => {
   const imageUrls = useMemo(() => {
-    if (isGif) return { src };
+    if (isGif || isLocalAsset(src) || isSvgSource(src)) {
+      return { src };
+    }
+
     return {
       src: getImageUrl(src, 1600),
       srcSet: `
