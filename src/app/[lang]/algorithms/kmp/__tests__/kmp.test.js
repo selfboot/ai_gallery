@@ -43,12 +43,12 @@ describe("KMP logic helpers", () => {
     const example = getRandomKmpExample(() => 0.74);
 
     expect(example).toEqual({
-      text: "mnmmmmnmmmnn",
+      text: "mnmmmmmnmmmnn",
       pattern: "mmmn",
     });
     expect(example.pattern).not.toBe("");
     expect(example.text.length).toBeGreaterThanOrEqual(example.pattern.length);
-    expect(getMatchPositions(example.text, example.pattern)).toEqual([6]);
+    expect(getMatchPositions(example.text, example.pattern)).toEqual([4, 8]);
   });
 
   test("handles empty pattern without matches", () => {
