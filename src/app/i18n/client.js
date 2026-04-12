@@ -1,11 +1,15 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const I18nContext = createContext();
 
 export function I18nProvider({ children, initialDictionary }) {
   const [dictionary, setDictionary] = useState(initialDictionary);
+
+  useEffect(() => {
+    setDictionary(initialDictionary);
+  }, [initialDictionary]);
 
   const t = (key, params = {}) => {
     let translation = dictionary[key] || key;

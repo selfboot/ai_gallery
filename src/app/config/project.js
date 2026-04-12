@@ -185,6 +185,13 @@ const Projects = {
       link: "/algorithms/jumphash/",
     },
     {
+      id: "kmp",
+      title: "kmp_title",
+      description: "kmp_description",
+      image: "/images/image.png",
+      link: "/algorithms/kmp/",
+    },
+    {
       id: "skiplist",
       title: "skiplist_title",
       description: "skiplist_description",
