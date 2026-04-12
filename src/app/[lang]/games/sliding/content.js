@@ -5,6 +5,7 @@ import { CustomListbox } from '@/app/components/ListBox';
 import { useI18n } from '@/app/i18n/client';
 import Modal from '@/app/components/Modal';
 import { SideAdComponent } from "@/app/components/AdComponent";
+import { isSlidingPuzzleSolvable } from './solvability';
 
 // Priority Queue implementation
 class PriorityQueue {
@@ -190,36 +191,6 @@ const SlidingPuzzle = () => {
     return null;
   };
 
-  // Check if the puzzle is solvable
-  const isSolvable = (board) => {
-    const flatBoard = board.flat();
-    let inversions = 0;
-    let emptyRow = 0;
-
-    // Calculate the inverse number数
-    for (let i = 0; i < flatBoard.length - 1; i++) {
-      if (flatBoard[i] === 0) {
-        emptyRow = Math.floor(i / size);
-        continue;
-      }
-      for (let j = i + 1; j < flatBoard.length; j++) {
-        if (flatBoard[j] === 0) continue;
-        if (flatBoard[i] > flatBoard[j]) {
-          inversions++;
-        }
-      }
-    }
-
-    if (size % 2 === 1) {
-      // For odd-sized chessboards, the board is solvable if the inversion number is even.
-      return inversions % 2 === 0;
-    } else {
-      // For even-sized chessboards, the board is solvable if the inversion number plus the empty row number (from the bottom) is odd.
-      const emptyRowFromBottom = size - emptyRow;
-      return (inversions + emptyRowFromBottom) % 2 === 1;
-    }
-  };
-
   const getMovesByDifficulty = (difficulty) => {
     switch (difficulty) {
       case t('difficulty_easy'):
@@ -344,7 +315,7 @@ const SlidingPuzzle = () => {
   // Handle edit mode
   const handleEditMode = () => {
     if (isEditing && isAllCellsFilled()) {
-      if (!isSolvable(board)) {
+      if (!isSlidingPuzzleSolvable(board, size)) {
         const message = t('unsolvable_puzzle_message', {
           size: `${size}x${size}`,
           rule: size % 2 === 1 
