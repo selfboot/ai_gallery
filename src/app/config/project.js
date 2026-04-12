@@ -188,7 +188,7 @@ const Projects = {
       id: "kmp",
       title: "kmp_title",
       description: "kmp_description",
-      image: "/images/image.png",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260412_ai_gallery_kmp_cover.webp",
       link: "/algorithms/kmp/",
     },
     {
