@@ -1,7 +1,7 @@
 import React from "react";
 import { dynamicChartConfigs } from '../../dynamicChartConfigs';
 import CommonComments from "@/app/components/GiscusComments";
-import DynamicChart from './content';
+import DynamicChart from './ClientContent';
 import path from 'path';
 import fs from 'fs/promises';
 import { getDictionary } from "@/app/dictionaries";

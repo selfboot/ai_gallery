@@ -1,4 +1,4 @@
-import PdfMergerContent from "./content";
+import PdfMergerContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
