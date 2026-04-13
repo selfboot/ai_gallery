@@ -3,7 +3,25 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  productionBrowserSourceMaps: false,
   transpilePackages: ['lodash'],
+  serverExternalPackages: [
+    'echarts',
+    'echarts-for-react',
+    'pdfjs-dist',
+    'pdf-lib',
+    'three',
+    '@react-three/fiber',
+    '@react-three/drei',
+    'exceljs',
+    'html2canvas',
+    'xlsx',
+    'xlsx-js-style',
+    'reactflow',
+    'gif.js',
+    'docxtemplater',
+    'pizzip',
+  ],
   turbopack: {
     resolveAlias: {
       '@': path.resolve(__dirname, 'src')
