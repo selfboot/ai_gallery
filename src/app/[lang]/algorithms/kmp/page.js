@@ -3,7 +3,7 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
-import KMPVisualization from "./content";
+import KMPVisualization from "./ClientContent";
 
 export async function generateMetadata(props) {
   const params = await props.params;

@@ -1,5 +1,5 @@
 import { getDictionary } from "@/app/dictionaries";
-import Minesweeper from "./content";
+import Minesweeper from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
