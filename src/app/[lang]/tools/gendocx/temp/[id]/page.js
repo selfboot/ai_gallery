@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
-import TemplateDocx from "./content";
+import TemplateDocx from "./ClientContent";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 
 export async function generateMetadata(props) {
