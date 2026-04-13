@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node scripts/generate-sitemap-rss.mjs && next dev --webpack",
-    "build": "node scripts/generate-sitemap-rss.mjs && next build",
+    "build": "node scripts/generate-sitemap-rss.mjs && next build && find .next/server -name '*.map' -delete",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --coverage",
