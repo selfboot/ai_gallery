@@ -1,5 +1,5 @@
 import { getDictionary } from "@/app/dictionaries";
-import TemplateList from "./content";
+import TemplateList from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 

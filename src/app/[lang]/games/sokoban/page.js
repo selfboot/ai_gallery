@@ -1,5 +1,5 @@
 import { getDictionary } from "@/app/dictionaries";
-import SokobanGame from "./content";
+import SokobanGame from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";

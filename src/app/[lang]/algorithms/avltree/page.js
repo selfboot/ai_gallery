@@ -1,5 +1,5 @@
 import { getDictionary } from "@/app/dictionaries";
-import AVLTreeVisualization from "./content";
+import AVLTreeVisualization from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";

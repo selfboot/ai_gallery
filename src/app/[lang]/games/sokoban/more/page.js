@@ -2,7 +2,7 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
-import SokobanGallery from "./content";
+import SokobanGallery from "./ClientContent";
 import levelsData from "../levels.json";
 import extraLevelsData from "./more.json";
 import { ELEMENTS, calculateMapId } from "../gameLogic";
