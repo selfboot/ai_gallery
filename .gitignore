@@ -33,3 +33,7 @@ yarn-error.log*
 page-metadata.json
 .next/
 out/
+
+# Cloudflare
+.open-next/
+.wrangler/
