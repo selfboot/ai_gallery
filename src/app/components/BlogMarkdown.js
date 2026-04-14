@@ -5,10 +5,8 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypeSlug from "rehype-slug";
 import { visit } from "unist-util-visit";
-import fs from 'fs/promises';
-import path from 'path';
 import matter from "gray-matter";
-import { SideAdComponent } from './AdComponent';
+import { markdownFiles } from "@/generated/markdown-content";
 
 // 自定义插件来处理图片
 function rehypeImageSize() {
@@ -35,9 +33,18 @@ export async function markdownToHtml(markdown) {
 }
 
 async function getMarkdownContent(lang, directoryPath) {
-  const filePath = path.join(directoryPath, `${lang}.md`);
+  // directoryPath is like "src/app/[lang]/algorithms/bloomfilter"
+  // We need to find the key "[lang]/algorithms/bloomfilter/zh.md" in markdownFiles
+  const stripped = directoryPath.replace(/^src\/app\//, "");
+  const key = `${stripped}/${lang}.md`;
+
+  const fileContents = markdownFiles[key];
+  if (!fileContents) {
+    console.error(`Markdown not found for key: ${key}`);
+    return null;
+  }
+
   try {
-    const fileContents = await fs.readFile(filePath, 'utf8');
     const { data, content } = matter(fileContents);
     const contentHtml = await markdownToHtml(content);
     return {
@@ -45,7 +52,7 @@ async function getMarkdownContent(lang, directoryPath) {
       ...data,
     };
   } catch (error) {
-    console.error(`Error reading file ${filePath}:`, error);
+    console.error(`Error processing markdown ${key}:`, error);
     return null;
   }
 }

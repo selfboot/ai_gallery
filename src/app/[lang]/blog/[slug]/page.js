@@ -1,10 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
 import matter from "gray-matter";
 import { markdownToHtml } from "@/app/components/BlogMarkdown";
 import TableOfContents from "@/app/components/TableOfContents";
 import CommonComments from "@/app/components/GiscusComments";
 import { SideAdComponent } from "@/app/components/AdComponent";
+import { postsFiles, postSlugs } from "@/generated/posts-content";
 
 export default async function BlogPostPage(props) {
   const params = await props.params;
@@ -115,26 +114,21 @@ export async function generateMetadata(props) {
 }
 
 export async function generateStaticParams() {
-  const posts = await getPostSlugs();
-  return posts.flatMap((slug) => [
+  return postSlugs.flatMap((slug) => [
     { lang: "en", slug },
     { lang: "zh", slug },
   ]);
 }
 
-async function getPostSlugs() {
-  const postsDirectory = path.join(process.cwd(), "src", "posts");
-  const directories = await fs.readdir(postsDirectory);
-  return directories.filter(async (dir) => {
-    const stat = await fs.stat(path.join(postsDirectory, dir));
-    return stat.isDirectory();
-  });
-}
-
 export async function getPostContent(slug, lang) {
-  const fullPath = path.join(process.cwd(), "src", "posts", slug, `${lang}.md`);
+  const key = `${slug}/${lang}.md`;
+  const fileContents = postsFiles[key];
+  if (!fileContents) {
+    console.error(`Post not found: ${key}`);
+    return null;
+  }
+
   try {
-    const fileContents = await fs.readFile(fullPath, "utf8");
     const { data, content } = matter(fileContents);
     const contentHtml = await markdownToHtml(content);
     return {
@@ -143,7 +137,7 @@ export async function getPostContent(slug, lang) {
       ...data,
     };
   } catch (error) {
-    console.error(`Error reading file ${fullPath}:`, error);
+    console.error(`Error processing post ${key}:`, error);
     return null;
   }
 }
