@@ -1,5 +1,13 @@
+try {
+  const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare");
+  initOpenNextCloudflareForDev();
+} catch {
+  // @opennextjs/cloudflare is only needed for Cloudflare dev/deploy
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   transpilePackages: ['lodash'],
