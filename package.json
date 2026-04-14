@@ -13,7 +13,7 @@
     "lint": "next lint",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "build:worker": "opennextjs-cloudflare build && rsync -am --include='*/' --include='*.md' --exclude='*' src/app/ .open-next/server-functions/default/src/app/",
+    "build:worker": "opennextjs-cloudflare build && cd src/app && find . -name '*.md' | tar cf - -T - | (cd ../../.open-next/server-functions/default/src/app && tar xf -)",
     "preview:worker": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
