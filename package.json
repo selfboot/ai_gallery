@@ -7,8 +7,8 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "node scripts/generate-sitemap-rss.mjs && next dev --webpack",
-    "build": "node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete && find .next/server/app -type d -name '*.segments' -exec rm -rf {} + 2>/dev/null; true",
+    "dev": "node scripts/generate-sitemap-rss.mjs && next dev",
+    "build": "node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --coverage",
@@ -44,7 +44,7 @@
     "html2canvas": "^1.4.1",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.416.0",
-    "next": "16.2.1",
+    "next": "15.3.2",
     "next-themes": "^0.2.1",
     "node-fetch": "^3.3.2",
     "numfmt": "^2.5.2",

@@ -1,15 +1,8 @@
-const path = require('path');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   transpilePackages: ['lodash'],
-  turbopack: {
-    resolveAlias: {
-      '@': path.resolve(__dirname, 'src')
-    }
-  },
   async headers() {
     return [
       {
