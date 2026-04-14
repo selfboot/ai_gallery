@@ -37,3 +37,6 @@ out/
 # Cloudflare
 .open-next/
 .wrangler/
+
+# Generated
+src/generated/

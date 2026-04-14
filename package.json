@@ -7,13 +7,13 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "node scripts/generate-sitemap-rss.mjs && next dev",
-    "build": "node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
+    "dev": "node scripts/generate-md-modules.js && node scripts/generate-sitemap-rss.mjs && next dev",
+    "build": "node scripts/generate-md-modules.js && node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "build:worker": "opennextjs-cloudflare build && cd src/app && find . -name '*.md' | tar cf - -T - | (cd ../../.open-next/server-functions/default/src/app && tar xf -)",
+    "build:worker": "opennextjs-cloudflare build",
     "preview:worker": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
