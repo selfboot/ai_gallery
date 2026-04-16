@@ -710,6 +710,7 @@
   "gendocx_generate": "Generate Documents",
   "gendocx_generating": "Generating...",
   "gendocx_downloadAll": "Download All",
+  "gendocx_downloadMerged": "Merge into One Word",
   "gendocx_download": "Download",
   "gendocx_status_pending": "Pending",
   "gendocx_status_failed": "Failed",

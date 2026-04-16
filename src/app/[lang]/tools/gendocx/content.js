@@ -12,6 +12,753 @@ import Link from 'next/link';
 import { SideAdComponent } from "@/app/components/AdComponent";
 import numfmt from 'numfmt';
 
+const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const BODY_REGEX = /<w:body[^>]*>([\s\S]*?)<\/w:body>/;
+const SECTION_PROPS_REGEX = /<w:sectPr\b[\s\S]*?<\/w:sectPr>/g;
+const TRAILING_SECTION_PROPS_REGEX = /([\s\S]*)(<w:sectPr\b[\s\S]*?<\/w:sectPr>)\s*$/;
+const TYPE_NODE_REGEX = /<w:type\b[^>]*(?:\/>|>[\s\S]*?<\/w:type>)/;
+const PAGE_NUMBER_NODE_REGEX = /<w:pgNumType\b[^>]*(?:\/>|>[\s\S]*?<\/w:pgNumType>)/;
+const RELATIONSHIP_REGEX = /<Relationship\b[^>]*\/>/g;
+const RELATIONSHIP_ID_REGEX = /\b(?:r:id|r:embed|r:link)="([^"]+)"/g;
+const REL_ATTR_REGEX = /\s([A-Za-z_:][\w:.-]*)="([^"]*)"/g;
+const CONTENT_TYPE_OVERRIDE_REGEX = /<Override\b[^>]*\/>/g;
+const NUMBERING_REL_TYPE = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering';
+const NUMBERING_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml';
+const TYPE_INSERT_MARKERS = [
+  '<w:pgSz',
+  '<w:pgMar',
+  '<w:paperSrc',
+  '<w:pgBorders',
+  '<w:lnNumType',
+  '<w:pgNumType',
+  '<w:cols',
+  '<w:formProt',
+  '<w:vAlign',
+  '<w:noEndnote',
+  '<w:titlePg',
+  '<w:textFlow',
+  '<w:bidi',
+  '<w:rtlGutter',
+  '<w:docGrid',
+  '<w:sectPrChange',
+  '</w:sectPr>',
+];
+const SPECIAL_REFERENCE_PARTS = [
+  {
+    relType: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes',
+    defaultPath: 'word/footnotes.xml',
+    contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml',
+    rootTag: 'w:footnotes',
+    itemTag: 'w:footnote',
+    bodyReferenceTags: ['w:footnoteReference'],
+    isReservedId: (id) => Number(id) < 1,
+  },
+  {
+    relType: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes',
+    defaultPath: 'word/endnotes.xml',
+    contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml',
+    rootTag: 'w:endnotes',
+    itemTag: 'w:endnote',
+    bodyReferenceTags: ['w:endnoteReference'],
+    isReservedId: (id) => Number(id) < 1,
+  },
+  {
+    relType: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments',
+    defaultPath: 'word/comments.xml',
+    contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml',
+    rootTag: 'w:comments',
+    itemTag: 'w:comment',
+    bodyReferenceTags: ['w:commentRangeStart', 'w:commentRangeEnd', 'w:commentReference'],
+    isReservedId: () => false,
+  },
+];
+
+const getXmlAttrs = (xml) => {
+  const attrs = {};
+  let match;
+
+  REL_ATTR_REGEX.lastIndex = 0;
+  while ((match = REL_ATTR_REGEX.exec(xml)) !== null) {
+    attrs[match[1]] = match[2];
+  }
+
+  return attrs;
+};
+
+const getRelationshipRelsPath = (partPath) => {
+  const lastSlashIndex = partPath.lastIndexOf('/');
+  const directory = lastSlashIndex === -1 ? '' : partPath.slice(0, lastSlashIndex + 1);
+  const fileName = lastSlashIndex === -1 ? partPath : partPath.slice(lastSlashIndex + 1);
+  return `${directory}_rels/${fileName}.rels`;
+};
+
+const getDirectory = (path) => {
+  const lastSlashIndex = path.lastIndexOf('/');
+  return lastSlashIndex === -1 ? '' : path.slice(0, lastSlashIndex + 1);
+};
+
+const normalizeZipPath = (path) => {
+  const parts = [];
+
+  path.split('/').forEach((part) => {
+    if (!part || part === '.') {
+      return;
+    }
+
+    if (part === '..') {
+      parts.pop();
+      return;
+    }
+
+    parts.push(part);
+  });
+
+  return parts.join('/');
+};
+
+const resolveRelationshipTargetPath = (sourcePartPath, target) => {
+  if (target.startsWith('/')) {
+    return normalizeZipPath(target.slice(1));
+  }
+
+  return normalizeZipPath(`${getDirectory(sourcePartPath)}${target}`);
+};
+
+const getRelativeTargetPath = (fromPartPath, toPartPath) => {
+  const fromParts = getDirectory(fromPartPath).split('/').filter(Boolean);
+  const toParts = toPartPath.split('/').filter(Boolean);
+
+  while (fromParts.length > 0 && toParts.length > 0 && fromParts[0] === toParts[0]) {
+    fromParts.shift();
+    toParts.shift();
+  }
+
+  return `${fromParts.map(() => '..').join('/')}${fromParts.length > 0 ? '/' : ''}${toParts.join('/')}`;
+};
+
+const getUniqueZipPath = (zip, preferredPath) => {
+  if (!zip.files[preferredPath]) {
+    return preferredPath;
+  }
+
+  const extensionIndex = preferredPath.lastIndexOf('.');
+  const baseName = extensionIndex === -1 ? preferredPath : preferredPath.slice(0, extensionIndex);
+  const extension = extensionIndex === -1 ? '' : preferredPath.slice(extensionIndex);
+  let index = 1;
+  let nextPath = `${baseName}_${index}${extension}`;
+
+  while (zip.files[nextPath]) {
+    index += 1;
+    nextPath = `${baseName}_${index}${extension}`;
+  }
+
+  return nextPath;
+};
+
+const getNextNumberedPartPath = (zip, prefix, extension) => {
+  let maxNumber = 0;
+  const regex = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\d+)\\.${extension}$`);
+
+  Object.keys(zip.files).forEach((fileName) => {
+    const match = fileName.match(regex);
+    if (match) {
+      maxNumber = Math.max(maxNumber, Number(match[1]));
+    }
+  });
+
+  return `${prefix}${maxNumber + 1}.${extension}`;
+};
+
+const getPreferredPartPath = (targetZip, sourcePartPath) => {
+  const fileName = sourcePartPath.split('/').pop() || 'part.xml';
+
+  if (/^word\/header\d+\.xml$/.test(sourcePartPath)) {
+    return getNextNumberedPartPath(targetZip, 'word/header', 'xml');
+  }
+
+  if (/^word\/footer\d+\.xml$/.test(sourcePartPath)) {
+    return getNextNumberedPartPath(targetZip, 'word/footer', 'xml');
+  }
+
+  if (sourcePartPath.startsWith('word/media/')) {
+    const extension = fileName.includes('.') ? fileName.split('.').pop() : 'bin';
+    return getNextNumberedPartPath(targetZip, 'word/media/image', extension);
+  }
+
+  return getUniqueZipPath(targetZip, sourcePartPath);
+};
+
+const parseRelationships = (relsXml = '') => {
+  const relationships = [];
+  let match;
+
+  RELATIONSHIP_REGEX.lastIndex = 0;
+  while ((match = RELATIONSHIP_REGEX.exec(relsXml)) !== null) {
+    relationships.push(getXmlAttrs(match[0]));
+  }
+
+  return relationships;
+};
+
+const serializeRelationship = ({ Id, Type, Target, TargetMode }) => {
+  const targetModeAttr = TargetMode ? ` TargetMode="${TargetMode}"` : '';
+  return `<Relationship Id="${Id}" Type="${Type}" Target="${Target}"${targetModeAttr}/>`;
+};
+
+const serializeRelationships = (relationships) => (
+  `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+  `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+  `${relationships.map(serializeRelationship).join('')}` +
+  `</Relationships>`
+);
+
+const getContentTypeOverrides = (zip) => {
+  const contentTypesXml = zip.files['[Content_Types].xml']?.asText() || '';
+  const overrides = new Map();
+  let match;
+
+  CONTENT_TYPE_OVERRIDE_REGEX.lastIndex = 0;
+  while ((match = CONTENT_TYPE_OVERRIDE_REGEX.exec(contentTypesXml)) !== null) {
+    const attrs = getXmlAttrs(match[0]);
+    if (attrs.PartName && attrs.ContentType) {
+      overrides.set(attrs.PartName.replace(/^\//, ''), attrs.ContentType);
+    }
+  }
+
+  return overrides;
+};
+
+const ensureContentTypeOverride = (zip, partPath, contentType) => {
+  if (!contentType) {
+    return;
+  }
+
+  const contentTypesFile = zip.files['[Content_Types].xml'];
+  if (!contentTypesFile) {
+    return;
+  }
+
+  const partName = `/${partPath}`;
+  const contentTypesXml = contentTypesFile.asText();
+  if (contentTypesXml.includes(`PartName="${partName}"`)) {
+    return;
+  }
+
+  zip.file(
+    '[Content_Types].xml',
+    contentTypesXml.replace('</Types>', `<Override PartName="${partName}" ContentType="${contentType}"/></Types>`)
+  );
+};
+
+const getNextRelationshipId = (relationships) => {
+  const maxId = relationships.reduce((max, relationship) => {
+    const match = relationship.Id?.match(/^rId(\d+)$/);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+
+  return `rId${maxId + 1}`;
+};
+
+const createRelationshipManager = (targetZip, relsPath = 'word/_rels/document.xml.rels') => {
+  const relationships = parseRelationships(targetZip.files[relsPath]?.asText());
+
+  return {
+    add(relationship) {
+      const nextRelationship = {
+        ...relationship,
+        Id: getNextRelationshipId(relationships),
+      };
+      relationships.push(nextRelationship);
+      targetZip.file(relsPath, serializeRelationships(relationships));
+      return nextRelationship.Id;
+    },
+    findByType(type) {
+      return relationships.find((relationship) => relationship.Type === type);
+    },
+  };
+};
+
+const clonePartRelationships = (sourceZip, targetZip, sourcePartPath, targetPartPath, sourceContentTypeOverrides) => {
+  const sourceRelsPath = getRelationshipRelsPath(sourcePartPath);
+  const sourceRelsFile = sourceZip.files[sourceRelsPath];
+
+  if (!sourceRelsFile) {
+    return;
+  }
+
+  const targetRelationships = parseRelationships(sourceRelsFile.asText()).map((relationship) => {
+    if (relationship.TargetMode === 'External') {
+      return relationship;
+    }
+
+    const sourceRelatedPartPath = resolveRelationshipTargetPath(sourcePartPath, relationship.Target);
+    const targetRelatedPartPath = cloneRelatedPart(
+      sourceZip,
+      targetZip,
+      sourceRelatedPartPath,
+      sourceContentTypeOverrides
+    );
+
+    return {
+      ...relationship,
+      Target: getRelativeTargetPath(targetPartPath, targetRelatedPartPath),
+    };
+  });
+
+  targetZip.file(getRelationshipRelsPath(targetPartPath), serializeRelationships(targetRelationships));
+};
+
+const cloneRelatedPart = (sourceZip, targetZip, sourcePartPath, sourceContentTypeOverrides) => {
+  const sourceFile = sourceZip.files[sourcePartPath];
+  if (!sourceFile || sourceFile.dir) {
+    throw new Error(`Cannot find related docx part: ${sourcePartPath}`);
+  }
+
+  const targetPartPath = getPreferredPartPath(targetZip, sourcePartPath);
+  targetZip.file(targetPartPath, sourceFile.asArrayBuffer());
+  ensureContentTypeOverride(targetZip, targetPartPath, sourceContentTypeOverrides.get(sourcePartPath));
+  clonePartRelationships(sourceZip, targetZip, sourcePartPath, targetPartPath, sourceContentTypeOverrides);
+
+  return targetPartPath;
+};
+
+const rebasePartRelationships = (
+  sourceZip,
+  targetZip,
+  partContent,
+  sourcePartPath,
+  targetPartPath,
+  targetRelationshipManager,
+  sourceContentTypeOverrides
+) => {
+  const sourceRelationships = parseRelationships(sourceZip.files[getRelationshipRelsPath(sourcePartPath)]?.asText());
+  const sourceRelationshipMap = new Map(sourceRelationships.map((relationship) => [relationship.Id, relationship]));
+  const relationshipIdMap = new Map();
+
+  return partContent.replace(RELATIONSHIP_ID_REGEX, (fullMatch, relationshipId) => {
+    if (!relationshipIdMap.has(relationshipId)) {
+      const relationship = sourceRelationshipMap.get(relationshipId);
+      if (!relationship) {
+        return fullMatch;
+      }
+
+      if (relationship.TargetMode === 'External') {
+        relationshipIdMap.set(relationshipId, targetRelationshipManager.add(relationship));
+      } else {
+        const sourceRelatedPartPath = resolveRelationshipTargetPath(sourcePartPath, relationship.Target);
+        const targetRelatedPartPath = cloneRelatedPart(sourceZip, targetZip, sourceRelatedPartPath, sourceContentTypeOverrides);
+        relationshipIdMap.set(
+          relationshipId,
+          targetRelationshipManager.add({
+            ...relationship,
+            Target: getRelativeTargetPath(targetPartPath, targetRelatedPartPath),
+          })
+        );
+      }
+    }
+
+    return fullMatch.replace(`"${relationshipId}"`, `"${relationshipIdMap.get(relationshipId)}"`);
+  });
+};
+
+const rebaseReferencedRelationships = (sourceZip, targetZip, bodyContent, documentRelationshipManager) => {
+  return rebasePartRelationships(
+    sourceZip,
+    targetZip,
+    bodyContent,
+    'word/document.xml',
+    'word/document.xml',
+    documentRelationshipManager,
+    getContentTypeOverrides(sourceZip)
+  );
+};
+
+const getRelationshipPartPath = (relationship) => {
+  return relationship && relationship.TargetMode !== 'External'
+    ? resolveRelationshipTargetPath('word/document.xml', relationship.Target)
+    : null;
+};
+
+const getPartItems = (xml, itemTag) => {
+  const regex = new RegExp(`<${itemTag}\\b[\\s\\S]*?<\\/${itemTag}>`, 'g');
+  return xml.match(regex) || [];
+};
+
+const getPartItemId = (itemXml) => {
+  return itemXml.match(/\bw:id="([^"]+)"/)?.[1] || null;
+};
+
+const replacePartItemId = (itemXml, nextId) => {
+  return itemXml.replace(/\bw:id="[^"]+"/, `w:id="${nextId}"`);
+};
+
+const getMaxPartItemId = (xml, itemTag) => {
+  return getPartItems(xml, itemTag).reduce((maxId, itemXml) => {
+    const id = getPartItemId(itemXml);
+    const numericId = Number(id);
+    return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
+  }, 0);
+};
+
+const appendPartItems = (xml, rootTag, items) => {
+  if (items.length === 0) {
+    return xml;
+  }
+
+  return xml.replace(`</${rootTag}>`, `${items.join('')}</${rootTag}>`);
+};
+
+const rebaseBodySpecialReferenceIds = (bodyContent, tagNames, idMap) => {
+  if (idMap.size === 0) {
+    return bodyContent;
+  }
+
+  const tagAlternation = tagNames.map((tagName) => tagName.replace(':', '\\:')).join('|');
+  const referenceRegex = new RegExp(`(<(?:${tagAlternation})\\b[^>]*\\bw:id=")([^"]+)(")`, 'g');
+
+  return bodyContent.replace(referenceRegex, (fullMatch, prefix, oldId, suffix) => {
+    return idMap.has(oldId) ? `${prefix}${idMap.get(oldId)}${suffix}` : fullMatch;
+  });
+};
+
+const getNumberingItemId = (itemXml, attrName) => {
+  return itemXml.match(new RegExp(`\\b${attrName}="([^"]+)"`))?.[1] || null;
+};
+
+const replaceNumberingItemId = (itemXml, attrName, nextId) => {
+  return itemXml.replace(new RegExp(`\\b${attrName}="[^"]+"`), `${attrName}="${nextId}"`);
+};
+
+const getNumberingItemsById = (numberingXml, itemTag, attrName) => {
+  return new Map(
+    getPartItems(numberingXml, itemTag)
+      .map((itemXml) => [getNumberingItemId(itemXml, attrName), itemXml])
+      .filter(([id]) => id !== null)
+  );
+};
+
+const getMaxNumberingId = (numberingXml, itemTag, attrName) => {
+  return getPartItems(numberingXml, itemTag).reduce((maxId, itemXml) => {
+    const id = getNumberingItemId(itemXml, attrName);
+    const numericId = Number(id);
+    return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
+  }, 0);
+};
+
+const getReferencedNumberingIds = (xml) => {
+  const referencedIds = new Set();
+  const regex = /<w:numId\b[^>]*\bw:val="([^"]+)"/g;
+  let match;
+
+  while ((match = regex.exec(xml)) !== null) {
+    referencedIds.add(match[1]);
+  }
+
+  return referencedIds;
+};
+
+const rebaseNumberingIdsInContent = (xml, numberingIdMap) => {
+  if (!numberingIdMap || numberingIdMap.size === 0) {
+    return xml;
+  }
+
+  return xml.replace(/(<w:numId\b[^>]*\bw:val=")([^"]+)(")/g, (fullMatch, prefix, oldId, suffix) => {
+    return numberingIdMap.has(oldId) ? `${prefix}${numberingIdMap.get(oldId)}${suffix}` : fullMatch;
+  });
+};
+
+const rebaseNumberingDefinitions = (sourceZip, targetZip, bodyContent, documentRelationshipManager) => {
+  const sourceDocumentRelationships = parseRelationships(sourceZip.files['word/_rels/document.xml.rels']?.asText());
+  const sourceRelationship = sourceDocumentRelationships.find((relationship) => relationship.Type === NUMBERING_REL_TYPE);
+  const sourceNumberingPath = getRelationshipPartPath(sourceRelationship);
+  const sourceNumberingFile = sourceNumberingPath ? sourceZip.files[sourceNumberingPath] : null;
+
+  if (!sourceNumberingFile || sourceNumberingFile.dir) {
+    return { bodyContent, numberingIdMap: new Map() };
+  }
+
+  const sourceContentTypeOverrides = getContentTypeOverrides(sourceZip);
+  const targetRelationship = documentRelationshipManager.findByType(NUMBERING_REL_TYPE);
+  const targetNumberingPath = getRelationshipPartPath(targetRelationship);
+  const targetNumberingFile = targetNumberingPath ? targetZip.files[targetNumberingPath] : null;
+
+  if (!targetRelationship || !targetNumberingFile || targetNumberingFile.dir) {
+    const nextTargetNumberingPath = getUniqueZipPath(targetZip, 'word/numbering.xml');
+    targetZip.file(nextTargetNumberingPath, sourceNumberingFile.asArrayBuffer());
+    ensureContentTypeOverride(
+      targetZip,
+      nextTargetNumberingPath,
+      sourceContentTypeOverrides.get(sourceNumberingPath) || NUMBERING_CONTENT_TYPE
+    );
+    clonePartRelationships(sourceZip, targetZip, sourceNumberingPath, nextTargetNumberingPath, sourceContentTypeOverrides);
+    documentRelationshipManager.add({
+      ...sourceRelationship,
+      Target: getRelativeTargetPath('word/document.xml', nextTargetNumberingPath),
+    });
+    return { bodyContent, numberingIdMap: new Map() };
+  }
+
+  const relatedReferencePartsXml = SPECIAL_REFERENCE_PARTS.map((config) => {
+    const relationship = sourceDocumentRelationships.find((item) => item.Type === config.relType);
+    const partPath = getRelationshipPartPath(relationship);
+    const partFile = partPath ? sourceZip.files[partPath] : null;
+    return partFile && !partFile.dir ? partFile.asText() : '';
+  }).join('');
+  const referencedNumIds = getReferencedNumberingIds(`${bodyContent}${relatedReferencePartsXml}`);
+  if (referencedNumIds.size === 0) {
+    return { bodyContent, numberingIdMap: new Map() };
+  }
+
+  const sourceNumberingXml = sourceNumberingFile.asText();
+  const targetNumberingXml = targetNumberingFile.asText();
+  const sourceNumsById = getNumberingItemsById(sourceNumberingXml, 'w:num', 'w:numId');
+  const sourceAbstractNumsById = getNumberingItemsById(sourceNumberingXml, 'w:abstractNum', 'w:abstractNumId');
+  const numberingRelationshipManager = createRelationshipManager(targetZip, getRelationshipRelsPath(targetNumberingPath));
+
+  let nextNumId = getMaxNumberingId(targetNumberingXml, 'w:num', 'w:numId') + 1;
+  let nextAbstractNumId = getMaxNumberingId(targetNumberingXml, 'w:abstractNum', 'w:abstractNumId') + 1;
+  const numberingIdMap = new Map();
+  const abstractNumberingIdMap = new Map();
+  const rebasedNums = [];
+  const rebasedAbstractNums = [];
+
+  referencedNumIds.forEach((oldNumId) => {
+    const sourceNumXml = sourceNumsById.get(oldNumId);
+    if (!sourceNumXml) {
+      return;
+    }
+
+    const sourceAbstractNumId = sourceNumXml.match(/<w:abstractNumId\b[^>]*\bw:val="([^"]+)"/)?.[1];
+    if (!sourceAbstractNumId) {
+      return;
+    }
+
+    if (!abstractNumberingIdMap.has(sourceAbstractNumId)) {
+      const sourceAbstractNumXml = sourceAbstractNumsById.get(sourceAbstractNumId);
+      if (!sourceAbstractNumXml) {
+        return;
+      }
+
+      const nextAbstractNumIdString = String(nextAbstractNumId);
+      nextAbstractNumId += 1;
+      abstractNumberingIdMap.set(sourceAbstractNumId, nextAbstractNumIdString);
+
+      const rebasedAbstractNumXml = rebasePartRelationships(
+        sourceZip,
+        targetZip,
+        replaceNumberingItemId(sourceAbstractNumXml, 'w:abstractNumId', nextAbstractNumIdString),
+        sourceNumberingPath,
+        targetNumberingPath,
+        numberingRelationshipManager,
+        sourceContentTypeOverrides
+      );
+      rebasedAbstractNums.push(rebasedAbstractNumXml);
+    }
+
+    const nextNumIdString = String(nextNumId);
+    nextNumId += 1;
+    numberingIdMap.set(oldNumId, nextNumIdString);
+    rebasedNums.push(
+      replaceNumberingItemId(sourceNumXml, 'w:numId', nextNumIdString)
+        .replace(/(<w:abstractNumId\b[^>]*\bw:val=")[^"]+(")/, `$1${abstractNumberingIdMap.get(sourceAbstractNumId)}$2`)
+    );
+  });
+
+  if (rebasedNums.length === 0) {
+    return { bodyContent, numberingIdMap: new Map() };
+  }
+
+  const nextNumberingXml = targetNumberingXml.replace(
+    '</w:numbering>',
+    `${rebasedAbstractNums.join('')}${rebasedNums.join('')}</w:numbering>`
+  );
+  targetZip.file(targetNumberingPath, nextNumberingXml);
+
+  return {
+    bodyContent: rebaseNumberingIdsInContent(bodyContent, numberingIdMap),
+    numberingIdMap,
+  };
+};
+
+const mergeSpecialReferencePart = (
+  sourceZip,
+  targetZip,
+  bodyContent,
+  config,
+  documentRelationshipManager,
+  sourceDocumentRelationships,
+  sourceContentTypeOverrides,
+  numberingIdMap
+) => {
+  const sourceRelationship = sourceDocumentRelationships.find((relationship) => relationship.Type === config.relType);
+  const sourcePartPath = getRelationshipPartPath(sourceRelationship);
+  const sourcePartFile = sourcePartPath ? sourceZip.files[sourcePartPath] : null;
+
+  if (!sourcePartFile || sourcePartFile.dir) {
+    return bodyContent;
+  }
+
+  const existingTargetRelationship = documentRelationshipManager.findByType(config.relType);
+  const existingTargetPartPath = getRelationshipPartPath(existingTargetRelationship);
+  const existingTargetPartFile = existingTargetPartPath ? targetZip.files[existingTargetPartPath] : null;
+
+  if (!existingTargetRelationship || !existingTargetPartFile || existingTargetPartFile.dir) {
+    const targetPartPath = getUniqueZipPath(targetZip, config.defaultPath);
+    const rebasedPartXml = rebasePartRelationships(
+      sourceZip,
+      targetZip,
+      rebaseNumberingIdsInContent(sourcePartFile.asText(), numberingIdMap),
+      sourcePartPath,
+      targetPartPath,
+      createRelationshipManager(targetZip, getRelationshipRelsPath(targetPartPath)),
+      sourceContentTypeOverrides
+    );
+    targetZip.file(targetPartPath, rebasedPartXml);
+    ensureContentTypeOverride(targetZip, targetPartPath, sourceContentTypeOverrides.get(sourcePartPath) || config.contentType);
+    documentRelationshipManager.add({
+      ...sourceRelationship,
+      Target: getRelativeTargetPath('word/document.xml', targetPartPath),
+    });
+    return bodyContent;
+  }
+
+  let nextId = getMaxPartItemId(existingTargetPartFile.asText(), config.itemTag) + 1;
+  const targetPartRelationshipManager = createRelationshipManager(targetZip, getRelationshipRelsPath(existingTargetPartPath));
+  const idMap = new Map();
+  const rebasedItems = getPartItems(sourcePartFile.asText(), config.itemTag)
+    .filter((itemXml) => {
+      const oldId = getPartItemId(itemXml);
+      return oldId !== null && !config.isReservedId(oldId);
+    })
+    .map((itemXml) => {
+      const oldId = getPartItemId(itemXml);
+      const newId = String(nextId);
+      nextId += 1;
+      idMap.set(oldId, newId);
+
+      const renumberedItem = replacePartItemId(itemXml, newId);
+      const rebasedRelationshipsItem = rebasePartRelationships(
+        sourceZip,
+        targetZip,
+        renumberedItem,
+        sourcePartPath,
+        existingTargetPartPath,
+        targetPartRelationshipManager,
+        sourceContentTypeOverrides
+      );
+      return rebaseNumberingIdsInContent(rebasedRelationshipsItem, numberingIdMap);
+    });
+
+  targetZip.file(existingTargetPartPath, appendPartItems(existingTargetPartFile.asText(), config.rootTag, rebasedItems));
+  return rebaseBodySpecialReferenceIds(bodyContent, config.bodyReferenceTags, idMap);
+};
+
+const mergeSpecialReferenceParts = (sourceZip, targetZip, bodyContent, documentRelationshipManager, numberingIdMap) => {
+  const sourceDocumentRelationships = parseRelationships(sourceZip.files['word/_rels/document.xml.rels']?.asText());
+  const sourceContentTypeOverrides = getContentTypeOverrides(sourceZip);
+
+  return SPECIAL_REFERENCE_PARTS.reduce((updatedBodyContent, config) => {
+    return mergeSpecialReferencePart(
+      sourceZip,
+      targetZip,
+      updatedBodyContent,
+      config,
+      documentRelationshipManager,
+      sourceDocumentRelationships,
+      sourceContentTypeOverrides,
+      numberingIdMap
+    );
+  }, bodyContent);
+};
+
+const insertSectionChildBefore = (sectPr, childXml, markers) => {
+  const markerIndexes = markers
+    .map((marker) => sectPr.indexOf(marker))
+    .filter((index) => index !== -1);
+
+  const insertIndex = markerIndexes.length > 0 ? Math.min(...markerIndexes) : sectPr.lastIndexOf('</w:sectPr>');
+  if (insertIndex === -1) {
+    return sectPr;
+  }
+
+  return `${sectPr.slice(0, insertIndex)}${childXml}${sectPr.slice(insertIndex)}`;
+};
+
+const ensureSectionBreakType = (sectPr, type = 'nextPage') => {
+  const typeXml = `<w:type w:val="${type}"/>`;
+
+  if (TYPE_NODE_REGEX.test(sectPr)) {
+    return sectPr.replace(TYPE_NODE_REGEX, typeXml);
+  }
+
+  return insertSectionChildBefore(sectPr, typeXml, TYPE_INSERT_MARKERS);
+};
+
+const preserveDocumentSections = (bodyContent, { isLastDocument }) => {
+  const cleanedBodyContent = bodyContent
+    .replace(/<w:sectPrChange\b[\s\S]*?<\/w:sectPrChange>/g, '')
+    .replace(SECTION_PROPS_REGEX, (sectPr) => sectPr.replace(PAGE_NUMBER_NODE_REGEX, ''));
+
+  const trailingSectionMatch = cleanedBodyContent.match(TRAILING_SECTION_PROPS_REGEX);
+  if (!trailingSectionMatch) {
+    return isLastDocument
+      ? cleanedBodyContent
+      : `${cleanedBodyContent}<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+  }
+
+  const [, mainContent, finalSectionProps] = trailingSectionMatch;
+  if (isLastDocument) {
+    return `${mainContent}${finalSectionProps}`;
+  }
+
+  const sectionBreakProps = ensureSectionBreakType(finalSectionProps, 'nextPage');
+  return `${mainContent}<w:p><w:pPr>${sectionBreakProps}</w:pPr></w:p>`;
+};
+
+const mergeGeneratedDocxFiles = (generatedFiles) => {
+  const zips = generatedFiles.map((file) => new PizZip(file.content));
+  const documentRelationshipManager = createRelationshipManager(zips[0]);
+  const xmlContents = zips.map((zip) => {
+    const documentXml = zip.files['word/document.xml'];
+    if (!documentXml) {
+      throw new Error('Cannot find word/document.xml');
+    }
+    return documentXml.asText();
+  });
+
+  const mergedBodies = xmlContents.map((xml, index) => {
+    const match = xml.match(BODY_REGEX);
+    if (!match) {
+      throw new Error('Cannot read document body');
+    }
+
+    let bodyContent = match[1];
+
+    if (index > 0) {
+      bodyContent = rebaseReferencedRelationships(zips[index], zips[0], bodyContent, documentRelationshipManager);
+      const numberingResult = rebaseNumberingDefinitions(zips[index], zips[0], bodyContent, documentRelationshipManager);
+      bodyContent = numberingResult.bodyContent;
+      bodyContent = mergeSpecialReferenceParts(
+        zips[index],
+        zips[0],
+        bodyContent,
+        documentRelationshipManager,
+        numberingResult.numberingIdMap
+      );
+    }
+
+    return preserveDocumentSections(bodyContent, {
+      isLastDocument: index === xmlContents.length - 1,
+    });
+  });
+
+  zips[0].file('word/document.xml', xmlContents[0].replace(BODY_REGEX, () => `<w:body>${mergedBodies.join('')}</w:body>`));
+  return zips[0].generate({
+    type: 'blob',
+    mimeType: DOCX_MIME,
+  });
+};
+
 /**
  * Extract a plain string value from an ExcelJS cell, handling all value types:
  * formula objects, rich text, hyperlinks, error values, dates, and numbers.
@@ -84,6 +831,7 @@ export default function GenDocx() {
   const [modalMessage, setModalMessage] = useState('');
   const [uploadBoxResetKey, setUploadBoxResetKey] = useState(0);
   const excelUploadRequestIdRef = useRef(0);
+  const generatedFilesRef = useRef([]);
 
   const totalPages = Math.ceil(excelData.length / pageSize);
 
@@ -108,6 +856,7 @@ export default function GenDocx() {
     });
 
     zipRef.current = null;
+    generatedFilesRef.current = [];
     setIsZipReady(false);
     setPreviewUrls({});
   };
@@ -254,6 +1003,7 @@ export default function GenDocx() {
     try {
       setIsGenerating(true);
       zipRef.current = new PizZip();
+      generatedFilesRef.current = [];
       const newPreviewUrls = {};
 
       const templateContent = await wordTemplate.arrayBuffer();
@@ -314,7 +1064,7 @@ export default function GenDocx() {
 
           const generatedDoc = doc.getZip().generate({
             type: 'blob',
-            mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            mimeType: DOCX_MIME,
           });
 
           // 尝试从第一列获取文件名，如果没有则使用默认格式
@@ -330,7 +1080,9 @@ export default function GenDocx() {
             // 如果第一列为空，使用原来的默认格式
             fileName = `${templateName}_${rowNumber - 1}.docx`;
           }
-          zipRef.current.file(fileName, await generatedDoc.arrayBuffer());
+          const generatedContent = await generatedDoc.arrayBuffer();
+          zipRef.current.file(fileName, generatedContent);
+          generatedFilesRef.current.push({ fileName, content: generatedContent });
 
           newPreviewUrls[fileName] = URL.createObjectURL(generatedDoc);
 
@@ -378,6 +1130,20 @@ export default function GenDocx() {
       } catch (error) {
         showError(t('gendocx_error_download'));
       }
+    }
+  };
+
+  const handleDownloadMerged = () => {
+    if (generatedFilesRef.current.length === 0) {
+      return;
+    }
+
+    try {
+      const content = mergeGeneratedDocxFiles(generatedFilesRef.current);
+      saveAs(content, 'generated_docs_merged.docx');
+    } catch (error) {
+      console.error('Merge generated documents error:', error);
+      showError(t('gendocx_error_download'));
     }
   };
 
@@ -505,6 +1271,16 @@ export default function GenDocx() {
             hover:translate-y-[-1px] active:translate-y-0 w-full sm:w-auto"
         >
           {t('gendocx_downloadAll')}
+        </button>
+
+        <button
+          onClick={handleDownloadMerged}
+          disabled={!isZipReady}
+          className="px-6 py-2.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 
+            disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md 
+            hover:translate-y-[-1px] active:translate-y-0 w-full sm:w-auto"
+        >
+          {t('gendocx_downloadMerged')}
         </button>
         </div>
       </div>
