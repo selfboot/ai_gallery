@@ -712,6 +712,7 @@
   "gendocx_generate": "生成文档",
   "gendocx_generating": "生成中...",
   "gendocx_downloadAll": "下载全部",
+  "gendocx_downloadMerged": "合并到一个 Word 下载",
   "gendocx_download": "下载",
   "gendocx_status_pending": "待生成",
   "gendocx_status_failed": "失败",
