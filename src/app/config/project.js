@@ -271,6 +271,13 @@ const Projects = {
       link: "/tools/splitpdf/",
     },
     {
+      id: "excelcompare",
+      title: "excelcompare_title",
+      description: "excelcompare_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/excelcompare/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
