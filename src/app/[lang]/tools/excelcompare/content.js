@@ -518,11 +518,6 @@ export default function ExcelCompareContent() {
 
   return (
     <div className="w-full mx-auto mt-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("excelcompare_page_title")}</h1>
-        <p className="text-gray-600">{t("excelcompare_page_description")}</p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <SourceSelector
           title={t("excelcompare_source_a_title")}

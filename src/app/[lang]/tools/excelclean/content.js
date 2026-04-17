@@ -320,11 +320,6 @@ export default function ExcelCleanContent() {
   return (
     <div className="w-full mx-auto mt-4">
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("excelclean_page_title")}</h1>
-        <p className="text-gray-600">{t("excelclean_page_description")}</p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">{t("excelclean_upload_title")}</h2>
         <FileUploadBox accept={EXCEL_ACCEPT} onChange={handleFileUpload} title={t("excelclean_upload_hint")} maxSize={40} className="min-h-32" />
         {source.fileName && <p className="text-sm text-green-700 mt-3 font-medium">{t("excelclean_selected_file", { name: source.fileName })}</p>}
