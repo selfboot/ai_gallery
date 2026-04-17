@@ -278,6 +278,13 @@ const Projects = {
       link: "/tools/excelcompare/",
     },
     {
+      id: "exceldedupe",
+      title: "exceldedupe_title",
+      description: "exceldedupe_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/exceldedupe/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
