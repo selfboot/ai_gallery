@@ -285,6 +285,13 @@ const Projects = {
       link: "/tools/exceldedupe/",
     },
     {
+      id: "excelclean",
+      title: "excelclean_title",
+      description: "excelclean_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/excelclean/",
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",

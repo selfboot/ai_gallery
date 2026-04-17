@@ -11,7 +11,7 @@
     "build": "node scripts/generate-md-modules.js && node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --coverage",
+    "test": "jest --coverage --forceExit",
     "test:watch": "jest --watch",
     "build:worker": "opennextjs-cloudflare build",
     "preview:worker": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
