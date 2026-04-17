@@ -4,11 +4,12 @@ import Navigation from "@/app/components/Navigation";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
+import { SUPPORTED_LANGUAGES, isSupportedLanguage } from "@/app/i18n/locales";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { notFound } from "next/navigation";
 import Script from 'next/script';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-const SUPPORTED_LANGUAGES = ['en', 'zh'];
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
 
 export function generateStaticParams() {
@@ -26,6 +27,10 @@ export default async function Layout(props) {
   const {
     children
   } = props;
+
+  if (!isSupportedLanguage(lang)) {
+    notFound();
+  }
 
   const dict = await getDictionary(lang);
   const pathname = `/${lang}/${slug.join('/')}`;

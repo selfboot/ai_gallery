@@ -1,5 +1,7 @@
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
+import { isSupportedLanguage } from "@/app/i18n/locales";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -7,6 +9,10 @@ export async function generateMetadata(props) {
   const {
     lang
   } = params;
+
+  if (!isSupportedLanguage(lang)) {
+    notFound();
+  }
 
   const dict = await getDictionary(lang);
   return PageMeta({
@@ -26,7 +32,10 @@ export default async function Home(props) {
     lang
   } = params;
 
-  const dict = await getDictionary(lang);
+  if (!isSupportedLanguage(lang)) {
+    notFound();
+  }
+
   return (
     // redriect now
     <></>

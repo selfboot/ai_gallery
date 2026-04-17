@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server';
 
 const LOCALES = ['en', 'zh'];
+const PUBLIC_FILE_PATHS = new Set([
+  '/90d513c720ec40e3a57f488239db260c.txt ',
+  '/90d513c720ec40e3a57f488239db260c.txt%20',
+  '/BingSiteAuth.xml',
+  '/favicon.ico',
+  '/gif.worker.js',
+  '/logo192.png',
+  '/logo512.png',
+  '/manifest.json',
+  '/robots.txt',
+  '/rss-en.xml',
+  '/rss.xml',
+  '/sitemap-en.xml',
+  '/sitemap-zh.xml',
+  '/sitemap.xml',
+]);
+const PUBLIC_FILE_PREFIXES = ['/files/', '/racechart/'];
+const FILE_PATH_PATTERN = /\/[^/]+\.[^/]+$/;
+
+function isKnownPublicFile(pathname) {
+  return PUBLIC_FILE_PATHS.has(pathname) || PUBLIC_FILE_PREFIXES.some(prefix => pathname.startsWith(prefix));
+}
 
 function getPreferredLocale(request) {
   // 检查 cookie
@@ -25,19 +47,13 @@ function getPreferredLocale(request) {
 export function middleware(request) {
   const pathname = request.nextUrl.pathname;
 
-  // 静态文件直接跳过
-  if (
-    pathname.endsWith('.xml') ||
-    pathname.endsWith('.js') ||
-    pathname.endsWith('.json') ||
-    pathname.endsWith('.csv') ||
-    pathname.endsWith('.xlsx') ||
-    pathname.endsWith('.docx') ||
-    pathname.endsWith('.txt') ||
-    pathname.endsWith('.ico') ||
-    pathname.endsWith('.png')
-  ) {
+  if (isKnownPublicFile(pathname) || pathname.startsWith('/_next/')) {
     return NextResponse.next();
+  }
+
+  // Unknown asset probes like /bundle.js should not be treated as [lang] pages.
+  if (FILE_PATH_PATTERN.test(pathname)) {
+    return new NextResponse(null, { status: 404 });
   }
 
   const preferredLocale = getPreferredLocale(request);
