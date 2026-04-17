@@ -2,11 +2,12 @@ import React from "react";
 import { dynamicChartConfigs } from '../../dynamicChartConfigs';
 import CommonComments from "@/app/components/GiscusComments";
 import DynamicChart from './ClientContent';
-import path from 'path';
-import fs from 'fs/promises';
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import Papa from 'papaparse';
+import { racechartFiles } from "@/generated/racechart-data";
+
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return dynamicChartConfigs.flatMap((config) => 
@@ -19,14 +20,17 @@ export async function generateStaticParams() {
 
 async function fetchChartData(dataFile, config) {
   try {
-    const filePath = path.join(process.cwd(), 'public', 'racechart', dataFile);
-    const content = await fs.readFile(filePath, 'utf8');
+    const content = racechartFiles[dataFile];
+    if (!content) {
+      throw new Error(`Race chart data file not found: ${dataFile}`);
+    }
+
     let parsedData;
 
     if (dataFile.endsWith('.json')) {
       parsedData = JSON.parse(content);
     } else if (dataFile.endsWith('.csv')) {
-      parsedData = Papa.parse(content, { header: true }).data;
+      parsedData = Papa.parse(content, { header: true, skipEmptyLines: true }).data;
     } else {
       throw new Error("Unsupported file format");
     }
