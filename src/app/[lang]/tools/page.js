@@ -1,7 +1,8 @@
 import React from "react";
-import ProjectGrid from "@/app/components/ProjectGrid";
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
+import Projects from "@/app/config/project";
+import ToolsDirectory from "./ToolsDirectory";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -30,11 +31,37 @@ export default async function Tools(props) {
   } = params;
 
   const dict = await getDictionary(lang);
+  const tools = Projects.tools.map((tool) => ({
+    ...tool,
+    image: tool.images?.[lang] || tool.image,
+    title: dict[tool.title] || tool.title,
+    description: dict[tool.description] || tool.description,
+  }));
+  const labels = {
+    kicker: dict.tools_directory_kicker,
+    title: dict.tools_title,
+    subtitle: dict.tools_directory_subtitle,
+    totalTools: dict.tools_directory_total,
+    visibleTools: dict.tools_directory_visible,
+    searchLabel: dict.tools_directory_search_label,
+    searchPlaceholder: dict.tools_directory_search_placeholder,
+    empty: dict.tools_directory_empty,
+    openTool: dict.tools_directory_open,
+    tags: {
+      all: dict.tools_tag_all,
+      excel: dict.tools_tag_excel,
+      pdf: dict.tools_tag_pdf,
+      document: dict.tools_tag_document,
+      data: dict.tools_tag_data,
+      finance: dict.tools_tag_finance,
+      image: dict.tools_tag_image,
+      media: dict.tools_tag_media,
+      chart: dict.tools_tag_chart,
+      developer: dict.tools_tag_developer,
+    },
+  };
 
   return (
-    <>
-      <h1 className="text-2xl font-bold mb-4">{dict.tools_title}</h1>
-      <ProjectGrid category="tools" lang={lang} />
-    </>
+    <ToolsDirectory lang={lang} tools={tools} labels={labels} />
   );
 }
