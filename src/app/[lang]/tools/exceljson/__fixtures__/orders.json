@@ -1,0 +1,16 @@
+[
+  {
+    "orderId": "A001",
+    "name": "Alice",
+    "amount": 128.5,
+    "tags": ["vip", "paid"]
+  },
+  {
+    "orderId": "A002",
+    "name": "Bob",
+    "amount": 88,
+    "meta": {
+      "source": "csv"
+    }
+  }
+]

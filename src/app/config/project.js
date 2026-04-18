@@ -271,6 +271,13 @@ const Projects = {
       link: "/tools/splitpdf/",
     },
     {
+      id: "imagepdf",
+      title: "imagepdf_title",
+      description: "imagepdf_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20250704_ai_gallery_mergetool.webp",
+      link: "/tools/imagepdf/",
+    },
+    {
       id: "excelcompare",
       title: "excelcompare_title",
       description: "excelcompare_description",
@@ -297,6 +304,13 @@ const Projects = {
       description: "excelsplitmerge_description",
       image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
       link: "/tools/excelsplitmerge/",
+    },
+    {
+      id: "exceljson",
+      title: "exceljson_title",
+      description: "exceljson_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20241030_ai_gallery_gendocx.webp",
+      link: "/tools/exceljson/",
     },
     {
       id: "retire",

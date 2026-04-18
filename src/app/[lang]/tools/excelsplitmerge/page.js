@@ -15,8 +15,8 @@ export async function generateMetadata(props) {
       title: dict.seo.excelsplitmerge.title,
       description: dict.seo.excelsplitmerge.description,
       keywords: dict.seo.excelsplitmerge.keywords,
-      publishedDate: "2026-04-17T10:00:00.000Z",
-      updatedDate: "2026-04-17T10:00:00.000Z",
+      publishedDate: "2026-04-18T10:00:00.000Z",
+      updatedDate: "2026-04-18T10:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/excelsplitmerge`,
