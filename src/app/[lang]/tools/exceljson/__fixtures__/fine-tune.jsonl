@@ -1,0 +1,3 @@
+{"prompt":"你好","completion":"你好，有什么可以帮你？","source":"chat"}
+{"prompt":"介绍产品","completion":"这是一个在线 CSV / Excel / JSON 转换工具。","source":"product"}
+{"prompt":"输出 JSONL","completion":"每一行都是一条独立 JSON 记录。","source":"format"}
