@@ -308,6 +308,18 @@ const Projects = {
       tags: ["pdf", "image"],
     },
     {
+      id: "imagecompress",
+      title: "imagecompress_title",
+      description: "imagecompress_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imagecompress_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imagecompress_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imagecompress_zh.svg",
+      },
+      link: "/tools/imagecompress/",
+      tags: ["image", "media"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",

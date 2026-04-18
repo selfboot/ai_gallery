@@ -24,6 +24,7 @@
     "@fortawesome/react-fontawesome": "^0.2.6",
     "@giscus/react": "^3.1.0",
     "@headlessui/react": "^2.2.9",
+    "@jsquash/webp": "^1.5.0",
     "@next/third-parties": "15.5.15",
     "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^10.7.7",
