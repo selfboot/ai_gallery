@@ -308,6 +308,18 @@ const Projects = {
       tags: ["pdf", "image"],
     },
     {
+      id: "pdforganize",
+      title: "pdforganize_title",
+      description: "pdforganize_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_pdforganize_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_pdforganize_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_pdforganize_zh.svg",
+      },
+      link: "/tools/pdforganize/",
+      tags: ["pdf", "document"],
+    },
+    {
       id: "excelcompare",
       title: "excelcompare_title",
       description: "excelcompare_description",
