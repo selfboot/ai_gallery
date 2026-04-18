@@ -8,7 +8,6 @@ import { SUPPORTED_LANGUAGES, isSupportedLanguage } from "@/app/i18n/locales";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { notFound } from "next/navigation";
 import Script from 'next/script';
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
 
@@ -95,7 +94,6 @@ export default async function Layout(props) {
             <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
           </I18nProvider>
         </div>
-        <SpeedInsights/>
         <GoogleAnalytics gaId="G-Y4WD2DT404" />
         {/* <WebVitals /> */}
         <Script
