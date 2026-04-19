@@ -320,6 +320,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imageconvert",
+      title: "imageconvert_title",
+      description: "imageconvert_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imageconvert_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imageconvert_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260418_ai_gallery_imageconvert_zh.svg",
+      },
+      link: "/tools/imageconvert/",
+      tags: ["image", "media"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",
