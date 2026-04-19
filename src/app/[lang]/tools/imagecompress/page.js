@@ -15,8 +15,8 @@ export async function generateMetadata(props) {
       title: dict.seo.imagecompress.title,
       description: dict.seo.imagecompress.description,
       keywords: dict.seo.imagecompress.keywords,
-      publishedDate: "2026-04-18T16:00:00.000Z",
-      updatedDate: "2026-04-18T16:00:00.000Z",
+      publishedDate: "2026-04-19T01:00:00.000Z",
+      updatedDate: "2026-04-19T01:20:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/imagecompress`,
