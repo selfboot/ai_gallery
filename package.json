@@ -13,7 +13,7 @@
     "lint": "next lint",
     "test": "jest --coverage --forceExit",
     "test:watch": "jest --watch",
-    "build:worker": "opennextjs-cloudflare build",
+    "build:worker": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "preview:worker": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf-deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
