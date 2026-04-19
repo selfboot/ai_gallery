@@ -23,6 +23,7 @@ export default function LanguageSwitcher({ currentLang, currentPath }) {
         <Link
           key={lang}
           href={currentPath.replace(`/${currentLang}`, `/${lang}`)}
+          prefetch={false}
           rel="alternate"
           hrefLang={lang}
           className="hidden"

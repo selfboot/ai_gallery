@@ -16,7 +16,11 @@ const ProjectCard = async ({ title, description, image, link, lang }) => {
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-2">{dict[title] || title}</h3>
         <p className="text-gray-600 mb-4">{dict[description] || description}</p>
-        <Link href={localizedLink} className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+        <Link
+          href={localizedLink}
+          prefetch={false}
+          className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 transition"
+        >
           {dict.try || "Try"}
         </Link>
       </div>

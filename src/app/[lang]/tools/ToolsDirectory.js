@@ -112,6 +112,7 @@ function ToolCard({ tool, lang, labels }) {
   return (
     <Link
       href={localizedLink}
+      prefetch={false}
       className="group flex min-h-full flex-col overflow-hidden rounded border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
     >
       <div className="bg-gray-100">

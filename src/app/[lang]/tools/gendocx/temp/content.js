@@ -90,7 +90,7 @@ const TemplateThumbnail = ({ template, lang }) => {
   const { t } = useI18n();
 
   return (
-    <Link href={`/${lang}/tools/gendocx/temp/${template.id}`} className="block group">
+    <Link href={`/${lang}/tools/gendocx/temp/${template.id}`} prefetch={false} className="block group">
       <div className="border rounded-lg overflow-hidden bg-white hover:shadow-lg transition-shadow h-full">
         <div className="aspect-[16/9] relative overflow-hidden bg-gray-50">
           <img
