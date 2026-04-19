@@ -106,7 +106,11 @@ export default function DynamicChartsIndex({ lang }) {
             {paginatedConfigs.map((config) => (
               <tr key={config.id} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left whitespace-nowrap">
-                  <Link href={`/${lang}/tools/chartrace/dynamic/${config.id}`} className="font-medium text-blue-600 hover:text-blue-800">
+                  <Link
+                    href={`/${lang}/tools/chartrace/dynamic/${config.id}`}
+                    prefetch={false}
+                    className="font-medium text-blue-600 hover:text-blue-800"
+                  >
                     {t('chartrace')[config.id]?.title}
                   </Link>
                 </td>
