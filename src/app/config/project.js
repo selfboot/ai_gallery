@@ -380,6 +380,18 @@ const Projects = {
       tags: ["pdf", "image"],
     },
     {
+      id: "pdfsign",
+      title: "pdfsign_title",
+      description: "pdfsign_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260420_ai_gallery_pdfsign_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260420_ai_gallery_pdfsign_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260420_ai_gallery_pdfsign_zh.svg",
+      },
+      link: "/tools/pdfsign/",
+      tags: ["pdf", "image"],
+    },
+    {
       id: "excelcompare",
       title: "excelcompare_title",
       description: "excelcompare_description",
