@@ -404,6 +404,18 @@ const Projects = {
       tags: ["pdf", "image"],
     },
     {
+      id: "pdfwhiteout",
+      title: "pdfwhiteout_title",
+      description: "pdfwhiteout_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260421_ai_gallery_pdfwhiteout_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260421_ai_gallery_pdfwhiteout_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260421_ai_gallery_pdfwhiteout_zh.svg",
+      },
+      link: "/tools/pdfwhiteout/",
+      tags: ["pdf", "document"],
+    },
+    {
       id: "excelcompare",
       title: "excelcompare_title",
       description: "excelcompare_description",
