@@ -356,6 +356,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imagesizeconvert",
+      title: "imagesizeconvert_title",
+      description: "imagesizeconvert_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagesizeconvert_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagesizeconvert_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagesizeconvert_zh.svg",
+      },
+      link: "/tools/imagesizeconvert/",
+      tags: ["image", "media"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",
@@ -426,6 +438,18 @@ const Projects = {
       },
       link: "/tools/pdfwatermark/",
       tags: ["pdf", "document", "image"],
+    },
+    {
+      id: "pdfpagenumber",
+      title: "pdfpagenumber_title",
+      description: "pdfpagenumber_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfpagenumber_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfpagenumber_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfpagenumber_zh.svg",
+      },
+      link: "/tools/pdfpagenumber/",
+      tags: ["pdf", "document"],
     },
     {
       id: "pdfwhiteout",
