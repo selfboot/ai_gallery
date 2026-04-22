@@ -320,6 +320,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imagecrop",
+      title: "imagecrop_title",
+      description: "imagecrop_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagecrop_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagecrop_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagecrop_zh.svg",
+      },
+      link: "/tools/imagecrop/",
+      tags: ["image", "media"],
+    },
+    {
       id: "imageconvert",
       title: "imageconvert_title",
       description: "imageconvert_description",
