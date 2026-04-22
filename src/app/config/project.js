@@ -404,6 +404,18 @@ const Projects = {
       tags: ["pdf", "image"],
     },
     {
+      id: "pdfwatermark",
+      title: "pdfwatermark_title",
+      description: "pdfwatermark_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfwatermark_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfwatermark_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_pdfwatermark_zh.svg",
+      },
+      link: "/tools/pdfwatermark/",
+      tags: ["pdf", "document", "image"],
+    },
+    {
       id: "pdfwhiteout",
       title: "pdfwhiteout_title",
       description: "pdfwhiteout_description",
