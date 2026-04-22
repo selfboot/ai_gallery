@@ -344,6 +344,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imagewatermark",
+      title: "imagewatermark_title",
+      description: "imagewatermark_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagewatermark_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagewatermark_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260422_ai_gallery_imagewatermark_zh.svg",
+      },
+      link: "/tools/imagewatermark/",
+      tags: ["image", "media"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",
