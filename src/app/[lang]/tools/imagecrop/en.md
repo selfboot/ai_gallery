@@ -21,6 +21,8 @@ The better approach is to apply the same crop rule to every image, not the same 
 2. Crop by fixed aspect ratio  
    Example: convert every image to 1:1, 4:3, or 16:9 using the same crop anchor.
 
+After you upload images, each image card shows a crop reference frame. The frame is not a fixed pixel box. It is the current crop rule converted onto that specific image, so mixed-size images can each show what will be kept and what will be removed.
+
 ### What this tool is useful for
 
 - batch crop mixed image sizes
@@ -83,9 +85,10 @@ This is useful when:
 2. Choose the crop mode
 3. If using percentage crop, enter the trim percentages for each side
 4. If using aspect ratio crop, choose the ratio and crop anchor
-5. Choose the output format
-6. Start batch cropping
-7. Download single results or export everything as a ZIP
+5. Check the crop reference frame on each image
+6. Choose the output format
+7. Start batch cropping
+8. Download single results or export everything as a ZIP
 
 ### Which output format should you choose
 
