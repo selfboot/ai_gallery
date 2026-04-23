@@ -405,7 +405,7 @@ const HanoiTower = () => {
       </div>
 
       <div className="hidden md:block md:w-4/5 w-full bg-gray-100">
-        <SideAdComponent format="horizontal" className="absolute inset-0" />
+        <SideAdComponent format="horizontal" />
       </div>
     </div>
   );
