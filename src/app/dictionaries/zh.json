@@ -1102,6 +1102,7 @@
   "imagecrop_upload_note": "支持 JPG、PNG、WebP。适合头像裁剪、商品图裁剪、封面比例统一和不同尺寸图片批量裁切。所有处理都在浏览器本地完成。",
   "imagecrop_images_title": "图片列表（{{count}}）",
   "imagecrop_images_hint": "每张图片都会使用同一组裁剪规则。结果直接显示在列表里，可单张下载，也可打包下载。",
+  "imagecrop_preview_badge": "裁剪区",
   "imagecrop_no_files": "还没有上传图片。",
   "imagecrop_settings_title": "裁剪设置",
   "imagecrop_settings_hint": "支持按四边百分比批量裁剪，也支持按固定宽高比批量裁剪。不同尺寸图片不需要统一像素，只要按同一规则裁即可。",

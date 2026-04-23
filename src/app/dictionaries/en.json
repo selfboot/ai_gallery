@@ -1101,6 +1101,7 @@
   "imagecrop_upload_note": "Supports JPG, PNG, and WebP. Good for avatar crops, product image crops, cover image cleanup, and batch cropping mixed image sizes. Everything runs locally in your browser.",
   "imagecrop_images_title": "Images ({{count}})",
   "imagecrop_images_hint": "Every image uses the same crop rule. Results appear directly in the list with single download and ZIP export.",
+  "imagecrop_preview_badge": "Crop area",
   "imagecrop_no_files": "No images uploaded yet.",
   "imagecrop_settings_title": "Crop Settings",
   "imagecrop_settings_hint": "Supports percentage-based edge cropping and fixed aspect ratio cropping. Mixed image sizes do not need the same pixels as long as they follow the same crop rule.",

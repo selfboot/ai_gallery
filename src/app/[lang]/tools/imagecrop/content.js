@@ -102,6 +102,37 @@ function canvasToBlob(canvas, mimeType, quality) {
   });
 }
 
+function getCropFramePercent(item, settings) {
+  const cropPlan = getCropPlan(item, settings);
+  return {
+    left: (cropPlan.sourceX / item.width) * 100,
+    top: (cropPlan.sourceY / item.height) * 100,
+    width: (cropPlan.sourceWidth / item.width) * 100,
+    height: (cropPlan.sourceHeight / item.height) * 100,
+  };
+}
+
+function CropFramePreview({ item, settings, label }) {
+  const frame = getCropFramePercent(item, settings);
+
+  return (
+    <div
+      className="pointer-events-none absolute border-2 border-blue-500"
+      style={{
+        left: `${frame.left}%`,
+        top: `${frame.top}%`,
+        width: `${frame.width}%`,
+        height: `${frame.height}%`,
+        boxShadow: "0 0 0 9999px rgba(15, 23, 42, 0.42)",
+      }}
+    >
+      <span className="absolute left-1 top-1 rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+        {label}
+      </span>
+    </div>
+  );
+}
+
 async function processOneImage(item, settings) {
   const image = await fileToImage(item.file);
   const cropPlan = getCropPlan(item, settings);
@@ -340,10 +371,23 @@ export default function ImageCropContent() {
               <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
                 {images.map((item, index) => {
                   const result = resultMap.get(item.id);
+                  const previewWidth = result?.width || item.width;
+                  const previewHeight = result?.height || item.height;
+                  const isWidePreview = previewWidth / previewHeight >= 4 / 3;
                   return (
                     <div key={item.id} className="flex min-h-full flex-col overflow-hidden rounded border border-gray-200 bg-white shadow-sm">
-                      <div className="aspect-[4/3] overflow-hidden bg-gray-50">
-                        <img src={result?.previewUrl || item.previewUrl} alt={item.name} className="h-full w-full object-contain" />
+                      <div className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-gray-50">
+                        <div
+                          className="relative max-h-full max-w-full overflow-hidden"
+                          style={{
+                            aspectRatio: `${previewWidth} / ${previewHeight}`,
+                            width: isWidePreview ? "100%" : "auto",
+                            height: isWidePreview ? "auto" : "100%",
+                          }}
+                        >
+                          <img src={result?.previewUrl || item.previewUrl} alt={item.name} className="absolute inset-0 h-full w-full object-contain" />
+                          {!result && <CropFramePreview item={item} settings={settings} label={t("imagecrop_preview_badge")} />}
+                        </div>
                       </div>
                       <div className="flex flex-1 flex-col p-3">
                         <p className="truncate text-sm font-medium text-gray-900" title={item.name}>{item.name}</p>
