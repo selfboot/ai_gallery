@@ -43,4 +43,21 @@ describe("ResponsiveWebPImage", () => {
       "https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sliding_small.png/webp800 800w",
     );
   });
+
+  test("uses eager loading hints for priority images", () => {
+    render(
+      <ResponsiveWebPImage
+        src="https://slefboot-1251736664.file.myqcloud.com/20241031_ai_gallery_sliding_small.png"
+        alt="Priority cover"
+        priority
+      />,
+    );
+
+    const image = screen.getByRole("img", { name: "Priority cover" });
+
+    expect(image).toHaveAttribute("loading", "eager");
+    expect(image).toHaveAttribute("fetchpriority", "high");
+    expect(image).toHaveAttribute("width", "1600");
+    expect(image).toHaveAttribute("height", "900");
+  });
 });
