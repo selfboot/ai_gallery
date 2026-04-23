@@ -444,7 +444,7 @@ const UnblockMeGame = ({ lang, levels }) => {
         </div>
 
         <div className="hidden md:block w-full bg-gray-100">
-          <SideAdComponent format="horizontal" className="absolute inset-0" />
+          <SideAdComponent format="horizontal" />
         </div>
       </div>
 
@@ -518,7 +518,7 @@ const UnblockMeGame = ({ lang, levels }) => {
         </div>
 
         <div className="md:hidden bg-gray-100">
-          <SideAdComponent format="square" className="absolute inset-0" />
+          <SideAdComponent format="square" />
         </div>
       </div>
 
