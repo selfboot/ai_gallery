@@ -2,6 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
+const AD_DIMENSIONS = {
+  rectangle: "min-h-[250px]",
+  vertical: "min-h-[600px]",
+  horizontal: "min-h-[90px]",
+  square: "min-h-[250px]",
+};
+
+const getReservedHeightClass = (format) => AD_DIMENSIONS[format] || AD_DIMENSIONS.rectangle;
+
 // Common ad init logic
 function useAdInit() {
   const isLoaded = useRef(false);
@@ -24,12 +33,13 @@ function useAdInit() {
 // format:  “rectangle”、“vertical”、“horizontal”
 function BaseAdComponent({ slot, className, format = "rectangle" }) {
   useAdInit();
+  const reservedHeightClass = getReservedHeightClass(format);
 
   return (
-    <div className={`relative ${className || ""}`}>
+    <div className={`relative w-full overflow-hidden bg-gray-50 ${reservedHeightClass} ${className || ""}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight: "100%", height: "100%" }}
         data-ad-client="ca-pub-7746897490519544"
         data-ad-slot={slot}
         data-ad-format={format}
