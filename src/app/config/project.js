@@ -392,6 +392,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imagemetadata",
+      title: "imagemetadata_title",
+      description: "imagemetadata_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_imagemetadata_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_imagemetadata_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_imagemetadata_zh.svg",
+      },
+      link: "/tools/imagemetadata/",
+      tags: ["image", "media"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",
