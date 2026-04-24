@@ -45,6 +45,7 @@
     "github-markdown-css": "^5.8.1",
     "globby": "^14.1.0",
     "gray-matter": "^4.0.3",
+    "heic2any": "^0.0.4",
     "highlight.js": "^11.11.1",
     "html2canvas": "^1.4.1",
     "lodash.debounce": "^4.0.8",

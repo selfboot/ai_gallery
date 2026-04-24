@@ -332,6 +332,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "heicconvert",
+      title: "heicconvert_title",
+      description: "heicconvert_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_heicconvert_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_heicconvert_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260424_ai_gallery_heicconvert_zh.svg",
+      },
+      link: "/tools/heicconvert/",
+      tags: ["image", "media"],
+    },
+    {
       id: "imageconvert",
       title: "imageconvert_title",
       description: "imageconvert_description",
