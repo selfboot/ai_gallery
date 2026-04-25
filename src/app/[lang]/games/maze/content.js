@@ -46,6 +46,8 @@ import usePersistentState from '@/app/components/PersistentState';
 import { trackEvent, EVENTS, CATEGORIES } from '@/app/utils/analytics';
 import { SideAdComponent } from "@/app/components/AdComponent";
 
+const FALLBACK_CANVAS_SIZE = 480;
+
 const MazeGame = () => {
   const { t } = useI18n();
   const canvasRef = useRef(null);
@@ -410,6 +412,10 @@ const MazeGame = () => {
   const calculateCanvasSize = useCallback(() => {
     const viewportWidth = windowSize.width;
     const viewportHeight = windowSize.height;
+
+    if (viewportWidth <= 0 || viewportHeight <= 0) {
+      return { width: FALLBACK_CANVAS_SIZE, height: FALLBACK_CANVAS_SIZE };
+    }
 
     // In wide screens (e.g., desktop devices)
     if (viewportWidth > 768) {

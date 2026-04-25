@@ -83,7 +83,7 @@ export default async function Layout(props) {
       </head>
       <body suppressHydrationWarning>
         <div className="flex flex-col min-h-screen">
-          <nav className="bg-white shadow-md">
+          <nav className="min-h-[216px] bg-white shadow-md sm:min-h-[64px]">
             <div className="container mx-auto px-2 sm:px-4 py-3">
               <div className="flex flex-col sm:flex-row justify-between items-center">
                 <Navigation categories={CATEGORIES} lang={lang} pathname={pathname} />

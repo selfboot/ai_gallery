@@ -26,11 +26,14 @@ const DISK_COLORS = [
 
 const DISK_HEIGHT = 20;
 const MAX_DISKS = 30;
+const INITIAL_DISKS = 6;
+
+const createInitialTowers = (diskCount) => [Array.from({ length: diskCount }, (_, i) => diskCount - i), [], []];
 
 const HanoiTower = () => {
-  const [disks, setDisks] = useState(6);
+  const [disks, setDisks] = useState(INITIAL_DISKS);
   const [speed, setSpeed] = useState(500);
-  const [towers, setTowers] = useState([]);
+  const [towers, setTowers] = useState(() => createInitialTowers(INITIAL_DISKS));
   const [isPlaying, setIsPlaying] = useState(false);
   const [totalMoves, setTotalMoves] = useState(0);
   const [mode, setMode] = useState("manual");
@@ -40,7 +43,7 @@ const HanoiTower = () => {
   const { t } = useI18n();
 
   const resetTowers = useCallback(() => {
-    setTowers([Array.from({ length: disks }, (_, i) => disks - i), [], []]);
+    setTowers(createInitialTowers(disks));
     setIsPlaying(false);
     setTotalMoves(0);
     setMessage("");
@@ -241,22 +244,21 @@ const HanoiTower = () => {
   };
 
   const Tower = React.memo(({ disks, index, totalDisks }) => {
-    const MIN_TOWER_HEIGHT = 400;
     const calculatedHeight = (totalDisks * DISK_HEIGHT) + 40;
-    const isMobile = window.innerWidth < 768;
-    const towerHeight = isMobile ? calculatedHeight : Math.max(MIN_TOWER_HEIGHT, calculatedHeight);
     
     return (
       <div
         data-testid={`tower-${index}`} 
-        className="relative flex flex-col items-center justify-end w-full md:w-1/3 mb-4 md:mb-0 ml-2"
-        style={{ height: `${towerHeight}px` }}
+        className="relative flex flex-col items-center justify-end w-full md:w-1/3 mb-4 md:mb-0 ml-2 md:min-h-[400px]"
+        style={{
+          height: `${calculatedHeight}px`,
+        }}
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, index)}
         onClick={() => handleTowerClick(index)}
       >
         <div className="absolute bottom-0 w-full h-2 bg-gray-400" />
-        <div className="absolute bottom-2 w-2 bg-gray-400" style={{ height: `${towerHeight - 8}px` }} />
+        <div className="absolute bottom-2 w-2 bg-gray-400" style={{ height: `${calculatedHeight - 8}px` }} />
         {disks.map((disk, diskIndex) => (
           <div
             key={diskIndex}

@@ -5,6 +5,11 @@
 @tailwind utilities;
 
 @layer base {
+    html {
+        overflow-y: scroll;
+        scrollbar-gutter: stable;
+    }
+
     :where(.markdown-body) {
 
         /* 重置 Tailwind Preflight 样式 */

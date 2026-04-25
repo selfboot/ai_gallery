@@ -407,10 +407,10 @@ export default function PdfCompressContent() {
         </div>
       )}
 
-      {pdfs.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-1">{t("pdfcompress_files_title", { count: pdfs.length })}</h2>
-          <p className="text-sm text-gray-600 mb-4">{t("pdfcompress_files_hint")}</p>
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6 min-h-56">
+        <h2 className="text-xl font-semibold mb-1">{t("pdfcompress_files_title", { count: pdfs.length })}</h2>
+        <p className="text-sm text-gray-600 mb-4">{t("pdfcompress_files_hint")}</p>
+        {pdfs.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pdfs.map((item, index) => {
               const result = results.find((entry) => entry.id === item.id);
@@ -457,8 +457,12 @@ export default function PdfCompressContent() {
               );
             })}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex min-h-24 items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 text-sm text-gray-500">
+            {t("pdfcompress_upload_hint")}
+          </div>
+        )}
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} type={modalType}>
         <div className="text-gray-700 whitespace-pre-line">{modalMessage}</div>

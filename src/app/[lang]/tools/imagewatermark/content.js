@@ -558,7 +558,7 @@ export default function ImageWatermarkContent() {
                   </p>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                <div className="grid min-h-40 grid-cols-2 gap-3 md:grid-cols-3">
                   {images.map((item, index) => {
                     const result = resultMap.get(item.id);
                     return (
@@ -590,6 +590,10 @@ export default function ImageWatermarkContent() {
                     );
                   })}
                 </div>
+              </div>
+            ) : (
+              <div className="mt-6 flex min-h-40 items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 text-sm text-gray-500">
+                {t("imagewatermark_min_files_error")}
               </div>
             )}
           </section>
