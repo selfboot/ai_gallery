@@ -547,7 +547,7 @@ export default function ImageWatermarkContent() {
               </div>
             </div>
 
-            {images.length > 0 && (
+            {images.length > 0 ? (
               <div className="mt-6">
                 {results.length > 0 && (
                   <p className="mb-4 text-sm text-gray-600">

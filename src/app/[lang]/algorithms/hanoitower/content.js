@@ -252,13 +252,14 @@ const HanoiTower = () => {
         className="relative flex flex-col items-center justify-end w-full md:w-1/3 mb-4 md:mb-0 ml-2 md:min-h-[400px]"
         style={{
           height: `${calculatedHeight}px`,
+          "--tower-pole-height": `${calculatedHeight - 8}px`,
         }}
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, index)}
         onClick={() => handleTowerClick(index)}
       >
         <div className="absolute bottom-0 w-full h-2 bg-gray-400" />
-        <div className="absolute bottom-2 w-2 bg-gray-400" style={{ height: `${calculatedHeight - 8}px` }} />
+        <div className="absolute bottom-2 w-2 bg-gray-400 h-[var(--tower-pole-height)] md:min-h-[392px]" />
         {disks.map((disk, diskIndex) => (
           <div
             key={diskIndex}
