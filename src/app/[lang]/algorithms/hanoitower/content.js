@@ -27,6 +27,8 @@ const DISK_COLORS = [
 const DISK_HEIGHT = 20;
 const MAX_DISKS = 30;
 const INITIAL_DISKS = 6;
+const MIN_SPEED = 50;
+const MAX_SPEED = 1000;
 
 const createInitialTowers = (diskCount) => [Array.from({ length: diskCount }, (_, i) => diskCount - i), [], []];
 
@@ -304,6 +306,13 @@ const HanoiTower = () => {
     const diskOptions = useMemo(() => Array.from({ length: MAX_DISKS - 1 }, (_, i) => i + 2), []);
 
     const minMoves = 2 ** disks - 1;
+    const updateSpeedFromPointer = (event) => {
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      setSpeed(Math.round(MIN_SPEED + ratio * (MAX_SPEED - MIN_SPEED)));
+    };
+
     return (
       <div className="w-full md:w-1/5 p-4 flex flex-col space-y-4">
         <h2 className="text-2xl font-bold">{t("settings")}</h2>
@@ -322,18 +331,32 @@ const HanoiTower = () => {
             disabled={isPlaying}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t("speed")}</label>
+        <div className="select-none">
+          <div className="flex items-center justify-between">
+            <label htmlFor="hanoi-speed" className="block text-sm font-medium text-gray-700">{t("speed")}</label>
+            <span className="text-sm text-gray-600">{speed}ms</span>
+          </div>
           <input
+            id="hanoi-speed"
             type="range"
-            min="1"
-            max="1000"
+            min={MIN_SPEED}
+            max={MAX_SPEED}
+            step="1"
             value={speed}
+            onPointerDown={updateSpeedFromPointer}
+            onPointerMove={(event) => {
+              if (event.buttons === 1) {
+                updateSpeedFromPointer(event);
+              }
+            }}
+            onInput={(e) => setSpeed(Number(e.currentTarget.value))}
             onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-full"
-            disabled={mode === "manual"}
+            className="mt-2 w-full cursor-pointer accent-blue-600"
           />
-          <span>{speed}ms</span>
+          <div className="mt-1 flex justify-between text-xs text-gray-500">
+            <span>50ms</span>
+            <span>1000ms</span>
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">{t("mode")}</label>
