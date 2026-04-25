@@ -7,6 +7,13 @@ import Modal from '@/app/components/Modal';
 import { SideAdComponent } from "@/app/components/AdComponent";
 import { isSlidingPuzzleSolvable } from './solvability';
 
+const INITIAL_SIZE = 3;
+
+const createSolvedBoard = (size) =>
+  Array.from({ length: size }, (_, row) =>
+    Array.from({ length: size }, (_, col) => (row * size + col + 1) % (size * size))
+  );
+
 // Priority Queue implementation
 class PriorityQueue {
   constructor() {
@@ -29,10 +36,10 @@ class PriorityQueue {
 
 const SlidingPuzzle = () => {
   const { t } = useI18n();
-  const [size, setSize] = useState(3);
+  const [size, setSize] = useState(INITIAL_SIZE);
   const [difficulty, setDifficulty] = useState(t('difficulty_medium'));
-  const [board, setBoard] = useState([]);
-  const [emptyPos, setEmptyPos] = useState({ row: size - 1, col: size - 1 });
+  const [board, setBoard] = useState(() => createSolvedBoard(INITIAL_SIZE));
+  const [emptyPos, setEmptyPos] = useState({ row: INITIAL_SIZE - 1, col: INITIAL_SIZE - 1 });
   const [moves, setMoves] = useState(0);
   const [isSolved, setIsSolved] = useState(false);
   const [solution, setSolution] = useState([]);
@@ -213,9 +220,7 @@ const SlidingPuzzle = () => {
     }
 
     // First create the completed board
-    const newBoard = Array.from({ length: size }, (_, row) =>
-      Array.from({ length: size }, (_, col) => (row * size + col + 1) % (size * size))
-    );
+    const newBoard = createSolvedBoard(size);
     let newEmptyPos = { row: size - 1, col: size - 1 };
 
     const moves = getMovesByDifficulty(difficulty);

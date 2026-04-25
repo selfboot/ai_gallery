@@ -316,8 +316,8 @@ export default function PdfImageContent() {
         </div>
       </div>
 
-      {outputs.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6 min-h-56">
+        {outputs.length > 0 && (
           <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="rounded border border-gray-200 p-4">
               <p className="text-sm text-gray-500">{t("pdfimage_result_pages")}</p>
@@ -332,9 +332,11 @@ export default function PdfImageContent() {
               <p className="mt-1 text-2xl font-bold text-blue-700">{settings.format.toUpperCase()}</p>
             </div>
           </div>
+        )}
 
-          <h2 className="text-xl font-semibold mb-1">{t("pdfimage_images_title", { count: outputs.length })}</h2>
-          <p className="text-sm text-gray-600 mb-4">{t("pdfimage_images_hint")}</p>
+        <h2 className="text-xl font-semibold mb-1">{t("pdfimage_images_title", { count: outputs.length })}</h2>
+        <p className="text-sm text-gray-600 mb-4">{t("pdfimage_images_hint")}</p>
+        {outputs.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {outputs.map((item) => (
               <div key={item.id} className="flex min-h-full flex-col overflow-hidden rounded border border-gray-200 bg-white shadow-sm transition hover:border-blue-200 hover:shadow-md">
@@ -363,8 +365,12 @@ export default function PdfImageContent() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex min-h-24 items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 text-sm text-gray-500">
+            {t("pdfimage_error_missing_file")}
+          </div>
+        )}
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} type={modalType}>
         <div className="text-gray-700 whitespace-pre-line">{modalMessage}</div>

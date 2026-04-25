@@ -373,10 +373,10 @@ export default function ImageConvertContent() {
         </div>
       )}
 
-      {images.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-1">{t("imageconvert_images_title", { count: images.length })}</h2>
-          <p className="text-sm text-gray-600 mb-4">{t("imageconvert_images_hint")}</p>
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6 min-h-48">
+        <h2 className="text-xl font-semibold mb-1">{t("imageconvert_images_title", { count: images.length })}</h2>
+        <p className="text-sm text-gray-600 mb-4">{t("imageconvert_images_hint")}</p>
+        {images.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {images.map((item, index) => {
               const result = results.find((entry) => entry.id === item.id);
@@ -422,8 +422,12 @@ export default function ImageConvertContent() {
               );
             })}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex min-h-24 items-center justify-center rounded border border-dashed border-gray-300 bg-gray-50 px-4 text-sm text-gray-500">
+            {t("imageconvert_min_files_error")}
+          </div>
+        )}
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} type={modalType}>
         <div className="text-gray-700 whitespace-pre-line">{modalMessage}</div>

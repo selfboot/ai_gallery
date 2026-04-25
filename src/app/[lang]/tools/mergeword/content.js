@@ -505,18 +505,20 @@ export default function WordMergerContent() {
       </div>
 
       {/* 下半部分：文件列表（全宽） */}
-      {files.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{t('mergeword_uploaded_files')} ({files.length})</h2>
+      <div className="bg-white rounded-lg shadow-lg p-6 min-h-48">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">{t('mergeword_uploaded_files')} ({files.length})</h2>
+          {files.length > 0 && (
             <button
               onClick={clearAllFiles}
               className="text-red-500 hover:text-red-700 text-sm"
             >
               {t('mergeword_clear_all')}
             </button>
-          </div>
-          
+          )}
+        </div>
+
+        {files.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {files.map((file, index) => (
               <div
@@ -569,12 +571,18 @@ export default function WordMergerContent() {
               </div>
             ))}
           </div>
-          
+        ) : (
+          <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 text-sm text-gray-500">
+            {t('mergeword_upload_first')}
+          </div>
+        )}
+
+        {files.length > 0 && (
           <p className="text-sm text-gray-500 mt-4 text-center">
             {t('mergeword_order_hint')}
           </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* 模态框 */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>

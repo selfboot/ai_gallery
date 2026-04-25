@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Pencil, Save, Trash2 } from "lucide-react";
 import { SokobanLogic, ELEMENTS, SPRITE_CONFIG, decodeMapFromId, calculateMapId, validateMap } from "./gameLogic";
 import { useI18n } from "@/app/i18n/client";
@@ -14,21 +14,17 @@ const STORAGE_KEY = 'sokoban-progress';
 
 const SokobanGame = ({ lang, levels }) => {
   const { t } = useI18n();
-  const [currentLevel, setCurrentLevel] = useState(null);
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [completedLevels, setCompletedLevels] = useState({});
-  const [gameInstance, setGameInstance] = useState(null);
-  const [gameState, setGameState] = useState({
-    map: [],
-    moves: 0,
-    isWon: false,
-  });
+  const [gameInstance, setGameInstance] = useState(() => new SokobanLogic(0, levels));
+  const [gameState, setGameState] = useState(() => new SokobanLogic(0, levels).getState());
   const [playerDirection, setPlayerDirection] = useState("FRONT");
   const [isMoving, setIsMoving] = useState(false);
   const [leftMoveFrame, setLeftMoveFrame] = useState(0);
   const [rightMoveFrame, setRightMoveFrame] = useState(0);
   const [upMoveFrame, setUpMoveFrame] = useState(0);
   const [downMoveFrame, setDownMoveFrame] = useState(0);
-  const [cellSize, setCellSize] = useState(null);
+  const [cellSize, setCellSize] = useState(SPRITE_CONFIG.SPRITE_SIZE);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -40,6 +36,7 @@ const SokobanGame = ({ lang, levels }) => {
   const [customMap, setCustomMap] = useState(null);
   const [selectedBox, setSelectedBox] = useState(null);
   const [customLevelInfo, setCustomLevelInfo] = useState(null);
+  const didSkipInitialReset = useRef(false);
 
   const elementTypes = [
     { type: ELEMENTS.EMPTY, name: "Empty" },
@@ -217,6 +214,11 @@ const SokobanGame = ({ lang, levels }) => {
   }, [levels, handleLevelChange]);
 
   useEffect(() => {
+    if (!didSkipInitialReset.current) {
+      didSkipInitialReset.current = true;
+      return;
+    }
+
     resetGame();
   }, [currentLevel]);
 
