@@ -404,6 +404,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "favicon",
+      title: "favicon_title",
+      description: "favicon_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260425_ai_gallery_favicon_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260425_ai_gallery_favicon_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260425_ai_gallery_favicon_zh.svg",
+      },
+      link: "/tools/favicon/",
+      tags: ["image", "web"],
+    },
+    {
       id: "pdforganize",
       title: "pdforganize_title",
       description: "pdforganize_description",
