@@ -512,6 +512,18 @@ const Projects = {
       tags: ["pdf", "document"],
     },
     {
+      id: "pdfprotect",
+      title: "pdfprotect_title",
+      description: "pdfprotect_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260426_ai_gallery_pdfprotect_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260426_ai_gallery_pdfprotect_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260426_ai_gallery_pdfprotect_zh.svg",
+      },
+      link: "/tools/pdfprotect/",
+      tags: ["pdf", "document"],
+    },
+    {
       id: "pdfwhiteout",
       title: "pdfwhiteout_title",
       description: "pdfwhiteout_description",

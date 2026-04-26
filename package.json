@@ -28,6 +28,7 @@
     "@jsquash/avif": "^2.1.1",
     "@jsquash/webp": "^1.5.0",
     "@next/third-parties": "15.5.15",
+    "@pdfsmaller/pdf-encrypt-lite": "^1.0.2",
     "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",

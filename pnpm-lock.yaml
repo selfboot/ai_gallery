@@ -38,6 +38,9 @@ importers:
       '@next/third-parties':
         specifier: 15.5.15
         version: 15.5.15(next@15.5.15(@babel/core@7.28.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      '@pdfsmaller/pdf-encrypt-lite':
+        specifier: ^1.0.2
+        version: 1.0.2(pdf-lib@1.17.1)
       '@react-spring/web':
         specifier: ^10.0.3
         version: 10.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1583,6 +1586,12 @@ packages:
 
   '@pdf-lib/upng@1.0.1':
     resolution: {integrity: sha512-dQK2FUMQtowVP00mtIksrlZhdFXQZPC+taih1q4CvPZ5vqdxR/LKBaFg0oAfzd1GlHZXXSPdQfzQnt+ViGvEIQ==}
+
+  '@pdfsmaller/pdf-encrypt-lite@1.0.2':
+    resolution: {integrity: sha512-9egzPJ9I6gfmRP7BJjN3M1dt99DagF72BpQneVke1vgXAeIAU38i2YAt+EBvwbaYTmn7CFu/Z6IeIhoe0p/YQg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      pdf-lib: ^1.17.1
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -7898,6 +7907,10 @@ snapshots:
   '@pdf-lib/upng@1.0.1':
     dependencies:
       pako: 1.0.11
+
+  '@pdfsmaller/pdf-encrypt-lite@1.0.2(pdf-lib@1.17.1)':
+    dependencies:
+      pdf-lib: 1.17.1
 
   '@poppinss/colors@4.1.6':
     dependencies:
