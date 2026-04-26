@@ -513,13 +513,7 @@ const MazeGame = () => {
     <div className="container mx-auto">
       <div className="lg:flex gap-4">
         <div className="lg:w-4/5 mb-4 lg:mb-0 lg:mr-8">
-          <div
-            className="aspect-square relative mx-auto"
-            style={{
-              width: calculateCanvasSize().width,
-              height: calculateCanvasSize().height,
-            }}
-          >
+          <div className="relative mx-auto aspect-square w-[90vw] max-w-full lg:w-[80vh]">
             <svg
               ref={canvasRef}
               className="w-full h-full absolute inset-0"

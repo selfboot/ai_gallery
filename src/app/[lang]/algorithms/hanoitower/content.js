@@ -420,7 +420,7 @@ const HanoiTower = () => {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-4/5 p-4 bg-gray-100">
+        <div className="w-full min-h-[552px] bg-gray-100 p-4 md:w-4/5 md:min-h-[400px]">
           <div className="flex flex-col md:flex-row justify-between h-full">
             {towers.map((tower, index) => (
               <Tower key={index} disks={tower} index={index} totalDisks={disks} />
