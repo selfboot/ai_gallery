@@ -320,6 +320,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "backgroundremover",
+      title: "backgroundremover_title",
+      description: "backgroundremover_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260427_ai_gallery_backgroundremover_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260427_ai_gallery_backgroundremover_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260427_ai_gallery_backgroundremover_zh.svg",
+      },
+      link: "/tools/backgroundremover/",
+      tags: ["image", "media"],
+    },
+    {
       id: "imagecrop",
       title: "imagecrop_title",
       description: "imagecrop_description",
