@@ -1,32 +1,14 @@
 import PdfWatermarkContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.pdfwatermark.title,
-      description: dict.seo.pdfwatermark.description,
-      keywords: dict.seo.pdfwatermark.keywords,
-      publishedDate: "2026-04-22T13:30:00.000Z",
-      updatedDate: "2026-04-22T13:30:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/pdfwatermark`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/pdfwatermark",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/pdfwatermark",
-        "x-default": "https://gallery.selfboot.cn/en/tools/pdfwatermark",
-      },
-    },
-  };
+  return createToolMetadata("pdfwatermark", lang);
 }
 
 export default async function PdfWatermarkPage(props) {
@@ -38,6 +20,7 @@ export default async function PdfWatermarkPage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/pdfwatermark`} />
       <PdfWatermarkContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/pdfwatermark" />
+      <ToolStructuredData toolId="pdfwatermark" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );

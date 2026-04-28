@@ -1,32 +1,14 @@
 import HeicConvertContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.heicconvert.title,
-      description: dict.seo.heicconvert.description,
-      keywords: dict.seo.heicconvert.keywords,
-      publishedDate: "2026-04-24T04:00:00.000Z",
-      updatedDate: "2026-04-24T04:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/heicconvert`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/heicconvert",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/heicconvert",
-        "x-default": "https://gallery.selfboot.cn/en/tools/heicconvert",
-      },
-    },
-  };
+  return createToolMetadata("heicconvert", lang);
 }
 
 export default async function HeicConvertPage(props) {
@@ -38,6 +20,7 @@ export default async function HeicConvertPage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/heicconvert`} />
       <HeicConvertContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/heicconvert" />
+      <ToolStructuredData toolId="heicconvert" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );

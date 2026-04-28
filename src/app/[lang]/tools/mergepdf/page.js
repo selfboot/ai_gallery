@@ -1,32 +1,14 @@
 import PdfMergerContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.mergepdf.title,
-      description: dict.seo.mergepdf.description,
-      keywords: dict.seo.mergepdf.keywords,
-      publishedDate: "2026-02-12T10:00:00.000Z",
-      updatedDate: "2026-02-12T10:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/mergepdf`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/mergepdf",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/mergepdf",
-        "x-default": "https://gallery.selfboot.cn/en/tools/mergepdf",
-      },
-    },
-  };
+  return createToolMetadata("mergepdf", lang);
 }
 
 export default async function PdfMergerPage(props) {
@@ -38,6 +20,7 @@ export default async function PdfMergerPage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/mergepdf`} />
       <PdfMergerContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/mergepdf" />
+      <ToolStructuredData toolId="mergepdf" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );
