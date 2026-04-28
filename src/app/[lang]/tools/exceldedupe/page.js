@@ -1,32 +1,14 @@
 import ExcelDedupeContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.exceldedupe.title,
-      description: dict.seo.exceldedupe.description,
-      keywords: dict.seo.exceldedupe.keywords,
-      publishedDate: "2026-04-17T10:00:00.000Z",
-      updatedDate: "2026-04-17T10:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/exceldedupe`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/exceldedupe",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/exceldedupe",
-        "x-default": "https://gallery.selfboot.cn/en/tools/exceldedupe",
-      },
-    },
-  };
+  return createToolMetadata("exceldedupe", lang);
 }
 
 export default async function ExcelDedupePage(props) {
@@ -38,6 +20,7 @@ export default async function ExcelDedupePage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/exceldedupe`} />
       <ExcelDedupeContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/exceldedupe" />
+      <ToolStructuredData toolId="exceldedupe" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );

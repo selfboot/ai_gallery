@@ -1,32 +1,14 @@
 import ExcelSplitMergeContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.excelsplitmerge.title,
-      description: dict.seo.excelsplitmerge.description,
-      keywords: dict.seo.excelsplitmerge.keywords,
-      publishedDate: "2026-04-18T10:00:00.000Z",
-      updatedDate: "2026-04-18T10:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/excelsplitmerge`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/excelsplitmerge",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/excelsplitmerge",
-        "x-default": "https://gallery.selfboot.cn/en/tools/excelsplitmerge",
-      },
-    },
-  };
+  return createToolMetadata("excelsplitmerge", lang);
 }
 
 export default async function ExcelSplitMergePage(props) {
@@ -38,6 +20,7 @@ export default async function ExcelSplitMergePage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/excelsplitmerge`} />
       <ExcelSplitMergeContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/excelsplitmerge" />
+      <ToolStructuredData toolId="excelsplitmerge" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );

@@ -1,35 +1,14 @@
-import { getDictionary } from "@/app/dictionaries";
 import ImageSubtitleTool from "./ClientContent";
-import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from '@/app/components/BlogMarkdown';
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
+  const { lang } = params;
 
-  const {
-    lang
-  } = params;
-
-  const dict = await getDictionary(lang);
-  return {
-    ...PageMeta({
-      title: dict.seo.subtitles.title,
-      description: dict.seo.subtitles.description,
-      keywords: dict.seo.subtitles.keywords,
-      publishedDate: "2024-07-28T02:00:00.000Z",
-      updatedDate: "2025-01-15T09:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/subtitles`,
-      languages: {
-        "en": "https://gallery.selfboot.cn/en/tools/subtitles",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/subtitles",
-        "x-default": "https://gallery.selfboot.cn/en/tools/subtitles",
-      },
-    },
-  };
+  return createToolMetadata("subtitles", lang);
 }
 
 export default async function SubtitlesPage(props) {
@@ -44,6 +23,7 @@ export default async function SubtitlesPage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/subtitles`} />
       <ImageSubtitleTool lang={lang} />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/subtitles" />
+      <ToolStructuredData toolId="subtitles" lang={lang} />
       <CommonComments lang={lang} />
     </>
   );

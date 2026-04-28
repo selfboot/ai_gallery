@@ -1,26 +1,14 @@
-import { getDictionary } from "@/app/dictionaries";
 import ChartRace from "./ClientContent";
-import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from '@/app/components/BlogMarkdown';
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
+  const { lang } = params;
 
-  const {
-    lang
-  } = params;
-
-  const dict = await getDictionary(lang);
-  return PageMeta({
-    title: dict.seo.chartrace.title,
-    description: dict.seo.chartrace.description,
-    keywords: dict.seo.chartrace.keywords,
-    canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/chartrace`,
-    publishedDate: "2024-07-08T02:00:00.000Z",
-    updatedDate: "2024-07-08T09:00:00.000Z",
-  });
+  return createToolMetadata("chartrace", lang);
 }
 
 export default async function ChartRacePage(props) {
@@ -35,6 +23,7 @@ export default async function ChartRacePage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/chartrace`} />
       <ChartRace lang={lang} />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/chartrace" />
+      <ToolStructuredData toolId="chartrace" lang={lang} />
       <CommonComments lang={lang} />
     </>
   );

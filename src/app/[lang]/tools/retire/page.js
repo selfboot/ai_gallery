@@ -1,35 +1,14 @@
-import { getDictionary } from "@/app/dictionaries";
 import RetirementCalculator from "./ClientContent";
-import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
+  const { lang } = params;
 
-  const {
-    lang
-  } = params;
-
-  const dict = await getDictionary(lang);
-  return {
-    ...PageMeta({
-      title: dict.seo.retire.title,
-      description: dict.seo.retire.description,
-      keywords: dict.seo.retire.keywords,
-      publishedDate: "2025-03-27T02:00:00.000Z",
-      updatedDate: "2025-03-27T09:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/retire`,
-      languages: {
-        "en": "https://gallery.selfboot.cn/en/tools/retire",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/retire",
-        "x-default": "https://gallery.selfboot.cn/en/tools/retire",
-      },
-    },
-  };
+  return createToolMetadata("retire", lang);
 }
 
 export default async function GenDocxPage(props) {
@@ -43,6 +22,7 @@ export default async function GenDocxPage(props) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/retire`} />
       <RetirementCalculator lang={lang} />
+      <ToolStructuredData toolId="retire" lang={lang} />
       <CommonComments lang={lang} />
     </>
   );

@@ -1,32 +1,14 @@
 import ExcelCompareContent from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
-import { getDictionary } from "@/app/dictionaries";
-import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 
 export async function generateMetadata(props) {
   const params = await props.params;
   const { lang } = params;
-  const dict = await getDictionary(lang);
 
-  return {
-    ...PageMeta({
-      title: dict.seo.excelcompare.title,
-      description: dict.seo.excelcompare.description,
-      keywords: dict.seo.excelcompare.keywords,
-      publishedDate: "2026-04-17T10:00:00.000Z",
-      updatedDate: "2026-04-17T10:00:00.000Z",
-    }),
-    alternates: {
-      canonical: `https://gallery.selfboot.cn/${lang}/tools/excelcompare`,
-      languages: {
-        en: "https://gallery.selfboot.cn/en/tools/excelcompare",
-        "zh-CN": "https://gallery.selfboot.cn/zh/tools/excelcompare",
-        "x-default": "https://gallery.selfboot.cn/en/tools/excelcompare",
-      },
-    },
-  };
+  return createToolMetadata("excelcompare", lang);
 }
 
 export default async function ExcelComparePage(props) {
@@ -38,6 +20,7 @@ export default async function ExcelComparePage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/excelcompare`} />
       <ExcelCompareContent />
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/excelcompare" />
+      <ToolStructuredData toolId="excelcompare" lang={lang} />
       <CommonComments lang={lang} />
     </div>
   );

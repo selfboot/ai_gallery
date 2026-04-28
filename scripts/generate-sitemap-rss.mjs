@@ -11,6 +11,37 @@ const { documentTemplates } = documentTemplatesModule;
 
 const DOMAIN = "https://gallery.selfboot.cn";
 const LANGUAGES = ["en", "zh"];
+const TOOL_SEO_ALIASES = {
+  awards: "gendocx",
+};
+
+function readObjectLiteralFromFile(filePath, exportName) {
+  const content = fs.readFileSync(filePath, "utf8");
+  const startToken = `export const ${exportName} = `;
+  const start = content.indexOf(startToken);
+  if (start === -1) return {};
+
+  const braceStart = content.indexOf("{", start + startToken.length);
+  let depth = 0;
+  for (let index = braceStart; index < content.length; index += 1) {
+    const char = content[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        const literal = content.slice(braceStart, index + 1);
+        return Function(`"use strict"; return (${literal});`)();
+      }
+    }
+  }
+
+  return {};
+}
+
+const TOOL_METADATA_DATES = readObjectLiteralFromFile(
+  path.join(process.cwd(), "src", "app", "[lang]", "tools", "toolSeoData.js"),
+  "TOOL_METADATA_DATES"
+);
 
 // 读取字典文件
 function getDictionary(lang) {
@@ -89,13 +120,27 @@ async function generateSitemapAndRss() {
           }
         } else {
           // Existing logic for static routes
+          const toolMetadataMatch = content.match(/createToolMetadata\("([^"]+)"/);
           const titleMatch = content.match(/title:\s*([^,\n]+)/);
           const descriptionMatch = content.match(/description:\s*([^,\n]+)/);
           const canonicalUrlMatch = content.match(/canonicalUrl:\s*(`[^`]+`)/);
           const publishedDateMatch = content.match(/publishedDate:\s*"([^"]+)"/);
           const updatedDateMatch = content.match(/updatedDate:\s*"([^"]+)"/);
 
-          if (titleMatch && descriptionMatch) {
+          if (toolMetadataMatch) {
+            const toolId = toolMetadataMatch[1];
+            const seoId = TOOL_SEO_ALIASES[toolId] || toolId;
+            const dates = TOOL_METADATA_DATES[toolId] || TOOL_METADATA_DATES[seoId] || {};
+            const metadata = {
+              title: getNestedValue(dict, `seo.${seoId}.title`),
+              description: getNestedValue(dict, `seo.${seoId}.description`),
+              canonicalUrl: `${DOMAIN}/${lang}${route}`,
+              publishedDate: dates.publishedDate || null,
+              updatedDate: dates.updatedDate || null,
+            };
+
+            addToSitemapAndRss(sitemapItems, rssItems, metadata);
+          } else if (titleMatch && descriptionMatch) {
             const titleKey = titleMatch[1]
               .trim()
               .replace(/^dict\./, "")
