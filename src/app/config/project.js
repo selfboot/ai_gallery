@@ -332,6 +332,18 @@ const Projects = {
       tags: ["image", "media"],
     },
     {
+      id: "imageblur",
+      title: "imageblur_title",
+      description: "imageblur_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_imageblur_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_imageblur_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_imageblur_zh.svg",
+      },
+      link: "/tools/imageblur/",
+      tags: ["image", "privacy"],
+    },
+    {
       id: "imagecrop",
       title: "imagecrop_title",
       description: "imagecrop_description",
