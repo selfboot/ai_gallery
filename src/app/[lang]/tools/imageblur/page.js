@@ -15,8 +15,8 @@ export async function generateMetadata(props) {
       title: dict.seo.imageblur.title,
       description: dict.seo.imageblur.description,
       keywords: dict.seo.imageblur.keywords,
-      publishedDate: "2026-04-29T04:00:00.000Z",
-      updatedDate: "2026-04-29T04:00:00.000Z",
+      publishedDate: "2026-04-29T09:00:00.000Z",
+      updatedDate: "2026-04-29T09:00:00.000Z",
     }),
     alternates: {
       canonical: `https://gallery.selfboot.cn/${lang}/tools/imageblur`,
