@@ -608,6 +608,18 @@ const Projects = {
       tags: ["excel", "data", "developer"],
     },
     {
+      id: "difftext",
+      title: "difftext_title",
+      description: "difftext_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_difftext_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_difftext_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260429_ai_gallery_difftext_zh.svg",
+      },
+      link: "/tools/difftext/",
+      tags: ["text", "developer"],
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
