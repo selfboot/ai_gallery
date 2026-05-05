@@ -644,6 +644,18 @@ const Projects = {
       tags: ["text", "developer"],
     },
     {
+      id: "yamljson",
+      title: "yamljson_title",
+      description: "yamljson_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_yamljson_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_yamljson_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_yamljson_zh.svg",
+      },
+      link: "/tools/yamljson/",
+      tags: ["text", "developer"],
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
