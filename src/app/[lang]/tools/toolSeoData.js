@@ -68,6 +68,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-04-22T10:00:00.000Z",
     updatedDate: "2026-04-22T10:00:00.000Z",
   },
+  imagegrid: {
+    publishedDate: "2026-05-05T13:00:00.000Z",
+    updatedDate: "2026-05-05T13:00:00.000Z",
+  },
   imagemetadata: {
     publishedDate: "2026-04-24T02:00:00.000Z",
     updatedDate: "2026-04-24T02:00:00.000Z",

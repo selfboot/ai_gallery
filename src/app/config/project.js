@@ -368,6 +368,18 @@ const Projects = {
       tags: ["image", "social"],
     },
     {
+      id: "imagegrid",
+      title: "imagegrid_title",
+      description: "imagegrid_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_imagegrid_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_imagegrid_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_imagegrid_zh.svg",
+      },
+      link: "/tools/imagegrid/",
+      tags: ["image", "social", "design"],
+    },
+    {
       id: "colorpalette",
       title: "colorpalette_title",
       description: "colorpalette_description",
