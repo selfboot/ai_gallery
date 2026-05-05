@@ -5,9 +5,9 @@ The Sliding Puzzle is a classic puzzle game where players need to rearrange scra
 
 Rules:
 
-1. The game board consists of n×n grid cells (this game supports 3×3, 4×4, 5×5);
+1. The game board consists of n×n grid cells (this game supports 3×3 through 8×8);
 2. Each cell contains numbers from 1 to n²-1, plus one empty space;
-3. Numbers can only be rearranged by moving them into the adjacent empty space;
+3. Click any tile in the same row or column as the empty space to slide the whole segment into the empty space;
 4. The game is won when all numbers are arranged in sequence (1 to n²-1) with the empty space at the end;
 
 ## Features of This Page
@@ -18,7 +18,7 @@ Rules:
    - Hard: 50-500 random moves
 
 2. **Excellent User Experience:**
-   - Click adjacent numbers to swap with empty space, responsive layout for different screens;
+   - Click a tile in the same row or column as the empty space to slide one or more tiles, with a responsive layout for different screens;
    - Animated movements to easily observe each step
    - Track moves count and time
 
@@ -48,6 +48,6 @@ All randomly generated initial layouts on this page are solvable. The page uses 
 3. Records visited states to avoid repeated searches;
 4. Shows solution steps after finding the shortest path;
 
-For larger sizes (4×4, 5×5) at higher difficulties, more steps may be needed, and **smart calculation might get stuck**. It's recommended to start with lower difficulties.
+For larger boards, especially 5×5 and above, optimal solving can become very expensive. The page now uses a faster priority queue and time-limited search so it can try to find a useful solution without freezing the browser. If the search gets too large, it stops with a message. For big boards, start with lower difficulty or make a few manual moves before asking for a solution.
 
 This game is open source, with code available on Github.

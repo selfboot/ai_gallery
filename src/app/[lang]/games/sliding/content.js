@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CustomListbox } from '@/app/components/ListBox';
 import { useI18n } from '@/app/i18n/client';
 import Modal from '@/app/components/Modal';
@@ -22,15 +22,55 @@ class PriorityQueue {
 
   enqueue(element, priority) {
     this.values.push({ element, priority });
-    this.sort();
+    this.bubbleUp(this.values.length - 1);
   }
 
   dequeue() {
-    return this.values.shift();
+    if (this.values.length === 0) return null;
+    const min = this.values[0];
+    const end = this.values.pop();
+    if (this.values.length > 0) {
+      this.values[0] = end;
+      this.sinkDown(0);
+    }
+    return min;
   }
 
-  sort() {
-    this.values.sort((a, b) => a.priority - b.priority);
+  bubbleUp(index) {
+    const element = this.values[index];
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      const parent = this.values[parentIndex];
+      if (element.priority >= parent.priority) break;
+      this.values[parentIndex] = element;
+      this.values[index] = parent;
+      index = parentIndex;
+    }
+  }
+
+  sinkDown(index) {
+    const length = this.values.length;
+    const element = this.values[index];
+    while (true) {
+      const leftIndex = 2 * index + 1;
+      const rightIndex = 2 * index + 2;
+      let swapIndex = null;
+
+      if (leftIndex < length && this.values[leftIndex].priority < element.priority) {
+        swapIndex = leftIndex;
+      }
+      if (
+        rightIndex < length &&
+        ((swapIndex === null && this.values[rightIndex].priority < element.priority) ||
+          (swapIndex !== null && this.values[rightIndex].priority < this.values[swapIndex].priority))
+      ) {
+        swapIndex = rightIndex;
+      }
+      if (swapIndex === null) break;
+      this.values[index] = this.values[swapIndex];
+      this.values[swapIndex] = element;
+      index = swapIndex;
+    }
   }
 }
 
@@ -53,6 +93,8 @@ const SlidingPuzzle = () => {
   const [animatingTiles, setAnimatingTiles] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const pendingCellRef = useRef(null);
+  const [solveStatus, setSolveStatus] = useState('');
 
   // Manhattan distance heuristic
   const getManhattanDistance = (board) => {
@@ -115,11 +157,26 @@ const SlidingPuzzle = () => {
     return moves;
   };
 
-  // A* algorithm implementation
+  const getSolverLimits = () => {
+    if (size <= 3) return { maxMs: 5000, maxVisited: 120000, weight: 1 };
+    if (size === 4) return { maxMs: 9000, maxVisited: 180000, weight: 1.15 };
+    if (size === 5) return { maxMs: 12000, maxVisited: 100000, weight: 1.65 };
+    return { maxMs: 12000, maxVisited: 65000, weight: 2.1 };
+  };
+
+  const yieldToBrowser = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  // Time-limited weighted A* implementation. Larger boards use a higher heuristic weight.
   const solvePuzzle = async (initialBoard, initialEmptyPos) => {
     setSolving(true);
+    setSolveStatus(t('solve_searching'));
+    setSolution([]);
+    setCurrentSolutionStep(-1);
+
+    const { maxMs, maxVisited, weight } = getSolverLimits();
+    const startTime = performance.now();
     const pq = new PriorityQueue();
-    const visited = new Set();
+    const bestCosts = new Map();
     const initial = {
       board: initialBoard,
       emptyPos: initialEmptyPos,
@@ -127,38 +184,59 @@ const SlidingPuzzle = () => {
       cost: 0,
     };
 
-    pq.enqueue(initial, getManhattanDistance(initialBoard));
+    pq.enqueue(initial, getManhattanDistance(initialBoard) * weight);
 
     while (pq.values.length > 0) {
+      if (bestCosts.size >= maxVisited || performance.now() - startTime > maxMs) {
+        setSolving(false);
+        setSolveStatus(t('solve_limited', { count: bestCosts.size }));
+        return null;
+      }
+
+      if (bestCosts.size > 0 && bestCosts.size % 1000 === 0) {
+        setSolveStatus(t('solve_progress', { count: bestCosts.size }));
+        await yieldToBrowser();
+      }
+
       const current = pq.dequeue().element;
       const boardStr = boardToString(current.board);
+      const existingCost = bestCosts.get(boardStr);
 
-      if (visited.has(boardStr)) continue;
-      visited.add(boardStr);
+      if (existingCost !== undefined && existingCost <= current.cost) continue;
+      bestCosts.set(boardStr, current.cost);
 
-      if (getManhattanDistance(current.board) === 0) {
+      const currentDistance = getManhattanDistance(current.board);
+      if (currentDistance === 0) {
         setSolution(current.path);
         setSolving(false);
+        setSolveStatus(t('solve_found', { count: current.path.length }));
         return current.path;
       }
 
-      const moves = getValidMoves(current.board, current.emptyPos);
+      const moves = getValidMoves(current.board, current.emptyPos).sort(
+        (a, b) => getManhattanDistance(a.board) - getManhattanDistance(b.board)
+      );
       for (const move of moves) {
-        if (!visited.has(boardToString(move.board))) {
+        const nextCost = current.cost + 1;
+        const moveBoardStr = boardToString(move.board);
+        const knownCost = bestCosts.get(moveBoardStr);
+        if (knownCost === undefined || nextCost < knownCost) {
+          const heuristic = getManhattanDistance(move.board);
           pq.enqueue(
             {
               board: move.board,
               emptyPos: move.emptyPos,
               path: [...current.path, { board: move.board, move: move.move }],
-              cost: current.cost + 1,
+              cost: nextCost,
             },
-            current.cost + 1 + getManhattanDistance(move.board)
+            nextCost + heuristic * weight
           );
         }
       }
     }
 
     setSolving(false);
+    setSolveStatus(t('solve_not_found'));
     return null;
   };
 
@@ -201,13 +279,13 @@ const SlidingPuzzle = () => {
   const getMovesByDifficulty = (difficulty) => {
     switch (difficulty) {
       case t('difficulty_easy'):
-        return Math.floor(Math.random() * 4 + 1);
+        return Math.floor(Math.random() * 10) + 15;
       case t('difficulty_medium'):
-        return Math.floor(Math.random() * 45) + 5;
+        return Math.floor(Math.random() * 30) + 60;
       case t('difficulty_hard'):
         return Math.floor(Math.random() * 450) + 50;
       default:
-        return Math.floor(Math.random() * 10);
+        return Math.floor(Math.random() * 10) + 15;
     }
   };
 
@@ -224,11 +302,20 @@ const SlidingPuzzle = () => {
     let newEmptyPos = { row: size - 1, col: size - 1 };
 
     const moves = getMovesByDifficulty(difficulty);
+    let prevEmptyPos = null;
 
     for (let i = 0; i < moves; i++) {
       const validMoves = getValidMoves(newBoard, newEmptyPos);
-      if (validMoves.length > 0) {
-        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+      // Filter out the move that would go back to previous position to avoid undoing the last move
+      let filteredMoves = validMoves;
+      if (prevEmptyPos && validMoves.length > 1) {
+        filteredMoves = validMoves.filter(
+          (m) => m.emptyPos.row !== prevEmptyPos.row || m.emptyPos.col !== prevEmptyPos.col
+        );
+      }
+      if (filteredMoves.length > 0) {
+        const randomMove = filteredMoves[Math.floor(Math.random() * filteredMoves.length)];
+        prevEmptyPos = { ...newEmptyPos };
         newBoard[newEmptyPos.row][newEmptyPos.col] = newBoard[randomMove.emptyPos.row][randomMove.emptyPos.col];
         newBoard[randomMove.emptyPos.row][randomMove.emptyPos.col] = 0;
         newEmptyPos = randomMove.emptyPos;
@@ -241,6 +328,7 @@ const SlidingPuzzle = () => {
     setIsSolved(false);
     setSolution([]);
     setCurrentSolutionStep(-1);
+    setSolveStatus('');
     setTime(0);
     setTimerActive(false); 
   };
@@ -262,36 +350,82 @@ const SlidingPuzzle = () => {
     return flatBoard[flatBoard.length - 1] === 0;
   };
 
+  const getSlideMove = (row, col) => {
+    if (row === emptyPos.row && col === emptyPos.col) return null;
+    if (row !== emptyPos.row && col !== emptyPos.col) return null;
+
+    if (row === emptyPos.row) {
+      const step = col < emptyPos.col ? 1 : -1;
+      return {
+        axis: 'row',
+        step,
+        tiles: Array.from({ length: Math.abs(emptyPos.col - col) }, (_, index) => ({
+          row,
+          col: col + index * step,
+          dx: step,
+          dy: 0,
+        })),
+      };
+    }
+
+    const step = row < emptyPos.row ? 1 : -1;
+    return {
+      axis: 'col',
+      step,
+      tiles: Array.from({ length: Math.abs(emptyPos.row - row) }, (_, index) => ({
+        row: row + index * step,
+        col,
+        dx: 0,
+        dy: step,
+      })),
+    };
+  };
+
+  const applySlideMove = (row, col, slideMove) => {
+    const newBoard = board.map((boardRow) => [...boardRow]);
+
+    if (slideMove.axis === 'row') {
+      for (let currentCol = emptyPos.col; currentCol !== col; currentCol -= slideMove.step) {
+        newBoard[row][currentCol] = newBoard[row][currentCol - slideMove.step];
+      }
+      newBoard[row][col] = 0;
+      return newBoard;
+    }
+
+    for (let currentRow = emptyPos.row; currentRow !== row; currentRow -= slideMove.step) {
+      newBoard[currentRow][col] = newBoard[currentRow - slideMove.step][col];
+    }
+    newBoard[row][col] = 0;
+    return newBoard;
+  };
+
   // Handle tile click
   const handleTileClick = (row, col) => {
     if (isSolved || solving) return;
 
-    const isAdjacent =
-      (Math.abs(row - emptyPos.row) === 1 && col === emptyPos.col) ||
-      (Math.abs(col - emptyPos.col) === 1 && row === emptyPos.row);
+    const slideMove = getSlideMove(row, col);
 
-    if (isAdjacent) {
+    if (slideMove) {
       if (moves === 0) {
         setTimerActive(true);
       }
 
-      const dx = emptyPos.col - col;
-      const dy = emptyPos.row - row;
-
-      setAnimatingTiles({
-        [row * size + col]: { dx, dy },
-      });
+      setAnimatingTiles(
+        slideMove.tiles.reduce((tiles, tile) => {
+          tiles[tile.row * size + tile.col] = { dx: tile.dx, dy: tile.dy };
+          return tiles;
+        }, {})
+      );
 
       setTimeout(() => {
-        const newBoard = board.map((row) => [...row]);
-        newBoard[emptyPos.row][emptyPos.col] = newBoard[row][col];
-        newBoard[row][col] = 0;
+        const newBoard = applySlideMove(row, col, slideMove);
 
         setBoard(newBoard);
         setEmptyPos({ row, col });
         setMoves(moves + 1);
         setSolution([]);
         setCurrentSolutionStep(-1);
+        setSolveStatus('');
         setAnimatingTiles({});
 
         if (checkSolution(newBoard)) {
@@ -343,6 +477,7 @@ const SlidingPuzzle = () => {
       setTimerActive(false);
       setSolution([]);
       setCurrentSolutionStep(-1);
+      setSolveStatus('');
       setIsSolved(false);
     } else {
       const newBoard = Array(size)
@@ -354,6 +489,7 @@ const SlidingPuzzle = () => {
       setTimerActive(false);
       setSolution([]);
       setCurrentSolutionStep(-1);
+      setSolveStatus('');
       setIsSolved(false);
     }
   };
@@ -392,6 +528,26 @@ const SlidingPuzzle = () => {
       return;
     }
     handleTileClick(row, col);
+  };
+
+  const handleCellPointerDown = (event, row, col) => {
+    if (event.target.closest('button')) return;
+    if (event.button !== undefined && event.button !== 0) return;
+    pendingCellRef.current = { row, col, pointerId: event.pointerId };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleCellPointerUp = (event) => {
+    const pendingCell = pendingCellRef.current;
+    pendingCellRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (!pendingCell || pendingCell.pointerId !== event.pointerId) return;
+    handleCellClick(pendingCell.row, pendingCell.col);
+  };
+
+  const handleCellPointerCancel = (event) => {
+    pendingCellRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
   };
 
   // Initialize on mount and size change
@@ -462,7 +618,10 @@ const SlidingPuzzle = () => {
                 return (
                   <div
                     key={`${i}-${j}`}
-                    onClick={() => handleCellClick(i, j)}
+                    onPointerDown={(event) => handleCellPointerDown(event, i, j)}
+                    onPointerUp={handleCellPointerUp}
+                    onPointerCancel={handleCellPointerCancel}
+                    onDragStart={(event) => event.preventDefault()}
                     className={`
                       aspect-square flex items-center justify-center
                       text-2xl md:text-3xl lg:text-4xl font-bold rounded-lg cursor-pointer
@@ -561,7 +720,7 @@ const SlidingPuzzle = () => {
               <CustomListbox
                 value={`${size}x${size}`}
                 onChange={(value) => setSize(parseInt(value.split('x')[0]))}
-                options={['3x3', '4x4', '5x5']}
+                options={['3x3', '4x4', '5x5', '6x6', '7x7', '8x8']}
               />
             </div>
 
@@ -618,6 +777,7 @@ const SlidingPuzzle = () => {
             )}
 
             <div className="text-sm space-y-2">
+              {solveStatus && <div className="text-gray-600">{solveStatus}</div>}
               {solution.length > 0 && currentSolutionStep >= 0 && (
                 <>
                   <div>
