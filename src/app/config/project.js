@@ -344,6 +344,18 @@ const Projects = {
       tags: ["image", "privacy"],
     },
     {
+      id: "screenshotsize",
+      title: "screenshotsize_title",
+      description: "screenshotsize_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_screenshotsize_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_screenshotsize_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_screenshotsize_zh.svg",
+      },
+      link: "/tools/screenshotsize/",
+      tags: ["image", "social"],
+    },
+    {
       id: "imagecrop",
       title: "imagecrop_title",
       description: "imagecrop_description",
