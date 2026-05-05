@@ -88,6 +88,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-04-22T15:30:00.000Z",
     updatedDate: "2026-04-22T15:30:00.000Z",
   },
+  colorpalette: {
+    publishedDate: "2026-05-05T08:00:00.000Z",
+    updatedDate: "2026-05-05T08:00:00.000Z",
+  },
   yamljson: {
     publishedDate: "2026-05-05T07:00:00.000Z",
     updatedDate: "2026-05-05T07:00:00.000Z",

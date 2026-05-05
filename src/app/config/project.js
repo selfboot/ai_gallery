@@ -356,6 +356,18 @@ const Projects = {
       tags: ["image", "social"],
     },
     {
+      id: "colorpalette",
+      title: "colorpalette_title",
+      description: "colorpalette_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_colorpalette_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_colorpalette_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_colorpalette_zh.svg",
+      },
+      link: "/tools/colorpalette/",
+      tags: ["image", "design", "developer"],
+    },
+    {
       id: "imagecrop",
       title: "imagecrop_title",
       description: "imagecrop_description",
