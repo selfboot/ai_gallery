@@ -116,6 +116,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-05-05T07:00:00.000Z",
     updatedDate: "2026-05-05T07:00:00.000Z",
   },
+  jwtdecode: {
+    publishedDate: "2026-05-05T14:00:00.000Z",
+    updatedDate: "2026-05-05T14:00:00.000Z",
+  },
   loanrate: {
     publishedDate: "2025-04-28T12:00:00.000Z",
     updatedDate: "2025-05-07T12:00:00.000Z",

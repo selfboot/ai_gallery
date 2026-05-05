@@ -728,6 +728,18 @@ const Projects = {
       tags: ["text", "developer"],
     },
     {
+      id: "jwtdecode",
+      title: "jwtdecode_title",
+      description: "jwtdecode_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_jwtdecode_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_jwtdecode_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_jwtdecode_zh.svg",
+      },
+      link: "/tools/jwtdecode/",
+      tags: ["text", "developer", "data"],
+    },
+    {
       id: "retire",
       title: "retire_title",
       description: "retire_description",
