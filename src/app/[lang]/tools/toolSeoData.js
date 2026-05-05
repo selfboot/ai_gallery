@@ -92,6 +92,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-05-05T08:00:00.000Z",
     updatedDate: "2026-05-05T08:00:00.000Z",
   },
+  wordcount: {
+    publishedDate: "2026-05-05T09:00:00.000Z",
+    updatedDate: "2026-05-05T09:00:00.000Z",
+  },
   yamljson: {
     publishedDate: "2026-05-05T07:00:00.000Z",
     updatedDate: "2026-05-05T07:00:00.000Z",

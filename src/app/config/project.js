@@ -656,6 +656,18 @@ const Projects = {
       tags: ["text", "developer"],
     },
     {
+      id: "wordcount",
+      title: "wordcount_title",
+      description: "wordcount_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_wordcount_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_wordcount_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_wordcount_zh.svg",
+      },
+      link: "/tools/wordcount/",
+      tags: ["text", "data", "developer", "seo"],
+    },
+    {
       id: "yamljson",
       title: "yamljson_title",
       description: "yamljson_description",
