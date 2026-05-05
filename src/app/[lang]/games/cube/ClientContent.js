@@ -1,6 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
-const CubeGame = dynamic(() => import("./content"), { ssr: false });
+const CubeGame = dynamic(() => import("./content"), {
+  ssr: false,
+  loading: () => <div className="w-full min-h-[70vh]" />,
+});
 export default function ClientContent(props) {
   return <CubeGame {...props} />;
 }

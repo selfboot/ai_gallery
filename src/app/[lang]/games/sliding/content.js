@@ -709,6 +709,20 @@ const SlidingPuzzle = () => {
               </span>
             </div>
           </div>
+
+          <div className="mt-4 text-sm text-center space-y-1">
+            <div className="text-gray-600">{solveStatus || ' '}</div>
+            {solution.length > 0 && currentSolutionStep >= 0 && (
+              <>
+                <div>
+                  {t('hint')}: {solution[currentSolutionStep].move}
+                </div>
+                <div>
+                  {t('remaining_steps')}: {solution.length - currentSolutionStep - 1}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="lg:w-1/5 mt-8 lg:mt-0">
@@ -764,31 +778,16 @@ const SlidingPuzzle = () => {
               {solving ? t('solving') : t('solve')}
             </button>
 
-            {solution.length > 0 && (
-              <button
-                onClick={handleSolverStep}
-                disabled={currentSolutionStep >= solution.length - 1}
-                className={`w-full px-4 py-2 rounded text-white mb-2 ${
-                  currentSolutionStep >= solution.length - 1 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
-                }`}
-              >
-                {t('next_move')}
-              </button>
-            )}
+            <button
+              onClick={handleSolverStep}
+              disabled={solution.length === 0 || currentSolutionStep >= solution.length - 1}
+              className={`w-full px-4 py-2 rounded text-white mb-2 ${
+                solution.length === 0 || currentSolutionStep >= solution.length - 1 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {t('next_move')}
+            </button>
 
-            <div className="text-sm space-y-2">
-              {solveStatus && <div className="text-gray-600">{solveStatus}</div>}
-              {solution.length > 0 && currentSolutionStep >= 0 && (
-                <>
-                  <div>
-                    {t('hint')}: {solution[currentSolutionStep].move}
-                  </div>
-                  <div>
-                    {t('remaining_steps')}: {solution.length - currentSolutionStep - 1}
-                  </div>
-                </>
-              )}
-            </div>
             <div className="hidden md:relative md:block w-full bg-gray-100">
               <SideAdComponent />
             </div>
