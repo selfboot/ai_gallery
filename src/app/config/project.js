@@ -668,6 +668,18 @@ const Projects = {
       tags: ["text", "data", "developer", "seo"],
     },
     {
+      id: "textdedupe",
+      title: "textdedupe_title",
+      description: "textdedupe_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_textdedupe_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_textdedupe_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_textdedupe_zh.svg",
+      },
+      link: "/tools/textdedupe/",
+      tags: ["text", "data", "developer"],
+    },
+    {
       id: "yamljson",
       title: "yamljson_title",
       description: "yamljson_description",
