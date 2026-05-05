@@ -96,6 +96,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-05-05T09:00:00.000Z",
     updatedDate: "2026-05-05T09:00:00.000Z",
   },
+  svgpng: {
+    publishedDate: "2026-05-05T11:00:00.000Z",
+    updatedDate: "2026-05-05T11:00:00.000Z",
+  },
   textdedupe: {
     publishedDate: "2026-05-05T10:00:00.000Z",
     updatedDate: "2026-05-05T10:00:00.000Z",

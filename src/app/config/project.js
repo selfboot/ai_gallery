@@ -368,6 +368,18 @@ const Projects = {
       tags: ["image", "design", "developer"],
     },
     {
+      id: "svgpng",
+      title: "svgpng_title",
+      description: "svgpng_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_svgpng_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_svgpng_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260505_ai_gallery_svgpng_zh.svg",
+      },
+      link: "/tools/svgpng/",
+      tags: ["image", "developer", "web"],
+    },
+    {
       id: "imagecrop",
       title: "imagecrop_title",
       description: "imagecrop_description",
