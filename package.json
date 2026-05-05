@@ -63,6 +63,7 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.624",
     "piexifjs": "^1.0.6",
+    "pixelmatch": "^7.2.0",
     "pizzip": "^3.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

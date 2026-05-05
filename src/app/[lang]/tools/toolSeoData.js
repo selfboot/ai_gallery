@@ -56,6 +56,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-04-19T01:00:00.000Z",
     updatedDate: "2026-04-19T01:20:00.000Z",
   },
+  imagecompare: {
+    publishedDate: "2026-05-05T12:00:00.000Z",
+    updatedDate: "2026-05-05T12:00:00.000Z",
+  },
   imageconvert: {
     publishedDate: "2026-04-19T01:40:00.000Z",
     updatedDate: "2026-04-19T01:40:00.000Z",
