@@ -5,7 +5,6 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage } from "@/app/i18n/locales";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { notFound } from "next/navigation";
 import Script from 'next/script';
 
@@ -69,7 +68,7 @@ export default async function Layout(props) {
         </Script>
         <Script
           id="microsoft-clarity"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(c,l,a,r,i,t,y){
@@ -94,18 +93,30 @@ export default async function Layout(props) {
             <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
           </I18nProvider>
         </div>
-        <GoogleAnalytics gaId="G-Y4WD2DT404" />
+        <Script id="google-analytics-init" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-Y4WD2DT404');
+          `}
+        </Script>
+        <Script
+          id="google-analytics"
+          src="https://www.googletagmanager.com/gtag/js?id=G-Y4WD2DT404"
+          strategy="lazyOnload"
+        />
         {/* <WebVitals /> */}
         <Script
           src="https://cloud.umami.is/script.js"
           data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           data-domains="gallery.selfboot.cn"
         />
         <Script
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </body>
     </html>
