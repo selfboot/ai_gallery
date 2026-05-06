@@ -168,6 +168,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-04-21T13:59:00.000Z",
     updatedDate: "2026-04-21T13:59:00.000Z",
   },
+  pdfprintfix: {
+    publishedDate: "2026-05-06T13:00:00.000Z",
+    updatedDate: "2026-05-06T13:00:00.000Z",
+  },
   qrcodebatch: {
     publishedDate: "2026-05-06T12:00:00.000Z",
     updatedDate: "2026-05-06T12:00:00.000Z",

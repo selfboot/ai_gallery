@@ -620,6 +620,18 @@ const Projects = {
       tags: ["pdf", "document"],
     },
     {
+      id: "pdfprintfix",
+      title: "pdfprintfix_title",
+      description: "pdfprintfix_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_pdfprintfix_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_pdfprintfix_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_pdfprintfix_zh.svg",
+      },
+      link: "/tools/pdfprintfix/",
+      tags: ["pdf", "document", "print"],
+    },
+    {
       id: "excelcompare",
       title: "excelcompare_title",
       description: "excelcompare_description",
