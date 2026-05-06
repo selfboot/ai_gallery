@@ -680,6 +680,18 @@ const Projects = {
       tags: ["excel", "data", "developer"],
     },
     {
+      id: "qrcodebatch",
+      title: "qrcodebatch_title",
+      description: "qrcodebatch_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_qrcodebatch_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_qrcodebatch_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260506_ai_gallery_qrcodebatch_zh.svg",
+      },
+      link: "/tools/qrcodebatch/",
+      tags: ["excel", "business", "design"],
+    },
+    {
       id: "difftext",
       title: "difftext_title",
       description: "difftext_description",
