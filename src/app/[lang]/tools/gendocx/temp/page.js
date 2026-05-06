@@ -2,6 +2,7 @@ import { getDictionary } from "@/app/dictionaries";
 import TemplateList from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -40,7 +41,7 @@ export default async function TemplatesPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp`} title="gendocx_templates" />
-      <TemplateList lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="tools/gendocx/temp"><TemplateList lang={lang} /></ScopedI18nProvider>
     </>
   );
 }

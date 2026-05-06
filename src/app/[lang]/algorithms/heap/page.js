@@ -4,6 +4,7 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -33,7 +34,7 @@ export default async function HeapPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/heap`} />
-      <HeapVisualization lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="algorithms/heap"><HeapVisualization lang={lang} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/algorithms/heap" />
       <CommonComments lang={lang} />
     </>

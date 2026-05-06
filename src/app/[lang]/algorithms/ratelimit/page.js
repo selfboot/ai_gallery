@@ -3,6 +3,7 @@ import RateLimiter from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -32,7 +33,7 @@ export default async function RateLimiterPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/ratelimit/`} />
-      <RateLimiter lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="algorithms/ratelimit"><RateLimiter lang={lang} /></ScopedI18nProvider>
       <CommonComments lang={lang} />
     </>
   );

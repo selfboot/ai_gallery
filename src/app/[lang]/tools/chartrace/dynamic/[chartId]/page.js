@@ -6,6 +6,7 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import Papa from 'papaparse';
 import { racechartFiles } from "@/generated/racechart-data";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export const dynamicParams = false;
 
@@ -108,7 +109,7 @@ export default async function DynamicChartPage(props) {
 
   return (
     <div>
-      <DynamicChart config={config} initialData={chartData} />
+      <ScopedI18nProvider locale={lang} scope="tools/chartrace/dynamic/[chartId]"><DynamicChart config={config} initialData={chartData} /></ScopedI18nProvider>
       <CommonComments lang={lang} />
     </div>
   );

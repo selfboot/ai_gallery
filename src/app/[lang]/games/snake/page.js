@@ -4,6 +4,7 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -42,7 +43,7 @@ export default async function SnakePage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/snake`} />
-      <SnakeGame lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="games/snake"><SnakeGame lang={lang} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/games/snake" />
       <CommonComments lang={lang} />
     </>

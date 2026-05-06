@@ -4,6 +4,7 @@ import Navigation from "@/app/components/Navigation";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { getDictionary } from "@/app/i18n/server";
 import { I18nProvider } from "@/app/i18n/client";
+import { getCommonDictionary } from "@/app/i18n/scoped";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage } from "@/app/i18n/locales";
 import { notFound } from "next/navigation";
 import Script from 'next/script';
@@ -31,6 +32,7 @@ export default async function Layout(props) {
   }
 
   const dict = await getDictionary(lang);
+  const commonDict = await getCommonDictionary(lang);
   const pathname = `/${lang}/${slug.join('/')}`;
 
   const rssFileName = lang === 'zh' ? 'rss.xml' : `rss-${lang}.xml`;
@@ -89,7 +91,7 @@ export default async function Layout(props) {
               </div>
             </div>
           </nav>
-          <I18nProvider initialDictionary={dict}>
+          <I18nProvider initialDictionary={commonDict}>
             <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
           </I18nProvider>
         </div>

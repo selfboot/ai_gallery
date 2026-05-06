@@ -4,6 +4,7 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -33,7 +34,7 @@ export default async function BFSPathPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/algorithms/bfs_path`} />
-      <BFSPathFind lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="algorithms/bfs_path"><BFSPathFind lang={lang} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/algorithms/bfs_path" />
       <CommonComments lang={lang} />
     </>

@@ -3,6 +3,7 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -21,7 +22,7 @@ export default async function GenDocxPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/retire`} />
-      <RetirementCalculator lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="tools/retire"><RetirementCalculator lang={lang} /></ScopedI18nProvider>
       <ToolStructuredData toolId="retire" lang={lang} />
       <CommonComments lang={lang} />
     </>

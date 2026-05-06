@@ -3,6 +3,7 @@ import TetrisGame from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -41,7 +42,7 @@ export default async function TetrisPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/tetris`} />
-      <TetrisGame lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="games/tetris"><TetrisGame lang={lang} /></ScopedI18nProvider>
       <CommonComments lang={lang} />
     </>
   );

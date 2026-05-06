@@ -1,7 +1,9 @@
 'use client';
 
-import React from "react";
-import Giscus from "@giscus/react";
+import dynamic from "next/dynamic";
+import React, { useEffect, useRef, useState } from "react";
+
+const Giscus = dynamic(() => import("@giscus/react"), { ssr: false });
 
 function GiscusComments({ lang }) {
   return (
@@ -26,9 +28,37 @@ const langMap = {
 };
 
 export default function CommonComments({ lang }) {
+  const containerRef = useRef(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  useEffect(() => {
+    if (shouldLoad) {
+      return undefined;
+    }
+
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [shouldLoad]);
+
   return (
-    <div className="mt-8">
-      <GiscusComments lang={langMap[lang] || "en"} />
+    <div ref={containerRef} className="mt-8 min-h-24">
+      {shouldLoad ? <GiscusComments lang={langMap[lang] || "en"} /> : null}
     </div>
   );
 }

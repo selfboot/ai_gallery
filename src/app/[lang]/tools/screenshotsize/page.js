@@ -4,6 +4,7 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -36,7 +37,7 @@ export default async function ScreenshotSizePage(props) {
   return (
     <div className="container mx-auto mt-4">
       <PageHeader lang={lang} pathname={`/${lang}/tools/screenshotsize`} />
-      <ClientContent />
+      <ScopedI18nProvider locale={lang} scope="tools/screenshotsize"><ClientContent /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/screenshotsize" />
       <CommonComments lang={lang} />
     </div>

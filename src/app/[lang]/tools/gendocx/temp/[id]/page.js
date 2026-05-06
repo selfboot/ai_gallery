@@ -5,6 +5,7 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import TemplateDocx from "./ClientContent";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -59,7 +60,7 @@ export default async function TemplatePage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp/${id}`} title={template.id} />
-      <TemplateDocx lang={lang} template={template} />
+      <ScopedI18nProvider locale={lang} scope="tools/gendocx/temp/[id]"><TemplateDocx lang={lang} template={template} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/gendocx/temp" />
     </>
   );

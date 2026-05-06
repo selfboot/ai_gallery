@@ -3,6 +3,7 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 
 export async function generateMetadata(props) {
@@ -19,7 +20,7 @@ export default async function BackgroundRemoverPage(props) {
   return (
     <div className="container mx-auto mt-4">
       <PageHeader lang={lang} pathname={`/${lang}/tools/backgroundremover`} />
-      <BackgroundRemoverContent />
+      <ScopedI18nProvider locale={lang} scope="tools/backgroundremover"><BackgroundRemoverContent /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/backgroundremover" />
       <ToolStructuredData toolId="backgroundremover" lang={lang} />
       <CommonComments lang={lang} />

@@ -3,6 +3,7 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -18,7 +19,7 @@ export default async function PdfAddImagePage(props) {
   return (
     <div className="container mx-auto mt-4">
       <PageHeader lang={lang} pathname={`/${lang}/tools/pdfaddimage`} />
-      <PdfAddImageContent />
+      <ScopedI18nProvider locale={lang} scope="tools/pdfaddimage"><PdfAddImageContent /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/pdfaddimage" />
       <ToolStructuredData toolId="pdfaddimage" lang={lang} />
       <CommonComments lang={lang} />

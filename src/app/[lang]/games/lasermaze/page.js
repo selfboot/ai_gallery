@@ -5,6 +5,7 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import levelsData from "./levels.json";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -38,7 +39,7 @@ export default async function LaserMazePage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/lasermaze`} />
-      <LaserMazeGame lang={lang} defaults={levelsData.defaults} levels={levelsData.levels} />
+      <ScopedI18nProvider locale={lang} scope="games/lasermaze"><LaserMazeGame lang={lang} defaults={levelsData.defaults} levels={levelsData.levels} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/games/lasermaze" />
       <CommonComments lang={lang} />
     </>

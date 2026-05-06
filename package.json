@@ -7,8 +7,8 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "node scripts/generate-md-modules.js && node scripts/generate-sitemap-rss.mjs && next dev",
-    "build": "node scripts/generate-md-modules.js && node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
+    "dev": "node scripts/generate-md-modules.js && node scripts/generate-i18n-scopes.mjs && node scripts/generate-sitemap-rss.mjs && next dev",
+    "build": "node scripts/generate-md-modules.js && node scripts/generate-i18n-scopes.mjs && node scripts/generate-sitemap-rss.mjs && next build && find .next -name '*.map' -delete",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --coverage --forceExit",

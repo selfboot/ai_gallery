@@ -6,6 +6,7 @@ import SokobanGallery from "./ClientContent";
 import levelsData from "../levels.json";
 import extraLevelsData from "./more.json";
 import { ELEMENTS, calculateMapId } from "../gameLogic";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 function deduplicateAndSortLevels(levels) {
   const duplicates = new Map();
@@ -81,7 +82,7 @@ export default async function SokobanGalleryPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/sokoban/more`} title="sokoban_more_title" />
-      <SokobanGallery levels={levels} />
+      <ScopedI18nProvider locale={lang} scope="games/sokoban/more"><SokobanGallery levels={levels} /></ScopedI18nProvider>
       <CommonComments lang={lang} />
     </>
   );

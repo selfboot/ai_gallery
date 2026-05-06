@@ -3,6 +3,7 @@ import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from '@/app/components/BlogMarkdown';
 import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
+import { ScopedI18nProvider } from "@/app/i18n/scoped";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -21,7 +22,7 @@ export default async function GenDocxPage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/loanrate`} />
-      <LoanRateCalculator lang={lang} />
+      <ScopedI18nProvider locale={lang} scope="tools/loanrate"><LoanRateCalculator lang={lang} /></ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/tools/loanrate" />
       <ToolStructuredData toolId="loanrate" lang={lang} />
       <CommonComments lang={lang} />
