@@ -116,9 +116,10 @@ export default async function Layout(props) {
           data-domains="gallery.selfboot.cn"
         />
         <Script
+          id="cloudflare-web-analytics"
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token": "29fc062c6fbd41318027e723a3589333"}'
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </body>
     </html>
