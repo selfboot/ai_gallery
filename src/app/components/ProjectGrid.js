@@ -12,7 +12,7 @@ const ProjectCard = async ({ title, description, image, link, lang }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <ResponsiveWebPImage src={image} alt={dict[title] || title} isGif={isGif} />
+      <ResponsiveWebPImage src={image} alt={dict[title] || title} isGif={isGif} priority={false} />
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-2">{dict[title] || title}</h3>
         <p className="text-gray-600 mb-4">{dict[description] || description}</p>

@@ -116,7 +116,7 @@ function ToolCard({ tool, lang, labels }) {
       className="group flex min-h-full flex-col overflow-hidden rounded border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
     >
       <div className="bg-gray-100">
-        <ResponsiveWebPImage src={tool.image} alt={tool.title} isGif={isGif} />
+        <ResponsiveWebPImage src={tool.image} alt={tool.title} isGif={isGif} priority={false} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-3">
         <div className="mb-2 flex flex-wrap gap-1.5">

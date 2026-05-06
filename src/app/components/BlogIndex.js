@@ -16,7 +16,11 @@ export async function BlogIndex({ posts, lang }) {
                   <img
                     src={post.coverImage}
                     alt={post.title}
+                    width={1200}
+                    height={630}
                     loading="lazy"
+                    fetchPriority="low"
+                    decoding="async"
                     style={{
                       position: 'absolute',
                       height: '100%',

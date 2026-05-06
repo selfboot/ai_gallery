@@ -46,7 +46,7 @@ const ResponsiveWebPImage = React.memo(({
         width={DEFAULT_WIDTH}
         height={height}
         loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
+        fetchPriority={priority ? "high" : "low"}
         decoding="async"
         style={{
           position: "absolute",

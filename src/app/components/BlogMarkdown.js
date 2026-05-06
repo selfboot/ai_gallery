@@ -14,6 +14,8 @@ function rehypeImageSize() {
     visit(tree, 'element', (node) => {
       if (node.tagName === 'img') {
         node.properties = node.properties || {};
+        node.properties.loading = 'lazy';
+        node.properties.decoding = 'async';
         node.properties.style = 'max-width: 100%; max-height: 70vh; width: auto; height: auto; object-fit: contain; display: block; margin: 1rem auto;';
       }
     });
