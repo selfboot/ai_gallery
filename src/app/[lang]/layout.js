@@ -112,6 +112,7 @@ export default async function Layout(props) {
         <Script
           src="https://cloud.umami.is/script.js"
           data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
+          data-performance="true"
           strategy="lazyOnload"
           data-domains="gallery.selfboot.cn"
         />
