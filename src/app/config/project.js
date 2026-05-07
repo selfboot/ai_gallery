@@ -728,6 +728,18 @@ const Projects = {
       tags: ["text", "developer", "data"],
     },
     {
+      id: "csvdiff",
+      title: "csvdiff_title",
+      description: "csvdiff_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_csvdiff_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_csvdiff_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_csvdiff_zh.svg",
+      },
+      link: "/tools/csvdiff/",
+      tags: ["data", "developer", "business"],
+    },
+    {
       id: "wordcount",
       title: "wordcount_title",
       description: "wordcount_description",
