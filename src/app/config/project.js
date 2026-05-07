@@ -716,6 +716,18 @@ const Projects = {
       tags: ["text", "developer"],
     },
     {
+      id: "jsondiff",
+      title: "jsondiff_title",
+      description: "jsondiff_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_jsondiff_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_jsondiff_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260507_ai_gallery_jsondiff_zh.svg",
+      },
+      link: "/tools/jsondiff/",
+      tags: ["text", "developer", "data"],
+    },
+    {
       id: "wordcount",
       title: "wordcount_title",
       description: "wordcount_description",
