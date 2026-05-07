@@ -5,7 +5,7 @@ import { useI18n } from "@/app/i18n/client";
 import { CustomListbox } from "@/app/components/ListBox";
 import Modal from "@/app/components/Modal";
 import { SideAdComponent } from "@/app/components/AdComponent";
-import { ArrowLeft, ArrowRight, RotateCcw, Undo2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Play, RotateCcw, Square, Undo2 } from "lucide-react";
 
 const STORAGE_KEY = "unblockme-progress";
 
@@ -82,8 +82,37 @@ const computeAllowedShift = (block, intendedShift, axis, occupancy, level) => {
   return allowed;
 };
 
-const UnblockMeGame = ({ lang, levels }) => {
+const moveBlockToTarget = (blocks, level, step) => {
+  const [blockIndex, targetX, targetY] = step;
+  const block = blocks[blockIndex];
+  if (!block) return null;
+
+  const shiftX = targetX - block.x;
+  const shiftY = targetY - block.y;
+  if (shiftX !== 0 && shiftY !== 0) return null;
+
+  const occupancy = buildOccupancy(blocks, level.width, level.height, blockIndex);
+  const allowedShift = shiftX !== 0
+    ? computeAllowedShift(block, shiftX, "x", occupancy, level)
+    : computeAllowedShift(block, shiftY, "y", occupancy, level);
+
+  if (allowedShift !== (shiftX || shiftY)) return null;
+
+  return blocks.map((item, index) =>
+    index === blockIndex
+      ? {
+          ...item,
+          x: targetX,
+          y: targetY,
+        }
+      : item
+  );
+};
+
+const UnblockMeGame = ({ lang, levels = [], levelsUrl }) => {
   const { t } = useI18n();
+  const [loadedLevels, setLoadedLevels] = useState(levels);
+  const [levelsError, setLevelsError] = useState("");
   const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [moves, setMoves] = useState(0);
@@ -93,27 +122,57 @@ const UnblockMeGame = ({ lang, levels }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [cellSize, setCellSize] = useState(64);
+  const [isAutoSolving, setIsAutoSolving] = useState(false);
+  const [autoSolveStep, setAutoSolveStep] = useState(0);
 
   const dragRef = useRef(null);
   const blocksRef = useRef([]);
+  const autoSolveRef = useRef({ active: false, timeoutId: null });
+  const pendingLevelIdRef = useRef(null);
+  const hasLoadedProgressRef = useRef(false);
 
-  const currentLevel = levels?.[currentLevelIndex];
+  const currentLevel = loadedLevels?.[currentLevelIndex];
 
   useEffect(() => {
     blocksRef.current = blocks;
   }, [blocks]);
 
+  const stopAutoSolve = useCallback(() => {
+    autoSolveRef.current.active = false;
+    if (autoSolveRef.current.timeoutId) {
+      window.clearTimeout(autoSolveRef.current.timeoutId);
+      autoSolveRef.current.timeoutId = null;
+    }
+    setIsAutoSolving(false);
+  }, []);
+
   useEffect(() => {
-    if (!Array.isArray(levels) || !levels.length) return;
+    return () => stopAutoSolve();
+  }, [stopAutoSolve]);
+
+  useEffect(() => {
+    if (!Array.isArray(loadedLevels) || !loadedLevels.length) return;
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams(window.location.search);
     const levelParam = parseInt(params.get("level"), 10);
-    if (!Number.isNaN(levelParam) && levelParam >= 1 && levelParam <= levels.length) {
-      setCurrentLevelIndex(levelParam - 1);
+    if (!Number.isNaN(levelParam) && levelParam >= 1) {
+      pendingLevelIdRef.current = levelParam;
     }
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+
+    const pendingLevelId = pendingLevelIdRef.current;
+    if (pendingLevelId) {
+      const nextIndex = loadedLevels.findIndex((level) => level.id === pendingLevelId);
+      if (nextIndex !== -1) {
+        setCurrentLevelIndex(nextIndex);
+        pendingLevelIdRef.current = null;
+      }
+    }
+
+    if (!hasLoadedProgressRef.current) {
+      hasLoadedProgressRef.current = true;
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === "object") {
@@ -122,8 +181,39 @@ const UnblockMeGame = ({ lang, levels }) => {
       } catch (error) {
         console.error("Failed to parse unblockme progress", error);
       }
+      }
     }
-  }, [levels]);
+  }, [loadedLevels]);
+
+  useEffect(() => {
+    if (!levelsUrl || !Array.isArray(loadedLevels) || loadedLevels.length > 1) return;
+
+    let isMounted = true;
+    const loadLevels = async () => {
+      try {
+        const response = await fetch(levelsUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to load levels: ${response.status}`);
+        }
+        const data = await response.json();
+        const nextLevels = Array.isArray(data?.levels) ? data.levels : [];
+        if (isMounted && nextLevels.length) {
+          setLoadedLevels(nextLevels);
+          setLevelsError("");
+        }
+      } catch (error) {
+        if (isMounted) {
+          setLevelsError(error?.message || "Failed to load levels");
+        }
+      }
+    };
+
+    loadLevels();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadedLevels, levelsUrl]);
 
   useEffect(() => {
     if (!currentLevel) return;
@@ -136,14 +226,16 @@ const UnblockMeGame = ({ lang, levels }) => {
     setIsWon(false);
     setShowModal(false);
     setModalMessage("");
+    stopAutoSolve();
+    setAutoSolveStep(0);
     dragRef.current = null;
 
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && !pendingLevelIdRef.current) {
       const url = new URL(window.location.href);
       url.searchParams.set("level", currentLevel.id);
       window.history.replaceState({}, "", url);
     }
-  }, [currentLevel]);
+  }, [currentLevel, stopAutoSolve]);
 
   useEffect(() => {
     if (!currentLevel) return;
@@ -192,7 +284,7 @@ const UnblockMeGame = ({ lang, levels }) => {
   }, [currentLevel, saveProgress, t]);
 
   const handlePointerDown = useCallback((event, index) => {
-    if (!currentLevel || isWon) return;
+    if (!currentLevel || isWon || isAutoSolving) return;
     const block = blocksRef.current[index];
     if (!block) return;
     event.preventDefault();
@@ -208,7 +300,7 @@ const UnblockMeGame = ({ lang, levels }) => {
       snapshot: blocksRef.current.map((b) => ({ ...b })),
       moved: false,
     };
-  }, [currentLevel, isWon]);
+  }, [currentLevel, isAutoSolving, isWon]);
 
   const handlePointerMove = useCallback((event, index) => {
     const drag = dragRef.current;
@@ -307,20 +399,23 @@ const UnblockMeGame = ({ lang, levels }) => {
   }, [currentLevel, handleWin, isWon, moves]);
 
   const handleUndo = useCallback(() => {
+    stopAutoSolve();
     setHistory((prev) => {
       if (!prev.length) return prev;
       const restored = prev[prev.length - 1].map((block) => ({ ...block }));
       setBlocks(restored);
       blocksRef.current = restored;
       setMoves((value) => Math.max(0, value - 1));
+      setAutoSolveStep((value) => Math.max(0, value - 1));
       setIsWon(false);
       setShowModal(false);
       return prev.slice(0, -1);
     });
-  }, []);
+  }, [stopAutoSolve]);
 
   const handleReset = useCallback(() => {
     if (!currentLevel) return;
+    stopAutoSolve();
     const initialBlocks = currentLevel.blocks.map((block) => ({ ...block }));
     setBlocks(initialBlocks);
     blocksRef.current = initialBlocks;
@@ -328,14 +423,116 @@ const UnblockMeGame = ({ lang, levels }) => {
     setHistory([]);
     setIsWon(false);
     setShowModal(false);
+    setAutoSolveStep(0);
     dragRef.current = null;
-  }, [currentLevel]);
+  }, [currentLevel, stopAutoSolve]);
+
+  const applySolutionStep = useCallback((level, stepIndex) => {
+    const solution = Array.isArray(level.solution) ? level.solution : [];
+    if (stepIndex >= solution.length) return false;
+
+    const snapshot = blocksRef.current.map((block) => ({ ...block }));
+    const nextBlocks = moveBlockToTarget(snapshot, level, solution[stepIndex]);
+    if (!nextBlocks) {
+      setLevelsError(t("unblockme_solution_error"));
+      return false;
+    }
+
+    const nextStep = stepIndex + 1;
+    blocksRef.current = nextBlocks;
+    setBlocks(nextBlocks);
+    setHistory((prev) => [...prev, snapshot]);
+    setMoves(nextStep);
+    setAutoSolveStep(nextStep);
+
+    if (nextStep >= solution.length && isLevelSolved(nextBlocks, level)) {
+      handleWin(nextStep);
+    }
+
+    return true;
+  }, [handleWin, t]);
+
+  const runAutoSolveStep = useCallback((level, stepIndex) => {
+    if (!autoSolveRef.current.active) return;
+
+    const solution = Array.isArray(level.solution) ? level.solution : [];
+    if (stepIndex >= solution.length) {
+      if (isLevelSolved(blocksRef.current, level)) {
+        handleWin(solution.length);
+      }
+      stopAutoSolve();
+      return;
+    }
+
+    autoSolveRef.current.timeoutId = window.setTimeout(() => {
+      if (!autoSolveRef.current.active) return;
+
+      const didStep = applySolutionStep(level, stepIndex);
+      if (!didStep) {
+        stopAutoSolve();
+        return;
+      }
+
+      if (stepIndex + 1 >= solution.length) {
+        stopAutoSolve();
+        return;
+      }
+
+      runAutoSolveStep(level, stepIndex + 1);
+    }, 360);
+  }, [applySolutionStep, handleWin, stopAutoSolve]);
+
+  const handleAutoSolve = useCallback(() => {
+    if (!currentLevel) return;
+    if (isAutoSolving) {
+      stopAutoSolve();
+      return;
+    }
+
+    const solution = Array.isArray(currentLevel.solution) ? currentLevel.solution : [];
+    if (!solution.length) {
+      setLevelsError(t("unblockme_no_solution"));
+      return;
+    }
+
+    const initialBlocks = currentLevel.blocks.map((block) => ({ ...block }));
+    blocksRef.current = initialBlocks;
+    setBlocks(initialBlocks);
+    setMoves(0);
+    setHistory([]);
+    setIsWon(false);
+    setShowModal(false);
+    setModalMessage("");
+    setLevelsError("");
+    setAutoSolveStep(0);
+    dragRef.current = null;
+
+    autoSolveRef.current.active = true;
+    setIsAutoSolving(true);
+    runAutoSolveStep(currentLevel, 0);
+  }, [currentLevel, isAutoSolving, runAutoSolveStep, stopAutoSolve, t]);
+
+  const handleStepSolve = useCallback(() => {
+    if (!currentLevel || isAutoSolving) return;
+
+    const solution = Array.isArray(currentLevel.solution) ? currentLevel.solution : [];
+    if (!solution.length) {
+      setLevelsError(t("unblockme_no_solution"));
+      return;
+    }
+
+    if (autoSolveStep >= solution.length) return;
+    setShowModal(false);
+    setLevelsError("");
+    applySolutionStep(currentLevel, autoSolveStep);
+  }, [applySolutionStep, autoSolveStep, currentLevel, isAutoSolving, t]);
 
   const goToLevel = useCallback((index) => {
-    if (!levels?.length) return;
-    if (index < 0 || index >= levels.length) return;
+    if (!loadedLevels?.length) return;
+    if (index < 0 || index >= loadedLevels.length) return;
+    stopAutoSolve();
     setCurrentLevelIndex(index);
-  }, [levels]);
+  }, [loadedLevels, stopAutoSolve]);
 
   const goToNextLevel = useCallback(() => {
     goToLevel(currentLevelIndex + 1);
@@ -346,17 +543,19 @@ const UnblockMeGame = ({ lang, levels }) => {
   }, [currentLevelIndex, goToLevel]);
 
   const levelOptions = useMemo(() => {
-    if (!Array.isArray(levels)) return [];
-    return levels.map((level) => {
+    if (!Array.isArray(loadedLevels)) return [];
+    return loadedLevels.map((level) => {
       const record = completedLevels[level.id];
       const suffix = record ? " ✓" : "";
       return `${t("level")} ${level.id.toString().padStart(3, "0")}${suffix}`;
     });
-  }, [completedLevels, levels, t]);
+  }, [completedLevels, loadedLevels, t]);
 
   const selectedLevelLabel = levelOptions[currentLevelIndex] ?? "";
   const bestRecord = currentLevel ? completedLevels[currentLevel.id] : null;
   const canUndo = history.length > 0;
+  const solutionLength = Array.isArray(currentLevel?.solution) ? currentLevel.solution.length : 0;
+  const canStepSolve = solutionLength > 0 && autoSolveStep < solutionLength && !isAutoSolving;
 
   if (!currentLevel) {
     return (
@@ -421,7 +620,7 @@ const UnblockMeGame = ({ lang, levels }) => {
             return (
               <div
                 key={`${index}-${block.x}-${block.y}`}
-                onPointerDown={(event) => handlePointerDown(event, index)}
+	                onPointerDown={(event) => handlePointerDown(event, index)}
                 onPointerMove={(event) => handlePointerMove(event, index)}
                 onPointerUp={(event) => handlePointerUp(event, index)}
                 onPointerCancel={(event) => handlePointerUp(event, index)}
@@ -432,7 +631,7 @@ const UnblockMeGame = ({ lang, levels }) => {
                   width: `${width}px`,
                   height: `${height}px`,
                   touchAction: "none",
-                  transition: dragRef.current?.index === index ? "none" : "left 0.12s ease, top 0.12s ease",
+	                  transition: dragRef.current?.index === index ? "none" : "left 0.2s ease, top 0.2s ease",
                 }}
               >
                 <span className="px-2 text-sm md:text-base">
@@ -483,43 +682,69 @@ const UnblockMeGame = ({ lang, levels }) => {
           />
 
           <div className="grid grid-cols-2 gap-2">
-            <button
-              className="flex items-center justify-center gap-2 rounded bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 disabled:opacity-40"
-              onClick={goToPrevLevel}
-              disabled={currentLevelIndex === 0}
-            >
+	            <button
+	              className="flex items-center justify-center gap-2 rounded bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 disabled:opacity-40"
+	              onClick={goToPrevLevel}
+	              disabled={currentLevelIndex === 0 || isAutoSolving}
+	            >
               <ArrowLeft size={16} />
               {t("previous_level")}
             </button>
-            <button
-              className="flex items-center justify-center gap-2 rounded bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 disabled:opacity-40"
-              onClick={goToNextLevel}
-              disabled={currentLevelIndex === levels.length - 1}
-            >
+	            <button
+	              className="flex items-center justify-center gap-2 rounded bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 disabled:opacity-40"
+	              onClick={goToNextLevel}
+	              disabled={currentLevelIndex === loadedLevels.length - 1 || isAutoSolving}
+	            >
               <ArrowRight size={16} />
               {t("next_level")}
             </button>
-            <button
-              className="flex items-center justify-center gap-2 rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 col-span-2"
-              onClick={handleReset}
-            >
+	            <button
+	              className="flex items-center justify-center gap-2 rounded bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 col-span-2"
+	              onClick={handleReset}
+	            >
               <RotateCcw size={16} />
               {t("restart_game")}
             </button>
-            <button
-              className={`flex items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium col-span-2 ${canUndo ? "bg-yellow-500 hover:bg-yellow-600 text-white" : "bg-gray-200 text-gray-400"}`}
-              onClick={handleUndo}
-              disabled={!canUndo}
-            >
-              <Undo2 size={16} />
-              {t("undo")}
-            </button>
-          </div>
-        </div>
+	            <button
+	              className={`flex items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium col-span-2 ${canUndo ? "bg-yellow-500 hover:bg-yellow-600 text-white" : "bg-gray-200 text-gray-400"}`}
+	              onClick={handleUndo}
+	              disabled={!canUndo || isAutoSolving}
+	            >
+	              <Undo2 size={16} />
+	              {t("undo")}
+	            </button>
+	            <button
+	              className={`col-span-2 flex items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium text-white ${isAutoSolving ? "bg-gray-700 hover:bg-gray-800" : "bg-blue-600 hover:bg-blue-700"} disabled:bg-gray-200 disabled:text-gray-400`}
+	              onClick={handleAutoSolve}
+	              disabled={!solutionLength}
+	            >
+	              {isAutoSolving ? <Square size={16} /> : <Play size={16} />}
+	              {isAutoSolving ? t("unblockme_stop_auto_solve") : t("unblockme_auto_solve")}
+	            </button>
+	            <button
+	              className="col-span-2 flex items-center justify-center gap-2 rounded bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400"
+	              onClick={handleStepSolve}
+	              disabled={!canStepSolve}
+	            >
+	              <ArrowRight size={16} />
+	              {t("unblockme_step_solve")}
+	            </button>
+	          </div>
+	          {solutionLength > 0 && (
+	            <div className="text-xs text-gray-500">
+	              {t("unblockme_solution_progress", { current: autoSolveStep, total: solutionLength })}
+	            </div>
+	          )}
+	        </div>
 
         <div className="md:hidden bg-gray-100">
           <SideAdComponent format="square" />
         </div>
+        {levelsError && (
+          <div className="rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
+            {levelsError}
+          </div>
+        )}
       </div>
 
       <Modal

@@ -4,8 +4,10 @@ import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
-import levelsData from "./levels.json";
+import firstLevel from "./firstLevel";
 import { ScopedI18nProvider } from "@/app/i18n/scoped";
+
+const LEVELS_URL = "/files/unblockme-levels.json";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -39,7 +41,9 @@ export default async function UnblockMePage(props) {
   return (
     <>
       <PageHeader lang={lang} pathname={`/${lang}/games/unblockme`} />
-      <ScopedI18nProvider locale={lang} scope="games/unblockme"><UnblockMeGame lang={lang} levels={levelsData.levels} /></ScopedI18nProvider>
+      <ScopedI18nProvider locale={lang} scope="games/unblockme">
+        <UnblockMeGame lang={lang} levels={[firstLevel]} levelsUrl={LEVELS_URL} />
+      </ScopedI18nProvider>
       <BlogMarkdown lang={lang} directory="src/app/[lang]/games/unblockme" />
       <CommonComments lang={lang} />
     </>
