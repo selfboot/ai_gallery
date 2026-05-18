@@ -110,8 +110,8 @@ export default async function Layout(props) {
         />
         {/* <WebVitals /> */}
         <Script
-          src="https://cloud.umami.is/script.js"
-          data-website-id="d765a8dd-62fd-4096-8429-85beb1242091"
+          src="https://analytics.selfboot.cn/stats.js"
+          data-website-id="d2f2cea9-fadb-4ec6-bcd3-2bd614f8fa71"
           data-performance="true"
           strategy="lazyOnload"
           data-domains="gallery.selfboot.cn"
