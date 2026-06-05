@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { saveAs } from "file-saver";
+import PizZip from "pizzip";
 import Modal from "@/app/components/Modal";
 import { useI18n } from "@/app/i18n/client";
 
@@ -32,11 +33,29 @@ function makeProxyUrl(file) {
   return `/api/courtwssd/file?url=${encodeURIComponent(file.sourceUrl)}&name=${encodeURIComponent(file.name)}`;
 }
 
+async function fetchPdfBytes(file) {
+  const directResponse = await fetch(file.sourceUrl, {
+    credentials: "omit",
+    referrerPolicy: "no-referrer",
+  });
+
+  if (directResponse.ok) {
+    return new Uint8Array(await directResponse.arrayBuffer());
+  }
+
+  const proxyResponse = await fetch(makeProxyUrl(file));
+  if (!proxyResponse.ok) throw new Error("fetch pdf failed");
+  return new Uint8Array(await proxyResponse.arrayBuffer());
+}
+
+async function fetchPdfBlob(file) {
+  const bytes = await fetchPdfBytes(file);
+  return new Blob([bytes], { type: "application/pdf" });
+}
+
 async function renderFirstPage(file) {
   const pdfjsLib = await loadPdfJs();
-  const response = await fetch(makeProxyUrl(file));
-  if (!response.ok) throw new Error("fetch pdf failed");
-  const bytes = new Uint8Array(await response.arrayBuffer());
+  const bytes = await fetchPdfBytes(file);
   const loadingTask = pdfjsLib.getDocument({ data: bytes });
   const pdf = await loadingTask.promise;
   try {
@@ -51,6 +70,31 @@ async function renderFirstPage(file) {
     await page.render({ canvasContext: context, viewport, background: "white" }).promise;
     page.cleanup();
     return canvas.toDataURL("image/jpeg", 0.82);
+  } finally {
+    await loadingTask.destroy();
+  }
+}
+
+async function renderPdfPages(bytes) {
+  const pdfjsLib = await loadPdfJs();
+  const loadingTask = pdfjsLib.getDocument({ data: bytes });
+  const pdf = await loadingTask.promise;
+  try {
+    const pages = [];
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const viewport = page.getViewport({ scale: 1.25 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const context = canvas.getContext("2d", { alpha: false });
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: context, viewport, background: "white" }).promise;
+      page.cleanup();
+      pages.push(canvas.toDataURL("image/jpeg", 0.9));
+    }
+    return pages;
   } finally {
     await loadingTask.destroy();
   }
@@ -99,6 +143,10 @@ export default function CourtWssdContent() {
   const [statusMessage, setStatusMessage] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewFileName, setPreviewFileName] = useState("");
+  const [previewPages, setPreviewPages] = useState([]);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const courtNames = useMemo(() => [...new Set(files.map((file) => file.courtName).filter(Boolean))], [files]);
 
@@ -142,7 +190,36 @@ export default function CourtWssdContent() {
   };
 
   const downloadOne = async (file) => {
-    saveAs(makeProxyUrl(file), file.name);
+    try {
+      const blob = await fetchPdfBlob(file);
+      saveAs(blob, file.name);
+    } catch (error) {
+      console.error("Court delivery file download failed:", error);
+      showModal(t("courtwssd_error_download"));
+    }
+  };
+
+  const previewOne = async (file) => {
+    setIsPreviewOpen(true);
+    setIsPreviewLoading(true);
+    setPreviewFileName(file.name);
+    setPreviewPages([]);
+    try {
+      const bytes = await fetchPdfBytes(file);
+      setPreviewPages(await renderPdfPages(bytes));
+    } catch (error) {
+      console.error("Court delivery file preview failed:", error);
+      setIsPreviewOpen(false);
+      showModal(t("courtwssd_thumb_failed"));
+    } finally {
+      setIsPreviewLoading(false);
+    }
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewFileName("");
+    setPreviewPages([]);
   };
 
   const downloadAll = async () => {
@@ -150,16 +227,12 @@ export default function CourtWssdContent() {
     setDownloadMode("zip");
     setStatusMessage(t("courtwssd_downloading"));
     try {
-      const response = await fetch("/api/courtwssd/zip", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload?.error || "download failed");
+      const zip = new PizZip();
+      for (const file of files) {
+        const bytes = await fetchPdfBytes(file);
+        zip.file(file.name, bytes);
       }
-      const blob = await response.blob();
+      const blob = zip.generate({ type: "blob", compression: "DEFLATE" });
       saveAs(blob, `court-delivery-${deliveryId || "documents"}.zip`);
       setStatusMessage(t("courtwssd_downloaded"));
     } catch (error) {
@@ -176,16 +249,15 @@ export default function CourtWssdContent() {
     setDownloadMode("merge");
     setStatusMessage(t("courtwssd_merging"));
     try {
-      const response = await fetch("/api/courtwssd/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload?.error || "merge failed");
+      const { PDFDocument } = await import("pdf-lib");
+      const mergedPdf = await PDFDocument.create();
+      for (const file of files) {
+        const sourcePdf = await PDFDocument.load(await fetchPdfBytes(file), { ignoreEncryption: true });
+        const pages = await mergedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
+        pages.forEach((page) => mergedPdf.addPage(page));
       }
-      const blob = await response.blob();
+      const mergedBytes = await mergedPdf.save();
+      const blob = new Blob([mergedBytes], { type: "application/pdf" });
       saveAs(blob, `court-delivery-${deliveryId || "documents"}.pdf`);
       setStatusMessage(t("courtwssd_merged"));
     } catch (error) {
@@ -266,9 +338,9 @@ export default function CourtWssdContent() {
                   <p className="mt-1 truncate text-xs text-gray-500">{file.courtName || t("courtwssd_unknown_court")}</p>
                   <p className="mt-1 text-xs text-gray-500">{formatDate(file.createdAt)}</p>
                   <div className="mt-2 flex gap-1.5">
-                    <a href={makeProxyUrl(file)} target="_blank" rel="noreferrer" className="flex-1 rounded bg-white px-2 py-1.5 text-center text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100">
+                    <button onClick={() => previewOne(file)} className="flex-1 rounded bg-white px-2 py-1.5 text-center text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100">
                       {t("courtwssd_preview")}
-                    </a>
+                    </button>
                     <button onClick={() => downloadOne(file)} className="flex-1 rounded bg-blue-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
                       {t("courtwssd_download_one")}
                     </button>
@@ -292,6 +364,32 @@ export default function CourtWssdContent() {
           </button>
         </div>
       </Modal>
+
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3">
+          <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3">
+              <h2 className="min-w-0 truncate text-sm font-semibold text-gray-950" title={previewFileName}>
+                {previewFileName || t("courtwssd_preview")}
+              </h2>
+              <button onClick={closePreview} className="shrink-0 rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                {t("courtwssd_close_preview")}
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto bg-gray-100 p-4">
+              {isPreviewLoading && !previewPages.length ? (
+                <div className="flex h-full items-center justify-center text-sm text-gray-600">{t("courtwssd_preview_loading")}</div>
+              ) : (
+                <div className="mx-auto flex max-w-4xl flex-col gap-4">
+                  {previewPages.map((pageUrl, index) => (
+                    <img key={`${previewFileName}-${index}`} src={pageUrl} alt={`${previewFileName} ${index + 1}`} className="w-full rounded border border-gray-200 bg-white shadow-sm" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

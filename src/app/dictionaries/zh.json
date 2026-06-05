@@ -568,6 +568,8 @@
   "courtwssd_thumb_failed": "缩略图失败",
   "courtwssd_unknown_court": "未知法院",
   "courtwssd_preview": "预览",
+  "courtwssd_preview_loading": "正在打开预览...",
+  "courtwssd_close_preview": "关闭预览",
   "courtwssd_download_one": "下载",
   "courtwssd_notice": "提示",
   "courtwssd_confirm": "确定",

@@ -567,6 +567,8 @@
   "courtwssd_thumb_failed": "Thumbnail failed",
   "courtwssd_unknown_court": "Unknown court",
   "courtwssd_preview": "Preview",
+  "courtwssd_preview_loading": "Opening preview...",
+  "courtwssd_close_preview": "Close preview",
   "courtwssd_download_one": "Download",
   "courtwssd_notice": "Notice",
   "courtwssd_confirm": "OK",
