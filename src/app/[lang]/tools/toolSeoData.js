@@ -136,6 +136,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-02-12T10:00:00.000Z",
     updatedDate: "2026-02-12T10:00:00.000Z",
   },
+  courtwssd: {
+    publishedDate: "2026-06-05T07:00:00.000Z",
+    updatedDate: "2026-06-05T07:00:00.000Z",
+  },
   mergeword: {
     publishedDate: "2025-07-04T17:00:00.000Z",
     updatedDate: "2025-07-04T18:00:00.000Z",

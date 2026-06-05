@@ -296,6 +296,18 @@ const Projects = {
       tags: ["pdf", "document"],
     },
     {
+      id: "courtwssd",
+      title: "courtwssd_title",
+      description: "courtwssd_description",
+      image: "https://slefboot-1251736664.file.myqcloud.com/20260605_ai_gallery_courtwssd_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260605_ai_gallery_courtwssd_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260605_ai_gallery_courtwssd_zh.svg",
+      },
+      link: "/tools/courtwssd/",
+      tags: ["pdf", "document"],
+    },
+    {
       id: "imagepdf",
       title: "imagepdf_title",
       description: "imagepdf_description",
