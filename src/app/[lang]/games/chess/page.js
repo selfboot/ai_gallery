@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.chess.title,
       description: dict.seo.chess.description,
       keywords: dict.seo.chess.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/chess`,
       publishedDate: "2024-07-08T02:00:00.000Z",
       updatedDate: "2026-02-09T09:00:00.000Z",
     }),

@@ -3,6 +3,7 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import Projects from "@/app/config/project";
 import ToolsDirectory from "./ToolsDirectory";
+import DirectoryStructuredData from "@/app/components/DirectoryStructuredData";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -62,6 +63,15 @@ export default async function Tools(props) {
   };
 
   return (
-    <ToolsDirectory lang={lang} tools={tools} labels={labels} />
+    <>
+      <DirectoryStructuredData
+        lang={lang}
+        path={`/${lang}/tools`}
+        title={dict.tools_title}
+        description={dict.seo.tools.description}
+        items={tools}
+      />
+      <ToolsDirectory lang={lang} tools={tools} labels={labels} />
+    </>
   );
 }

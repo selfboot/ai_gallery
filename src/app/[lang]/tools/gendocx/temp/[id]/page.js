@@ -23,6 +23,7 @@ export async function generateMetadata(props) {
     ...PageMeta({
       title: dict[template.id],
       description: dict.gendocx_temp[template.id],
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/gendocx/temp/${id}`,
       publishedDate: template.publishedDate,
       updatedDate: template.updatedDate,
     }),

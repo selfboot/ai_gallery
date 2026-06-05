@@ -3,6 +3,7 @@ export function PageMeta({
   description,
   keywords,
   canonicalUrl,
+  languageAlternates,
   image,
   imageAlt,
   type = "website",
@@ -25,6 +26,24 @@ export function PageMeta({
 
   const imageUrl = normalizeUrl(image) || defaultImage;
   const pageUrl = normalizeUrl(canonicalUrl);
+  const buildLanguageAlternates = (url) => {
+    if (!url) return undefined;
+
+    try {
+      const { pathname } = new URL(url);
+      const match = pathname.match(/^\/(en|zh)(\/.*)?$/);
+      if (!match) return undefined;
+
+      const pathWithoutLocale = match[2] || "";
+      return {
+        en: `${siteUrl}/en${pathWithoutLocale}`,
+        "zh-CN": `${siteUrl}/zh${pathWithoutLocale}`,
+        "x-default": `${siteUrl}/en${pathWithoutLocale}`,
+      };
+    } catch {
+      return undefined;
+    }
+  };
   const keywordList = Array.isArray(keywords)
     ? keywords
     : keywords?.split(",").map((keyword) => keyword.trim()).filter(Boolean);
@@ -35,7 +54,8 @@ export function PageMeta({
     description,
     keywords: keywordList,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: pageUrl,
+      languages: languageAlternates || buildLanguageAlternates(pageUrl),
     },
     robots: {
       index: true,

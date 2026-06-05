@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.sliding.title,
       description: dict.seo.sliding.description,
       keywords: dict.seo.sliding.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sliding`,
       publishedDate: "2024-11-01T02:00:00.000Z",
       updatedDate: "2025-01-10T09:00:00.000Z",
     }),

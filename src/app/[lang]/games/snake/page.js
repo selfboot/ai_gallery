@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.snake.title,
       description: dict.seo.snake.description,
       keywords: dict.seo.snake.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/snake`,
       publishedDate: "2024-07-08T02:00:00.000Z",
       updatedDate: "2026-02-10T09:00:00.000Z",
     }),

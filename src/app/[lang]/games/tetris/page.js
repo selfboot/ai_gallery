@@ -18,6 +18,7 @@ export async function generateMetadata(props) {
       title: dict.seo.tetris.title,
       description: dict.seo.tetris.description,
       keywords: dict.seo.tetris.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/tetris`,
       publishedDate: "2024-07-01T02:00:00.000Z",
       updatedDate: "2024-11-19T02:00:00.000Z",
     }),

@@ -18,6 +18,7 @@ export async function generateMetadata(props) {
       title: dict.seo.lasermaze.title,
       description: dict.seo.lasermaze.description,
       keywords: dict.seo.lasermaze.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/lasermaze`,
       publishedDate: "2025-10-11T03:00:00.000Z",
       updatedDate: "2025-10-11T03:00:00.000Z",
     }),

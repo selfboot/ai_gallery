@@ -3,6 +3,7 @@ import { BlogIndex } from "@/app/components/BlogIndex";
 import { getDictionary } from '@/app/dictionaries';
 import { PageMeta } from "@/app/components/Meta";
 import { postsFiles, postSlugs } from "@/generated/posts-content";
+import DirectoryStructuredData from "@/app/components/DirectoryStructuredData";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -54,5 +55,24 @@ export default async function BlogIndexPage(props) {
   } = params;
 
   const posts = await getPostMetadata(lang);
-  return <BlogIndex posts={posts} lang={lang} />;
+  const dict = await getDictionary(lang);
+  const postItems = posts.map((post) => ({
+    title: post.title,
+    description: post.description || "",
+    image: post.coverImage,
+    link: `/blog/${post.slug}`,
+  }));
+
+  return (
+    <>
+      <DirectoryStructuredData
+        lang={lang}
+        path={`/${lang}/blog`}
+        title={dict.blog_title}
+        description={dict.seo.blog.description}
+        items={postItems}
+      />
+      <BlogIndex posts={posts} lang={lang} />
+    </>
+  );
 }

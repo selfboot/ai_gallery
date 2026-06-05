@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.dpcoin.title,
       description: dict.seo.dpcoin.description,
       keywords: dict.seo.dpcoin.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/algorithms/dpcoin`,
       publishedDate: "2024-07-30T12:40:00.000Z",
       updatedDate: "2024-11-21T04:00:00.000Z",
     }),

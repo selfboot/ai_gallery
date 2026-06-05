@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.maze.title,
       description: dict.seo.maze.description,
       keywords: dict.seo.maze.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/maze`,
       publishedDate: "2024-12-01T12:00:00.000Z",
       updatedDate: "2024-12-04T12:00:00.000Z",
     }),

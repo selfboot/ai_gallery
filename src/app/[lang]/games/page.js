@@ -2,6 +2,8 @@ import React from "react";
 import ProjectGrid from "@/app/components/ProjectGrid";
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
+import Projects from "@/app/config/project";
+import DirectoryStructuredData from "@/app/components/DirectoryStructuredData";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -30,9 +32,21 @@ export default async function Games(props) {
   } = params;
 
   const dict = await getDictionary(lang);
+  const games = Projects.games.map((game) => ({
+    ...game,
+    title: dict[game.title] || game.title,
+    description: dict[game.description] || game.description,
+  }));
 
   return (
     <>
+      <DirectoryStructuredData
+        lang={lang}
+        path={`/${lang}/games`}
+        title={dict.games_title}
+        description={dict.seo.games.description}
+        items={games}
+      />
       <h1 className="text-2xl font-bold mb-4">{dict.games_title}</h1>
       <ProjectGrid category="games" lang={lang} />
     </>

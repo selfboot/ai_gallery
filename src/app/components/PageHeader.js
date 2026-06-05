@@ -6,6 +6,9 @@ import { faArrowLeft, faCode } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getDictionary } from "@/app/dictionaries";
 import ShareButtons from "./ShareButtons";
+import JsonLd from "./JsonLd";
+
+const SITE_URL = "https://gallery.selfboot.cn";
 
 async function PageHeader({ lang, pathname, title }) {
   const dict = await getDictionary(lang);
@@ -37,9 +40,39 @@ async function PageHeader({ lang, pathname, title }) {
   const pageTitle = getTitle();
   const codeLink = getCodeLink();
   const backLink = getBackLink();
+  const getBreadcrumbData = () => {
+    const pathSegments = pathname.split("/").filter(Boolean);
+    const [currentLang, category] = pathSegments;
+
+    if (!currentLang || !category || category === "tools") {
+      return null;
+    }
+
+    const categoryTitle = dict[`${category}_title`] || category;
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: categoryTitle,
+          item: `${SITE_URL}/${currentLang}/${category}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: pageTitle,
+          item: `${SITE_URL}${pathname}`,
+        },
+      ],
+    };
+  };
+  const breadcrumbData = getBreadcrumbData();
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full mb-6">
+      {breadcrumbData ? <JsonLd data={breadcrumbData} /> : null}
       <div className="flex flex-wrap items-center gap-4">
         <h1 className="text-2xl font-bold">{pageTitle}</h1>
         <div className="flex items-center gap-4">

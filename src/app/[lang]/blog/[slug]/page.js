@@ -4,6 +4,66 @@ import TableOfContents from "@/app/components/TableOfContents";
 import CommonComments from "@/app/components/GiscusComments";
 import { SideAdComponent } from "@/app/components/AdComponent";
 import { postsFiles, postSlugs } from "@/generated/posts-content";
+import JsonLd from "@/app/components/JsonLd";
+import { PageMeta } from "@/app/components/Meta";
+import { notFound } from "next/navigation";
+
+const SITE_URL = "https://gallery.selfboot.cn";
+
+function getPostUrl(slug, lang) {
+  return `${SITE_URL}/${lang}/blog/${slug}`;
+}
+
+function createBlogPostStructuredData(post, lang) {
+  const url = getPostUrl(post.slug, lang);
+  const authorName = post.author || "AI Gallery";
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.description,
+        url,
+        mainEntityOfPage: url,
+        image: post.coverImage ? [new URL(post.coverImage, SITE_URL).toString()] : undefined,
+        datePublished: post.date,
+        dateModified: post.lastmod || post.date,
+        inLanguage: lang === "zh" ? "zh-CN" : "en",
+        author: {
+          "@type": "Person",
+          name: authorName,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "AI Gallery",
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_URL}/logo512.png`,
+          },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Blog",
+            item: `${SITE_URL}/${lang}/blog`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: post.title,
+            item: url,
+          },
+        ],
+      },
+    ],
+  };
+}
 
 export default async function BlogPostPage(props) {
   const params = await props.params;
@@ -16,7 +76,7 @@ export default async function BlogPostPage(props) {
   const post = await getPostContent(slug, lang);
 
   if (!post) {
-    return <div>Post not found</div>;
+    notFound();
   }
 
   return (
@@ -28,6 +88,7 @@ export default async function BlogPostPage(props) {
         <div className="w-full lg:w-3/5 max-w-full lg:max-w-3xl mx-auto">
           <article>
             <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+            <JsonLd data={createBlogPostStructuredData(post, lang)} />
             <div className="flex items-center space-x-4 text-sm text-gray-600 mb-6">
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,28 +150,22 @@ export async function generateMetadata(props) {
   const post = await getPostContent(slug, lang);
 
   if (!post) {
-    return {
-      title: "Post Not Found",
-    };
+    return {};
   }
 
-  return {
+  return PageMeta({
     title: post.title,
     description: post.description,
-    keywords: post.keywords ? post.keywords.join(", ") : `${post.title}`,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      type: "article",
-      publishedTime: post.date,
-      authors: [post.author],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: post.description,
-    },
-  };
+    keywords: post.keywords || `${post.title}`,
+    canonicalUrl: getPostUrl(slug, lang),
+    image: post.coverImage,
+    imageAlt: post.title,
+    type: "article",
+    locale: lang === "zh" ? "zh_CN" : "en_US",
+    alternateLocales: lang === "zh" ? ["en_US"] : ["zh_CN"],
+    publishedDate: post.date,
+    updatedDate: post.lastmod || post.date,
+  });
 }
 
 export async function generateStaticParams() {
@@ -131,9 +186,11 @@ export async function getPostContent(slug, lang) {
   try {
     const { data, content } = matter(fileContents);
     const contentHtml = await markdownToHtml(content);
+    const imageMatch = content.match(/!\[.*?\]\((.*?)\)/);
     return {
       slug,
       contentHtml,
+      coverImage: imageMatch ? imageMatch[1] : null,
       ...data,
     };
   } catch (error) {

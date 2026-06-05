@@ -57,6 +57,7 @@ export async function generateMetadata(props) {
       title: dict.seo.sokoban_more.title,
       description: dict.seo.sokoban_more.description,
       keywords: dict.seo.sokoban_more.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/sokoban/more`,
       publishedDate: "2024-11-20T04:00:00.000Z",
       updatedDate: "2024-11-20T04:10:00.000Z",
     }),

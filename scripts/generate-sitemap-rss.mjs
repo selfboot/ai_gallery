@@ -15,6 +15,32 @@ const TOOL_SEO_ALIASES = {
   awards: "gendocx",
 };
 
+function buildLanguageAlternateLinks(url) {
+  try {
+    const { pathname } = new URL(url);
+    const match = pathname.match(/^\/(en|zh)(\/.*)?$/);
+    if (!match) return "";
+
+    const route = match[2] || "";
+    return `
+  <xhtml:link rel="alternate" hreflang="en" href="${DOMAIN}/en${route}" />
+  <xhtml:link rel="alternate" hreflang="zh-CN" href="${DOMAIN}/zh${route}" />
+  <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}/en${route}" />`;
+  } catch {
+    return "";
+  }
+}
+
+function makeSitemapUrl({ url, lastmod, changefreq = "weekly", priority = "0.7" }) {
+  const lastmodTag = lastmod ? `\n  <lastmod>${lastmod}</lastmod>` : "";
+  return `
+<url>
+  <loc>${url}</loc>${lastmodTag}
+  <changefreq>${changefreq}</changefreq>
+  <priority>${priority}</priority>${buildLanguageAlternateLinks(url)}
+</url>`;
+}
+
 function readObjectLiteralFromFile(filePath, exportName) {
   const content = fs.readFileSync(filePath, "utf8");
   const startToken = `export const ${exportName} = `;
@@ -62,6 +88,7 @@ function getNestedValue(obj, path) {
 
 async function generateSitemapAndRss() {
   const { globby } = await import("globby");
+  const sitemapIndexLastmods = {};
 
   for (const lang of LANGUAGES) {
     const pages = await globby([
@@ -84,6 +111,10 @@ async function generateSitemapAndRss() {
         .replace("src/app/[lang]", "")
         .replace("/page.js", "")
         .replace("/index", "");
+
+      if (route === "") {
+        continue;
+      }
 
       // console.log(`Route: ${route}`);
 
@@ -185,13 +216,12 @@ async function generateSitemapAndRss() {
 
       const lastmod = new Date(data.date).toISOString().split('.')[0] + '.000Z';
 
-      sitemapItems.push(`
-  <url>
-    <loc>${url}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`);
+      sitemapItems.push(makeSitemapUrl({
+        url,
+        lastmod,
+        changefreq: "weekly",
+        priority: "0.8",
+      }));
 
       // 添加到 RSS
       rssItems.push({
@@ -208,11 +238,17 @@ async function generateSitemapAndRss() {
 
     // 生成 sitemap
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   ${sitemapItems.join("")}
 </urlset>
 `;
     fs.writeFileSync(`public/sitemap-${lang}.xml`, sitemap);
+    const itemLastmods = sitemapItems
+      .map((item) => item.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1])
+      .filter(Boolean)
+      .sort();
+    sitemapIndexLastmods[lang] = itemLastmods[itemLastmods.length - 1] || new Date().toISOString();
 
     const getRssFileName = (lang) => lang === 'zh' ? 'rss.xml' : `rss-${lang}.xml`;
     const feed = new RSS({
@@ -235,7 +271,7 @@ async function generateSitemapAndRss() {
     (lang) => `
     <sitemap>
       <loc>${DOMAIN}/sitemap-${lang}.xml</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>${sitemapIndexLastmods[lang]}</lastmod>
     </sitemap>`
   ).join("")}
 </sitemapindex>`;
@@ -246,22 +282,22 @@ function addToSitemapAndRss(sitemapItems, rssItems, metadata) {
   // console.log("Metadata:", metadata);
 
   const url = metadata.canonicalUrl;
+  const lastmod = metadata.updatedDate || metadata.publishedDate || null;
 
   // Add to sitemap
-  sitemapItems.push(`
-<url>
-  <loc>${url}</loc>
-  <lastmod>${metadata.updatedDate}</lastmod>
-  <changefreq>daily</changefreq>
-  <priority>0.7</priority>
-</url>`);
+  sitemapItems.push(makeSitemapUrl({
+    url,
+    lastmod,
+    changefreq: "weekly",
+    priority: "0.7",
+  }));
 
   // Add to RSS
   rssItems.push({
     title: metadata.title,
     description: metadata.description,
     url: url,
-    date: metadata.updatedDate,
+    date: lastmod,
   });
 }
 

@@ -20,6 +20,7 @@ export async function generateMetadata(props) {
       title: dict.seo.unblockme.title,
       description: dict.seo.unblockme.description,
       keywords: dict.seo.unblockme.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/unblockme`,
       publishedDate: "2025-09-24T09:00:00.000Z",
       updatedDate: "2025-09-24T09:00:00.000Z",
     }),

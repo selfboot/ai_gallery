@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.cube.title,
       description: dict.seo.cube.description,
       keywords: dict.seo.cube.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/cube`,
       publishedDate: "2024-10-25T02:00:00.000Z",
       updatedDate: "2026-02-09T09:00:00.000Z",
     }),

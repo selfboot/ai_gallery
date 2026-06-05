@@ -17,6 +17,7 @@ export async function generateMetadata(props) {
       title: dict.seo.gendocx_temp.title,
       description: dict.seo.gendocx_temp.description,
       keywords: dict.seo.gendocx_temp.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/gendocx/temp`,
       publishedDate: "2025-01-08T09:00:00.000Z",
       updatedDate: "2025-01-08T09:00:00.000Z",
     }),

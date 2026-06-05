@@ -1,7 +1,7 @@
 import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import { isSupportedLanguage } from "@/app/i18n/locales";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -36,8 +36,5 @@ export default async function Home(props) {
     notFound();
   }
 
-  return (
-    // redriect now
-    <></>
-  );
+  redirect(`/${lang}/games`);
 }

@@ -16,6 +16,7 @@ export async function generateMetadata(props) {
       title: dict.seo.screenshotsize.title,
       description: dict.seo.screenshotsize.description,
       keywords: dict.seo.screenshotsize.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/screenshotsize`,
       publishedDate: "2026-05-05T04:00:00.000Z",
       updatedDate: "2026-05-05T04:00:00.000Z",
     }),

@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.minesweeper.title,
       description: dict.seo.minesweeper.description,
       keywords: dict.seo.minesweeper.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/minesweeper`,
       publishedDate: "2024-11-24T11:00:00.000Z",
       updatedDate: "2024-11-24T12:00:00.000Z",
     }),

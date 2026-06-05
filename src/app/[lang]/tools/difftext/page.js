@@ -16,6 +16,7 @@ export async function generateMetadata(props) {
       title: dict.seo.difftext.title,
       description: dict.seo.difftext.description,
       keywords: dict.seo.difftext.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/tools/difftext`,
       publishedDate: "2026-04-29T03:00:00.000Z",
       updatedDate: "2026-04-29T03:00:00.000Z",
     }),

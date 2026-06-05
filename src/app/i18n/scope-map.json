@@ -881,6 +881,7 @@
     },
     "blog": {
       "keys": [
+        "blog",
         "blog_description",
         "blog_title",
         "round"
@@ -891,6 +892,7 @@
     },
     "blog/[slug]": {
       "keys": [
+        "blog",
         "round",
         "slug_description",
         "slug_title"

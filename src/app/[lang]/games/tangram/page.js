@@ -19,6 +19,7 @@ export async function generateMetadata(props) {
       title: dict.seo.tangram.title,
       description: dict.seo.tangram.description,
       keywords: dict.seo.tangram.keywords,
+      canonicalUrl: `https://gallery.selfboot.cn/${lang}/games/tangram`,
       publishedDate: "2025-05-16T12:00:00.000Z",
       updatedDate: "2025-05-16T13:00:00.000Z",
     }),
