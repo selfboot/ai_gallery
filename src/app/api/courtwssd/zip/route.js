@@ -1,8 +1,6 @@
 import PizZip from "pizzip";
 import { fetchDeliveryFiles, jsonResponse, sanitizeFileName } from "../utils";
 
-export const runtime = "edge";
-
 export async function POST(request) {
   try {
     const body = await request.json();

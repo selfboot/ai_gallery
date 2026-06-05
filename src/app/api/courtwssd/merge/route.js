@@ -1,8 +1,6 @@
 import { PDFDocument } from "pdf-lib";
 import { fetchDeliveryFiles, jsonResponse } from "../utils";
 
-export const runtime = "edge";
-
 export async function POST(request) {
   try {
     const body = await request.json();
