@@ -95,7 +95,7 @@ export default function CourtWssdContent() {
   const [files, setFiles] = useState([]);
   const [deliveryId, setDeliveryId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadMode, setDownloadMode] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,7 +147,7 @@ export default function CourtWssdContent() {
 
   const downloadAll = async () => {
     if (!files.length) return;
-    setIsDownloading(true);
+    setDownloadMode("zip");
     setStatusMessage(t("courtwssd_downloading"));
     try {
       const response = await fetch("/api/courtwssd/zip", {
@@ -167,7 +167,33 @@ export default function CourtWssdContent() {
       setStatusMessage("");
       showModal(t("courtwssd_error_download"));
     } finally {
-      setIsDownloading(false);
+      setDownloadMode("");
+    }
+  };
+
+  const downloadMergedPdf = async () => {
+    if (!files.length) return;
+    setDownloadMode("merge");
+    setStatusMessage(t("courtwssd_merging"));
+    try {
+      const response = await fetch("/api/courtwssd/merge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload?.error || "merge failed");
+      }
+      const blob = await response.blob();
+      saveAs(blob, `court-delivery-${deliveryId || "documents"}.pdf`);
+      setStatusMessage(t("courtwssd_merged"));
+    } catch (error) {
+      console.error("Court delivery PDF merge failed:", error);
+      setStatusMessage("");
+      showModal(t("courtwssd_error_merge"));
+    } finally {
+      setDownloadMode("");
     }
   };
 
@@ -194,8 +220,11 @@ export default function CourtWssdContent() {
             <button onClick={loadFiles} disabled={isLoading} className="rounded bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-300">
               {isLoading ? t("courtwssd_loading") : t("courtwssd_fetch_button")}
             </button>
-            <button onClick={downloadAll} disabled={!files.length || isDownloading} className="rounded bg-green-600 px-5 py-3 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-300">
-              {isDownloading ? t("courtwssd_downloading") : t("courtwssd_download_all")}
+            <button onClick={downloadAll} disabled={!files.length || Boolean(downloadMode)} className="rounded bg-green-600 px-5 py-3 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-300">
+              {downloadMode === "zip" ? t("courtwssd_downloading") : t("courtwssd_download_all")}
+            </button>
+            <button onClick={downloadMergedPdf} disabled={!files.length || Boolean(downloadMode)} className="rounded bg-indigo-600 px-5 py-3 text-sm font-medium text-white hover:bg-indigo-700 disabled:bg-gray-300">
+              {downloadMode === "merge" ? t("courtwssd_merging") : t("courtwssd_download_merged_pdf")}
             </button>
             <button onClick={clearAll} disabled={!files.length && !statusMessage} className="rounded bg-gray-100 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:text-gray-400">
               {t("courtwssd_clear")}

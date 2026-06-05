@@ -1,6 +1,6 @@
 This tool downloads PDF documents from a People's Court Online Service delivery link.
 
-Paste a delivery URL that contains `sdbh`, `qdbh`, and `sdsin`. The tool reads the document list, renders first-page thumbnails, and supports single preview, single download, and one-click ZIP export.
+Paste a delivery URL that contains `sdbh`, `qdbh`, and `sdsin`. The tool reads the document list, renders first-page thumbnails, and supports single preview, single download, one-click ZIP export, and merged PDF export.
 
 Delivery links and signed file URLs may expire. Only process documents that you are authorized to access and keep.
 
