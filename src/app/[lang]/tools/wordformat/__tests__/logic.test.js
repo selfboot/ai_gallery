@@ -8,7 +8,7 @@ import {
   buildOverlappingSource,
   buildOverlappingTemplate,
   makeFileFromBuffer,
-} from "./fixtures";
+} from "../__fixtures__/fixtures";
 
 const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -493,6 +493,7 @@ describe("wordformat docx formatting", () => {
     const normalStyleId = profile.paragraphRoleIds.normal;
     const listBulletStyleId = profile.paragraphRoleIds.listBullet;
     const quoteStyleId = profile.paragraphRoleIds.quote;
+    const intenseQuoteStyleId = profile.paragraphStyleIds.has("IntenseQuote") ? "IntenseQuote" : "";
     const hyperlinkStyleId = profile.characterRoleIds.hyperlink;
     const preferredTableStyleId = profile.preferredTableStyleId;
 
@@ -503,7 +504,7 @@ describe("wordformat docx formatting", () => {
     expect(normalStyleId).toBeTruthy();
     expect(heading2StyleId).toBeTruthy();
     expect(listBulletStyleId).toBeTruthy();
-    expect(quoteStyleId).toBeTruthy();
+    expect(quoteStyleId || intenseQuoteStyleId).toBeTruthy();
     expect(hyperlinkStyleId).toBeTruthy();
     expect(preferredTableStyleId).toBeTruthy();
     expect(profile.summary.defaultFont.latin).toBe("Aptos");
@@ -540,7 +541,7 @@ describe("wordformat docx formatting", () => {
     expect(documentXml).toContain(`w:pStyle w:val="${heading1StyleId}"`);
     expect(documentXml).toContain(`w:pStyle w:val="${heading2StyleId}"`);
     expect(documentXml).toContain(`w:pStyle w:val="${listBulletStyleId}"`);
-    expect(documentXml).toContain(`w:pStyle w:val="${quoteStyleId}"`);
+    expect(documentXml).toContain(`w:pStyle w:val="${intenseQuoteStyleId || quoteStyleId}"`);
     expect(documentXml).toContain(`w:rStyle w:val="${hyperlinkStyleId}"`);
     // template-known table style kept; unknown vendor style stripped
     expect(documentXml).toContain(`w:tblStyle w:val="${preferredTableStyleId}"`);

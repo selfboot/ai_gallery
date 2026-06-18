@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import PizZip from "pizzip";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const publicDir = join(__dirname, "../public");
 const outputDir = join(__dirname, "../public/files");
 
 const W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
@@ -440,6 +441,65 @@ function buildDocx({ documentXml, stylesXml, themeXml, numberingXml }) {
   return zip.generate({ type: "uint8array", compression: "DEFLATE" });
 }
 
+function buildCoverSvg({ badge, title, subtitle, templateLabel, rulesLabel, outputLabel }) {
+  return `<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F8FAFC"/>
+  <rect x="96" y="76" width="1408" height="748" rx="28" fill="#E2E8F0"/>
+  <rect x="116" y="96" width="1368" height="708" rx="22" fill="#FFFFFF"/>
+  <rect x="164" y="144" width="154" height="34" rx="17" fill="#DBEAFE"/>
+  <text x="188" y="167" fill="#2563EB" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">${badge}</text>
+  <circle cx="344" cy="161" r="7" fill="#2563EB"/>
+  <text x="164" y="228" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="800">${title}</text>
+  <text x="166" y="270" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="500">${subtitle}</text>
+
+  <g transform="translate(168 338)">
+    <rect width="348" height="342" rx="18" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <rect x="42" y="44" width="210" height="264" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"/>
+    <path d="M212 44H252V84" fill="#DBEAFE"/>
+    <path d="M212 44V84H252" stroke="#93C5FD" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="70" y="80" width="132" height="16" rx="8" fill="#2563EB"/>
+    <rect x="70" y="120" width="150" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="70" y="148" width="104" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="70" y="188" width="154" height="36" rx="8" fill="#EFF6FF" stroke="#93C5FD" stroke-width="2"/>
+    <rect x="70" y="250" width="164" height="12" rx="6" fill="#93C5FD"/>
+    <text x="42" y="334" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">${templateLabel}</text>
+  </g>
+
+  <g transform="translate(626 350)">
+    <rect width="348" height="318" rx="18" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <rect x="52" y="52" width="244" height="64" rx="12" fill="#DBEAFE" stroke="#93C5FD" stroke-width="3"/>
+    <circle cx="82" cy="84" r="10" fill="#2563EB"/>
+    <rect x="108" y="74" width="142" height="12" rx="6" fill="#2563EB"/>
+    <rect x="52" y="138" width="244" height="64" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"/>
+    <circle cx="82" cy="170" r="10" fill="#10B981"/>
+    <rect x="108" y="160" width="122" height="12" rx="6" fill="#64748B"/>
+    <rect x="52" y="224" width="244" height="40" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+    <text x="52" y="306" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">${rulesLabel}</text>
+  </g>
+
+  <g transform="translate(1084 308)">
+    <rect width="348" height="394" rx="18" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="3"/>
+    <rect x="48" y="42" width="250" height="310" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"/>
+    <rect x="78" y="76" width="176" height="20" rx="10" fill="#0F172A"/>
+    <rect x="78" y="122" width="146" height="14" rx="7" fill="#2563EB"/>
+    <rect x="78" y="166" width="188" height="9" rx="4.5" fill="#CBD5E1"/>
+    <rect x="78" y="192" width="150" height="9" rx="4.5" fill="#CBD5E1"/>
+    <circle cx="86" cy="238" r="8" fill="#2563EB"/>
+    <rect x="108" y="231" width="126" height="10" rx="5" fill="#334155"/>
+    <circle cx="86" cy="266" r="8" fill="#2563EB"/>
+    <rect x="108" y="259" width="144" height="10" rx="5" fill="#334155"/>
+    <rect x="78" y="304" width="178" height="34" rx="8" fill="#DBEAFE"/>
+    <rect x="78" y="304" width="178" height="10" rx="5" fill="#2563EB"/>
+    <text x="48" y="382" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">${outputLabel}</text>
+  </g>
+
+  <path d="M538 506H598" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+  <path d="M580 486L606 506L580 526" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M996 506H1056" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+  <path d="M1038 486L1064 506L1038 526" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+}
+
 const fixtures = [
   {
     file: "wordformat-company-template.docx",
@@ -461,10 +521,44 @@ const fixtures = [
   },
 ];
 
+const covers = [
+  {
+    file: "wordformat_en.svg",
+    svg: buildCoverSvg({
+      badge: "DOCX TOOL",
+      title: "Word Style Applier",
+      subtitle: "Apply template styles to Word documents",
+      templateLabel: "TEMPLATE",
+      rulesLabel: "STYLE RULES",
+      outputLabel: "FORMATTED DOCX",
+    }),
+  },
+  {
+    file: "wordformat_zh.svg",
+    svg: buildCoverSvg({
+      badge: "DOCX 工具",
+      title: "Word 模板套用",
+      subtitle: "批量统一标题、正文、列表和表格样式",
+      templateLabel: "模板文件",
+      rulesLabel: "样式规则",
+      outputLabel: "格式化文档",
+    }),
+  },
+];
+
 if (!existsSync(outputDir)) {
   await mkdir(outputDir, { recursive: true });
 }
 
-await Promise.all(fixtures.map(({ file, bytes }) => writeFile(join(outputDir, file), Buffer.from(bytes))));
+if (!existsSync(publicDir)) {
+  await mkdir(publicDir, { recursive: true });
+}
 
-console.log(`wordformat sample files written to ${outputDir}: ${fixtures.map((f) => f.file).join(", ")}`);
+await Promise.all(fixtures.map(({ file, bytes }) => writeFile(join(outputDir, file), Buffer.from(bytes))));
+await Promise.all(covers.map(({ file, svg }) => writeFile(join(publicDir, file), svg)));
+
+console.log(
+  `wordformat sample files written to ${outputDir}: ${fixtures.map((f) => f.file).join(", ")}; covers: ${covers
+    .map((f) => f.file)
+    .join(", ")}`
+);

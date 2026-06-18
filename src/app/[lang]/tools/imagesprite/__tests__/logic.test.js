@@ -6,7 +6,7 @@ import {
   makeManifest,
   slugifyClassName,
 } from "../logic";
-import { spriteIconFixtures } from "./fixtures";
+import { spriteIconFixtures } from "../__fixtures__/fixtures";
 
 describe("imagesprite logic", () => {
   test("prepares stable CSS class names from uploaded icon file names", () => {
