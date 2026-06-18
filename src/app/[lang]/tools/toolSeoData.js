@@ -200,6 +200,10 @@ export const TOOL_METADATA_DATES = {
     publishedDate: "2026-02-11T06:00:00.000Z",
     updatedDate: "2026-02-11T06:00:00.000Z",
   },
+  wordformat: {
+    publishedDate: "2026-06-17T08:00:00.000Z",
+    updatedDate: "2026-06-17T08:00:00.000Z",
+  },
   subtitles: {
     publishedDate: "2024-07-28T02:00:00.000Z",
     updatedDate: "2025-01-15T09:00:00.000Z",

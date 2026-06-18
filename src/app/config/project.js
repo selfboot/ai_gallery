@@ -272,6 +272,18 @@ const Projects = {
       tags: ["document"],
     },
     {
+      id: "wordformat",
+      title: "wordformat_title",
+      description: "wordformat_description",
+      image: "/wordformat_en.svg",
+      images: {
+        en: "https://slefboot-1251736664.file.myqcloud.com/20260618_ai_gallery_wordformat_en.svg",
+        zh: "https://slefboot-1251736664.file.myqcloud.com/20260618_ai_gallery_wordformat_zh.svg",
+      },
+      link: "/tools/wordformat/",
+      tags: ["document"],
+    },
+    {
       id: "mergepdf",
       title: "mergepdf_title",
       description: "mergepdf_description",
