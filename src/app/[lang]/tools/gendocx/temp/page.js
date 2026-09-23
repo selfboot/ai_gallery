@@ -3,6 +3,7 @@ import TemplateList from "./ClientContent";
 import { PageMeta } from "@/app/components/Meta";
 import PageHeader from "@/app/components/PageHeader";
 import { ScopedI18nProvider } from "@/app/i18n/scoped";
+import MobileToolAd from "@/app/components/MobileToolAd";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -43,6 +44,7 @@ export default async function TemplatesPage(props) {
     <>
       <PageHeader lang={lang} pathname={`/${lang}/tools/gendocx/temp`} title="gendocx_templates" />
       <ScopedI18nProvider locale={lang} scope="tools/gendocx/temp"><TemplateList lang={lang} /></ScopedI18nProvider>
+      <MobileToolAd className="mt-8" />
     </>
   );
 }

@@ -8,6 +8,7 @@ import { getCommonDictionary } from "@/app/i18n/scoped";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage } from "@/app/i18n/locales";
 import { notFound } from "next/navigation";
 import Script from 'next/script';
+import MobileFooterAd from "@/app/components/MobileFooterAd";
 
 const CATEGORIES = ["games", "algorithms", "tools", "blog"];
 
@@ -80,6 +81,7 @@ export default async function Layout(props) {
           </nav>
           <I18nProvider initialDictionary={commonDict}>
             <main className="flex-grow container mx-auto mt-6 px-2 sm:px-4"> {children} </main>
+            <MobileFooterAd />
           </I18nProvider>
         </div>
         <Script id="google-analytics-init" strategy="lazyOnload">

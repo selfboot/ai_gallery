@@ -737,9 +737,6 @@ const UnblockMeGame = ({ lang, levels = [], levelsUrl }) => {
 	          )}
 	        </div>
 
-        <div className="md:hidden bg-gray-100">
-          <SideAdComponent format="square" />
-        </div>
         {levelsError && (
           <div className="rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
             {levelsError}

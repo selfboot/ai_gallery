@@ -1,6 +1,7 @@
 import RetirementCalculator from "./ClientContent";
 import PageHeader from "@/app/components/PageHeader";
 import CommonComments from "@/app/components/GiscusComments";
+import MobileToolAd from "@/app/components/MobileToolAd";
 import BlogMarkdown from "@/app/components/BlogMarkdown";
 import { createToolMetadata, ToolStructuredData } from "../toolMetadata";
 import { ScopedI18nProvider } from "@/app/i18n/scoped";
@@ -24,6 +25,7 @@ export default async function GenDocxPage(props) {
       <PageHeader lang={lang} pathname={`/${lang}/tools/retire`} />
       <ScopedI18nProvider locale={lang} scope="tools/retire"><RetirementCalculator lang={lang} /></ScopedI18nProvider>
       <ToolStructuredData toolId="retire" lang={lang} />
+      <MobileToolAd className="mt-8" />
       <CommonComments lang={lang} />
     </>
   );

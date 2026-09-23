@@ -7,6 +7,7 @@ import rehypeSlug from "rehype-slug";
 import { visit } from "unist-util-visit";
 import matter from "gray-matter";
 import { markdownFiles } from "@/generated/markdown-content";
+import MobileToolAd from "@/app/components/MobileToolAd";
 
 // 自定义插件来处理图片
 function rehypeImageSize() {
@@ -64,6 +65,7 @@ export default async function BlogMarkdown({ lang, directory }) {
   if (markdownContent) {
     return (
       <div className="mt-16">
+        {directory.includes("/tools/") && <MobileToolAd className="mb-8" />}
         <div className="flex flex-col lg:flex-row lg:gap-8">
           <div className="w-full lg:w-4/5 lg:mr-8">
             <div className="markdown-body" dangerouslySetInnerHTML={{ __html: markdownContent.contentHtml }} />

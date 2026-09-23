@@ -2,6 +2,7 @@ import { getDictionary } from "@/app/dictionaries";
 import { PageMeta } from "@/app/components/Meta";
 import DynamicChartsContent from "./ClientContent";
 import { ScopedI18nProvider } from "@/app/i18n/scoped";
+import MobileToolAd from "@/app/components/MobileToolAd";
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -31,5 +32,10 @@ export default async function DynamicChartsPage(props) {
 
   const dict = await getDictionary(lang);
 
-  return <ScopedI18nProvider locale={lang} scope="tools/chartrace/dynamic"><DynamicChartsContent initialDict={dict} lang={lang} /></ScopedI18nProvider>;
+  return (
+    <>
+      <ScopedI18nProvider locale={lang} scope="tools/chartrace/dynamic"><DynamicChartsContent initialDict={dict} lang={lang} /></ScopedI18nProvider>
+      <MobileToolAd className="mt-8" />
+    </>
+  );
 }

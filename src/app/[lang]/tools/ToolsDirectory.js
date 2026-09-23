@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import ResponsiveWebPImage from "@/app/components/ResponseImage";
 import { SideAdComponent } from "@/app/components/AdComponent";
+import MobileAdComponent from "@/app/_ads/MobileAdComponent";
 
 const TAGS = ["all", "excel", "pdf", "document", "data", "finance", "image", "media", "chart", "developer"];
 
@@ -96,6 +97,9 @@ export default function ToolsDirectory({ lang, tools, labels }) {
           <div className="hidden min-h-48 overflow-hidden rounded border border-gray-200 bg-gray-50 md:block">
             <SideAdComponent format="rectangle" className="h-full min-h-48" />
           </div>
+          {filteredTools.length > 3 && (
+            <MobileAdComponent slot="7437487022" className="rounded border border-gray-200 md:hidden" />
+          )}
           {filteredTools.slice(3).map((tool) => (
             <ToolCard key={tool.id} tool={tool} lang={lang} labels={labels} />
           ))}

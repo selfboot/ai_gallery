@@ -4,6 +4,7 @@ import ResponsiveWebPImage from "@/app/components/ResponseImage";
 import Projects from "@/app/config/project";
 import { getDictionary } from "@/app/dictionaries";
 import { SideAdComponent } from "@/app/components/AdComponent";
+import MobileAdComponent from "@/app/_ads/MobileAdComponent";
 
 const ProjectCard = async ({ title, description, image, link, lang }) => {
   const dict = await getDictionary(lang);
@@ -40,6 +41,7 @@ const ProjectGrid = async ({ category, lang }) => {
               <div className="hidden md:relative md:block w-full bg-gray-100">
                 <SideAdComponent format="rectangle" />
               </div>
+              <MobileAdComponent slot="7437487022" className="rounded border border-gray-200 md:hidden" />
             </React.Fragment>
           );
         }
