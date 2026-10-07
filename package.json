@@ -101,7 +101,8 @@
   "pnpm": {
     "overrides": {
       "next>postcss": "$postcss",
-      "miniflare>sharp": "0.35.5"
+      "miniflare>sharp": "0.35.5",
+      "postcss-selector-parser@<7.1.6": "7.1.6"
     }
   },
   "prettier": {
