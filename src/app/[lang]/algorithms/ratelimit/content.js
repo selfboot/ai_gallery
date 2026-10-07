@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
+import "echarts/theme/v5";
 import { useI18n } from "@/app/i18n/client";
 
 const RateLimiter = () => {
@@ -181,7 +182,7 @@ const RateLimiter = () => {
       </div>
       <br />
       <br />
-      <ReactECharts option={option} style={{ height: "400px" }} />
+      <ReactECharts theme="v5" option={option} style={{ height: "400px" }} />
     </div>
   );
 };

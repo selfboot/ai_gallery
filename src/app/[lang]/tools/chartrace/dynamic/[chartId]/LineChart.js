@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import 'echarts/theme/v5';
 import { useI18n } from "@/app/i18n/client";
 
 const LineChart = ({ data, config }) => {
@@ -12,7 +13,7 @@ const LineChart = ({ data, config }) => {
       return;
     }
 
-    const chart = echarts.init(chartRef.current);
+    const chart = echarts.init(chartRef.current, 'v5');
 
     const headers = data[0];
     let dataRows = data.slice(1);

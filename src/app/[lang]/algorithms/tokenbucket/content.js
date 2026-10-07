@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react";
+import "echarts/theme/v5";
 import { Play, Pause, RefreshCw } from "lucide-react";
 import { useI18n } from "@/app/i18n/client";
 
@@ -121,7 +122,7 @@ const TokenBucketVisualization = () => {
       <div className="lg:flex lg:gap-6">
         <div className="lg:w-4/5 w-full mb-6 lg:mb-0">
           <div className="border rounded-lg shadow-lg p-4">
-            <ReactECharts option={option} style={{ height: "600px" }} />
+            <ReactECharts theme="v5" option={option} style={{ height: "600px" }} />
           </div>
         </div>
 

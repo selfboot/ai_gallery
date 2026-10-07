@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactECharts from 'echarts-for-react';
+import 'echarts/theme/v5';
 import { useI18n } from "@/app/i18n/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faDownload, faWrench } from "@fortawesome/free-solid-svg-icons";
@@ -259,6 +260,7 @@ const DynamicChart = ({ config, initialData }) => {
       {chartOption && (
         <div className="w-full" style={{ height: `${chartHeight}px` }}>
           <ReactECharts
+            theme="v5"
             ref={chartRef}
             option={chartOption}
             style={{ height: '100%', width: '100%' }}

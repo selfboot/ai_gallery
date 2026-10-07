@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
+import "echarts/theme/v5";
 import * as XLSX from "xlsx";
 import { useI18n } from "@/app/i18n/client";
 
@@ -479,7 +480,7 @@ export default function LoanRateCalculator() {
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h2 className="text-xl font-semibold mb-4">{tLoan("interestComparisonChart")}</h2>
             <div className="h-80">
-              {chartOptions && <ReactECharts option={chartOptions} style={{ height: "100%", width: "100%" }} />}
+              {chartOptions && <ReactECharts theme="v5" option={chartOptions} style={{ height: "100%", width: "100%" }} />}
             </div>
           </div>
 

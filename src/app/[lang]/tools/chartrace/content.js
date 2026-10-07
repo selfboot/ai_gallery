@@ -5,6 +5,7 @@ import ReactECharts from "echarts-for-react";
 import Modal from '@/app/components/Modal';
 import GIF from 'gif.js';
 import * as echarts from 'echarts';
+import 'echarts/theme/v5';
 import { useI18n } from "@/app/i18n/client";
 import { useParams } from 'next/navigation';
 import * as XLSX from 'xlsx';
@@ -287,7 +288,7 @@ const ChartRace = () => {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const offscreenChart = echarts.init(canvas, null, { 
+    const offscreenChart = echarts.init(canvas, 'v5', {
       renderer: 'canvas',
       width: canvasWidth,
       height: canvasHeight
@@ -384,6 +385,7 @@ const ChartRace = () => {
           <div>
             <h2 className="font-bold mb-4">{t('raceChart')}</h2>
             <ReactECharts
+              theme="v5"
               ref={chartRef}
               option={chartOption}
               style={{ height: '500px', width: '100%' }}
