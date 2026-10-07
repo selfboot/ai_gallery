@@ -69,8 +69,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       docxtemplater:
-        specifier: ^3.68.6
-        version: 3.68.6
+        specifier: ^3.71.0
+        version: 3.71.0
       echarts:
         specifier: ^5.5.1
         version: 5.5.1
@@ -2567,8 +2567,8 @@ packages:
     peerDependencies:
       react: '>= 16.8.0'
 
-  '@xmldom/xmldom@0.9.8':
-    resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
 
   abab@2.0.6:
@@ -3295,8 +3295,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  docxtemplater@3.68.6:
-    resolution: {integrity: sha512-gpctSJS9680VYzYvc8g9ClqcvQl6P6EOeK3u32CsdZGy3mSqOgjLZm4D94ufIR0yN+yGp3EwTTnhV8GUJZ5pOw==}
+  docxtemplater@3.71.0:
+    resolution: {integrity: sha512-4SyQzPVDrhsPb9vHNstxJpJWMLJvrbKEcXDRNBlb5Bnbjqm1T51PVt5r+iLVe1yAkmIvakk8M3KywO5m5LsUSA==}
     engines: {node: '>=0.10'}
 
   dom-accessibility-api@0.5.16:
@@ -9091,7 +9091,7 @@ snapshots:
       '@use-gesture/core': 10.3.1
       react: 19.1.0
 
-  '@xmldom/xmldom@0.9.8': {}
+  '@xmldom/xmldom@0.9.12': {}
 
   abab@2.0.6: {}
 
@@ -9839,9 +9839,9 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  docxtemplater@3.68.6:
+  docxtemplater@3.71.0:
     dependencies:
-      '@xmldom/xmldom': 0.9.8
+      '@xmldom/xmldom': 0.9.12
 
   dom-accessibility-api@0.5.16: {}
 
