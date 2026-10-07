@@ -6,6 +6,7 @@ export async function GET(request) {
     const fileUrl = assertAllowedPdfUrl(searchParams.get("url"));
     const name = sanitizeFileName(searchParams.get("name") || "court-document.pdf");
     const response = await fetch(fileUrl, {
+      redirect: "manual",
       headers: {
         "User-Agent": "Mozilla/5.0",
       },
