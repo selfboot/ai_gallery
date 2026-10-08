@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 export const SVGPNG_ACCEPT = ".svg,image/svg+xml";
 
 export const OUTPUT_FORMATS = {
@@ -21,14 +23,26 @@ export function clampNumber(value, fallback, min, max) {
   return Math.min(max, Math.max(min, number));
 }
 
+function parseSafeSvg(svgText) {
+  // Reuse the sanitizer's detached DOM instead of reparsing user-controlled text.
+  // All consumers, including blob previews/exports, use this sanitized SVG.
+  const fragment = DOMPurify.sanitize(String(svgText || "").trim(), {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    RETURN_DOM_FRAGMENT: true,
+  });
+  const svg = fragment.firstElementChild;
+  if (fragment.childElementCount !== 1 || svg.localName !== "svg" || svg.namespaceURI !== "http://www.w3.org/2000/svg") {
+    throw new Error("invalid_svg");
+  }
+  return svg;
+}
+
 export function getSvgSize(svgText) {
   const fallback = { width: DEFAULT_SETTINGS.width, height: DEFAULT_SETTINGS.height };
   if (!svgText) return fallback;
 
   try {
-    const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
-    const svg = doc.querySelector("svg");
-    if (!svg || doc.querySelector("parsererror")) return fallback;
+    const svg = parseSafeSvg(svgText);
 
     const width = parseSvgLength(svg.getAttribute("width"));
     const height = parseSvgLength(svg.getAttribute("height"));
@@ -60,10 +74,7 @@ export function validateSvg(svgText) {
   const text = String(svgText || "").trim();
   if (!text) return { valid: false, error: "empty" };
   try {
-    const doc = new DOMParser().parseFromString(text, "image/svg+xml");
-    if (doc.querySelector("parsererror") || !doc.querySelector("svg")) {
-      return { valid: false, error: "invalid" };
-    }
+    parseSafeSvg(text);
     return { valid: true, error: "" };
   } catch {
     return { valid: false, error: "invalid" };
@@ -79,5 +90,6 @@ export function getFileName(format) {
 }
 
 export function makeSvgBlobUrl(svgText) {
-  return URL.createObjectURL(new Blob([svgText], { type: "image/svg+xml;charset=utf-8" }));
+  const clean = new XMLSerializer().serializeToString(parseSafeSvg(svgText));
+  return URL.createObjectURL(new Blob([clean], { type: "image/svg+xml;charset=utf-8" }));
 }
