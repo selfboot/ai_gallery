@@ -51,8 +51,12 @@ export function assertAllowedPdfUrl(input) {
     throw new Error("invalid_file_url");
   }
 
-  // Keep the signed path/query intact, but always construct requests on the fixed origin.
-  return `${PDF_ORIGIN}${parsed.pathname}${parsed.search}`;
+  // Copy only path/query onto a fixed-origin URL. Neither setter can change its host.
+  // Avoid URLSearchParams here: re-encoding the query would invalidate OSS signatures.
+  const target = new URL(PDF_ORIGIN);
+  target.pathname = parsed.pathname;
+  target.search = parsed.search;
+  return target.toString();
 }
 
 export async function fetchPdfFile(input) {
