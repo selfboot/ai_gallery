@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import { fetchDeliveryFiles, jsonResponse } from "../utils";
+import { fetchDeliveryFiles, fetchPdfFile, jsonResponse } from "../utils";
 
 export async function POST(request) {
   try {
@@ -11,11 +11,7 @@ export async function POST(request) {
 
     const mergedPdf = await PDFDocument.create();
     for (const file of result.files) {
-      const response = await fetch(file.sourceUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-        },
-      });
+      const response = await fetchPdfFile(file.sourceUrl);
       if (!response.ok) {
         throw new Error("file_request_failed");
       }

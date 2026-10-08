@@ -1,15 +1,10 @@
-import { assertAllowedPdfUrl, jsonResponse, sanitizeFileName } from "../utils";
+import { fetchPdfFile, jsonResponse, sanitizeFileName } from "../utils";
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const fileUrl = assertAllowedPdfUrl(searchParams.get("url"));
     const name = sanitizeFileName(searchParams.get("name") || "court-document.pdf");
-    const response = await fetch(fileUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-      },
-    });
+    const response = await fetchPdfFile(searchParams.get("url"));
 
     if (!response.ok) {
       return jsonResponse({ error: "file_request_failed" }, response.status);

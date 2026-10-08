@@ -1,5 +1,5 @@
 const LIST_API = "https://zxfw.court.gov.cn/yzw/yzw-zxfw-sdfw/api/v1/sdfw/getWsListBySdbhNew";
-const ALLOWED_PDF_HOSTS = new Set(["zxfy2-oss.oss-cn-north-2-gov-1.aliyuncs.com"]);
+const PDF_ORIGIN = "https://zxfy2-oss.oss-cn-north-2-gov-1.aliyuncs.com";
 
 export function jsonResponse(payload, status = 200) {
   return Response.json(payload, { status });
@@ -47,11 +47,20 @@ export function assertAllowedPdfUrl(input) {
     throw new Error("invalid_file_url");
   }
 
-  if (parsed.protocol !== "https:" || !ALLOWED_PDF_HOSTS.has(parsed.hostname)) {
+  if (parsed.origin !== PDF_ORIGIN || parsed.username || parsed.password) {
     throw new Error("invalid_file_url");
   }
 
-  return parsed.toString();
+  // Keep the signed path/query intact, but always construct requests on the fixed origin.
+  return `${PDF_ORIGIN}${parsed.pathname}${parsed.search}`;
+}
+
+export async function fetchPdfFile(input) {
+  return fetch(assertAllowedPdfUrl(input), {
+    // An allowed OSS URL must never redirect the server to another destination.
+    redirect: "error",
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
 }
 
 export async function fetchDeliveryFiles(link) {
